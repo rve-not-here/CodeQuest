@@ -1,0 +1,521 @@
+<?php
+
+namespace App\Services;
+
+use App\Exceptions\AssessmentAlreadyExistsException;
+use App\Exceptions\AssessmentAttemptAccessDeniedException;
+use App\Exceptions\AssessmentAttemptStateException;
+use App\Exceptions\AssessmentNotUnlockedException;
+use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
+use App\Models\Course;
+use App\Models\Progress;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Owns the assessment domain's write path. The one-per-course invariant is
+ * enforced here, at the application layer, so a duplicate assessment fails
+ * with a clear domain error rather than a raw database unique-constraint
+ * violation bubbling up to the caller.
+ */
+class AssessmentService
+{
+    public function __construct(
+        private readonly ValidationService $validator,
+        private readonly XpService $xp,
+        private readonly AchievementService $achievements,
+        private readonly NotificationService $notifications,
+    ) {}
+
+    /**
+     * Create the single Boss Challenge for a course.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function createForCourse(Course $course, array $attributes): Assessment
+    {
+        if ($this->existsForCourse($course)) {
+            throw AssessmentAlreadyExistsException::forCourse($course->id);
+        }
+
+        return Assessment::query()->create([
+            'course_id' => $course->id,
+            ...$attributes,
+        ]);
+    }
+
+    public function existsForCourse(Course $course): bool
+    {
+        return Assessment::query()
+            ->where('course_id', $course->id)
+            ->exists();
+    }
+
+    public function forCourse(Course $course): ?Assessment
+    {
+        return Assessment::query()
+            ->where('course_id', $course->id)
+            ->first();
+    }
+
+    /**
+     * Whether a student may attempt the course's Boss Challenge (§5.1).
+     *
+     * A course is assessment-eligible only when the student has completed
+     * every mission in the course, reasoned through the real course→section→
+     * mission hierarchy (actual per-mission Progress rows, not a flat counter).
+     * A course with zero missions is never eligible. Server-determined.
+     */
+    public function isEligible(User $user, Course $course): bool
+    {
+        $missionIds = $course->missions()->pluck('id');
+
+        if ($missionIds->isEmpty()) {
+            return false;
+        }
+
+        $completedIds = Progress::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $missionIds)
+            ->pluck('mission_id');
+
+        return $completedIds->count() === $missionIds->count();
+    }
+
+    /**
+     * Whether the course's Boss Challenge is unlocked for the student (§6).
+     *
+     * Unlocking is server-authoritative and requires all of: the COURSE is
+     * status "active" (not locked/draft — course.status is an access gate,
+     * US-705 confirmed), the course has an assessment, that assessment is
+     * status "active", and the student is eligible (US-403). The frontend may
+     * display this state but never create or modify it.
+     */
+    public function isUnlocked(User $user, Course $course): bool
+    {
+        if ($course->status !== 'active') {
+            return false;
+        }
+
+        $assessment = $this->forCourse($course);
+
+        if ($assessment === null || $assessment->status !== 'active') {
+            return false;
+        }
+
+        return $this->isEligible($user, $course);
+    }
+
+    /**
+     * Whether the student has ever passed the course's Boss Challenge (US-410).
+     *
+     * "Course complete" keys off attempt history: the existence of a "passed"
+     * row for this assessment/user, not the latest verdict. Because
+     * retry-after-pass is allowed (US-409), the newest attempt may later come
+     * back "failed"; this predicate reads history so a failed retry never
+     * un-completes a course (confirmed decision). Course-completion, next-
+     * course unlocking, and assessment XP must all key off this, not
+     * latestAttemptFor().
+     */
+    public function hasPassed(User $user, Course $course): bool
+    {
+        $assessment = $this->forCourse($course);
+
+        if ($assessment === null) {
+            return false;
+        }
+
+        return $this->attempts($assessment, $user)
+            ->where('status', 'passed')
+            ->exists();
+    }
+
+    /**
+     * How many Boss Challenges the student has ever passed (the dashboard's
+     * "Learning record"). Counts distinct assessments with at least one
+     * "passed" attempt row — retry attempts are not counted twice (US-409).
+     */
+    public function passedCount(User $user): int
+    {
+        return (int) AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'passed')
+            ->distinct()
+            ->count('assessment_id');
+    }
+
+    /**
+     * Begin the Boss Challenge for a student (§US-405).
+     *
+     * One row drives one attempt lifecycle: a fresh row is created in the
+     * "started" state, or an existing "available" row is transitioned to
+     * "started"; an already-started attempt is returned unchanged. Only the
+     * owner's eligibility unlocks beginning (US-403/US-404). Beginning against
+     * a submitted/evaluated/passed/failed attempt is refused; retryAttempt()
+     * (US-409) is the path that opens a fresh row after a terminal outcome.
+     */
+    public function beginAttempt(User $user, Course $course): AssessmentAttempt
+    {
+        if (! $this->isUnlocked($user, $course)) {
+            throw AssessmentNotUnlockedException::forCourse($course->id);
+        }
+
+        $assessment = $this->forCourse($course);
+
+        $attempt = $this->attempts($assessment, $user)->first();
+
+        if ($attempt === null) {
+            $attempt = new AssessmentAttempt([
+                'assessment_id' => $assessment->id,
+                'user_id' => $user->id,
+            ]);
+
+            $attempt->status = 'started';
+            $attempt->save();
+
+            return $attempt;
+        }
+
+        if ($attempt->status === 'available') {
+            $attempt->status = 'started';
+            $attempt->save();
+
+            return $attempt;
+        }
+
+        if ($attempt->status === 'started') {
+            return $attempt;
+        }
+
+        throw AssessmentAttemptStateException::mismatch($attempt->id, ['available', 'started'], $attempt->status);
+    }
+
+    /**
+     * The student's most recent attempt at a course's Boss Challenge, if any.
+     */
+    public function latestAttemptFor(User $user, Course $course): ?AssessmentAttempt
+    {
+        $assessment = $this->forCourse($course);
+
+        if ($assessment === null) {
+            return null;
+        }
+
+        return $this->attempts($assessment, $user)
+            ->latest('id')
+            ->first();
+    }
+
+    /**
+     * Read-only attempt history for a student's Boss Challenge (US-604).
+     *
+     * The teacher-facing performance view reuses this instead of querying
+     * AssessmentAttempt with fresh logic: attempt scoping stays inside the
+     * service, so every reader keys off the same history the domain owns.
+     * Attempts are returned newest first, projected to what a reader may see
+     * (verdict, score, timestamps) — the student's submitted code is never
+     * exposed, and nothing in this method writes. A course with no assessment
+     * (and no conceivable attempt) yields an empty collection.
+     *
+     * @return Collection<int, array{
+     *     id: int,
+     *     status: string,
+     *     score: int|null,
+     *     passed_at: Carbon|null,
+     *     submitted_at: Carbon|null,
+     * }>
+     */
+    public function attemptHistory(User $user, Course $course): Collection
+    {
+        $assessment = $this->forCourse($course);
+
+        if ($assessment === null) {
+            return collect();
+        }
+
+        return $this->attempts($assessment, $user)
+            ->orderByDesc('id')
+            ->get()
+            ->map(function (AssessmentAttempt $attempt): array {
+                return [
+                    'id' => $attempt->id,
+                    'status' => $attempt->status,
+                    'score' => $attempt->score,
+                    'passed_at' => $attempt->passed_at,
+                    'submitted_at' => $attempt->submitted_at,
+                ];
+            });
+    }
+
+    /**
+     * Whether a user owns an attempt. Access to a student's submitted code
+     * and score is reasoned explicitly here, not left to a view omitting other
+     * users' records.
+     */
+    public function hasAccessToAttempt(User $user, AssessmentAttempt $attempt): bool
+    {
+        return $attempt->user_id === $user->id;
+    }
+
+    /**
+     * Ownership-gated serialization of an attempt. Returns the full record
+     * (including code and score) only when the user owns the attempt, and
+     * throws otherwise. Callers must not serialize attempts through a view
+     * without passing through this gate.
+     *
+     * @return array<string, mixed>
+     */
+    public function attemptResult(User $user, AssessmentAttempt $attempt): array
+    {
+        if (! $this->hasAccessToAttempt($user, $attempt)) {
+            throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
+        }
+
+        return [
+            'id' => $attempt->id,
+            'assessment_id' => $attempt->assessment_id,
+            'status' => $attempt->status,
+            'score' => $attempt->score,
+            'code' => $attempt->code,
+            'passed_at' => $attempt->passed_at?->toIso8601String(),
+            'submitted_at' => $attempt->submitted_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Record a student's submission for an assessment attempt (§US-406).
+     *
+     * Accepts only the student's submission code, against an attempt they own
+     * (§44). Ownership is checked before anything is written, so a client
+     * that submits against another student's attempt is rejected outright.
+     * The method has no score, pass/fail, XP, completion, or eligibility
+     * parameters: none of those may come from the client in any form (§11,
+     * §43, §45). This only records the submission; scoring the code and
+     * deciding pass/fail belongs to evaluation (US-407).
+     */
+    public function submitAttempt(User $user, AssessmentAttempt $attempt, string $code): AssessmentAttempt
+    {
+        if (! $this->hasAccessToAttempt($user, $attempt)) {
+            throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
+        }
+
+        if ($attempt->status !== 'started') {
+            throw AssessmentAttemptStateException::mismatch($attempt->id, ['started'], $attempt->status);
+        }
+
+        $attempt->code = $code;
+        $attempt->status = 'submitted';
+        $attempt->submitted_at = now();
+        $attempt->save();
+
+        return $attempt;
+    }
+
+    /**
+     * Evaluate a submitted attempt against its assessment's grading_rule
+     * (US-407).
+     *
+     * Scoring approach: the grading_rule is a set of binary pass/fail pattern
+     * rules with no weights, so the score is the proportion of rules passed,
+     * rounded to an integer percentage and compared against passing_score.
+     * A submission with no rules scores 0 and does not pass, rather than
+     * auto-passing, because a Boss Challenge must never pass vacuously.
+     *
+     * The code is never executed. It is matched as literal text against the
+     * grading_rule patterns by ValidationService, exactly as Phase 3 matches
+     * missions; there is no eval/exec or server-side JS interpreter. The
+     * attempt must be owned by the user and be in the "submitted" state.
+     * On pass the attempt is moved directly to "passed" with passed_at; on
+     * fail, directly to "failed". "evaluated" is not persisted on this path.
+     *
+     * The Boss Challenge XP reward (US-412) is written here, atomically with
+     * the verdict, and only when evaluation produced the student's FIRST
+     * pass (a passed attempt predating this one). A repeat pass via retry
+     * (US-409) therefore never re-awards, and a failed retry never reverses
+     * the original award.
+     */
+    public function evaluateAttempt(User $user, AssessmentAttempt $attempt): AssessmentAttempt
+    {
+        if (! $this->hasAccessToAttempt($user, $attempt)) {
+            throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
+        }
+
+        if ($attempt->status !== 'submitted') {
+            throw AssessmentAttemptStateException::mismatch($attempt->id, ['submitted'], $attempt->status);
+        }
+
+        $assessment = $attempt->assessment;
+
+        if ($assessment === null) {
+            throw new \InvalidArgumentException('Assessment attempt '.$attempt->id.' references no assessment.');
+        }
+
+        $result = $this->validator->validateRules($assessment->grading_rule ?? '', $attempt->code ?? '');
+
+        $total = $result['total'];
+        // Coupling: ValidationService::validateRules() folds a malformed rule
+        // entry into the failures list, so it is counted here as a failed rule.
+        // That is currently safe only because seeded grading_rule content is
+        // assumed valid; a broken rule would otherwise score as a student
+        // failure. Guarded, not fixed: recording malformed-rule credit is a
+        // US-407 design decision we are not changing here.
+        $failed = count($result['failures']);
+
+        $score = $total > 0 ? (int) round((($total - $failed) / $total) * 100) : 0;
+
+        $passed = $total > 0 && $score >= $assessment->passing_score;
+
+        // The pre-state, read before this attempt is written as passed: has
+        // the student already earned a passed verdict on this assessment?
+        // Mirrors hasPassed() and feeds the award-only-on-first-pass rule.
+        $hadPassedBefore = $this->attempts($assessment, $user)
+            ->where('status', 'passed')
+            ->exists();
+
+        DB::transaction(function () use ($attempt, $assessment, $user, $score, $passed, $hadPassedBefore): void {
+            $attempt->score = $score;
+            $attempt->status = $passed ? 'passed' : 'failed';
+            $attempt->passed_at = $passed ? now() : null;
+            $attempt->save();
+
+            // US-805: the verdict notification is created in the SAME
+            // transaction as the verdict (§19) — a retry pass/fail is its own
+            // attempt id, so each evaluation announces itself exactly once.
+            if ($passed) {
+                $this->notifications->create(
+                    $user,
+                    NotificationService::TYPE_ASSESSMENT_PASSED,
+                    'CHALLENGE PASSED',
+                    "Boss Challenge passed: {$assessment->title}",
+                    "assessment_passed:{$attempt->id}",
+                    NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),
+                );
+            } else {
+                $this->notifications->create(
+                    $user,
+                    NotificationService::TYPE_ASSESSMENT_FAILED,
+                    'CHALLENGE FAILED',
+                    "Boss Challenge failed: {$assessment->title}",
+                    "assessment_failed:{$attempt->id}",
+                    NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),
+                );
+            }
+
+            if ($passed && ! $hadPassedBefore) {
+                $this->xp->awardAssessmentPass($user, $assessment);
+                $this->achievements->evaluateAssessmentPass($user);
+
+                // US-804: only a FIRST pass completes the course and hands
+                // over the next course; completion keys off the same history
+                // predicate as hasPassed() (§4/§410), never the latest
+                // verdict, so a retry never re-fires either event.
+                $course = $assessment->course;
+
+                if ($course !== null) {
+                    $this->notifications->create(
+                        $user,
+                        NotificationService::TYPE_COURSE_COMPLETED,
+                        'COURSE COMPLETED',
+                        "Course cleared: {$course->name}",
+                        "course_completed:{$course->id}",
+                        NotificationService::payload('learning-path', ['course' => $course->id]),
+                    );
+                }
+
+                $next = $this->firstNotPassedCourse($user);
+
+                if ($next !== null) {
+                    $this->notifications->create(
+                        $user,
+                        NotificationService::TYPE_NEXT_COURSE_UNLOCKED,
+                        'NEXT COURSE UNLOCKED',
+                        "Next course unlocked: {$next->name}",
+                        "next_course_unlocked:{$next->id}",
+                        NotificationService::payload('learning-path', ['course' => $next->id]),
+                    );
+                }
+            }
+        });
+
+        return $attempt;
+    }
+
+    /**
+     * Open a fresh attempt after a terminal outcome (US-409).
+     *
+     * Per §17 a failed attempt stays retryable with no invented limits,
+     * cooldowns, or approval gates, and per the confirmed decision a retry is
+     * also allowed after passing. A retry is a new row: the previous attempt
+     * is left untouched as history, and the new attempt starts blank ("started"
+     * with no code), keyed off the LATEST attempt's status. Retrying while an
+     * attempt is active ('available'/'started'/'submitted') is refused, and
+     * retrying with no prior attempt is refused (that is a begin).
+     */
+    public function retryAttempt(User $user, Course $course): AssessmentAttempt
+    {
+        if (! $this->isUnlocked($user, $course)) {
+            throw AssessmentNotUnlockedException::forCourse($course->id);
+        }
+
+        $assessment = $this->forCourse($course);
+
+        $latest = $this->latestAttemptFor($user, $course);
+
+        if ($latest === null) {
+            throw AssessmentAttemptStateException::noAttemptToRetry($course->id);
+        }
+
+        if (! in_array($latest->status, ['failed', 'passed'], true)) {
+            throw AssessmentAttemptStateException::mismatch($latest->id, ['failed', 'passed'], $latest->status);
+        }
+
+        $retry = new AssessmentAttempt([
+            'assessment_id' => $assessment->id,
+            'user_id' => $user->id,
+        ]);
+
+        $retry->status = 'started';
+        $retry->save();
+
+        return $retry;
+    }
+
+    /**
+     * The first active course, in progression order, whose Boss Challenge the
+     * user has not reached first-pass completion on — run AFTER the attempt
+     * row is saved as passed, so the just-completed course is skipped and the
+     * next course in order_num surfaces (US-411: next-course unlock is
+     * derived, never a stored row). Mirrors DashboardService::currentCourse,
+     * which AssessmentService cannot inject without a cycle; the feature
+     * tests tie the two observed results together.
+     */
+    private function firstNotPassedCourse(User $user): ?Course
+    {
+        return Course::query()
+            ->where('status', 'active')
+            ->orderBy('order_num')
+            ->withCount('missions')
+            ->get()
+            ->first(function (Course $course) use ($user): bool {
+                if ($course->missions_count === 0) {
+                    return false;
+                }
+
+                return ! $this->hasPassed($user, $course);
+            });
+    }
+
+    /**
+     * @return Builder<AssessmentAttempt>
+     */
+    private function attempts(Assessment $assessment, User $user): Builder
+    {
+        return AssessmentAttempt::query()
+            ->where('assessment_id', $assessment->id)
+            ->where('user_id', $user->id);
+    }
+}

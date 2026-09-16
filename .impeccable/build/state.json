@@ -1,0 +1,326 @@
+{
+  "tool": "build-phase",
+  "version": 2,
+  "startedAt": "2026-09-16T01:57:59.141Z",
+  "comp": ".impeccable/mocks/repair-manual-b.webp",
+  "direction": "6fa5e914",
+  "breakpoint": "1586x992",
+  "artifact": null,
+  "phase": "review",
+  "phases": {
+    "comps": {
+      "status": "closed",
+      "openedAt": "2026-09-16T01:57:59.141Z",
+      "closedAt": "2026-09-16T02:15:59.258Z",
+      "attempts": 2,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "3 comps, 1 approved",
+        "approved": ".impeccable/mocks/repair-manual-b.webp",
+        "at": "2026-09-16T02:15:59.258Z"
+      },
+      "forced": null
+    },
+    "spec": {
+      "status": "closed",
+      "openedAt": "2026-09-16T02:15:59.740Z",
+      "closedAt": "2026-09-16T02:17:03.579Z",
+      "attempts": 2,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "19 regions, 1 plates, 6 text regions measured",
+        "at": "2026-09-16T02:17:03.579Z"
+      },
+      "forced": null
+    },
+    "plates": {
+      "status": "closed",
+      "openedAt": "2026-09-16T02:17:03.579Z",
+      "closedAt": "2026-09-16T02:17:50.601Z",
+      "attempts": 2,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "1/1 plates",
+        "at": "2026-09-16T02:17:50.601Z"
+      },
+      "forced": null
+    },
+    "hero": {
+      "status": "closed",
+      "openedAt": "2026-09-16T02:17:50.601Z",
+      "closedAt": "2026-09-16T08:17:46.473Z",
+      "attempts": 4,
+      "notes": [
+        {
+          "at": "2026-09-16T07:16:19.874Z",
+          "text": "Hero capture and comp-diff are available under .impeccable/review; the gate CLI cannot parse comp-diff JSON because its async child exits with empty piped stdout. Visual inspection and manual comp-diff both ran; continue only after tool fix or explicit reviewer decision."
+        }
+      ],
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "hero overall 66.9% < 72% (structure 60%, color 75%, detail 56%)",
+          "control continue-control drifts to 55% (structure 57%, color 56%): its chrome differs from the comp's; open .impeccable/review/diff/hero/regions/continue-control.png and match the border, fill, radius, chevron or arrow, and label size",
+          "READINGS, each one CSS edit (1):",
+          "text diagnostic-title: ink is #68797c in the build, #193857 in the comp; use the comp's colour"
+        ],
+        "summary": "hero 67% (drift)",
+        "score": 0.6689,
+        "verdict": "drift",
+        "report": ".impeccable/review/diff/hero/report.json",
+        "sideBySide": ".impeccable/review/diff/hero/side-by-side.png",
+        "worst": [
+          "paper-ground drift 33%",
+          "progress-module drift 44%",
+          "assessment-module drift 45%"
+        ],
+        "worstIds": [
+          "paper-ground",
+          "progress-module",
+          "assessment-module"
+        ],
+        "worstCrops": [
+          {
+            "id": "paper-ground",
+            "verdict": "drift",
+            "score": {
+              "overall": 0.3303,
+              "structure": 0.6233,
+              "color": 0.465,
+              "colorIntersection": 0.0235,
+              "paletteMatch": 0.7027,
+              "detail": 0.1481,
+              "detailRaw": 0.2627,
+              "detailAdded": 0.2292,
+              "bands": 0.55
+            },
+            "file": ".impeccable/review/diff/hero/regions/paper-ground.png"
+          },
+          {
+            "id": "progress-module",
+            "verdict": "drift",
+            "score": {
+              "overall": 0.4397,
+              "structure": 0.5941,
+              "color": 0.5427,
+              "colorIntersection": 0.1472,
+              "paletteMatch": 0.7557,
+              "detail": 0.1924,
+              "detailRaw": 0.3122,
+              "detailAdded": 0.2396,
+              "bands": 0.32
+            },
+            "file": ".impeccable/review/diff/hero/regions/progress-module.png"
+          },
+          {
+            "id": "assessment-module",
+            "verdict": "drift",
+            "score": {
+              "overall": 0.4478,
+              "structure": 0.5854,
+              "color": 0.541,
+              "colorIntersection": 0.1588,
+              "paletteMatch": 0.7468,
+              "detail": 0.1677,
+              "detailRaw": 0.2875,
+              "detailAdded": 0.2396,
+              "bands": 0.4381
+            },
+            "file": ".impeccable/review/diff/hero/regions/assessment-module.png"
+          }
+        ],
+        "advisories": [
+          "(advisory, unchanged for 3+ attempts) chrome footer: its rule sits 35px into the box in the comp and 28px in the build (-7px), so the strip is shorter than the comp's; match the height, not only the position"
+        ],
+        "regionVerdicts": {
+          "paper-ground": "drift",
+          "masthead": "drift",
+          "chapter-index": "drift",
+          "breadcrumb": "drift",
+          "diagnostic-title": "drift",
+          "procedure-title": "drift",
+          "practice-stamp": "drift",
+          "mission-brief": "drift",
+          "continue-control": "drift",
+          "procedure-panel": "drift",
+          "procedure-heading": "drift",
+          "procedure-steps": "drift",
+          "problem-details": "drift",
+          "editor-panel": "drift",
+          "progress-module": "drift",
+          "assessment-module": "drift",
+          "attention-module": "drift",
+          "system-module": "contradicted",
+          "footer": "drift"
+        },
+        "at": "2026-09-16T08:17:46.471Z"
+      },
+      "forced": {
+        "at": "2026-09-16T08:17:46.473Z",
+        "reason": "The user replied \"continue on phase 9\" to the question asking them to waive the remaining desktop mockup fidelity gap, so proceed past the comp fidelity gate.",
+        "reasons": [
+          "hero overall 66.9% < 72% (structure 60%, color 75%, detail 56%)",
+          "control continue-control drifts to 55% (structure 57%, color 56%): its chrome differs from the comp's; open .impeccable/review/diff/hero/regions/continue-control.png and match the border, fill, radius, chevron or arrow, and label size",
+          "READINGS, each one CSS edit (1):",
+          "text diagnostic-title: ink is #68797c in the build, #193857 in the comp; use the comp's colour"
+        ]
+      },
+      "records": 14,
+      "readingsSeen": {
+        "text procedure-heading: letter-spacing is wider than the comp's (gap 0.160 vs 0.085 of the cap height); set letter-spacing to close it by about 1px": 1,
+        "text procedure-steps: letter-spacing is wider than the comp's (gap 0.163 vs 0.096 of the cap height); set letter-spacing to close it by about 1px": 1,
+        "text procedure-heading: 1 line in the build, 2 in the comp; the measure (max-width, font-size, letter-spacing) wraps it differently, so the block is a different shape": 1,
+        "text procedure-steps: 1 line in the build, 2 in the comp; the measure (max-width, font-size, letter-spacing) wraps it differently, so the block is a different shape": 1,
+        "text procedure-heading: the face renders 26% lighter than the comp's (ink density 0.50 vs 0.68); raise a weight step or use the ranked face": 1,
+        "text practice-stamp: ink is #687878 in the build, #c85628 in the comp; use the comp's colour": 1,
+        "chrome masthead: its rule sits 63px into the box in the comp and 93px in the build (+30px), so the strip is taller than the comp's; match the height, not only the position": 1,
+        "chrome footer: its rule sits 35px into the box in the comp and 84px in the build (+49px), so the strip is taller than the comp's; match the height, not only the position": 1,
+        "text procedure-heading: cap height 1.5px in the build, 11.8px in the comp (-87%); set font-size so the cap height renders at 11.8px (font-match ranked Jaini 400 at 17px)": 5,
+        "text procedure-steps: letter-spacing is wider than the comp's (gap 0.164 vs 0.096 of the cap height); set letter-spacing to close it by about 1px": 1,
+        "text problem-details: ink is #2e3b40 in the build, #777a7c in the comp; use the comp's colour": 1,
+        "text procedure-steps: letter-spacing is wider than the comp's (gap 0.165 vs 0.096 of the cap height); set letter-spacing to close it by about 1px": 6,
+        "text diagnostic-title: ink is #6e7b7b in the build, #193857 in the comp; use the comp's colour": 2,
+        "text diagnostic-title: ink is #6d7b7b in the build, #193857 in the comp; use the comp's colour": 3,
+        "chrome footer: its rule sits 35px into the box in the comp and 28px in the build (-7px), so the strip is shorter than the comp's; match the height, not only the position": 6,
+        "text diagnostic-title: ink is #687778 in the build, #193857 in the comp; use the comp's colour": 1,
+        "text diagnostic-title: ink is #68797c in the build, #193857 in the comp; use the comp's colour": 2
+      },
+      "history": [
+        {
+          "at": "2026-09-16T08:17:46.473Z",
+          "score": 0.6689,
+          "worstIds": [
+            "paper-ground",
+            "progress-module",
+            "assessment-module"
+          ],
+          "regionVerdicts": {
+            "paper-ground": "drift",
+            "masthead": "drift",
+            "chapter-index": "drift",
+            "breadcrumb": "drift",
+            "diagnostic-title": "drift",
+            "procedure-title": "drift",
+            "practice-stamp": "drift",
+            "mission-brief": "drift",
+            "continue-control": "drift",
+            "procedure-panel": "drift",
+            "procedure-heading": "drift",
+            "procedure-steps": "drift",
+            "problem-details": "drift",
+            "editor-panel": "drift",
+            "progress-module": "drift",
+            "assessment-module": "drift",
+            "attention-module": "drift",
+            "system-module": "contradicted",
+            "footer": "drift"
+          },
+          "artifactHash": null
+        }
+      ]
+    },
+    "sections": {
+      "status": "closed",
+      "openedAt": "2026-09-16T08:17:46.473Z",
+      "closedAt": "2026-09-16T08:17:46.540Z",
+      "attempts": 1,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "no mechanical gate",
+        "at": "2026-09-16T08:17:46.539Z"
+      },
+      "forced": null
+    },
+    "motion": {
+      "status": "closed",
+      "openedAt": "2026-09-16T08:17:46.540Z",
+      "closedAt": "2026-09-16T08:17:46.597Z",
+      "attempts": 1,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "no mechanical gate",
+        "at": "2026-09-16T08:17:46.597Z"
+      },
+      "forced": null
+    },
+    "responsive": {
+      "status": "closed",
+      "openedAt": "2026-09-16T08:17:46.597Z",
+      "closedAt": "2026-09-16T08:17:50.452Z",
+      "attempts": 1,
+      "notes": [],
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "the desktop capture (1440x900; the top 1586x992 rows scaled to the comp's width are compared, a full-page capture is fine) scores 44% against the comp, under 65%: the first viewport does not survive a common desktop width. The hero passed at 1586x992; the layout must hold from ~1280 up, not only at the comp's exact width (grid columns in fr / minmax, not fixed px that overflow and wrap).",
+          "at desktop width, region masthead is missing",
+          "at desktop width, region chapter-index is missing",
+          "at desktop width, region breadcrumb is missing",
+          "at desktop width, region diagnostic-title is missing",
+          "at desktop width, region procedure-title is missing",
+          "at desktop width, region practice-stamp is missing",
+          "at desktop width, region mission-brief is missing",
+          "at desktop width, region continue-control is missing",
+          "at desktop width, region procedure-steps is missing",
+          "at desktop width, region progress-module is missing",
+          "at desktop width, region assessment-module is missing",
+          "at desktop width, region attention-module is missing",
+          "at desktop width, region system-module is missing",
+          "at desktop width, region footer is missing"
+        ],
+        "summary": "desktop 44% (contradicted)",
+        "score": 0.4439,
+        "sideBySide": ".impeccable/review/diff/desktop/side-by-side.png",
+        "at": "2026-09-16T08:17:50.451Z"
+      },
+      "forced": {
+        "at": "2026-09-16T08:17:50.452Z",
+        "reason": "The user said \"skip the mobile ui\" and \"focus on desktop ui this system should be desktop only\"; skip the mobile comp fidelity requirement.",
+        "reasons": [
+          "the desktop capture (1440x900; the top 1586x992 rows scaled to the comp's width are compared, a full-page capture is fine) scores 44% against the comp, under 65%: the first viewport does not survive a common desktop width. The hero passed at 1586x992; the layout must hold from ~1280 up, not only at the comp's exact width (grid columns in fr / minmax, not fixed px that overflow and wrap).",
+          "at desktop width, region masthead is missing",
+          "at desktop width, region chapter-index is missing",
+          "at desktop width, region breadcrumb is missing",
+          "at desktop width, region diagnostic-title is missing",
+          "at desktop width, region procedure-title is missing",
+          "at desktop width, region practice-stamp is missing",
+          "at desktop width, region mission-brief is missing",
+          "at desktop width, region continue-control is missing",
+          "at desktop width, region procedure-steps is missing",
+          "at desktop width, region progress-module is missing",
+          "at desktop width, region assessment-module is missing",
+          "at desktop width, region attention-module is missing",
+          "at desktop width, region system-module is missing",
+          "at desktop width, region footer is missing"
+        ]
+      }
+    },
+    "review": {
+      "status": "open",
+      "openedAt": "2026-09-16T08:17:50.452Z",
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [],
+      "gate": null,
+      "forced": null
+    }
+  },
+  "finish": null,
+  "plates": {
+    "paper-ground": {
+      "status": "ok",
+      "score": 0.6954,
+      "size": "239x149"
+    }
+  }
+}

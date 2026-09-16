@@ -1,0 +1,207 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Assessment;
+use App\Models\Course;
+use App\Models\Mission;
+use App\Models\User;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Per-course aggregate analytics for the teacher area (US-607, §24.0-§26.0).
+ *
+ * Every metric is calculated from real records in SQL-level aggregation queries
+ * (GROUP BY over the progress and assessment-attempt tables), never by
+ * iterating the roster through the per-student services. The state vocabulary
+ * still matches the student-facing services exactly: COMPLETED is
+ * hasPassed() (a history 'passed' attempt), READY is isUnlocked() (all
+ * missions done AND an active assessment, so a student who finished a course
+ * whose challenge is not open stays in-progress), and engagement is any
+ * Progress row on the course. CourseAnalyticsTest locks that equivalence by
+ * comparing every fixture student's bucket against the per-student services.
+ *
+ * The bucket counts partition the student fleet per course, so NOT-STARTED is
+ * the fleet minus the engaged, and the four counts always sum to the fleet
+ * size. Courses render in order_num; locked/draft courses and courses with
+ * zero missions are excluded (the same universe the student side renders).
+ */
+class CourseAnalyticsService
+{
+    /**
+     * Completion-percentage band labels for the distribution (§53.0). A
+     * histogram is the one chart that genuinely adds information over the four
+     * bucket counts: bucket counts hide whether in-progress students cluster
+     * at the start, spread across the course, or sit just short of the
+     * challenge. The distribution is keyed by band order (0..4), not by these
+     * labels, because PHP coerces the numeric "100" label to an integer key.
+     */
+    public const DISTRIBUTION_BANDS = ['0-24', '25-49', '50-74', '75-99', '100'];
+
+    /**
+     * @return Collection<int, array{
+     *     course: Course,
+     *     fleet: int,
+     *     engaged: int,
+     *     buckets: array{completed: int, in_progress: int, assessment_ready: int, not_started: int},
+     *     avg_completion: int|null,
+     *     pass_rate: int|null,
+     *     distribution: array<int, int>,
+     * }>
+     */
+    public function overview(): Collection
+    {
+        $fleet = $this->fleetSize();
+
+        $missionCounts = Mission::query()
+            ->toBase()
+            ->selectRaw('course_id, COUNT(*) as total')
+            ->groupBy('course_id')
+            ->pluck('total', 'course_id');
+
+        $progressByCourse = DB::table('the404_progress as p')
+            ->join('the404_missions as m', 'm.id', '=', 'p.mission_id')
+            ->selectRaw('m.course_id as course_id, p.user_id as user_id, COUNT(DISTINCT p.mission_id) as done')
+            ->groupBy('m.course_id', 'p.user_id')
+            ->get()
+            ->groupBy('course_id');
+
+        $attemptsByCourse = DB::table('the404_assessment_attempts as at')
+            ->join('the404_assessments as a', 'a.id', '=', 'at.assessment_id')
+            ->selectRaw(
+                'a.course_id as course_id, at.user_id as user_id, '
+                .'MAX(CASE WHEN at.status = ? THEN 1 ELSE 0 END) as has_passed, '
+                .'MAX(CASE WHEN at.status IN (?, ?) THEN 1 ELSE 0 END) as has_terminal',
+                ['passed', 'passed', 'failed'],
+            )
+            ->groupBy('a.course_id', 'at.user_id')
+            ->get()
+            ->groupBy('course_id');
+
+        $assessmentStatuses = Assessment::query()
+            ->pluck('status', 'course_id');
+
+        $courses = Course::query()
+            ->where('status', 'active')
+            ->orderBy('order_num')
+            ->get()
+            ->filter(fn (Course $course): bool => ((int) ($missionCounts->get($course->id) ?? 0)) > 0);
+
+        return $courses->map(fn (Course $course): array => $this->course(
+            $course,
+            $fleet,
+            (int) ($missionCounts->get($course->id) ?? 0),
+            $progressByCourse->get($course->id, collect()),
+            $attemptsByCourse->get($course->id, collect()),
+            $assessmentStatuses->get($course->id),
+        ))->values();
+    }
+
+    /**
+     * @param  Collection<int, \stdClass>  $progressRows
+     * @param  Collection<int, \stdClass>  $attemptRows
+     * @return array{
+     *     course: Course,
+     *     fleet: int,
+     *     engaged: int,
+     *     buckets: array{completed: int, in_progress: int, assessment_ready: int, not_started: int},
+     *     avg_completion: int|null,
+     *     pass_rate: int|null,
+     *     distribution: array<int, int>,
+     * }
+     */
+    private function course(
+        Course $course,
+        int $fleet,
+        int $total,
+        Collection $progressRows,
+        Collection $attemptRows,
+        ?string $assessmentStatus,
+    ): array {
+        $assessmentReady = $assessmentStatus === 'active';
+
+        $attemptsById = $attemptRows->keyBy('user_id');
+        $passedUserIds = $attemptsById
+            ->filter(fn (object $row): bool => (int) $row->has_passed === 1)
+            ->keys();
+        $passedSet = $passedUserIds->flip();
+
+        $distribution = array_fill(0, count(self::DISTRIBUTION_BANDS), 0);
+        $inProgress = 0;
+        $ready = 0;
+        $completionPercent = [];
+
+        foreach ($progressRows as $row) {
+            $done = (int) $row->done;
+            $percent = $total > 0 ? (int) round(($done / $total) * 100) : 0;
+
+            $completionPercent[] = $percent;
+            $distribution[$this->bandIndexFor($percent)]++;
+
+            if ($passedSet->has($row->user_id)) {
+                continue;
+            }
+
+            if ($assessmentReady && $done === $total) {
+                $ready++;
+            } else {
+                $inProgress++;
+            }
+        }
+
+        $terminalAttemptCount = $attemptsById
+            ->filter(fn (object $row): bool => (int) $row->has_terminal === 1)
+            ->count();
+
+        $passRate = $terminalAttemptCount > 0
+            ? (int) round(($passedUserIds->count() / $terminalAttemptCount) * 100)
+            : null;
+
+        $engaged = $progressRows->count();
+
+        return [
+            'course' => $course,
+            'fleet' => $fleet,
+            'engaged' => $engaged,
+            'buckets' => [
+                'completed' => $passedUserIds->count(),
+                'in_progress' => $inProgress,
+                'assessment_ready' => $ready,
+                'not_started' => max(0, $fleet - $engaged),
+            ],
+            'avg_completion' => $engaged > 0 ? (int) round(array_sum($completionPercent) / $engaged) : null,
+            'pass_rate' => $passRate,
+            'distribution' => $distribution,
+        ];
+    }
+
+    /**
+     * Order index into DISTRIBUTION_BANDS for a completion percentage.
+     */
+    private function bandIndexFor(int $percent): int
+    {
+        if ($percent >= 100) {
+            return 4;
+        }
+
+        if ($percent >= 75) {
+            return 3;
+        }
+
+        if ($percent >= 50) {
+            return 2;
+        }
+
+        if ($percent >= 25) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    private function fleetSize(): int
+    {
+        return User::query()->where('role', 'student')->count();
+    }
+}

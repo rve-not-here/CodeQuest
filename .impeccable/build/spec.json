@@ -1,0 +1,1091 @@
+{
+  "tool": "comp-spec",
+  "version": 1,
+  "createdAt": "2026-09-16T02:16:29.723Z",
+  "comp": ".impeccable/mocks/repair-manual-b.webp",
+  "warnings": [],
+  "uncoveredInkCells": [],
+  "compSize": {
+    "width": 1586,
+    "height": 992
+  },
+  "aspect": 1.5988,
+  "orientation": "landscape",
+  "palette": [
+    {
+      "hex": "#e7e6d9",
+      "coverage": 0.9361
+    },
+    {
+      "hex": "#afafad",
+      "coverage": 0.0236
+    },
+    {
+      "hex": "#6d7275",
+      "coverage": 0.0212
+    },
+    {
+      "hex": "#474f57",
+      "coverage": 0.0101
+    },
+    {
+      "hex": "#e6bc9f",
+      "coverage": 0.009
+    }
+  ],
+  "bands": [
+    {
+      "y": 0.0125,
+      "strength": 0.3287
+    },
+    {
+      "y": 0.0625,
+      "strength": 0.3842
+    },
+    {
+      "y": 0.1375,
+      "strength": 0.4106
+    },
+    {
+      "y": 0.1875,
+      "strength": 0.2973
+    },
+    {
+      "y": 0.225,
+      "strength": 0.2318
+    },
+    {
+      "y": 0.25,
+      "strength": 0.3158
+    },
+    {
+      "y": 0.275,
+      "strength": 0.2137
+    },
+    {
+      "y": 0.9625,
+      "strength": 0.2702
+    }
+  ],
+  "regions": [
+    {
+      "id": "paper-ground",
+      "kind": "texture",
+      "note": "unprinted warm manual paper texture",
+      "grid": "A9:A9",
+      "box": {
+        "x": 0,
+        "y": 0.9,
+        "w": 0.1,
+        "h": 0.1
+      },
+      "px": {
+        "x": 0,
+        "y": 893,
+        "w": 159,
+        "h": 99
+      },
+      "aspect": 1.6061,
+      "palette": [
+        {
+          "hex": "#e6dfd7",
+          "coverage": 0.8723
+        },
+        {
+          "hex": "#a7a49e",
+          "coverage": 0.0627
+        },
+        {
+          "hex": "#293838",
+          "coverage": 0.0276
+        },
+        {
+          "hex": "#666767",
+          "coverage": 0.0219
+        },
+        {
+          "hex": "#617986",
+          "coverage": 0.0155
+        }
+      ],
+      "detail": {
+        "energy": 15.2455
+      },
+      "medium": "raster",
+      "plate": "assets/plates/paper-ground.png",
+      "text": null
+    },
+    {
+      "id": "masthead",
+      "kind": "chrome",
+      "note": "technical utility strip with brand, operator context, search, and account controls",
+      "grid": "A0:J0",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 0.1
+      },
+      "px": {
+        "x": 0,
+        "y": 0,
+        "w": 1586,
+        "h": 99
+      },
+      "aspect": 16.0202,
+      "palette": [
+        {
+          "hex": "#e6e6d9",
+          "coverage": 0.9459
+        },
+        {
+          "hex": "#b1b1aa",
+          "coverage": 0.0283
+        },
+        {
+          "hex": "#6e7172",
+          "coverage": 0.012
+        },
+        {
+          "hex": "#17293e",
+          "coverage": 0.0087
+        },
+        {
+          "hex": "#d3d5e3",
+          "coverage": 0.0052
+        }
+      ],
+      "detail": {
+        "energy": 27.5081
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "chapter-index",
+      "kind": "chrome",
+      "note": "left chapter index rail with numbered chapter tabs",
+      "grid": "A1:B9",
+      "box": {
+        "x": 0,
+        "y": 0.1,
+        "w": 0.2,
+        "h": 0.9
+      },
+      "px": {
+        "x": 0,
+        "y": 99,
+        "w": 317,
+        "h": 893
+      },
+      "aspect": 0.355,
+      "palette": [
+        {
+          "hex": "#e8e6d9",
+          "coverage": 0.8867
+        },
+        {
+          "hex": "#e5bb9e",
+          "coverage": 0.0509
+        },
+        {
+          "hex": "#b9bcbb",
+          "coverage": 0.0237
+        },
+        {
+          "hex": "#78858c",
+          "coverage": 0.022
+        },
+        {
+          "hex": "#1b3049",
+          "coverage": 0.0168
+        }
+      ],
+      "detail": {
+        "energy": 24.2228
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "breadcrumb",
+      "kind": "chrome",
+      "note": "chapter and mission breadcrumb rule",
+      "grid": "C1:F1",
+      "box": {
+        "x": 0.2,
+        "y": 0.1,
+        "w": 0.4,
+        "h": 0.1
+      },
+      "px": {
+        "x": 317,
+        "y": 99,
+        "w": 634,
+        "h": 99
+      },
+      "aspect": 6.404,
+      "palette": [
+        {
+          "hex": "#e7e7d9",
+          "coverage": 0.8748
+        },
+        {
+          "hex": "#b9b8b1",
+          "coverage": 0.0549
+        },
+        {
+          "hex": "#233846",
+          "coverage": 0.0327
+        },
+        {
+          "hex": "#172b4b",
+          "coverage": 0.021
+        },
+        {
+          "hex": "#5b626b",
+          "coverage": 0.0166
+        }
+      ],
+      "detail": {
+        "energy": 39.2882
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "diagnostic-title",
+      "kind": "text",
+      "note": "mission diagnostics heading",
+      "grid": "H1:J1",
+      "coverBox": {
+        "x": 0.7,
+        "y": 0.1,
+        "w": 0.3,
+        "h": 0.1
+      },
+      "box": {
+        "x": 0.7415,
+        "y": 0.1119,
+        "w": 0.2308,
+        "h": 0.0877
+      },
+      "px": {
+        "x": 1176,
+        "y": 111,
+        "w": 366,
+        "h": 87
+      },
+      "aspect": 4.2069,
+      "palette": [
+        {
+          "hex": "#e7e8da",
+          "coverage": 0.8213
+        },
+        {
+          "hex": "#193857",
+          "coverage": 0.0809
+        },
+        {
+          "hex": "#d2d8e5",
+          "coverage": 0.0403
+        },
+        {
+          "hex": "#9fa6ac",
+          "coverage": 0.0307
+        },
+        {
+          "hex": "#76787b",
+          "coverage": 0.0269
+        }
+      ],
+      "detail": {
+        "energy": 32.4448
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": null,
+        "measuredAt": "2026-09-16T02:16:36.642Z",
+        "note": "no separable lettering in the crop; size by the region box"
+      }
+    },
+    {
+      "id": "procedure-title",
+      "kind": "text",
+      "note": "current procedure headline and supporting sentence",
+      "grid": "C1:E2",
+      "coverBox": {
+        "x": 0.2,
+        "y": 0.1,
+        "w": 0.3,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.355,
+        "y": 0.1966,
+        "w": 0.1248,
+        "h": 0.0907
+      },
+      "px": {
+        "x": 563,
+        "y": 195,
+        "w": 198,
+        "h": 90
+      },
+      "aspect": 2.2,
+      "palette": [
+        {
+          "hex": "#e8e7db",
+          "coverage": 0.8347
+        },
+        {
+          "hex": "#75787a",
+          "coverage": 0.0655
+        },
+        {
+          "hex": "#abaeae",
+          "coverage": 0.0553
+        },
+        {
+          "hex": "#4c4f52",
+          "coverage": 0.0292
+        },
+        {
+          "hex": "#dddaeb",
+          "coverage": 0.0154
+        }
+      ],
+      "detail": {
+        "energy": 31.4322
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": {
+          "lines": 4,
+          "glyphs": 82,
+          "capHeightPx": 9.6,
+          "inkIsDark": true,
+          "allCaps": false,
+          "advance": 0.5649,
+          "advTall": 0.5863,
+          "advX": 0.5545,
+          "gap": 0.0706,
+          "xRatio": 0.7175,
+          "stemW": 0.1874,
+          "contrast": 1.1045,
+          "serif": 0.9528,
+          "densTall": 0.6419,
+          "densX": 0.5876,
+          "weight": 0.6419
+        },
+        "widthClass": "condensed",
+        "weightClass": "bold"
+      }
+    },
+    {
+      "id": "practice-stamp",
+      "kind": "text",
+      "note": "orange practice builds progress stamp",
+      "grid": "F1:G2",
+      "coverBox": {
+        "x": 0.5,
+        "y": 0.1,
+        "w": 0.2,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.5492,
+        "y": 0.0998,
+        "w": 0.1507,
+        "h": 0.1815
+      },
+      "px": {
+        "x": 871,
+        "y": 99,
+        "w": 239,
+        "h": 180
+      },
+      "aspect": 1.3278,
+      "palette": [
+        {
+          "hex": "#e9e7d8",
+          "coverage": 0.6054
+        },
+        {
+          "hex": "#c85628",
+          "coverage": 0.2937
+        },
+        {
+          "hex": "#b4613a",
+          "coverage": 0.0468
+        },
+        {
+          "hex": "#db9876",
+          "coverage": 0.0293
+        },
+        {
+          "hex": "#f0cbac",
+          "coverage": 0.0247
+        }
+      ],
+      "detail": {
+        "energy": 21.3344
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": null,
+        "measuredAt": "2026-09-16T02:16:59.013Z",
+        "note": "no separable lettering in the crop; size by the region box"
+      }
+    },
+    {
+      "id": "mission-brief",
+      "kind": "chrome",
+      "note": "mission brief with goal, difficulty, and estimated time",
+      "grid": "C2:F2",
+      "box": {
+        "x": 0.2,
+        "y": 0.2,
+        "w": 0.4,
+        "h": 0.1
+      },
+      "px": {
+        "x": 317,
+        "y": 198,
+        "w": 634,
+        "h": 99
+      },
+      "aspect": 6.404,
+      "palette": [
+        {
+          "hex": "#e8e8da",
+          "coverage": 0.8553
+        },
+        {
+          "hex": "#c95729",
+          "coverage": 0.0462
+        },
+        {
+          "hex": "#b1b3b0",
+          "coverage": 0.0436
+        },
+        {
+          "hex": "#727578",
+          "coverage": 0.0408
+        },
+        {
+          "hex": "#454b52",
+          "coverage": 0.0141
+        }
+      ],
+      "detail": {
+        "energy": 30.1692
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "continue-control",
+      "kind": "control",
+      "note": "orange continue mission primary action",
+      "grid": "F1:H2",
+      "coverBox": {
+        "x": 0.5,
+        "y": 0.1,
+        "w": 0.3,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.5492,
+        "y": 0.0998,
+        "w": 0.174,
+        "h": 0.1815
+      },
+      "px": {
+        "x": 871,
+        "y": 99,
+        "w": 276,
+        "h": 180
+      },
+      "aspect": 1.5333,
+      "palette": [
+        {
+          "hex": "#e9e7d8",
+          "coverage": 0.617
+        },
+        {
+          "hex": "#c75628",
+          "coverage": 0.2959
+        },
+        {
+          "hex": "#b46039",
+          "coverage": 0.0419
+        },
+        {
+          "hex": "#da9977",
+          "coverage": 0.0238
+        },
+        {
+          "hex": "#f0cbac",
+          "coverage": 0.0215
+        }
+      ],
+      "detail": {
+        "energy": 23.6195
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "procedure-panel",
+      "kind": "chrome",
+      "note": "procedure steps workspace with numbered sequence and problem details",
+      "grid": "C3:H6",
+      "box": {
+        "x": 0.2,
+        "y": 0.3,
+        "w": 0.6,
+        "h": 0.4
+      },
+      "px": {
+        "x": 317,
+        "y": 298,
+        "w": 952,
+        "h": 397
+      },
+      "aspect": 2.398,
+      "palette": [
+        {
+          "hex": "#e7e7d9",
+          "coverage": 0.924
+        },
+        {
+          "hex": "#b8b8b3",
+          "coverage": 0.0363
+        },
+        {
+          "hex": "#6f7072",
+          "coverage": 0.0239
+        },
+        {
+          "hex": "#474b51",
+          "coverage": 0.0089
+        },
+        {
+          "hex": "#273d56",
+          "coverage": 0.0069
+        }
+      ],
+      "detail": {
+        "energy": 19.7593
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "procedure-heading",
+      "kind": "text",
+      "note": "procedure steps heading and hint/reference controls",
+      "grid": "C3:H3",
+      "coverBox": {
+        "x": 0.2,
+        "y": 0.3,
+        "w": 0.6,
+        "h": 0.1
+      },
+      "box": {
+        "x": 0.1999,
+        "y": 0.3004,
+        "w": 0.541,
+        "h": 0.0998
+      },
+      "px": {
+        "x": 317,
+        "y": 298,
+        "w": 858,
+        "h": 99
+      },
+      "aspect": 8.6667,
+      "palette": [
+        {
+          "hex": "#e8e8d9",
+          "coverage": 0.9152
+        },
+        {
+          "hex": "#c0c2c0",
+          "coverage": 0.0621
+        },
+        {
+          "hex": "#484f5a",
+          "coverage": 0.0102
+        },
+        {
+          "hex": "#7e8489",
+          "coverage": 0.0087
+        },
+        {
+          "hex": "#222b3b",
+          "coverage": 0.0039
+        }
+      ],
+      "detail": {
+        "energy": 15.4563
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": {
+          "lines": 2,
+          "glyphs": 59,
+          "capHeightPx": 11.8,
+          "inkIsDark": true,
+          "allCaps": false,
+          "advance": 0.6206,
+          "advTall": 0.624,
+          "advX": 0.5105,
+          "gap": 0.0851,
+          "xRatio": 0.7946,
+          "stemW": 0.1754,
+          "contrast": 1.1086,
+          "serif": 0.6976,
+          "densTall": 0.6809,
+          "densX": 0.5278,
+          "weight": 0.6809
+        },
+        "widthClass": "condensed",
+        "weightClass": "black",
+        "chosen": {
+          "family": "Jaini",
+          "weight": 400,
+          "fontSizePx": 17,
+          "source": "catalog",
+          "estimatedSize": true,
+          "stamp": "499ff1c8836b"
+        }
+      }
+    },
+    {
+      "id": "procedure-steps",
+      "kind": "text",
+      "note": "four numbered instructional procedure steps",
+      "grid": "C3:E6",
+      "coverBox": {
+        "x": 0.2,
+        "y": 0.3,
+        "w": 0.3,
+        "h": 0.4
+      },
+      "box": {
+        "x": 0.2024,
+        "y": 0.4657,
+        "w": 0.2535,
+        "h": 0.0524
+      },
+      "px": {
+        "x": 321,
+        "y": 462,
+        "w": 402,
+        "h": 52
+      },
+      "aspect": 7.7308,
+      "palette": [
+        {
+          "hex": "#e7e7d9",
+          "coverage": 0.8947
+        },
+        {
+          "hex": "#afb0b2",
+          "coverage": 0.0503
+        },
+        {
+          "hex": "#737678",
+          "coverage": 0.0341
+        },
+        {
+          "hex": "#4a4f5a",
+          "coverage": 0.0111
+        },
+        {
+          "hex": "#18232d",
+          "coverage": 0.0098
+        }
+      ],
+      "detail": {
+        "energy": 27.5178
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": {
+          "lines": 2,
+          "glyphs": 52,
+          "capHeightPx": 11,
+          "inkIsDark": true,
+          "allCaps": false,
+          "advance": 0.5784,
+          "advTall": 0.5623,
+          "advX": 0.5784,
+          "gap": 0.0964,
+          "xRatio": 0.7442,
+          "stemW": 0.1663,
+          "contrast": 1.0592,
+          "serif": 0.5855,
+          "densTall": 0.5445,
+          "densX": 0.5702,
+          "weight": 0.5445
+        },
+        "widthClass": "condensed",
+        "weightClass": "medium"
+      }
+    },
+    {
+      "id": "problem-details",
+      "kind": "text",
+      "note": "problem details and acceptance criteria notes",
+      "grid": "F3:H6",
+      "coverBox": {
+        "x": 0.5,
+        "y": 0.3,
+        "w": 0.3,
+        "h": 0.4
+      },
+      "box": {
+        "x": 0.5214,
+        "y": 0.375,
+        "w": 0.1715,
+        "h": 0.3145
+      },
+      "px": {
+        "x": 827,
+        "y": 372,
+        "w": 272,
+        "h": 312
+      },
+      "aspect": 0.8718,
+      "palette": [
+        {
+          "hex": "#e6e6d8",
+          "coverage": 0.9014
+        },
+        {
+          "hex": "#b2b0ae",
+          "coverage": 0.0403
+        },
+        {
+          "hex": "#777a7c",
+          "coverage": 0.0258
+        },
+        {
+          "hex": "#484b4e",
+          "coverage": 0.0233
+        },
+        {
+          "hex": "#d7d9e6",
+          "coverage": 0.0092
+        }
+      ],
+      "detail": {
+        "energy": 26.929
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "editor-panel",
+      "kind": "chrome",
+      "note": "code editor with tab, language, code, and run control",
+      "grid": "C7:H9",
+      "box": {
+        "x": 0.2,
+        "y": 0.7,
+        "w": 0.6,
+        "h": 0.3
+      },
+      "px": {
+        "x": 317,
+        "y": 694,
+        "w": 952,
+        "h": 298
+      },
+      "aspect": 3.1946,
+      "palette": [
+        {
+          "hex": "#e8e7d9",
+          "coverage": 0.9564
+        },
+        {
+          "hex": "#b3b4b1",
+          "coverage": 0.0217
+        },
+        {
+          "hex": "#7f807e",
+          "coverage": 0.0169
+        },
+        {
+          "hex": "#464f52",
+          "coverage": 0.0044
+        },
+        {
+          "hex": "#e8e8f8",
+          "coverage": 0.0005
+        }
+      ],
+      "detail": {
+        "energy": 13.9572
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "progress-module",
+      "kind": "chrome",
+      "note": "learner progress meter and mission checklist",
+      "grid": "H2:J3",
+      "box": {
+        "x": 0.7,
+        "y": 0.2,
+        "w": 0.3,
+        "h": 0.2
+      },
+      "px": {
+        "x": 1110,
+        "y": 198,
+        "w": 476,
+        "h": 198
+      },
+      "aspect": 2.404,
+      "palette": [
+        {
+          "hex": "#e8e7d9",
+          "coverage": 0.9236
+        },
+        {
+          "hex": "#5c5f63",
+          "coverage": 0.0312
+        },
+        {
+          "hex": "#a3a3a4",
+          "coverage": 0.0184
+        },
+        {
+          "hex": "#c75729",
+          "coverage": 0.017
+        },
+        {
+          "hex": "#d3d2dc",
+          "coverage": 0.0097
+        }
+      ],
+      "detail": {
+        "energy": 21.2176
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "assessment-module",
+      "kind": "chrome",
+      "note": "assessment readiness meter and checklist",
+      "grid": "H4:J5",
+      "box": {
+        "x": 0.7,
+        "y": 0.4,
+        "w": 0.3,
+        "h": 0.2
+      },
+      "px": {
+        "x": 1110,
+        "y": 397,
+        "w": 476,
+        "h": 198
+      },
+      "aspect": 2.404,
+      "palette": [
+        {
+          "hex": "#e7e7d9",
+          "coverage": 0.9254
+        },
+        {
+          "hex": "#bbb9b4",
+          "coverage": 0.0262
+        },
+        {
+          "hex": "#1a3855",
+          "coverage": 0.023
+        },
+        {
+          "hex": "#585d62",
+          "coverage": 0.0199
+        },
+        {
+          "hex": "#8b8d89",
+          "coverage": 0.0056
+        }
+      ],
+      "detail": {
+        "energy": 18.7044
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "attention-module",
+      "kind": "chrome",
+      "note": "teacher needs-attention evidence table",
+      "grid": "H6:J7",
+      "box": {
+        "x": 0.7,
+        "y": 0.6,
+        "w": 0.3,
+        "h": 0.2
+      },
+      "px": {
+        "x": 1110,
+        "y": 595,
+        "w": 476,
+        "h": 198
+      },
+      "aspect": 2.404,
+      "palette": [
+        {
+          "hex": "#e7e6d8",
+          "coverage": 0.8915
+        },
+        {
+          "hex": "#bebdb2",
+          "coverage": 0.0718
+        },
+        {
+          "hex": "#565c60",
+          "coverage": 0.0219
+        },
+        {
+          "hex": "#818486",
+          "coverage": 0.0113
+        },
+        {
+          "hex": "#d5d9e5",
+          "coverage": 0.0035
+        }
+      ],
+      "detail": {
+        "energy": 20.0009
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "system-module",
+      "kind": "chrome",
+      "note": "admin system check status table",
+      "grid": "H8:J9",
+      "box": {
+        "x": 0.7,
+        "y": 0.8,
+        "w": 0.3,
+        "h": 0.2
+      },
+      "px": {
+        "x": 1110,
+        "y": 794,
+        "w": 476,
+        "h": 198
+      },
+      "aspect": 2.404,
+      "palette": [
+        {
+          "hex": "#e7e4d8",
+          "coverage": 0.9252
+        },
+        {
+          "hex": "#435057",
+          "coverage": 0.0309
+        },
+        {
+          "hex": "#7d807d",
+          "coverage": 0.0235
+        },
+        {
+          "hex": "#aeb8ae",
+          "coverage": 0.0151
+        },
+        {
+          "hex": "#596d5d",
+          "coverage": 0.0053
+        }
+      ],
+      "detail": {
+        "energy": 21.7132
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "footer",
+      "kind": "chrome",
+      "note": "document revision and system footer",
+      "grid": "A9:J9",
+      "box": {
+        "x": 0,
+        "y": 0.9,
+        "w": 1,
+        "h": 0.1
+      },
+      "px": {
+        "x": 0,
+        "y": 893,
+        "w": 1586,
+        "h": 99
+      },
+      "aspect": 16.0202,
+      "palette": [
+        {
+          "hex": "#e8e3d8",
+          "coverage": 0.9193
+        },
+        {
+          "hex": "#868483",
+          "coverage": 0.0325
+        },
+        {
+          "hex": "#495764",
+          "coverage": 0.0238
+        },
+        {
+          "hex": "#324446",
+          "coverage": 0.0126
+        },
+        {
+          "hex": "#b9bab4",
+          "coverage": 0.0118
+        }
+      ],
+      "detail": {
+        "energy": 14.24
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    }
+  ]
+}

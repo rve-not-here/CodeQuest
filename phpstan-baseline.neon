@@ -1,0 +1,325 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property object\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Cannot access property \$name on App\\Models\\Course\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:beginAttempt\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:hasPassed\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:isUnlocked\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:latestAttemptFor\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:retryAttempt\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Parameter \#3 \$course of method App\\Http\\Controllers\\AssessmentController\:\:showData\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>code" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/AssessmentController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\MissionController\:\:firstFailure\(\) has parameter \$failures with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/MissionController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>code" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/MissionController.php
+
+		-
+			message: '#^Class App\\Models\\Activity uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Activity.php
+
+		-
+			message: '#^Method App\\Models\\Activity\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Activity.php
+
+		-
+			message: '#^Class App\\Models\\Assessment uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Assessment.php
+
+		-
+			message: '#^Method App\\Models\\Assessment\:\:attempts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Assessment.php
+
+		-
+			message: '#^Class App\\Models\\AssessmentAttempt uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AssessmentAttempt.php
+
+		-
+			message: '#^Method App\\Models\\AssessmentAttempt\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AssessmentAttempt.php
+
+		-
+			message: '#^Class App\\Models\\Course uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Course.php
+
+		-
+			message: '#^Method App\\Models\\Course\:\:missions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Course.php
+
+		-
+			message: '#^Method App\\Models\\Course\:\:sections\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Course.php
+
+		-
+			message: '#^Class App\\Models\\Mission uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Mission.php
+
+		-
+			message: '#^Method App\\Models\\Mission\:\:draft\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Mission.php
+
+		-
+			message: '#^Method App\\Models\\Mission\:\:progress\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Mission.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Mission\:\:\$hidden is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$hidden\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Mission.php
+
+		-
+			message: '#^Class App\\Models\\MissionDraft uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MissionDraft.php
+
+		-
+			message: '#^Method App\\Models\\MissionDraft\:\:mission\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MissionDraft.php
+
+		-
+			message: '#^Method App\\Models\\MissionDraft\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MissionDraft.php
+
+		-
+			message: '#^Class App\\Models\\Progress uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Progress.php
+
+		-
+			message: '#^Method App\\Models\\Progress\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Progress.php
+
+		-
+			message: '#^Class App\\Models\\Section uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Section.php
+
+		-
+			message: '#^Method App\\Models\\Section\:\:course\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Section.php
+
+		-
+			message: '#^Method App\\Models\\Section\:\:missions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Section.php
+
+		-
+			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:activities\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:missionDrafts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:progress\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:xpTransactions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Class App\\Models\\XpTransaction uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/XpTransaction.php
+
+		-
+			message: '#^Method App\\Models\\XpTransaction\:\:assessment\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/XpTransaction.php
+
+		-
+			message: '#^Method App\\Models\\XpTransaction\:\:mission\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/XpTransaction.php
+
+		-
+			message: '#^Method App\\Models\\XpTransaction\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/XpTransaction.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\Assessment\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Services/AssessmentService.php
+
+		-
+			message: '#^Parameter \#1 \$assessment of method App\\Services\\AssessmentService\:\:attempts\(\) expects App\\Models\\Assessment, App\\Models\\Assessment\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/AssessmentService.php
+
+		-
+			message: '#^Method App\\Services\\DashboardService\:\:nextMission\(\) should return App\\Models\\Mission\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/DashboardService.php
+
+		-
+			message: '#^Method App\\Services\\DashboardService\:\:recentActivity\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/DashboardService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$missions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Method App\\Services\\LearningPathService\:\:build\(\) should return Illuminate\\Support\\Collection\<int, array\{course\: App\\Models\\Course, progress\: array\{completed\: int, total\: int, percent\: int\}, sections\: Illuminate\\Support\\Collection\<int, array\{section\: App\\Models\\Section, progress\: array\{completed\: int, total\: int, percent\: int\}, missions\: Illuminate\\Support\\Collection\<int, array\{mission\: App\\Models\\Mission, state\: string, xp\: int\}\>\}\>\}\> but returns Illuminate\\Support\\Collection\<int, array\{course\: App\\Models\\Course, progress\: array\{completed\: int, total\: int, percent\: int\}, sections\: Illuminate\\Support\\Collection\<int, array\{section\: mixed, progress\: array\{completed\: int, total\: int, percent\: int\}, missions\: mixed\}\>\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Method App\\Services\\LearningPathService\:\:missionView\(\) has parameter \$completedMissionIds with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Method App\\Services\\LearningPathService\:\:missionView\(\) has parameter \$draftMissionIds with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Method App\\Services\\LearningPathService\:\:nextMission\(\) should return App\\Models\\Mission\|null but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 2
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Property App\\Services\\LearningPathService\:\:\$drafts is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/LearningPathService.php
+
+		-
+			message: '#^Method App\\Services\\ValidationService\:\:compareCount\(\) has parameter \$rule with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ValidationService.php
+
+		-
+			message: '#^Parameter \#1 \$occurrences of method App\\Services\\ValidationService\:\:compareCount\(\) expects int, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/ValidationService.php

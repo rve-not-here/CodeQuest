@@ -1,0 +1,45 @@
+{
+  "title": "Choose the CodeQuest composition",
+  "question": "All three use the approved Repair Field Manual world. Choose the layout that should govern the application shell and dashboards.",
+  "options": [
+    {
+      "id": "repair-manual-a",
+      "label": "Diagnostic Desk",
+      "kicker": "ORIGINAL REFERENCE",
+      "lineage": "service-manual workbench",
+      "thesis": "A dense diagnostic desk puts the current task beside evidence and system state.",
+      "palette": ["#f1ead9", "#172538", "#e84b2c", "#2878a8"],
+      "materials": ["manual paper", "blueprint ink", "repair stamps"],
+      "viewport": "A traditional left index frames a dense multi-panel operational workspace.",
+      "risk": "Its density can make the primary procedure compete with supporting evidence.",
+      "comp": ".impeccable/mocks/repair-manual-a.webp"
+    },
+    {
+      "id": "repair-manual-b",
+      "label": "Procedure and Margin",
+      "kicker": "FOCUSED WORKFLOW",
+      "lineage": "field procedure with diagnostic margin",
+      "thesis": "One dominant procedure occupies the page while a disciplined outer margin carries role evidence.",
+      "palette": ["#f1ead9", "#172538", "#e84b2c", "#2878a8"],
+      "materials": ["manual paper", "chapter index", "diagnostic notes"],
+      "viewport": "A narrow chapter rail and slim utility strip frame a two-thirds procedure and one-third diagnostics column.",
+      "risk": "The fixed diagnostic margin needs careful collapse behavior on mobile.",
+      "comp": ".impeccable/mocks/repair-manual-b.webp"
+    },
+    {
+      "id": "repair-manual-c",
+      "label": "Open Handbook",
+      "kicker": "ROLE SPREAD",
+      "lineage": "open two-page technical handbook",
+      "thesis": "The active procedure owns the left page while student, teacher, and admin evidence share the right page.",
+      "palette": ["#f1ead9", "#172538", "#e84b2c", "#2878a8"],
+      "materials": ["bound manual spread", "edge tabs", "revision stamps"],
+      "viewport": "An open spread uses the center fold as hierarchy, with a procedural left page and evidence-led right page.",
+      "risk": "The literal spread can become cramped below wide desktop sizes.",
+      "comp": ".impeccable/mocks/repair-manual-c.webp"
+    }
+  ],
+  "reroll": false,
+  "canon": false,
+  "steer": true
+}

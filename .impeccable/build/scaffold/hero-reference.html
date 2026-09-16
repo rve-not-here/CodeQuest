@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Scaffold reference: repair-manual-b.webp</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jaini:wght@400&display=swap">
+  <link rel="stylesheet" href="layout.css">
+  <style>html,body{margin:0}body{background:#e7e6d9}.region{box-sizing:border-box}.region.text p{white-space:pre-wrap}</style>
+</head>
+<body>
+<!-- Reference only. Every region sits at its measured box inside a comp-aspect frame. Take the boxes (layout.css), keep your own semantic structure. -->
+<main class="comp-frame" style="max-width:1586px">
+  <div class="r-paper-ground region texture" data-region="paper-ground" style="background-image:url('../../../assets/plates/paper-ground.png');background-repeat:repeat"></div>
+  <div class="r-masthead region chrome" data-region="masthead"><!-- technical utility strip with brand, operator context, search, and account controls --></div>
+  <div class="r-chapter-index region chrome" data-region="chapter-index"><!-- left chapter index rail with numbered chapter tabs --></div>
+  <div class="r-breadcrumb region chrome" data-region="breadcrumb"><!-- chapter and mission breadcrumb rule --></div>
+  <div class="r-diagnostic-title region text" data-region="diagnostic-title"><!-- mission diagnostics heading --><p style="line-height:1.05;margin:0">diagnostic-title</p></div>
+  <div class="r-procedure-title region text" data-region="procedure-title"><!-- current procedure headline and supporting sentence --><p style="font-size:var(--r-procedure-title-font);line-height:1.05;margin:0">procedure-title</p></div>
+  <div class="r-practice-stamp region text" data-region="practice-stamp"><!-- orange practice builds progress stamp --><p style="line-height:1.05;margin:0">practice-stamp</p></div>
+  <div class="r-mission-brief region chrome" data-region="mission-brief"><!-- mission brief with goal, difficulty, and estimated time --></div>
+  <div class="r-continue-control region control" data-region="continue-control"><!-- orange continue mission primary action: rebuild the control's chrome from the crop (comp-spec.mjs --crop continue-control); its ink box, border, fill, radius, and label size are the comp's --></div>
+  <div class="r-procedure-panel region chrome" data-region="procedure-panel"><!-- procedure steps workspace with numbered sequence and problem details --></div>
+  <div class="r-procedure-heading region text" data-region="procedure-heading"><!-- procedure steps heading and hint/reference controls --><p style="font-size:var(--r-procedure-heading-font);font-family:var(--r-procedure-heading-family),sans-serif;font-weight:var(--r-procedure-heading-weight);line-height:1.05;margin:0">procedure-heading</p></div>
+  <div class="r-procedure-steps region text" data-region="procedure-steps"><!-- four numbered instructional procedure steps --><p style="font-size:var(--r-procedure-steps-font);line-height:1.05;margin:0">procedure-steps</p></div>
+  <div class="r-problem-details region text" data-region="problem-details"><!-- problem details and acceptance criteria notes --><p style="line-height:1.05;margin:0">problem-details</p></div>
+  <div class="r-editor-panel region chrome" data-region="editor-panel"><!-- code editor with tab, language, code, and run control --></div>
+  <div class="r-progress-module region chrome" data-region="progress-module"><!-- learner progress meter and mission checklist --></div>
+  <div class="r-assessment-module region chrome" data-region="assessment-module"><!-- assessment readiness meter and checklist --></div>
+  <div class="r-attention-module region chrome" data-region="attention-module"><!-- teacher needs-attention evidence table --></div>
+  <div class="r-system-module region chrome" data-region="system-module"><!-- admin system check status table --></div>
+  <div class="r-footer region chrome" data-region="footer"><!-- document revision and system footer --></div>
+</main>
+</body>
+</html>

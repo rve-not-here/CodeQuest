@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    paths:
+        - app
+
+    # Level 8 enforces strict types; the baseline (phpstan-baseline.neon)
+    # captures the findings that already exist as of US-501. New findings are
+    # not exempt and will fail the analysis.
+    level: 8
+
+    tmpDir: storage/phpstan
+
+    reportUnmatchedIgnoredErrors: true

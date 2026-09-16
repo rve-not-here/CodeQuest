@@ -1,0 +1,496 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto+Mono:wght@400;600&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source './**/*.blade.php';
+
+/* ============================================================
+   CODEQUEST — DESIGN SYSTEM
+   freeCodeCamp clone. Navy top bar over white surfaces, flat
+   blue actions, hairline borders, Lato body + Roboto Mono code.
+   The System 404 fiction survives in copy and terms only.
+   ============================================================ */
+
+@theme {
+    /* Typography */
+    --font-display: 'Lato', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-body: 'Lato', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-code: 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+    /* freeCodeCamp palette (token names kept for compatibility) */
+    --color-void: #0a0a23;
+    --color-static: #3b3b4f;
+    --color-phosphor: #2a2a40;
+    --color-phosphor-dim: #d0d0d5;
+    --color-amber: #198eee;
+    --color-alert: #d22d20;
+    --color-alert-dim: #9f1d13;
+    --color-cyan: #198eee;
+    --color-magenta: #934f83;
+    --color-ink: #2a2a40;
+
+    /* Glows */
+    --color-phosphor-glow: rgba(25, 142, 238, 0.25);
+    --color-amber-glow: rgba(25, 142, 238, 0.4);
+    --color-alert-glow: rgba(210, 45, 32, 0.4);
+    --color-cyan-glow: rgba(25, 142, 238, 0.4);
+
+    /* Surfaces */
+    --color-surface: #ffffff;
+    --color-surface-alt: #f5f6f7;
+    --color-input: #ffffff;
+    --color-panel: #ffffff;
+    --color-header: #0a0a23;
+}
+
+@layer base {
+    html {
+        overflow-x: hidden;
+    }
+
+    body {
+        @apply bg-surface text-ink font-body antialiased;
+        font-size: 16px;
+        line-height: 1.5;
+        text-rendering: optimizeLegibility;
+    }
+
+    ::selection {
+        background: var(--color-amber);
+        color: #ffffff;
+    }
+
+    ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f5f6f7;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #c0c0c8;
+        border: 3px solid #f5f6f7;
+        border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a0a0ac;
+    }
+
+    a {
+        text-underline-offset: 0.18em;
+    }
+    a:hover {
+        color: var(--color-amber);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        @apply font-display;
+    }
+
+    code,
+    pre,
+    .cm-editor,
+    kbd {
+        font-family: var(--font-code);
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #f5f6f7;
+    }
+
+    th {
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 0.72rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #6f6f79;
+    }
+
+    td {
+        border-bottom: 1px solid #e4e4e9 !important;
+    }
+}
+
+@layer components {
+    /* Retro CRT effects are retired; keep no-ops so old markup is inert. */
+    .crt-scanlines::before {
+        display: none;
+    }
+    .crt-flicker {
+        animation: none;
+    }
+
+    /* ── CARDS ─────────────────────────────────────────── */
+    .panel {
+        @apply border bg-panel;
+        border-color: var(--color-phosphor-dim);
+        border-radius: 2px;
+        box-shadow: 0 1px 3px rgba(10, 10, 35, 0.06);
+    }
+
+    .panel-title {
+        @apply font-display;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        color: var(--color-phosphor);
+    }
+
+    /* ── BUTTONS ───────────────────────────────────────── */
+    .btn-primary,
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.1rem;
+        border: 1px solid var(--color-amber);
+        border-radius: 2px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1.2;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+
+    .btn-primary {
+        background: var(--color-amber);
+        color: #ffffff;
+    }
+    .btn-primary:hover {
+        background: #1376d0;
+        border-color: #1376d0;
+        color: #ffffff;
+    }
+    .btn-primary:focus-visible {
+        outline: 2px solid var(--color-amber);
+        outline-offset: 2px;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        color: var(--color-amber);
+    }
+    .btn-ghost:hover {
+        background: var(--color-amber);
+        color: #ffffff;
+    }
+    .btn-ghost:focus-visible {
+        outline: 2px solid var(--color-amber);
+        outline-offset: 2px;
+    }
+
+    button:disabled,
+    .btn-primary:disabled,
+    .btn-ghost:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* ── FORM CONTROLS ─────────────────────────────────── */
+    .terminal-input {
+        width: 100%;
+        background: #ffffff;
+        color: var(--color-ink);
+        border: 1px solid var(--color-phosphor-dim);
+        border-radius: 2px;
+        padding: 0.55rem 0.65rem 0.5rem;
+        font: 400 1rem / 1.2 var(--font-body);
+    }
+    .terminal-input::placeholder {
+        color: #8f8f9a;
+    }
+    .terminal-input:focus {
+        outline: none;
+        border-color: var(--color-amber);
+        box-shadow: 0 0 0 3px rgba(25, 142, 238, 0.18);
+    }
+
+    /* Muted text stays legible while the dim token doubles as hairline. */
+    .text-phosphor-dim {
+        color: #6f6f79;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+        outline: 2px solid var(--color-amber);
+        outline-offset: 3px;
+    }
+
+    /* ── LEGACY NAV INDEX (mobile drawer) ──────────────── */
+    .navigation-index {
+        display: inline-flex;
+        width: 2rem;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-code);
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    /* Responsive table → stacked cards. <768px each row becomes a card with
+       a label-above-value cell layout; the header row is dropped. Requires
+       data-label="…" on every <td>. */
+    @media (max-width: 767.9px) {
+        .table-stack thead {
+            display: none;
+        }
+
+        .table-stack,
+        .table-stack tbody,
+        .table-stack tr,
+        .table-stack td {
+            display: block;
+            width: 100%;
+        }
+
+        .table-stack tr {
+            border: 1px solid var(--color-phosphor-dim);
+            border-bottom-width: 0;
+            padding: 0.5rem 0.75rem;
+            background: #ffffff;
+        }
+
+        .table-stack tr + tr {
+            margin-top: 0.5rem;
+        }
+
+        .table-stack td {
+            display: flex;
+            flex-direction: column;
+            padding: 0.25rem 0;
+            border-bottom-width: 0;
+        }
+
+        .table-stack td::before {
+            content: attr(data-label);
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 0.68rem;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6f6f79;
+            margin-bottom: 0.2rem;
+        }
+    }
+}
+
+/* ── BLINKING CURSOR (XP counter) ───────────── */
+.blink {
+    animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+/* ============================================================
+   NAVIGATION SHELL
+   Dark navy top bar + mobile drawer, freeCodeCamp grammar.
+   ============================================================ */
+.cq-topnav {
+    background: #0a0a23;
+}
+
+.cq-navlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.375rem 0.85rem;
+    border-radius: 2px;
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1;
+    text-decoration: none;
+    transition: color 120ms ease, background-color 120ms ease;
+}
+.cq-navlink:hover {
+    color: #69b6f5;
+}
+.cq-navlink--active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+}
+.cq-navlink--active:hover {
+    color: #ffffff;
+}
+
+.cq-navbar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 120ms ease;
+}
+.cq-navbar-link:hover {
+    color: #69b6f5;
+}
+
+/* ============================================================
+   CHALLENGE WORKSPACE (mission / assessment)
+   Instructions | Terminal | Preview — dark navy pane strip over
+   the oneDark editor and white preview, fCC challenge chrome.
+   Pages opt in via the `workspace` layout flag (main gets w-full).
+   ============================================================ */
+main:has(.challenge-workspace) {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 !important;
+}
+
+.challenge-workspace {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.8fr) minmax(0, 1.05fr) minmax(16rem, 1.35fr);
+    width: 100%;
+    height: calc(100vh - 4rem);
+    height: calc(100dvh - 4rem);
+}
+
+.challenge-pane {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: #ffffff;
+    box-shadow: none;
+}
+
+.challenge-pane + .challenge-pane {
+    border-left: none;
+}
+
+.challenge-pane-header {
+    display: flex;
+    flex: none;
+    min-height: 2.4rem;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0 1rem;
+    background: #0a0a23;
+    border-bottom: 1px solid #3b3b4f;
+    color: #d7d7e0;
+    font-family: var(--font-code);
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.challenge-pane-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1.25rem;
+    overflow-y: auto;
+    color: var(--color-ink);
+}
+
+.challenge-pane-body.is-frame {
+    display: flex;
+    padding: 0;
+    background: #ffffff;
+}
+
+.challenge-pane-body.is-frame iframe {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 0;
+}
+
+/* Editor pane: the editor fills the pane height; actions live in a fixed
+   toolbar along the bottom edge so they never scroll away. */
+.challenge-pane-body.editor-pane {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.challenge-pane-editor {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--color-void);
+}
+
+.challenge-toolbar {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 0.9rem;
+    border-top: 1px solid #e4e4e9;
+    background: #ffffff;
+}
+
+@media (max-width: 1100px) {
+    .challenge-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+        padding: 0.9rem;
+        gap: 0.9rem;
+    }
+
+    .challenge-pane {
+        min-height: 24rem;
+    }
+
+    .challenge-pane + .challenge-pane {
+        border-top: 1px solid var(--color-phosphor-dim);
+    }
+
+    .challenge-pane-body.is-frame {
+        min-height: 18rem;
+    }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.manual-footer {
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0 1.25rem;
+    border-top: 1px solid #e4e4e9;
+    color: #6f6f79;
+    font-size: 0.85rem;
+    background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
