@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -42,5 +43,25 @@ class User extends Authenticatable
     public function xpTransactions(): HasMany
     {
         return $this->hasMany(XpTransaction::class, 'user_id');
+    }
+
+    /** @return HasMany<KnowledgeCheckAttempt, $this> */
+    public function knowledgeCheckAttempts(): HasMany
+    {
+        return $this->hasMany(KnowledgeCheckAttempt::class, 'user_id');
+    }
+
+    /** @return BelongsToMany<Classroom, $this> */
+    public function teachingClassrooms(): BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class, 'the404_classroom_teachers', 'teacher_id', 'classroom_id')
+            ->withTimestamps();
+    }
+
+    /** @return BelongsToMany<Classroom, $this> */
+    public function enrolledClassrooms(): BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class, 'the404_classroom_students', 'student_id', 'classroom_id')
+            ->withTimestamps();
     }
 }

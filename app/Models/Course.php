@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable([
     'slug',
@@ -38,5 +39,12 @@ class Course extends Model
     public function assessment(): HasOne
     {
         return $this->hasOne(Assessment::class, 'course_id');
+    }
+
+    /** @return BelongsToMany<Classroom, $this> */
+    public function classrooms(): BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class, 'the404_classroom_courses', 'course_id', 'classroom_id')
+            ->withTimestamps();
     }
 }
