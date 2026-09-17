@@ -5,6 +5,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | Applies to | Rule file |
 | --- | --- |
 | app/** | .ai/rules/app.md |
+| app/Http/{Controllers,Requests}/KnowledgeCheck*.php | .ai/rules/controllers-requests.md |
 | app/Http/Controllers/**, app/Http/Controllers/CompetencyController.php, app/Http/Controllers/StandbyController.php, app/Http/Controllers/NotificationController.php, app/Http/Controllers/StudentController.php, app/Http/Controllers/DashboardController.php | .ai/rules/controllers.md |
 | resources/css/** | .ai/rules/css.md |
 | app/Exceptions/** | .ai/rules/exceptions.md |
@@ -12,7 +13,8 @@ Before planning or editing, find the row whose globs match the file's path and r
 | .env, **, phpstan.neon, .scratch/phase*/** | .ai/rules/general.md |
 | resources/views/layouts/** | .ai/rules/layouts.md |
 | app/Http/Middleware/EnsureUserIsActive.php | .ai/rules/middleware.md |
-| database/migrations/the404_*.php, database/migrations/** | .ai/rules/migrations.md |
+| database/migrations/the404_*.php, database/migrations/**, database/migrations/*knowledge_check* | .ai/rules/migrations.md |
+| app/{Models,Services}/KnowledgeCheck*.php | .ai/rules/models-services.md |
 | app/Models/Progress.php, app/Models/** | .ai/rules/models.md |
 | app/Http/Requests/AdminUserStoreRequest.php, app/Http/Requests/AdminCourseUpdateRequest.php, app/Http/Requests/AdminMissionUpdateRequest.php, app/Http/Requests/Admin*Request.php, app/Http/Requests/** | .ai/rules/requests.md |
 | routes/web.php, routes/** | .ai/rules/routes.md |

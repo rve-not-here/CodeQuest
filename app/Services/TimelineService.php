@@ -65,6 +65,7 @@ class TimelineService
     public const FILTERABLE_TYPES = [
         'mission_completed',
         'wrong_submission',
+        KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED,
         'hint_used',
         'solution_revealed',
         'assessment_completed',
@@ -275,7 +276,7 @@ class TimelineService
     {
         $sources = match ($type) {
             null => ['activity', 'xp', 'assessment', 'section'],
-            'mission_completed', 'wrong_submission' => ['activity'],
+            'mission_completed', 'wrong_submission', KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED => ['activity'],
             'hint_used', 'solution_revealed', 'assessment_completed' => ['xp'],
             'assessment_passed', 'assessment_failed' => ['assessment'],
             'section_completed' => ['section'],

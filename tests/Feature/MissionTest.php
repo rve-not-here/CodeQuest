@@ -67,7 +67,13 @@ class MissionTest extends TestCase
             ->assertSee('BACK TO LESSON')
             ->assertSee('SUBMIT')
             ->assertSee('RUN')
-            ->assertSee('SAVE DRAFT');
+            ->assertSee('SAVE DRAFT')
+            ->assertSee('Assistance')
+            ->assertSee('SHOW SOLUTION')
+            ->assertSee('Draft:')
+            ->assertDontSee('NEXT MISSION')
+            ->assertDontSee('NEW DRAFT')
+            ->assertDontSee('data-open', false);
     }
 
     public function test_mission_submit_requires_authentication(): void
@@ -123,6 +129,56 @@ class MissionTest extends TestCase
             ->post(route('mission.submit', $mission), ['code' => 'anything'])
             ->assertRedirect()
             ->assertSessionHas('mission_success');
+    }
+
+    public function test_new_authoritative_pass_renders_completion_dialog_with_server_results(): void
+    {
+        $user = User::factory()->create();
+        ['course' => $course, 'mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => null,
+            'points' => 30,
+        ]);
+        Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $mission->section_id,
+            'order_num' => $mission->order_num + 1,
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('mission.challenge', $mission))
+            ->followingRedirects()
+            ->post(route('mission.submit', $mission), ['code' => 'anything'])
+            ->assertOk()
+            ->assertSee('class="completion-overlay"', false)
+            ->assertSee('Challenge complete')
+            ->assertSee('Validation')
+            ->assertSee('Passed')
+            ->assertSee('+30')
+            ->assertSee('0% → 50%')
+            ->assertSee('Achievement unlocked')
+            ->assertSee('First Challenge')
+            ->assertSee('CONTINUE TO LEARNING PATH')
+            ->assertSee('href="'.route('learning-path').'"', false)
+            ->assertDontSee('NEXT MISSION');
+    }
+
+    public function test_failed_submission_keeps_the_student_in_the_workspace_without_completion_controls(): void
+    {
+        $user = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'contains', 'value' => '<h1>']]),
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('mission.challenge', $mission))
+            ->followingRedirects()
+            ->post(route('mission.submit', $mission), ['code' => '<p>Not valid</p>'])
+            ->assertOk()
+            ->assertSee('Mission not restored')
+            ->assertSee('Code editor')
+            ->assertDontSee('class="completion-overlay"', false)
+            ->assertDontSee('CONTINUE TO LEARNING PATH')
+            ->assertDontSee('NEXT MISSION');
     }
 
     public function test_mission_submit_wrong_code_deducts_xp(): void

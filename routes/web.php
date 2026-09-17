@@ -19,6 +19,7 @@ use App\Http\Controllers\CompetencyController;
 use App\Http\Controllers\CourseAnalyticsController;
 use App\Http\Controllers\CourseProgressController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KnowledgeCheckController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionIndexController;
@@ -63,6 +64,17 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->name('mission.draft');
     Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->name('mission.hint');
     Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->name('mission.reveal');
+
+    Route::scopeBindings()->group(function (): void {
+        Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/start', [KnowledgeCheckController::class, 'start'])
+            ->name('knowledge-check.start');
+        Route::get('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}', [KnowledgeCheckController::class, 'show'])
+            ->name('knowledge-check.show');
+        Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}/submit', [KnowledgeCheckController::class, 'submit'])
+            ->name('knowledge-check.submit');
+        Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/retry', [KnowledgeCheckController::class, 'retry'])
+            ->name('knowledge-check.retry');
+    });
 
     // Boss Challenge (assessments)
     Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessments');

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
@@ -62,7 +63,7 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('NOT STARTED');
+            ->assertSee('CURRENT');
     }
 
     public function test_learning_path_shows_completed_state(): void
@@ -114,5 +115,79 @@ class LearningPathTest extends TestCase
             ->get(route('learning-path'))
             ->assertOk()
             ->assertSee('HARD');
+    }
+
+    public function test_learning_path_distinguishes_completed_current_and_available_nodes(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['status' => 'active']);
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $completed = Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+            'order_num' => 1,
+        ]);
+        Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+            'order_num' => 2,
+        ]);
+        Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+            'order_num' => 3,
+        ]);
+        Progress::factory()->create([
+            'user_id' => $user->id,
+            'mission_id' => $completed->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('learning-path'))
+            ->assertSee('COMPLETED')
+            ->assertSee('CURRENT')
+            ->assertSee('AVAILABLE');
+    }
+
+    public function test_learning_path_explains_server_sealed_course_nodes_without_linking_them(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['status' => 'locked']);
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('learning-path'))
+            ->assertSee('LOCKED')
+            ->assertSee('Course access is sealed. Return when Command restores this course.')
+            ->assertDontSee(route('mission.show', $mission));
+    }
+
+    public function test_learning_path_presents_the_boss_challenge_as_an_authoritative_milestone(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['status' => 'active']);
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+        ]);
+        $assessment = Assessment::factory()->create([
+            'course_id' => $course->id,
+            'status' => 'active',
+        ]);
+        Progress::factory()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('learning-path'))
+            ->assertSee('FINAL COURSE MILESTONE')
+            ->assertSee('BOSS AVAILABLE')
+            ->assertSee(route('assessment.show', $assessment));
     }
 }

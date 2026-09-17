@@ -43,13 +43,10 @@ class ShellTest extends TestCase
         $response = $this->get(route('shell'));
 
         $response->assertOk()
+            ->assertSee('Dashboard')
             ->assertSee('Learning Path')
-            ->assertSee('Missions')
-            ->assertSee('Assessments')
-            ->assertSee('Timeline')
-            ->assertSee('Competency')
-            ->assertSee('Recommendations')
-            ->assertSee('Achievements')
-            ->assertSee('System 404 · Students, teachers, builders');
+            ->assertSee('Notifications')
+            ->assertDontSee('Challenge Index')
+            ->assertSee('CODEQUEST // SYSTEM 404 LEARNING NETWORK');
     }
 }

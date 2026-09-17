@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Two relaxations kept deliberately small:
  *  - script-src 'unsafe-inline': the CodeMirror editor boot scripts live in
- *    @push('scripts')/@stack('scripts') blocks (mission + assessments/show),
+ *    Blade script-stack blocks (mission + assessments/show),
  *    i.e. are app-owned static inline blobs, not generated markup. Bundling
  *    them is tracked as follow-up work; until then they must be allowed.
  *    'unsafe-eval' is NOT granted, so injected code cannot compile strings.

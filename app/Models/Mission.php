@@ -63,4 +63,10 @@ class Mission extends Model
     {
         return $this->hasOne(MissionDraft::class, 'mission_id');
     }
+
+    /** @return HasMany<KnowledgeCheck, $this> */
+    public function knowledgeChecks(): HasMany
+    {
+        return $this->hasMany(KnowledgeCheck::class, 'mission_id')->orderBy('order_num');
+    }
 }

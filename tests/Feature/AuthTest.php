@@ -14,7 +14,7 @@ class AuthTest extends TestCase
     {
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('Learn to code — for free.')
+            ->assertSee('Restore the system.')
             ->assertSee('Sign in')
             ->assertSee('Operators sign in to continue their mission.');
     }

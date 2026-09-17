@@ -163,8 +163,8 @@ class JourneyIntegrationTest extends TestCase
         $this->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Boss Challenge ready')
-            ->assertSee('Complete the Boss Challenge to finish this course.')
-            ->assertSee('Continue Course →');
+            ->assertSee('Return to the Learning Path to inspect the course milestone.')
+            ->assertSee('Continue Learning →');
 
         // ASSESSMENT: the challenge screen presents its initiate state.
         $this->get(route('assessment.show', $alphaChallenge))

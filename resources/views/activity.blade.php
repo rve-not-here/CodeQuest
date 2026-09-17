@@ -111,6 +111,7 @@
                         [$icon, $tone] = match ($event['type']) {
                             'mission_completed' => ['⚡', 'text-phosphor'],
                             'wrong_submission' => ['✕', 'text-alert'],
+                            'knowledge_check_completed' => ['?', 'text-cyan'],
                             'hint_used' => ['◈', 'text-cyan'],
                             'solution_revealed' => ['◎', 'text-amber'],
                             'assessment_completed', 'assessment_passed' => ['◆', 'text-phosphor'],

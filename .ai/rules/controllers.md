@@ -66,3 +66,6 @@ US-810: the dashboard notification teaser is a display-only composition over the
 
 ## Dashboard applies the user-scoping probe guard
 US-811: DashboardController::__invoke accepts Request and rejects the five-spelling user-scoping family (user_id, userId, user, student, owner) with 403 before any resolution, mirroring NotificationController. In this app every caller-scoped surface (student dashboard, notification center) must answer a scoping probe with 403, never silently ignore it.
+
+## Student Dashboard excludes the notification feed
+The Dashboard prioritizes the next learning action and must not compose a notification-center teaser. Notifications live at the dedicated top-nav destination. Recent learning activity excludes login/logout events; notification producers and services remain unchanged.

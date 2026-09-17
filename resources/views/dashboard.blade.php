@@ -1,146 +1,140 @@
 @extends('layouts.app', ['role' => $role])
 
-@php($displayName = auth()->user()?->username ?? 'OPERATOR')
+@php
+    $displayName = auth()->user()?->username ?? 'OPERATOR';
+    $firstName = strtok($displayName, ' ') ?: $displayName;
+    $competencyState = $competencySummary === null
+        ? 'NO EVIDENCE'
+        : strtoupper(str_replace('_', ' ', $competencySummary['state']));
+    $competencyTone = match ($competencySummary['state'] ?? null) {
+        'demonstrated' => 'phosphor',
+        'practicing' => 'amber',
+        'developing' => 'cyan',
+        default => 'dim',
+    };
+@endphp
 
 @section('title', 'Dashboard')
 
 @section('content')
-    <header class="mb-8 flex flex-col sm:flex-row sm:items-center gap-4 border-b border-phosphor-dim/70 pb-5">
-        <div>
-            <h1 class="text-3xl font-display font-bold tracking-tight text-[#0a0a23]">
-                Welcome back, {{ strtok($displayName, ' ') ?: $displayName }}
-            </h1>
-            <p class="mt-1 text-[15px] text-[#3b3b4f]">
-                Pick up where you left off and keep your progress readable.
-            </p>
-        </div>
-        <div class="sm:ml-auto flex items-center gap-3 shrink-0">
-            <x-badge tone="amber">XP {{ $totalXp }}</x-badge>
-            @if ($resume !== null && $resume['type'] === 'mission')
-                <a href="{{ route('mission.show', $resume['mission']) }}" class="btn-primary">Continue Learning →</a>
-            @else
-                <a href="{{ route('learning-path') }}" class="btn-primary">Continue Learning →</a>
-            @endif
-        </div>
-    </header>
+    <x-page-header
+        title="Mission Control"
+        subtitle="Welcome back, {{ $firstName }}. Your next learning directive is ready."
+    />
 
-    <div class="grid gap-6 lg:grid-cols-[2fr_1fr] items-start">
-        {{-- Main column --}}
-        <div class="space-y-6 min-w-0">
-            <x-panel title="Next step">
-                <div class="flex flex-col md:flex-row md:items-center gap-5">
-                    <div class="min-w-0 flex-1">
-                        @if ($course === null)
-                            <p class="text-[15px] text-[#3b3b4f]">
-                                Course complete. You have cleared every active course — awaiting new directives.
-                            </p>
-                        @elseif ($resume === null)
-                            <p class="text-[15px] text-[#3b3b4f]">No pending mission in {{ $course->name }}.</p>
-                        @elseif ($resume['type'] === 'mission')
-                            <p class="text-xs font-bold uppercase tracking-wide text-[#6f6f79]">{{ $course?->name }}</p>
-                            <h2 class="mt-1 text-xl font-display font-bold tracking-tight text-[#0a0a23]">{{ $resume['mission']->title }}</h2>
-                            <p class="mt-1 text-sm text-[#3b3b4f]">
-                                {{ ! empty($resume['section']) ? $resume['section']->title.' · ' : '' }}
-                                {{ $resume['mission']->difficulty }}{{ $resume['mission']->points ? ' · '.$resume['mission']->points.' XP' : '' }}
-                            </p>
-                        @else
-                            <p class="text-xs font-bold uppercase tracking-wide text-[#198eee]">Boss Challenge ready</p>
-                            <h2 class="mt-1 text-xl font-display font-bold tracking-tight text-[#0a0a23]">All missions complete</h2>
-                            <p class="mt-1 text-sm text-[#3b3b4f]">Complete the Boss Challenge to finish this course.</p>
+    <section class="dashboard-command" aria-labelledby="current-operation-title">
+        <div class="dashboard-command-grid">
+            <div class="min-w-0">
+                <p class="terminal-kicker text-phosphor">
+                    CURRENT OPERATION // {{ $course === null ? 'ALL CLEAR' : 'ACTIVE' }}
+                </p>
+
+                @if ($course === null)
+                    <h2 id="current-operation-title" class="dashboard-command-title">Course complete</h2>
+                    <p class="dashboard-command-copy">
+                        You have cleared every active course. Awaiting new directives from Command.
+                    </p>
+                @elseif ($resume === null)
+                    <p class="mt-4 text-sm uppercase tracking-[0.12em] text-static">{{ $course->name }}</p>
+                    <h2 id="current-operation-title" class="dashboard-command-title">No pending challenge</h2>
+                    <p class="dashboard-command-copy">Review the Learning Path for the next available operation.</p>
+                @elseif ($resume['type'] === 'mission')
+                    <p class="mt-4 text-sm uppercase tracking-[0.12em] text-static">{{ $course->name }}</p>
+                    <h2 id="current-operation-title" class="dashboard-command-title">{{ $resume['mission']->title }}</h2>
+                    <p class="dashboard-command-copy">
+                        @if (! empty($resume['section']))
+                            {{ $resume['section']->title }} //
                         @endif
-                    </div>
-                    @if ($resume !== null && $resume['type'] === 'mission')
-                        <a href="{{ route('mission.show', $resume['mission']) }}" class="btn-ghost shrink-0">Resume →</a>
-                    @elseif ($resume !== null && $resume['type'] === 'course')
-                        <a href="{{ route('learning-path') }}" class="btn-ghost shrink-0">Continue Course →</a>
-                    @endif
-                </div>
-            </x-panel>
-
-            <x-panel title="Course progress">
-                @if ($course === null || $courseProgress === null)
-                    <x-progress-bar label="No active course" :total="100" :current="0" />
-                    <p class="mt-2 text-sm text-[#6f6f79]">No active course assigned.</p>
+                        {{ $resume['mission']->difficulty }} // +{{ $resume['mission']->points }} XP
+                    </p>
                 @else
-                    <x-progress-bar
-                        label="{{ $course->name }}"
-                        :total="$courseProgress['total']"
-                        :current="$courseProgress['completed']"
-                    />
-                    <p class="mt-2 text-sm text-[#6f6f79]">
-                        {{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} missions complete
-                    </p>
+                    <p class="mt-4 text-sm uppercase tracking-[0.12em] text-amber">Boss Challenge ready</p>
+                    <h2 id="current-operation-title" class="dashboard-command-title">All challenges complete</h2>
+                    <p class="dashboard-command-copy">Return to the Learning Path to inspect the course milestone.</p>
                 @endif
-            </x-panel>
 
-            <x-panel title="Incoming notifications">
-                <div class="flex items-center justify-between gap-3 mb-3">
-                    <p class="text-xs font-bold uppercase tracking-wide {{ $unreadCount > 0 ? 'text-[#198eee]' : 'text-[#8f8f9a]' }}">
-                        {{ $unreadCount > 0 ? $unreadCount.' unread' : 'Inbox clear' }}
-                    </p>
-                    <a href="{{ route('notifications') }}" class="text-sm font-bold text-[#198eee] hover:text-[#1376d0]">
-                        View all →
+                @if ($course !== null && $courseProgress !== null)
+                    <div class="mt-6 max-w-2xl">
+                        <x-progress-bar
+                            label="{{ $course->name }}"
+                            :total="$courseProgress['total']"
+                            :current="$courseProgress['completed']"
+                        />
+                        <p class="mt-2 text-xs uppercase tracking-[0.1em] text-static">
+                            {{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} challenges validated
+                        </p>
+                    </div>
+                @endif
+            </div>
+
+            <div class="dashboard-command-action">
+                @if ($resume !== null && $resume['type'] === 'mission')
+                    <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $resume['mission']) }}" class="btn-primary btn-command">
+                        {{ $resumeHasDraft ? 'Resume Challenge →' : 'Continue Learning →' }}
                     </a>
-                </div>
-
-                @forelse ($priorityNotifications as $notification)
-                    @php($href = $notificationLinks[$notification->id] ?? null)
-                    <div class="flex items-start gap-3 border-b border-[#e4e4e9] py-2.5 last:border-0 {{ $notification->read_at !== null ? 'opacity-60' : '' }}">
-                        <div class="min-w-0 flex-1">
-                            @if ($href !== null)
-                                <a href="{{ $href }}" class="text-[15px] font-semibold text-[#0a0a23] hover:text-[#198eee]">
-                                    {{ $notification->title }}
-                                </a>
-                            @else
-                                <p class="text-[15px] font-semibold text-[#0a0a23]">{{ $notification->title }}</p>
-                            @endif
-                            <p class="text-sm text-[#6f6f79] mt-0.5 truncate">{{ $notification->message }}</p>
-                        </div>
-                        @if ($notification->read_at === null)
-                            <x-badge tone="amber" class="shrink-0">NEW</x-badge>
-                        @endif
-                    </div>
-                @empty
-                    <p class="text-[15px] text-[#3b3b4f]">No priority notifications. Open the inbox for the full feed.</p>
-                @endforelse
-            </x-panel>
+                    <p>{{ $resumeHasDraft ? 'Saved work detected.' : 'Open the current lesson.' }}</p>
+                @elseif ($resume !== null && $resume['type'] === 'course')
+                    <a href="{{ route('learning-path') }}" class="btn-primary btn-command">Continue Learning →</a>
+                    <p>Boss milestone available.</p>
+                @else
+                    <a href="{{ route('learning-path') }}" class="btn-primary btn-command">View Learning Path →</a>
+                    <p>Inspect completed operations.</p>
+                @endif
+            </div>
         </div>
+    </section>
 
-        {{-- Side column --}}
-        <aside class="space-y-6 min-w-0">
-            <x-panel title="Assessment readiness">
-                <x-progress-bar
-                    label="Readiness"
-                    :total="100"
-                    :current="$course === null ? 0 : $assessmentReadiness"
-                />
-                <ul class="mt-4 space-y-2 text-[15px] text-[#3b3b4f]">
-                    <li>Complete remaining missions</li>
-                    <li>Pass the practice checkpoint</li>
-                    <li>Finish the course challenge</li>
-                </ul>
-            </x-panel>
+    <section class="dashboard-status-grid" aria-label="Learning status">
+        <a href="{{ route('xp-ledger') }}" class="dashboard-status-cell">
+            <span class="dashboard-status-label">XP BALANCE</span>
+            <strong>{{ $totalXp }}</strong>
+            <span>Open ledger →</span>
+        </a>
+        <a href="{{ route('competency') }}" class="dashboard-status-cell">
+            <span class="dashboard-status-label">COMPETENCY</span>
+            <strong class="text-base {{ $competencyTone === 'phosphor' ? 'text-phosphor' : ($competencyTone === 'amber' ? 'text-amber' : ($competencyTone === 'cyan' ? 'text-cyan' : 'text-static')) }}">
+                {{ $competencyState }}
+            </strong>
+            <span>{{ $competencySummary['name'] ?? 'No active skill area' }} →</span>
+        </a>
+        <a href="{{ route('achievements') }}" class="dashboard-status-cell">
+            <span class="dashboard-status-label">ACHIEVEMENTS</span>
+            <strong>{{ $learnerStats['achievements'] }}</strong>
+            <span>{{ $learnerStats['achievements'] === 1 ? 'recognition unlocked' : 'recognitions unlocked' }} →</span>
+        </a>
+    </section>
 
-            <x-panel title="Recent activity">
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <x-panel title="Recent learning activity">
+            <div class="divide-y divide-phosphor/10">
                 @forelse ($recentActivity as $activity)
-                    <div class="flex items-center justify-between gap-3 border-b border-[#e4e4e9] py-2 last:border-0 text-[15px]">
-                        <span class="text-[#3b3b4f] truncate">{{ $activity->message }}</span>
-                        <time class="shrink-0 font-code text-xs text-[#6f6f79]">{{ $activity->created_at?->format('H:i') }}</time>
+                    <div class="flex min-w-0 items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
+                        <span class="min-w-0 text-sm leading-relaxed text-ink">{{ $activity->message }}</span>
+                        <time class="shrink-0 font-code text-xs text-static">{{ $activity->created_at?->format('M d · H:i') }}</time>
                     </div>
                 @empty
-                    <p class="text-[15px] text-[#3b3b4f]">No recent activity recorded.</p>
+                    <p class="text-sm text-static">No learning activity recorded yet.</p>
                 @endforelse
-            </x-panel>
+            </div>
+            <a href="{{ route('timeline') }}" class="terminal-link mt-4 inline-flex">OPEN FULL TIMELINE →</a>
+        </x-panel>
 
-            <x-panel title="Learning record">
-                <dl class="space-y-2 text-sm">
-                    <div class="flex items-center justify-between"><dt>Total XP</dt><dd class="font-bold text-[#0a0a23]">{{ $learnerStats['total_xp'] }}</dd></div>
-                    <div class="flex items-center justify-between"><dt>Achievements earned</dt><dd class="font-bold text-[#0a0a23]">{{ $learnerStats['achievements'] }}</dd></div>
-                    <div class="flex items-center justify-between"><dt>Learning streak</dt><dd class="font-bold text-[#0a0a23]">{{ $learnerStats['streak'] }}</dd></div>
-                    <div class="flex items-center justify-between"><dt>Missions completed</dt><dd class="font-bold text-[#0a0a23]">{{ $learnerStats['missions_completed'] }}</dd></div>
-                    <div class="flex items-center justify-between"><dt>Boss Challenges passed</dt><dd class="font-bold text-[#0a0a23]">{{ $learnerStats['boss_challenges_passed'] }}</dd></div>
-                </dl>
-            </x-panel>
-        </aside>
+        <x-panel title="Learning progress">
+            <dl class="space-y-3 text-sm">
+                <div class="dashboard-signal-row">
+                    <dt>Current course</dt>
+                    <dd>{{ $course?->name ?? 'None active' }}</dd>
+                </div>
+                <div class="dashboard-signal-row">
+                    <dt>Course progress</dt>
+                    <dd>{{ $courseProgress === null ? '—' : $courseProgress['percent'].'%' }}</dd>
+                </div>
+                <div class="dashboard-signal-row">
+                    <dt>Current position</dt>
+                    <dd>{{ $resume['mission']->title ?? ($course === null ? 'All courses complete' : 'Boss milestone') }}</dd>
+                </div>
+            </dl>
+            <a href="{{ route('progress') }}" class="terminal-link mt-4 inline-flex">OPEN COURSE RECORD →</a>
+        </x-panel>
     </div>
 @endsection

@@ -59,7 +59,7 @@
             <x-panel>
                 <div class="flex flex-wrap items-start gap-3">
                     <div class="min-w-0 flex-1">
-                        <p class="font-display text-base font-bold tracking-tight text-[#0a0a23]">{{ $course->name }}</p>
+                        <p class="font-display text-base font-bold tracking-tight text-ink">{{ $course->name }}</p>
                         <p class="font-body text-[15px] text-ink mt-1">
                             {{ $assessment?->title ?? 'No Boss Challenge authored for this course.' }}
                         </p>

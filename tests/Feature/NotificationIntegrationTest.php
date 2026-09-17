@@ -64,8 +64,9 @@ class NotificationIntegrationTest extends TestCase
 
         $this->actingAs($student)->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('CHALLENGE UNLOCKED')
-            ->assertSee(route('assessment.show', $alphaChallenge));
+            ->assertSee(route('notifications'))
+            ->assertDontSee('CHALLENGE UNLOCKED')
+            ->assertDontSee(route('assessment.show', $alphaChallenge));
 
         $this->actingAs($student)->get(route('notifications'))
             ->assertOk()

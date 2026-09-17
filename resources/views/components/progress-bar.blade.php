@@ -7,20 +7,21 @@
         'amber' => 'bg-amber',
         'alert' => 'bg-alert',
         'cyan' => 'bg-cyan',
-        'phosphor' => 'bg-[#198eee]',
-        default => 'bg-[#198eee]',
+        'phosphor' => 'bg-phosphor',
+        'dim' => 'bg-phosphor-dim',
+        default => 'bg-phosphor',
     };
 @endphp
 
 <div class="w-full">
     @if ($label)
         <div class="flex items-baseline justify-between gap-3 mb-1.5">
-            <span class="text-sm font-semibold text-[#2a2a40]">{{ $label }}</span>
-            <span class="text-sm text-[#6f6f79]">{{ $pct }}%</span>
+            <span class="text-sm font-semibold text-ink">{{ $label }}</span>
+            <span class="font-code text-sm text-static">{{ $pct }}%</span>
         </div>
     @endif
 
-    <div class="h-2.5 w-full bg-[#f0f0f5] overflow-hidden rounded-[2px]">
+    <div class="h-2.5 w-full overflow-hidden border border-phosphor/15 bg-void">
         <div
             class="h-full {{ $bar }} transition-all duration-500"
             style="width: {{ $pct }}%"

@@ -15,7 +15,7 @@
 
     @if ($events->isEmpty())
         <x-status-message type="info" title="NO LEARNING EVENTS">
-            No learning activity recorded yet. Complete missions and Boss Challenges to populate your timeline.
+            No learning activity recorded yet. Complete Knowledge Checks, missions, and Boss Challenges to populate your timeline.
         </x-status-message>
     @endif
 
@@ -26,6 +26,7 @@
                     [$icon, $tone] = match ($event['type']) {
                         'mission_completed' => ['⚡', 'text-phosphor'],
                         'wrong_submission' => ['✕', 'text-alert'],
+                        'knowledge_check_completed' => ['?', 'text-cyan'],
                         'hint_used' => ['◈', 'text-cyan'],
                         'solution_revealed' => ['◎', 'text-amber'],
                         'assessment_completed', 'assessment_passed' => ['◆', 'text-phosphor'],

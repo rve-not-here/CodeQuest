@@ -2,6 +2,7 @@
 paths:
   - 'database/migrations/the404_*.php'
   - 'database/migrations/**'
+  - 'database/migrations/*knowledge_check*'
 ---
 
 # Migrations
@@ -20,3 +21,6 @@ The 2026_09_04_120343 alter makes the404_xp_transactions.mission_id nullable and
 
 ## the404_notifications/announcements migrations: restrict FKs, dedupe unique, no updated_at
 2026_09_12_000001 creates the404_notifications (US-801): user_id restrictOnDelete (deliberately NOT cascade — matches achievement/attempt/audit precedent for audit/dispute history; cascade would silently destroy notification history if user deletion ever ships), type string(40) NOT enum, data text nullable JSON (route+params payload, never raw URLs), dedupe_key string(100) nullable, unique (user_id, dedupe_key) as the duplicate-prevention backstop (NULL dedupe_keys — frequency-governed recurring notifications — are distinct under the unique index), read_at nullable, created_at useCurrent only, no updated_at. 2026_09_12_000002 creates the404_announcements: created_by restrictOnDelete, audience enum(all|students|teachers|admins), status enum(draft|published|archived), published_at null set on first publish, created_at+updated_at. Both run only under RefreshDatabase on SQLite; never against prod system404 without explicit approval.
+
+## Retain Knowledge Check history
+Knowledge Check curriculum and attempt/response foreign keys use restrict-on-delete. Responses snapshot prompts, selected/correct answers, and explanations at submission; do not overwrite or cascade-delete educational history.
