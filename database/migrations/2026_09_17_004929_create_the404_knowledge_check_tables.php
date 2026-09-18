@@ -38,7 +38,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
 
-            $table->unique(['knowledge_check_id', 'order_num']);
+            $table->unique(['knowledge_check_id', 'order_num'], 'kcq_check_order_unique');
             $table->foreign('knowledge_check_id')->references('id')->on('the404_knowledge_checks')->restrictOnDelete();
         });
 
@@ -51,9 +51,9 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
 
-            $table->unique(['knowledge_check_question_id', 'order_num']);
-            $table->index(['knowledge_check_question_id', 'is_correct']);
-            $table->foreign('knowledge_check_question_id')->references('id')->on('the404_knowledge_check_questions')->restrictOnDelete();
+            $table->unique(['knowledge_check_question_id', 'order_num'], 'kco_check_question_order_unique');
+            $table->index(['knowledge_check_question_id', 'is_correct'], 'kco_check_question_correct_index');
+            $table->foreign('knowledge_check_question_id', 'kco_check_question_foreign')->references('id')->on('the404_knowledge_check_questions')->restrictOnDelete();
         });
 
         Schema::create('the404_knowledge_check_attempts', function (Blueprint $table) {
@@ -70,7 +70,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
 
-            $table->unique(['knowledge_check_id', 'user_id', 'attempt_number']);
+            $table->unique(['knowledge_check_id', 'user_id', 'attempt_number'], 'kca_check_user_attempt_unique');
             $table->index(['user_id', 'submitted_at']);
             $table->index(['knowledge_check_id', 'status']);
             $table->foreign('knowledge_check_id')->references('id')->on('the404_knowledge_checks')->restrictOnDelete();
@@ -90,10 +90,10 @@ return new class extends Migration
             $table->text('explanation_snapshot')->nullable();
             $table->timestamp('created_at')->useCurrent();
 
-            $table->unique(['knowledge_check_attempt_id', 'knowledge_check_question_id']);
-            $table->index(['knowledge_check_question_id', 'is_correct']);
-            $table->foreign('knowledge_check_attempt_id')->references('id')->on('the404_knowledge_check_attempts')->restrictOnDelete();
-            $table->foreign('knowledge_check_question_id')->references('id')->on('the404_knowledge_check_questions')->restrictOnDelete();
+            $table->unique(['knowledge_check_attempt_id', 'knowledge_check_question_id'], 'kcr_attempt_question_unique');
+            $table->index(['knowledge_check_question_id', 'is_correct'], 'kcr_question_correct_index');
+            $table->foreign('knowledge_check_attempt_id', 'kcr_attempt_foreign')->references('id')->on('the404_knowledge_check_attempts')->restrictOnDelete();
+            $table->foreign('knowledge_check_question_id', 'kcr_question_foreign')->references('id')->on('the404_knowledge_check_questions')->restrictOnDelete();
             $table->foreign('selected_option_id')->references('id')->on('the404_knowledge_check_options')->restrictOnDelete();
             $table->foreign('correct_option_id')->references('id')->on('the404_knowledge_check_options')->restrictOnDelete();
         });

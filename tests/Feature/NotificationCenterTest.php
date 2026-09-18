@@ -87,14 +87,20 @@ class NotificationCenterTest extends TestCase
         Notification::factory()->count(20)->create(['user_id' => $user->id]);
         Notification::factory()->count(10)->create(['user_id' => $user->id, 'read_at' => now()]);
 
-        $plan = DB::select(
-            'EXPLAIN QUERY PLAN SELECT count(*) FROM the404_notifications WHERE user_id = ? AND read_at IS NULL',
-            [$user->id],
-        );
+        $query = 'SELECT count(*) FROM the404_notifications WHERE user_id = ? AND read_at IS NULL';
 
-        $details = collect($plan)->pluck('detail')->implode(' ');
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $plan = DB::select('EXPLAIN QUERY PLAN '.$query, [$user->id]);
+            $details = collect($plan)->pluck('detail')->implode(' ');
 
-        $this->assertStringContainsString('the404_notifications_user_id_read_at_index', $details);
+            $this->assertStringContainsString('the404_notifications_user_id_read_at_index', $details);
+
+            return;
+        }
+
+        $plan = DB::select('EXPLAIN '.$query, [$user->id]);
+
+        $this->assertSame('the404_notifications_user_id_read_at_index', $plan[0]->key);
     }
 
     public function test_notifications_nav_item_links_to_the_center(): void

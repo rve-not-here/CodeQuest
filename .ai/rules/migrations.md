@@ -24,3 +24,6 @@ The 2026_09_04_120343 alter makes the404_xp_transactions.mission_id nullable and
 
 ## Retain Knowledge Check history
 Knowledge Check curriculum and attempt/response foreign keys use restrict-on-delete. Responses snapshot prompts, selected/correct answers, and explanations at submission; do not overwrite or cascade-delete educational history.
+
+## MariaDB caps identifiers at 64 chars; name long indexes/FKs explicitly
+MySQL/MariaDB reject identifiers longer than 64 characters (error 1059); SQLite has no such limit, so an overlong auto-generated index/foreign name migrates fine on SQLite and fails only under MariaDB. Laravel's default name stitches table + every column, so wide composite indexes on long `the404_*` table names overrun it. Pass an explicit short name as the 2nd/3rd arg: `$table->unique([...], 'kcq_check_order_unique')`, `$table->index([...], 'kco_..._index')`, `$table->foreign('col', 'kcr_attempt_foreign')`. See 2026_09_17_004929_create_the404_knowledge_check_tables.php for the reference names.

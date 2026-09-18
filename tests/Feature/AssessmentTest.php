@@ -415,7 +415,7 @@ class AssessmentTest extends TestCase
 
         $this->assertStringContainsString('no additional XP', session('assessment_success')['message']);
 
-        $this->assertSame(100, XpTransaction::query()->where('user_id', $user->id)->sum('amount'));
+        $this->assertSame(100, (int) XpTransaction::query()->where('user_id', $user->id)->sum('amount'));
         $this->assertSame(1, XpTransaction::query()
             ->where('user_id', $user->id)
             ->where('type', XpService::TYPE_ASSESSMENT_COMPLETED)
@@ -499,7 +499,7 @@ class AssessmentTest extends TestCase
         $this->assertDatabaseMissing('the404_assessment_attempts', [
             'user_id' => $bob->id,
         ]);
-        $this->assertSame(100, XpTransaction::query()->where('user_id', $alice->id)->sum('amount'));
+        $this->assertSame(100, (int) XpTransaction::query()->where('user_id', $alice->id)->sum('amount'));
         $this->assertSame('A B C', AssessmentAttempt::query()->find($attemptId)->code);
     }
 
