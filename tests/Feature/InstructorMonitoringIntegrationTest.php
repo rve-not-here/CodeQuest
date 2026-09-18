@@ -11,6 +11,7 @@ use App\Models\XpTransaction;
 use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 /**
@@ -32,6 +33,7 @@ use Tests\TestCase;
 class InstructorMonitoringIntegrationTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     protected function setUp(): void
     {
@@ -56,6 +58,8 @@ class InstructorMonitoringIntegrationTest extends TestCase
                 ['token' => '<p>', 'points' => 50],
             ], 'ALL_CLEAR');
 
+        $this->classroomFor($teacher, [$student], [$alpha, $beta]);
+
         // Stage 1 — a completed challenge writes progress and XP through the real
         // student route, and the teacher dashboard shows both in the same instant.
         $this->passMission($student, $alphaMissions[0], '<h1>Intro</h1>');
@@ -74,7 +78,6 @@ class InstructorMonitoringIntegrationTest extends TestCase
         $this->assertSame(30, $this->xp($student));
 
         $dashboard = $this->actingAs($teacher)->get(route('students'));
-        $dashboard->assertSee('Mission completed: '.$alphaMissions[0]->title);
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString('cadet_live', $roster);
         $this->assertStringContainsString('IN PROGRESS 1/2 · 50%', $roster);

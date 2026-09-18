@@ -14,11 +14,13 @@ use App\Services\TimelineService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class TeacherDashboardTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_dashboard_metrics_are_composed_from_the_roster_analytics_and_attention_services(): void
     {
@@ -108,7 +110,10 @@ class TeacherDashboardTest extends TestCase
         $this->complete($student, $this->missions($course)[0], $this->daysAgo(2));
         $this->attempt($student, $course->assessment, 'failed', 40, $this->daysAgo(1));
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('students'))
             ->assertOk()
             ->assertSee('Teacher Dashboard')
@@ -154,7 +159,10 @@ class TeacherDashboardTest extends TestCase
         $this->assertNotNull($newest);
         $this->assertSame('Boss Challenge passed: Alpha Boss Challenge (score 100)', $newest['label']);
 
-        $dashboard = $this->actingAs($this->teacher())->get(route('students'))->assertOk();
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $dashboard = $this->actingAs($teacher)->get(route('students'))->assertOk();
         $dashboard->assertSee($newest['label']);
 
         $roster = $this->rosterBody($dashboard->getContent());

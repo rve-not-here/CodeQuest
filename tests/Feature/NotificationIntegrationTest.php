@@ -12,6 +12,7 @@ use App\Services\DashboardService;
 use App\Services\NotificationService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 /**
@@ -23,6 +24,7 @@ use Tests\TestCase;
 class NotificationIntegrationTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     protected function setUp(): void
     {
@@ -46,6 +48,8 @@ class NotificationIntegrationTest extends TestCase
         ['course' => $beta] = $this->courseWithAssessment('CSS Foundations', 2, [
             ['token' => '<p>', 'points' => 50],
         ], 'ALL_CLEAR');
+
+        $this->classroomFor($teacher, [$student], [$alpha, $beta]);
 
         $this->passMission($student, $alphaMissions[0], '<h1>Intro</h1>');
         $this->passMission($student, $alphaMissions[1], '<nav>Menu</nav>');

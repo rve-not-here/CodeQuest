@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Announcement;
 use App\Models\Assessment;
+use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
@@ -18,8 +19,9 @@ class AdminAuthorizationTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Every admin-gated route added across Phase 7 (US-701..US-713). The gate
-     * is one middleware group in routes/web.php, but the regression test must
+     * Every admin-gated route added across Phase 7 (US-701..US-713 plus the
+     * Classroom / Enrollment Authorization surface). The gate is one
+     * middleware group in routes/web.php, but the regression test must
      * enumerate the routes explicitly, mirroring the US-611 teacher audit:
      * a later admin route registered outside the group, or without the 'admin'
      * middleware, is exactly the drift this file exists to catch. Extend this
@@ -27,7 +29,7 @@ class AdminAuthorizationTest extends TestCase
      * are enumerated here; the admin.courses.store/update write routes are
      * exercised in AdminCourseManagementTest.
      *
-     * @return array<int, array{name: string, needsUser?: bool, needsCourse?: bool, needsSection?: bool, needsMission?: bool, needsAnnouncement?: bool}>
+     * @return array<int, array{name: string, needsUser?: bool, needsCourse?: bool, needsSection?: bool, needsMission?: bool, needsAnnouncement?: bool, needsClassroom?: bool}>
      */
     private function adminRoutes(): array
     {
@@ -45,6 +47,9 @@ class AdminAuthorizationTest extends TestCase
             ['name' => 'admin.courses.missions.edit', 'needsCourse' => true, 'needsMission' => true],
             ['name' => 'admin.courses.assessment', 'needsCourse' => true],
             ['name' => 'admin.courses.assessment.edit', 'needsCourse' => true, 'needsAssessment' => true],
+            ['name' => 'admin.classrooms'],
+            ['name' => 'admin.classrooms.create'],
+            ['name' => 'admin.classrooms.edit', 'needsClassroom' => true],
             ['name' => 'admin.announcements'],
             ['name' => 'admin.announcements.create'],
             ['name' => 'admin.announcements.edit', 'needsAnnouncement' => true],
@@ -80,6 +85,10 @@ class AdminAuthorizationTest extends TestCase
             return route($route['name'], ['announcement' => $this->resourceId()]);
         }
 
+        if (isset($route['needsClassroom'])) {
+            return route($route['name'], ['classroom' => $this->resourceId()]);
+        }
+
         return route($route['name']);
     }
 
@@ -89,6 +98,7 @@ class AdminAuthorizationTest extends TestCase
         Section::factory()->create(['course_id' => $course->id]);
         Mission::factory()->create(['course_id' => $course->id]);
         Assessment::factory()->create(['course_id' => $course->id]);
+        Classroom::factory()->create();
         Announcement::factory()->create();
 
         foreach ($this->adminRoutes() as $route) {
@@ -103,6 +113,7 @@ class AdminAuthorizationTest extends TestCase
         Section::factory()->create(['course_id' => $course->id]);
         Mission::factory()->create(['course_id' => $course->id]);
         Assessment::factory()->create(['course_id' => $course->id]);
+        Classroom::factory()->create();
         Announcement::factory()->create();
 
         foreach ($this->adminRoutes() as $route) {
@@ -117,6 +128,7 @@ class AdminAuthorizationTest extends TestCase
         Section::factory()->create(['course_id' => $course->id]);
         Mission::factory()->create(['course_id' => $course->id]);
         Assessment::factory()->create(['course_id' => $course->id]);
+        Classroom::factory()->create();
         Announcement::factory()->create();
 
         foreach ($this->adminRoutes() as $route) {
@@ -131,6 +143,7 @@ class AdminAuthorizationTest extends TestCase
         Section::factory()->create(['course_id' => $course->id]);
         Mission::factory()->create(['course_id' => $course->id]);
         Assessment::factory()->create(['course_id' => $course->id]);
+        Classroom::factory()->create();
         Announcement::factory()->create();
 
         foreach ($this->adminRoutes() as $route) {
@@ -146,6 +159,7 @@ class AdminAuthorizationTest extends TestCase
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+        $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create(['created_by' => $admin->id]);
 
         // Gate assertion only: content-level checks for the pages live in their
@@ -161,6 +175,7 @@ class AdminAuthorizationTest extends TestCase
                 isset($route['needsCourse']) => route($route['name'], ['course' => $course->id]),
                 isset($route['needsUser']) => route($route['name'], ['user' => $target->id]),
                 isset($route['needsAnnouncement']) => route($route['name'], ['announcement' => $announcement->id]),
+                isset($route['needsClassroom']) => route($route['name'], ['classroom' => $classroom->id]),
                 default => route($route['name']),
             };
 
@@ -225,6 +240,7 @@ class AdminAuthorizationTest extends TestCase
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+        $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create();
 
         $calls = [
@@ -234,6 +250,11 @@ class AdminAuthorizationTest extends TestCase
             ['method' => 'put', 'uri' => route('admin.courses.sections.update', [$course, $section]), 'data' => ['title' => 'Sneaky Section']],
             ['method' => 'put', 'uri' => route('admin.courses.missions.update', [$course, $mission]), 'data' => ['title' => 'Sneaky Mission']],
             ['method' => 'put', 'uri' => route('admin.courses.assessment.update', [$course, $assessment]), 'data' => ['title' => 'Sneaky Assessment', 'passing_score' => 70, 'status' => 'active']],
+            ['method' => 'post', 'uri' => route('admin.classrooms.store'), 'data' => ['name' => 'Sneaky Classroom', 'status' => 'active']],
+            ['method' => 'put', 'uri' => route('admin.classrooms.update', $classroom), 'data' => ['name' => 'Sneaky Classroom', 'status' => 'inactive']],
+            ['method' => 'post', 'uri' => route('admin.classrooms.teachers', $classroom), 'data' => ['teacher_ids' => [$teacher->id]]],
+            ['method' => 'post', 'uri' => route('admin.classrooms.students', $classroom), 'data' => ['student_ids' => [$student->id]]],
+            ['method' => 'post', 'uri' => route('admin.classrooms.courses', $classroom), 'data' => ['course_ids' => [$course->id]]],
             ['method' => 'post', 'uri' => route('admin.announcements.store'), 'data' => ['title' => 'Sneaky Announcement', 'message' => 'Sneaky', 'audience' => 'all']],
             ['method' => 'put', 'uri' => route('admin.announcements.update', $announcement), 'data' => ['title' => 'Sneaky Announcement', 'message' => 'Sneaky', 'audience' => 'all']],
             ['method' => 'post', 'uri' => route('admin.announcements.publish', $announcement), 'data' => []],

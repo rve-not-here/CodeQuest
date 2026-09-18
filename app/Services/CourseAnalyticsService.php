@@ -40,6 +40,25 @@ class CourseAnalyticsService
     public const DISTRIBUTION_BANDS = ['0-24', '25-49', '50-74', '75-99', '100'];
 
     /**
+     * The bucket counts partition the student fleet per course, so NOT-STARTED is
+     * the fleet minus the engaged, and the four counts always sum to the fleet
+     * size. Courses render in order_num; locked/draft courses and courses with
+     * zero missions are excluded (the same universe the student side renders).
+     */
+    public function __construct(
+        private readonly ClassroomAccessService $access,
+    ) {}
+
+    /**
+     * @param  Collection<int, int>|null  $studentIds  restrict the fleet to a monitorable student set (null = whole fleet)
+     * @param  Collection<int, int>|null  $courseIds  restrict to a monitorable course set (null = every active course)
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes  the per-student shared-course
+     *                                                                      map from ClassroomAccessService::scopesFor.
+     *                                                                      when provided it wins over the two flat
+     *                                                                      sets: rows are confined to the exact
+     *                                                                      Student/Course pairs, and each course's
+     *                                                                      fleet is the students who may monitor it,
+     *                                                                      never the whole monitorable student set.
      * @return Collection<int, array{
      *     course: Course,
      *     fleet: int,
@@ -50,9 +69,16 @@ class CourseAnalyticsService
      *     distribution: array<int, int>,
      * }>
      */
-    public function overview(): Collection
+    public function overview(?Collection $studentIds = null, ?Collection $courseIds = null, ?array $studentCourseScopes = null): Collection
     {
-        $fleet = $this->fleetSize();
+        $fleet = $this->fleetSize($studentIds);
+
+        if ($studentCourseScopes !== null) {
+            $courseIds = collect($studentCourseScopes)
+                ->flatMap(fn (Collection $ids): Collection => $ids)
+                ->unique()
+                ->values();
+        }
 
         $missionCounts = Mission::query()
             ->toBase()
@@ -63,9 +89,15 @@ class CourseAnalyticsService
         $progressByCourse = DB::table('the404_progress as p')
             ->join('the404_missions as m', 'm.id', '=', 'p.mission_id')
             ->selectRaw('m.course_id as course_id, p.user_id as user_id, COUNT(DISTINCT p.mission_id) as done')
-            ->groupBy('m.course_id', 'p.user_id')
-            ->get()
-            ->groupBy('course_id');
+            ->groupBy('m.course_id', 'p.user_id');
+
+        if ($studentCourseScopes !== null) {
+            $progressByCourse = $this->access->whereAllowedPairs($progressByCourse, 'p.user_id', 'm.course_id', $studentCourseScopes);
+        } elseif ($studentIds !== null) {
+            $progressByCourse->whereIn('p.user_id', $studentIds);
+        }
+
+        $progressByCourse = $progressByCourse->get()->groupBy('course_id');
 
         $attemptsByCourse = DB::table('the404_assessment_attempts as at')
             ->join('the404_assessments as a', 'a.id', '=', 'at.assessment_id')
@@ -75,9 +107,15 @@ class CourseAnalyticsService
                 .'MAX(CASE WHEN at.status IN (?, ?) THEN 1 ELSE 0 END) as has_terminal',
                 ['passed', 'passed', 'failed'],
             )
-            ->groupBy('a.course_id', 'at.user_id')
-            ->get()
-            ->groupBy('course_id');
+            ->groupBy('a.course_id', 'at.user_id');
+
+        if ($studentCourseScopes !== null) {
+            $attemptsByCourse = $this->access->whereAllowedPairs($attemptsByCourse, 'at.user_id', 'a.course_id', $studentCourseScopes);
+        } elseif ($studentIds !== null) {
+            $attemptsByCourse->whereIn('at.user_id', $studentIds);
+        }
+
+        $attemptsByCourse = $attemptsByCourse->get()->groupBy('course_id');
 
         $assessmentStatuses = Assessment::query()
             ->pluck('status', 'course_id');
@@ -85,17 +123,44 @@ class CourseAnalyticsService
         $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get()
             ->filter(fn (Course $course): bool => ((int) ($missionCounts->get($course->id) ?? 0)) > 0);
 
+        $scopedCourseFleet = $studentCourseScopes !== null
+            ? $this->courseFleetByScope($studentCourseScopes)
+            : null;
+
         return $courses->map(fn (Course $course): array => $this->course(
             $course,
-            $fleet,
+            $scopedCourseFleet !== null ? ($scopedCourseFleet[$course->id] ?? 0) : $fleet,
             (int) ($missionCounts->get($course->id) ?? 0),
             $progressByCourse->get($course->id, collect()),
             $attemptsByCourse->get($course->id, collect()),
             $assessmentStatuses->get($course->id),
         ))->values();
+    }
+
+    /**
+     * The fleet of a course under a per-student scope is NOT the whole
+     * monitorable student set: it is the students allowed to view THIS course.
+     * NOT-STARTED is that per-course fleet minus the engaged, so the four
+     * buckets always sum to the fleet a given teacher may actually see.
+     *
+     * @param  array<int, Collection<int, int>>  $studentCourseScopes
+     * @return array<int, int> course_id => number of students who may monitor it
+     */
+    private function courseFleetByScope(array $studentCourseScopes): array
+    {
+        $fleet = [];
+
+        foreach ($studentCourseScopes as $courseIds) {
+            foreach ($courseIds as $courseId) {
+                $fleet[$courseId] = ($fleet[$courseId] ?? 0) + 1;
+            }
+        }
+
+        return $fleet;
     }
 
     /**
@@ -200,8 +265,15 @@ class CourseAnalyticsService
         return 0;
     }
 
-    private function fleetSize(): int
+    /**
+     * @param  Collection<int, int>|null  $studentIds
+     */
+    private function fleetSize(?Collection $studentIds = null): int
     {
+        if ($studentIds !== null) {
+            return $studentIds->count();
+        }
+
         return User::query()->where('role', 'student')->count();
     }
 }

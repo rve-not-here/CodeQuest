@@ -112,6 +112,8 @@ class AttentionService
     ];
 
     /**
+     * @param  Collection<int, int>|null  $studentIds  restrict the enumerated students (null = whole fleet; an empty set = nobody)
+     * @param  array<int, Collection<int, int>>|null  $allowedByStudent  per-student monitorable course ids for a scoped teacher (null = unrestricted per student)
      * @return Collection<int, array{
      *     student: User,
      *     current_course: Course,
@@ -121,9 +123,13 @@ class AttentionService
      *     last_activity_at: Carbon|null,
      * }>
      */
-    public function list(): Collection
+    public function list(?Collection $studentIds = null, ?array $allowedByStudent = null): Collection
     {
-        $students = User::query()->where('role', 'student')->orderBy('username')->get();
+        $students = User::query()
+            ->where('role', 'student')
+            ->when($studentIds !== null, fn ($query) => $query->whereIn('id', $studentIds))
+            ->orderBy('username')
+            ->get();
 
         $courses = Course::query()->where('status', 'active')->orderBy('order_num')->get();
 
@@ -175,7 +181,12 @@ class AttentionService
             $progressRows = $progressByUserCourse->get($student->id, collect());
             $attemptRows = $attemptsByUserCourse->get($student->id, collect());
 
-            $current = $this->currentCourse($courses, $missionCounts, $passedSet);
+            $allowed = $allowedByStudent[$student->id] ?? null;
+            $candidateCourses = $allowed === null
+                ? $courses
+                : $courses->filter(fn (Course $course): bool => $allowed->contains($course->id))->values();
+
+            $current = $this->currentCourse($candidateCourses, $missionCounts, $passedSet);
 
             if ($current === null) {
                 continue;

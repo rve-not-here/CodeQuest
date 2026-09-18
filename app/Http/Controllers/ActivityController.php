@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ActivityFeedRequest;
 use App\Models\User;
+use App\Services\ClassroomAccessService;
 use App\Services\StudentService;
 use App\Services\TimelineService;
 use Carbon\Carbon;
@@ -14,14 +15,17 @@ class ActivityController extends Controller
     public function __construct(
         private readonly TimelineService $timeline,
         private readonly StudentService $students,
+        private readonly ClassroomAccessService $access,
     ) {}
 
     /**
      * The Learning Activity feed (US-606), realized on the existing /activity
-     * route inside the teacher gate. System-wide by design: 'teacher' is a
-     * role-based, classless gate (US-601), so a student filter can only narrow
-     * the view, never widen it — 'student' is therefore a legit, validated
-     * server-side filter here (unlike the identifier-less roster pages).
+     * route inside the teacher gate. Classroom-scoped by design (Classroom /
+     * Enrollment Authorization): the feed spans exactly the requesting user's
+     * monitorable scope — every student for an admin, the students and courses
+     * of the teacher's ACTIVE classrooms. A student or course filter can only
+     * narrow that scope, never widen it: an unauthorized filter collapses to
+     * an empty feed rather than leaking.
      */
     public function __invoke(ActivityFeedRequest $request): View
     {
@@ -34,23 +38,42 @@ class ActivityController extends Controller
         /** @var array<string, string> $paginatorQuery */
         $paginatorQuery = array_filter($filters, static fn (mixed $value): bool => $value !== null);
 
+        /** @var User $user */
+        $user = auth()->user();
+
+        $scope = $this->access->scopesFor($user);
+
+        $studentFilter = isset($filters['student'])
+            ? collect([(int) $filters['student']])
+            : null;
+
+        if ($scope['studentIds'] !== null) {
+            $studentFilter = $studentFilter === null
+                ? $scope['studentIds']
+                : $scope['studentIds']->intersect($studentFilter);
+        }
+
+        $courseFilter = isset($filters['course']) ? (int) $filters['course'] : null;
+
+        if ($courseFilter !== null && $scope['courseIds'] !== null && ! $scope['courseIds']->contains($courseFilter)) {
+            $courseFilter = -1;
+        }
+
         $rows = $this->timeline->feed(
-            isset($filters['student']) ? collect([(int) $filters['student']]) : null,
-            isset($filters['course']) ? (int) $filters['course'] : null,
+            $studentFilter,
+            $courseFilter,
             $filters['type'] ?? null,
             Carbon::parse($filters['from'])->startOfDay(),
             Carbon::parse($filters['to'])->endOfDay(),
             $paginatorQuery,
+            $scope['byStudent'],
         );
-
-        /** @var User $user */
-        $user = auth()->user();
 
         return view('activity', [
             'role' => $user->role,
             'events' => $rows,
-            'filterStudents' => $this->students->studentOptions(),
-            'filterCourses' => $this->students->courseOptions(),
+            'filterStudents' => $this->students->studentOptions($scope['studentIds']),
+            'filterCourses' => $this->students->courseOptions($scope['courseIds']),
             'filterTypes' => TimelineService::FILTERABLE_TYPES,
             'filters' => $filters,
         ]);

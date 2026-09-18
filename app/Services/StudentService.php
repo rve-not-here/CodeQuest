@@ -38,48 +38,62 @@ class StudentService
     ) {}
 
     /**
-     * Active courses for the "current course" filter dropdown.
+     * Active courses for the "current course" filter dropdown. An optional
+     * scope restricts the list to a monitorable course set.
      *
+     * @param  Collection<int, int>|null  $courseIds
      * @return Collection<int, Course>
      */
-    public function courseOptions(): Collection
+    public function courseOptions(?Collection $courseIds = null): Collection
     {
         return Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get();
     }
 
     /**
-     * Every student, ordered for the teacher-area filter dropdowns.
+     * Every student, ordered for the teacher-area filter dropdowns. An
+     * optional scope restricts the list to a monitorable student set.
      *
+     * @param  Collection<int, int>|null  $studentIds
      * @return Collection<int, User>
      */
-    public function studentOptions(): Collection
+    public function studentOptions(?Collection $studentIds = null): Collection
     {
         return User::query()
             ->where('role', 'student')
+            ->when($studentIds !== null, fn ($query) => $query->whereIn('id', $studentIds))
             ->orderBy('username')
             ->get();
     }
 
     /**
      * @param  array<string, string>  $paginatorQuery
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes  per-student
+     *                                                                      monitorable course ids for a scoped teacher (null = whole roster,
+     *                                                                      every student unrestricted; an empty map = nobody to monitor)
      * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    public function index(?string $search, ?int $courseId, ?string $status, array $paginatorQuery): LengthAwarePaginator
+    public function index(?string $search, ?int $courseId, ?string $status, array $paginatorQuery, ?array $studentCourseScopes = null): LengthAwarePaginator
     {
-        $students = User::query()
-            ->where('role', 'student')
-            ->when($search !== null, fn ($query) => $query->where(
-                fn ($query) => $query
-                    ->where('username', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%"),
-            ))
-            ->orderBy('username')
-            ->get();
-
-        $rows = $students->map(fn (User $student): array => $this->rowFor($student));
+        if ($studentCourseScopes === null) {
+            $students = $this->students($search);
+            $rows = $students->map(fn (User $student): array => $this->rowFor($student));
+        } else {
+            $students = $this->students($search, studentIds: collect(array_keys($studentCourseScopes)));
+            $rows = $students
+                ->filter(
+                    fn (User $student): bool => ($studentCourseScopes[$student->id] ?? collect())->isNotEmpty(),
+                )
+                ->map(
+                    fn (User $student): array => $this->rowFor(
+                        $student,
+                        $studentCourseScopes[$student->id] ?? collect(),
+                    ),
+                );
+        }
 
         if ($courseId !== null) {
             $rows = $rows->filter(fn (array $row): bool => ($row['currentCourse']['id'] ?? null) === $courseId);
@@ -106,11 +120,32 @@ class StudentService
     }
 
     /**
+     * @param  Collection<int, int>|null  $studentIds
+     * @return Collection<int, User>
+     */
+    private function students(?string $search, ?Collection $studentIds = null): Collection
+    {
+        return User::query()
+            ->where('role', 'student')
+            ->when($studentIds !== null, fn ($query) => $query->whereIn('id', $studentIds))
+            ->when($search !== null, fn ($query) => $query->where(
+                fn ($query) => $query
+                    ->where('username', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%"),
+            ))
+            ->orderBy('username')
+            ->get();
+    }
+
+    /**
+     * @param  Collection<int, int>|null  $courseIds  the monitorable course set
+     *                                                for this student (a teacher's shared classrooms); null keeps every
+     *                                                course
      * @return array<string, mixed>
      */
-    private function rowFor(User $student): array
+    private function rowFor(User $student, ?Collection $courseIds = null): array
     {
-        $current = $this->dashboard->currentCourse($student);
+        $current = $this->dashboard->currentCourse($student, $courseIds);
 
         if ($current === null) {
             $currentCourse = null;
@@ -125,7 +160,7 @@ class StudentService
              *     state: string,
              * }|null $currentRow
              */
-            $currentRow = $this->progress->overview($student)
+            $currentRow = $this->progress->overview($student, $courseIds)
                 ->first(fn (array $row): bool => $row['course']->id === $current->id);
 
             $currentCourse = ['id' => $current->id, 'name' => $current->name];
@@ -142,8 +177,8 @@ class StudentService
             'progress' => $progress,
             'state' => $state,
             'assessment' => $assessment,
-            'competency' => $this->competencySummary($student),
-            'lastActivity' => $this->lastActivity($student),
+            'competency' => $this->competencySummary($student, $courseIds),
+            'lastActivity' => $this->lastActivity($student, $courseIds),
         ];
     }
 
@@ -161,15 +196,16 @@ class StudentService
     }
 
     /**
-     * Compact per-state counts across every active competency area.
+     * Compact per-state counts across the monitorable competency areas.
      *
+     * @param  Collection<int, int>|null  $courseIds
      * @return array{not_started: int, developing: int, practicing: int, demonstrated: int}
      */
-    private function competencySummary(User $student): array
+    private function competencySummary(User $student, ?Collection $courseIds = null): array
     {
         $counts = ['not_started' => 0, 'developing' => 0, 'practicing' => 0, 'demonstrated' => 0];
 
-        foreach ($this->competency->overview($student) as $row) {
+        foreach ($this->competency->overview($student, $courseIds) as $row) {
             if (array_key_exists($row['state'], $counts)) {
                 $counts[$row['state']]++;
             }
@@ -181,13 +217,16 @@ class StudentService
     /**
      * Newest learning beat in the SAME four-source vocabulary as the Recent
      * Activity strip (TimelineService::events), so the roster column and the
-     * strip can never disagree about what a student did last.
+     * strip can never disagree about what a student did last. When a monitorable
+     * course set is supplied the beat is confined to it — a scoped teacher never
+     * sees a student's activity from a course they do not share.
      *
+     * @param  Collection<int, int>|null  $courseIds
      * @return array{message: string, at: string}|null
      */
-    private function lastActivity(User $student): ?array
+    private function lastActivity(User $student, ?Collection $courseIds = null): ?array
     {
-        $beat = $this->timeline->events($student, 1)->first();
+        $beat = $this->timeline->events($student, 1, $courseIds)->first();
 
         if ($beat === null) {
             return null;

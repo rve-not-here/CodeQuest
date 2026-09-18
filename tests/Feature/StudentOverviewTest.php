@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Activity;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -10,12 +9,15 @@ use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
+use App\Models\XpTransaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class StudentOverviewTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_student_overview_requires_teacher_authorization(): void
     {
@@ -39,11 +41,14 @@ class StudentOverviewTest extends TestCase
 
     public function test_student_overview_lists_students_only(): void
     {
-        User::factory()->create(['username' => 'pilot_one']);
-        User::factory()->create(['username' => 'pilot_two']);
+        $pilotOne = User::factory()->create(['username' => 'pilot_one']);
+        $pilotTwo = User::factory()->create(['username' => 'pilot_two']);
         User::factory()->create(['role' => 'admin', 'username' => 'admin_roster']);
         User::factory()->create(['role' => 'operator', 'username' => 'operator_roster']);
         $teacher = User::factory()->teacher()->create();
+        $course = Course::factory()->create();
+
+        $this->classroomFor($teacher, [$pilotOne, $pilotTwo], [$course]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -62,12 +67,16 @@ class StudentOverviewTest extends TestCase
 
         $student = User::factory()->create(['username' => 'cadet_inkling']);
         $this->complete($student, $missions[0]);
-        Activity::query()->create([
+        $hint = new XpTransaction([
             'user_id' => $student->id,
-            'type' => 'mission_completed',
-            'message' => 'Completed mission alpha',
-            'pts' => 10,
+            'mission_id' => $missions[0]->id,
+            'type' => 'hint_used',
+            'description' => 'Hint used on mission: alpha',
+            'amount' => -5,
         ]);
+        $hint->forceFill(['created_at' => now()])->save();
+
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -77,15 +86,17 @@ class StudentOverviewTest extends TestCase
             ->assertSee('IN PROGRESS 1/2 · 50%')
             ->assertSee('LOCKED')
             ->assertSee('PRACTICING 1')
-            ->assertSee('Completed mission alpha')
+            ->assertSee('Hint used on mission: alpha')
             ->assertSee('ATTN');
     }
 
     public function test_student_overview_search_is_server_side_by_username_and_name(): void
     {
         $teacher = User::factory()->teacher()->create();
-        User::factory()->create(['username' => 'captain_alpha', 'name' => 'Aaron Waters']);
-        User::factory()->create(['username' => 'lieutenant_bravo', 'name' => 'Bella Stone']);
+        $captain = User::factory()->create(['username' => 'captain_alpha', 'name' => 'Aaron Waters']);
+        $lieutenant = User::factory()->create(['username' => 'lieutenant_bravo', 'name' => 'Bella Stone']);
+
+        $this->classroomFor($teacher, [$captain, $lieutenant], [Course::factory()->create()]);
 
         $this->actingAs($teacher)
             ->get(route('students', ['q' => 'alpha']))
@@ -122,6 +133,8 @@ class StudentOverviewTest extends TestCase
         $this->complete($learnerB, $firstMissions[1]);
         $this->attempt($learnerB, $firstAssessment, 'passed');
 
+        $this->classroomFor($teacher, [$learnerA, $learnerB], [$first, $second]);
+
         // The dashboard strips above the roster echo usernames system-wide, so
         // scope the roster-filter assertions to the roster region (feature.md).
         $rosterA = $this->rosterBody($this->actingAs($teacher)
@@ -152,6 +165,8 @@ class StudentOverviewTest extends TestCase
         $this->complete($cleared, $missions[0]);
         $this->complete($cleared, $missions[1]);
         $this->attempt($cleared, $assessment, 'passed');
+
+        $this->classroomFor($teacher, [$inProgress, $ready, $cleared], [$course]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -187,9 +202,12 @@ class StudentOverviewTest extends TestCase
     {
         $teacher = User::factory()->teacher()->create();
 
+        $cadets = [];
         foreach (range(1, 12) as $index) {
-            User::factory()->create(['username' => sprintf('cadet_%02d', $index)]);
+            $cadets[] = User::factory()->create(['username' => sprintf('cadet_%02d', $index)]);
         }
+
+        $this->classroomFor($teacher, $cadets, [Course::factory()->create()]);
 
         $this->actingAs($teacher)
             ->get(route('students'))

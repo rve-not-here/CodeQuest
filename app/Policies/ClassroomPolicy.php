@@ -4,63 +4,76 @@ namespace App\Policies;
 
 use App\Models\Classroom;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Services\ClassroomAccessService;
 
 class ClassroomPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * The teacher-area classroom listing is open to any teacher or admin; the
+     * rows themselves are scope-filtered by ClassroomAccessService.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return in_array($user->role, ['teacher', 'admin'], true);
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Viewing a classroom's page is membership-driven and status-driven: an
+     * admin manages every classroom (active or inactive), a teacher only the
+     * classrooms they teach AND that are still active — status is an
+     * authorization visibility boundary, not housekeeping.
      */
     public function view(User $user, Classroom $classroom): bool
     {
-        return false;
+        return $this->access()->teachesClassroom($user, $classroom);
     }
 
     /**
-     * Determine whether the user can create models.
+     * Creating classrooms is an admin-only surface (teacher monitors, admins
+     * manage the academic structure).
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Editing a classroom's base fields is admin-only.
      */
     public function update(User $user, Classroom $classroom): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Teacher/student/course assignments are admin-only management operations.
+     */
+    public function manageMembers(User $user, Classroom $classroom): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Reading a classroom's monitoring data (roster, progress) is the teacher
+     * view: the classroom's own teachers while it is active, plus the
+     * fleet-wide admin.
+     */
+    public function monitor(User $user, Classroom $classroom): bool
+    {
+        return $this->access()->teachesClassroom($user, $classroom);
+    }
+
+    /**
+     * Classrooms are academic records: there is deliberately no delete path
+     * (§14 no-destructive posture applies here as it does to courses).
      */
     public function delete(User $user, Classroom $classroom): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Classroom $classroom): bool
+    private function access(): ClassroomAccessService
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Classroom $classroom): bool
-    {
-        return false;
+        return app(ClassroomAccessService::class);
     }
 }

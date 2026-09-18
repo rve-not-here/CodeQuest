@@ -33,18 +33,25 @@ class CourseProgressService
     ) {}
 
     /**
+     * An optional $courseIds scope restricts the overview to a monitorable
+     * course set (a teacher's shared classrooms). null keeps every course; an
+     * empty Collection yields no rows.
+     *
+     * @param  Collection<int, int>|null  $courseIds
      * @return Collection<int, array{
      *     course: Course,
      *     progress: array{completed: int, total: int, percent: int},
      *     state: string,
      * }>
      */
-    public function overview(User $user): Collection
+    public function overview(User $user, ?Collection $courseIds = null): Collection
     {
-        $currentCourseId = $this->dashboard->currentCourse($user)?->id;
+        $currentCourseId = $this->dashboard
+            ->currentCourse($user, $courseIds)?->id;
 
         return Course::query()
             ->orderBy('order_num')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get()
             ->map(function (Course $course) use ($user, $currentCourseId): array {
                 return [

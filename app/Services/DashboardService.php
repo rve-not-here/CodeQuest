@@ -29,13 +29,20 @@ class DashboardService
      * only unlocks the Boss Challenge. A course with no missions is skipped:
      * it can never unlock a challenge and would otherwise strand the student
      * here forever.
+     *
+     * An optional $courseIds scope restricts the search to a monitorable
+     * course set (a teacher's shared classrooms). null keeps the whole active
+     * catalog; an empty Collection yields no current course.
+     *
+     * @param  Collection<int, int>|null  $courseIds
      */
-    public function currentCourse(User $user): ?Course
+    public function currentCourse(User $user, ?Collection $courseIds = null): ?Course
     {
         return Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
             ->withCount('missions')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get()
             ->first(function (Course $course) use ($user): bool {
                 if ($course->missions_count === 0) {

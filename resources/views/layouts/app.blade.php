@@ -25,6 +25,7 @@
     $instructorItems = [
         ['route' => 'dashboard', 'label' => 'Dashboard'],
         ['route' => 'students', 'label' => 'Students'],
+        ['route' => 'classrooms', 'label' => 'My Classrooms'],
         ['heading' => 'System'],
         ['route' => 'assessments', 'label' => 'Assessments'],
         ['route' => 'competency', 'label' => 'Competency'],
@@ -38,6 +39,7 @@
         ['route' => 'admin.dashboard', 'label' => 'Admin Console'],
         ['route' => 'admin.users', 'label' => 'Users'],
         ['route' => 'admin.courses', 'label' => 'Courses'],
+        ['route' => 'admin.classrooms', 'label' => 'Classrooms'],
         ['route' => 'admin.announcements', 'label' => 'Announcements'],
         ['route' => 'admin.activity', 'label' => 'Audit Trail'],
         ['route' => 'admin.analytics', 'label' => 'System Analytics'],

@@ -49,6 +49,7 @@ class AttentionNotificationService
     public function __construct(
         private readonly AttentionService $attention,
         private readonly NotificationService $notifications,
+        private readonly ClassroomAccessService $access,
     ) {}
 
     /**
@@ -60,11 +61,13 @@ class AttentionNotificationService
      */
     public function syncFor(User $teacher): int
     {
-        return DB::transaction(function () use ($teacher): int {
+        $scope = $this->access->scopesFor($teacher);
+
+        return DB::transaction(function () use ($teacher, $scope): int {
             $latestByStudent = $this->latestAttentionByStudent($teacher);
             $created = 0;
 
-            foreach ($this->attention->list() as $row) {
+            foreach ($this->attention->list($scope['studentIds'], $scope['byStudent']) as $row) {
                 $student = $row['student'];
                 $signals = $row['signals'];
 

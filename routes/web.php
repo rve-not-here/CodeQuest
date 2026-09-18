@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminActivityController;
 use App\Http\Controllers\AdminAnalyticsController;
 use App\Http\Controllers\AdminAnnouncementController;
 use App\Http\Controllers\AdminAssessmentController;
+use App\Http\Controllers\AdminClassroomController;
 use App\Http\Controllers\AdminCourseController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminMissionController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AttentionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\CompetencyController;
 use App\Http\Controllers\CourseAnalyticsController;
 use App\Http\Controllers\CourseProgressController;
@@ -129,6 +131,13 @@ Route::middleware(['auth', 'teacher'])->group(function (): void {
     Route::get('/activity', ActivityController::class)->name('activity');
     Route::get('/course-analytics', CourseAnalyticsController::class)->name('course-analytics');
     Route::get('/needs-attention', AttentionController::class)->name('needs-attention');
+
+    // Classroom / Enrollment Authorization (teacher read side): a teacher sees
+    // exactly their own teaching classrooms while ACTIVE, and the monitoring
+    // data on every teacher page above is scoped in depth by
+    // ClassroomAccessService. Read-only GETs, like the rest of the teacher area.
+    Route::get('/classrooms', [ClassroomController::class, 'index'])->name('classrooms');
+    Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])->name('classrooms.show');
 });
 
 // Admin area (US-701): authenticated, admin-only. The 'admin' middleware is
@@ -238,4 +247,20 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
     // explicit SAFE_CONFIG_KEYS allowlist, never credentials, keys, or
     // connection internals. Route is not nested: it describes the deployment.
     Route::get('/admin/system', AdminSystemController::class)->name('admin.system');
+
+    // Classroom management (Classroom / Enrollment Authorization): admin-owned
+    // CRUD for the three base fields and the three membership assignment sets.
+    // Create + assignments + edit run through ClassroomService and write a
+    // persist audit trail row for every applied change and every refusal. The
+    // assignment POSTs are separate membership operations — they never touch
+    // academic history, and a status change never rewrites (or clears) the
+    // pivots. No delete/destroy route (§14 no-destructive posture).
+    Route::get('/admin/classrooms', [AdminClassroomController::class, 'index'])->name('admin.classrooms');
+    Route::get('/admin/classrooms/create', [AdminClassroomController::class, 'create'])->name('admin.classrooms.create');
+    Route::post('/admin/classrooms', [AdminClassroomController::class, 'store'])->name('admin.classrooms.store');
+    Route::get('/admin/classrooms/{classroom}/edit', [AdminClassroomController::class, 'edit'])->name('admin.classrooms.edit');
+    Route::put('/admin/classrooms/{classroom}', [AdminClassroomController::class, 'update'])->name('admin.classrooms.update');
+    Route::post('/admin/classrooms/{classroom}/teachers', [AdminClassroomController::class, 'assignTeachers'])->name('admin.classrooms.teachers');
+    Route::post('/admin/classrooms/{classroom}/students', [AdminClassroomController::class, 'enrollStudents'])->name('admin.classrooms.students');
+    Route::post('/admin/classrooms/{classroom}/courses', [AdminClassroomController::class, 'assignCourses'])->name('admin.classrooms.courses');
 });

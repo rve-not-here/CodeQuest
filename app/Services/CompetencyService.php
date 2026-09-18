@@ -35,6 +35,11 @@ class CompetencyService
     ) {}
 
     /**
+     * An optional $courseIds scope restricts the overview to a monitorable
+     * course set (a teacher's shared classrooms). null keeps every active
+     * course with missions; an empty Collection yields no rows.
+     *
+     * @param  Collection<int, int>|null  $courseIds
      * @return Collection<int, array{
      *     course: Course,
      *     name: string,
@@ -47,12 +52,13 @@ class CompetencyService
      *     challengePassed: bool,
      * }>
      */
-    public function overview(User $user): Collection
+    public function overview(User $user, ?Collection $courseIds = null): Collection
     {
         return Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
             ->with('missions')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get()
             ->filter(fn (Course $course): bool => $course->missions->isNotEmpty())
             ->map(fn (Course $course): array => $this->summarise($user, $course))

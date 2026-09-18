@@ -49,6 +49,16 @@ class AdminAuditService
 
     public const ACTION_ANNOUNCEMENT_ARCHIVE = 'announcement.archive';
 
+    public const ACTION_CLASSROOM_CREATE = 'classroom.create';
+
+    public const ACTION_CLASSROOM_UPDATE = 'classroom.update';
+
+    public const ACTION_CLASSROOM_TEACHERS = 'classroom.teachers';
+
+    public const ACTION_CLASSROOM_STUDENTS = 'classroom.students';
+
+    public const ACTION_CLASSROOM_COURSES = 'classroom.courses';
+
     /**
      * Every action the trail can produce, in display order, for the server-side
      * action filter.
@@ -68,6 +78,11 @@ class AdminAuditService
         self::ACTION_ANNOUNCEMENT_UPDATE,
         self::ACTION_ANNOUNCEMENT_PUBLISH,
         self::ACTION_ANNOUNCEMENT_ARCHIVE,
+        self::ACTION_CLASSROOM_CREATE,
+        self::ACTION_CLASSROOM_UPDATE,
+        self::ACTION_CLASSROOM_TEACHERS,
+        self::ACTION_CLASSROOM_STUDENTS,
+        self::ACTION_CLASSROOM_COURSES,
     ];
 
     public const FEED_PER_PAGE = 30;
