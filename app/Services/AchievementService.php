@@ -244,7 +244,7 @@ class AchievementService
 
         $passedCourseIds = Assessment::query()
             ->whereIn(
-                'course_id',
+                'id',
                 AssessmentAttempt::query()
                     ->where('user_id', $user->id)
                     ->where('status', 'passed')
