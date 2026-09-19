@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -49,30 +50,48 @@ class CourseProgressService
         $currentCourseId = $this->dashboard
             ->currentCourse($user, $courseIds)?->id;
 
-        return Course::query()
+        $courses = Course::query()
             ->orderBy('order_num')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
-            ->get()
-            ->map(function (Course $course) use ($user, $currentCourseId): array {
-                return [
-                    'course' => $course,
-                    'progress' => $this->dashboard->courseProgress($user, $course),
-                    'state' => $this->stateFor($user, $course, $currentCourseId),
-                ];
-            });
+            ->get();
+
+        if ($courses->isEmpty()) {
+            return collect();
+        }
+
+        // US-911: progress and assessment state for every course in grouped
+        // reads instead of courseProgress/hasPassed/isUnlocked per course.
+        // Labels keep the exact precedence below.
+        $progress = $this->dashboard->courseProgressMap($user, $courses);
+        $states = $this->assessments->assessmentStatesForCourses($user, $courses);
+
+        return $courses->map(function (Course $course) use ($currentCourseId, $progress, $states): array {
+            // The map covers every input course; the default matches
+            // zero-mission math and only satisfies the type.
+            $courseProgress = $progress->get($course->id) ?? ['completed' => 0, 'total' => 0, 'percent' => 0];
+
+            return [
+                'course' => $course,
+                'progress' => $courseProgress,
+                'state' => $this->stateFor($course, $states[$course->id], $currentCourseId),
+            ];
+        });
     }
 
-    private function stateFor(User $user, Course $course, ?int $currentCourseId): string
+    /**
+     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool}  $state
+     */
+    private function stateFor(Course $course, array $state, ?int $currentCourseId): string
     {
         if ($course->status !== 'active') {
             return 'LOCKED';
         }
 
-        if ($this->assessments->hasPassed($user, $course)) {
+        if ($state['passed']) {
             return 'COMPLETED';
         }
 
-        if ($this->assessments->isUnlocked($user, $course)) {
+        if ($state['assessment'] !== null && $state['assessment']->status === 'active' && $state['eligible']) {
             return 'READY';
         }
 

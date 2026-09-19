@@ -38,19 +38,33 @@ class DashboardService
      */
     public function currentCourse(User $user, ?Collection $courseIds = null): ?Course
     {
-        return Course::query()
+        $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
             ->withCount('missions')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
-            ->get()
-            ->first(function (Course $course) use ($user): bool {
-                if ($course->missions_count === 0) {
-                    return false;
-                }
+            ->get();
 
-                return ! $this->assessments->hasPassed($user, $course);
-            });
+        if ($courses->isEmpty()) {
+            return null;
+        }
+
+        // US-911: one batched pass-history read instead of hasPassed() per
+        // course. The verdict per course is identical: skipped when the
+        // course has no missions, otherwise current while no passed attempt
+        // exists for its assessment.
+        $assessmentIds = $this->assessments->assessmentIdsByCourse($courses->pluck('id'));
+        $passed = $this->assessments->passedAssessmentIds($user);
+
+        return $courses->first(function (Course $course) use ($assessmentIds, $passed): bool {
+            if ($course->missions_count === 0) {
+                return false;
+            }
+
+            $assessmentId = $assessmentIds->get($course->id);
+
+            return $assessmentId === null || ! $passed->contains($assessmentId);
+        });
     }
 
     /**
@@ -82,6 +96,50 @@ class DashboardService
             'total' => $total,
             'percent' => $this->percent($completed, $total),
         ];
+    }
+
+    /**
+     * Progress map for a user across a set of courses in a single query
+     * (US-911). Returns course_id => array{completed, total, percent}.
+     *
+     * @param  Collection<int, Course>  $courses
+     * @return Collection<int, array{completed: int, total: int, percent: int}>
+     */
+    public function courseProgressMap(User $user, Collection $courses): Collection
+    {
+        if ($courses->isEmpty()) {
+            return collect();
+        }
+
+        $courseIds = $courses->pluck('id');
+
+        $missionIdsByCourse = Mission::query()
+            ->whereIn('course_id', $courseIds)
+            ->get(['id', 'course_id']);
+
+        $totalByCourse = $missionIdsByCourse->groupBy('course_id')->map->count();
+
+        $completedMissionIds = Progress::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $missionIdsByCourse->pluck('id'))
+            ->pluck('mission_id')
+            ->all();
+
+        $completedByCourse = $missionIdsByCourse
+            ->filter(fn ($mission) => in_array($mission->id, $completedMissionIds, true))
+            ->groupBy('course_id')
+            ->map->count();
+
+        return $courses->mapWithKeys(function (Course $course) use ($totalByCourse, $completedByCourse): array {
+            $total = $totalByCourse->get($course->id, 0);
+            $completed = $completedByCourse->get($course->id, 0);
+
+            return [$course->id => [
+                'completed' => $completed,
+                'total' => $total,
+                'percent' => $this->percent($completed, $total),
+            ]];
+        });
     }
 
     public function totalXp(User $user): int

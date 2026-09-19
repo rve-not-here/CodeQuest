@@ -9,6 +9,7 @@ use App\Exceptions\AssessmentNotUnlockedException;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
+use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,6 +61,92 @@ class AssessmentService
         return Assessment::query()
             ->where('course_id', $course->id)
             ->first();
+    }
+
+    /**
+     * Batched read companions for the per-course assessment predicates below
+     * (US-911). Fleet and overview paths aggregate in SQL and consume these
+     * sets instead of issuing one lookup per course; the predicates stay
+     * verbatim: an assessment belongs to the course holding its course_id
+     * (unique per course), a pass is a 'passed' attempt row owned by the
+     * student, eligibility is every course mission completed with at least
+     * one mission present.
+     *
+     * @param  Collection<int, int>  $courseIds
+     * @return Collection<int, int> course_id => assessment_id
+     */
+    public function assessmentIdsByCourse(Collection $courseIds): Collection
+    {
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        return Assessment::query()
+            ->whereIn('course_id', $courseIds)
+            ->pluck('id', 'course_id');
+    }
+
+    /**
+     * @return Collection<int, int> assessment ids with at least one passed attempt by the user
+     */
+    public function passedAssessmentIds(User $user): Collection
+    {
+        return AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'passed')
+            ->distinct()
+            ->pluck('assessment_id');
+    }
+
+    /**
+     * Per-course assessment state for a set of courses in a constant number
+     * of queries: the assessment row, the hasPassed() verdict, and the
+     * isEligible() verdict, each computed from the same predicates as the
+     * single-course methods.
+     *
+     * @param  Collection<int, Course>  $courses
+     * @return array<int, array{assessment: ?Assessment, passed: bool, eligible: bool}> keyed by course id
+     */
+    public function assessmentStatesForCourses(User $user, Collection $courses): array
+    {
+        if ($courses->isEmpty()) {
+            return [];
+        }
+
+        $courseIds = $courses->pluck('id');
+
+        $assessments = Assessment::query()
+            ->whereIn('course_id', $courseIds)
+            ->get()
+            ->keyBy('course_id');
+
+        $missionIdsByCourse = Mission::query()
+            ->whereIn('course_id', $courseIds)
+            ->get(['id', 'course_id'])
+            ->groupBy('course_id');
+
+        $completed = Progress::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $missionIdsByCourse->flatten()->pluck('id'))
+            ->pluck('mission_id')
+            ->flip();
+
+        $passed = $this->passedAssessmentIds($user)->flip();
+
+        $states = [];
+
+        foreach ($courses as $course) {
+            $missionIds = $missionIdsByCourse->get($course->id, collect())->pluck('id')->all();
+            $assessment = $assessments->get($course->id);
+
+            $states[$course->id] = [
+                'assessment' => $assessment,
+                'passed' => $assessment !== null && $passed->has($assessment->id),
+                'eligible' => $missionIds !== [] && collect($missionIds)->every(fn (int $id): bool => $completed->has($id)),
+            ];
+        }
+
+        return $states;
     }
 
     /**
@@ -245,15 +332,75 @@ class AssessmentService
         return $this->attempts($assessment, $user)
             ->orderByDesc('id')
             ->get()
-            ->map(function (AssessmentAttempt $attempt): array {
-                return [
-                    'id' => $attempt->id,
-                    'status' => $attempt->status,
-                    'score' => $attempt->score,
-                    'passed_at' => $attempt->passed_at,
-                    'submitted_at' => $attempt->submitted_at,
-                ];
-            });
+            ->map(fn (AssessmentAttempt $attempt): array => $this->presentAttempt($attempt));
+    }
+
+    /**
+     * Attempt histories for many courses in two queries, for fleet and
+     * overview paths (US-911). Same rows, order, and shape as calling
+     * attemptHistory() per course; courses without attempts are simply
+     * absent from the map.
+     *
+     * @param  Collection<int, Course>  $courses
+     * @return Collection<int, Collection<int, array{
+     *     id: int,
+     *     status: string,
+     *     score: int|null,
+     *     passed_at: Carbon|null,
+     *     submitted_at: Carbon|null,
+     * }>>  keyed by course id
+     */
+    public function attemptHistoriesForCourses(User $user, Collection $courses): Collection
+    {
+        $aidsByCourse = $this->assessmentIdsByCourse($courses->pluck('id'));
+
+        if ($aidsByCourse->isEmpty()) {
+            return collect();
+        }
+
+        $grouped = AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('assessment_id', $aidsByCourse->values())
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('assessment_id');
+
+        $courseByAid = $aidsByCourse->flip();
+        $histories = [];
+
+        foreach ($grouped as $assessmentId => $attempts) {
+            $courseId = $courseByAid->get($assessmentId);
+
+            if ($courseId === null) {
+                continue;
+            }
+
+            $histories[$courseId] = $attempts
+                ->map(fn (AssessmentAttempt $attempt): array => $this->presentAttempt($attempt))
+                ->values();
+        }
+
+        return collect($histories);
+    }
+
+    /**
+     * @return array{
+     *     id: int,
+     *     status: string,
+     *     score: int|null,
+     *     passed_at: Carbon|null,
+     *     submitted_at: Carbon|null,
+     * }
+     */
+    private function presentAttempt(AssessmentAttempt $attempt): array
+    {
+        return [
+            'id' => $attempt->id,
+            'status' => $attempt->status,
+            'score' => $attempt->score,
+            'passed_at' => $attempt->passed_at,
+            'submitted_at' => $attempt->submitted_at,
+        ];
     }
 
     /**

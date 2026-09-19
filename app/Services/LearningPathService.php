@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\Mission;
+use App\Models\MissionDraft;
+use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -34,35 +36,62 @@ class LearningPathService
      */
     public function build(User $user): Collection
     {
-        return Course::query()
+        $courses = Course::query()
             ->orderBy('order_num')
             ->with(['sections.missions', 'missions'])
-            ->get()
-            ->map(function (Course $course) use ($user): array {
-                $completedMissionIds = $this->completedMissionIds($user, $course);
-                $draftMissionIds = $this->draftMissionIds($user, $course);
+            ->get();
 
-                $sections = $course->sections->map(function ($section) use ($completedMissionIds, $draftMissionIds): array {
-                    $missions = $section->missions
-                        ->sortBy('order_num')
-                        ->map(function (Mission $mission) use ($completedMissionIds, $draftMissionIds): array {
-                            return $this->missionView($mission, $completedMissionIds, $draftMissionIds);
-                        })
-                        ->values();
+        // US-911: completion and draft evidence for the whole catalog in
+        // two grouped reads instead of per-course lookups. State derivation
+        // below is unchanged PHP over these sets.
+        $allMissionIds = $courses->flatMap(fn (Course $course) => $course->missions->pluck('id'));
 
-                    return [
-                        'section' => $section,
-                        'progress' => $this->sectionProgress($missions),
-                        'missions' => $missions,
-                    ];
-                });
+        $completed = Progress::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $allMissionIds)
+            ->pluck('mission_id')
+            ->flip();
+
+        $drafted = MissionDraft::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $allMissionIds)
+            ->pluck('mission_id')
+            ->flip();
+
+        return $courses->map(function (Course $course) use ($completed, $drafted): array {
+            $completedIds = $course->missions
+                ->pluck('id')
+                ->filter(fn (int $id): bool => $completed->has($id))
+                ->values()
+                ->all();
+
+            $draftIds = $course->missions
+                ->pluck('id')
+                ->filter(fn (int $id): bool => $drafted->has($id))
+                ->values()
+                ->all();
+
+            $sections = $course->sections->map(function ($section) use ($completedIds, $draftIds): array {
+                $missions = $section->missions
+                    ->sortBy('order_num')
+                    ->map(function (Mission $mission) use ($completedIds, $draftIds): array {
+                        return $this->missionView($mission, $completedIds, $draftIds);
+                    })
+                    ->values();
 
                 return [
-                    'course' => $course,
-                    'progress' => $this->courseProgress($user, $course),
-                    'sections' => $sections,
+                    'section' => $section,
+                    'progress' => $this->sectionProgress($missions),
+                    'missions' => $missions,
                 ];
             });
+
+            return [
+                'course' => $course,
+                'progress' => $this->courseProgress($completedIds, $course->missions->count()),
+                'sections' => $sections,
+            ];
+        });
     }
 
     /**
@@ -136,17 +165,17 @@ class LearningPathService
     }
 
     /**
+     * @param  array<int, int>  $completedIds
      * @return array{completed: int, total: int, percent: int}
      */
-    private function courseProgress(User $user, Course $course): array
+    private function courseProgress(array $completedIds, int $total): array
     {
-        $missions = $course->missions()->count();
-        $completed = count($this->completedMissionIds($user, $course));
+        $completed = count($completedIds);
 
         return [
             'completed' => $completed,
-            'total' => $missions,
-            'percent' => $missions > 0 ? (int) round(($completed / $missions) * 100) : 0,
+            'total' => $total,
+            'percent' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
         ];
     }
 

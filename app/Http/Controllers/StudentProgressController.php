@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\ClassroomAccessService;
@@ -91,19 +92,28 @@ class StudentProgressController extends Controller
             });
 
         // US-604 assessment performance, per assessed course, composed from
-        // AssessmentService::forCourse()/attemptHistory() and the page's own
-        // course-state rows. Strictly read-only: nothing here calls a write
-        // method, and the route accepts no input beyond the path-bound student.
+        // AssessmentService attempt histories. Strictly read-only: nothing
+        // here calls a write method, and the route accepts no input beyond
+        // the path-bound student. US-911: histories for every row course are
+        // fetched in one batched read instead of one query set per course.
+        $histories = $this->assessments->attemptHistoriesForCourses(
+            $student,
+            $rows->map(fn (array $row): Course => $row['course'])
+        );
+        $assessed = $this->assessments->assessmentIdsByCourse(
+            $rows->map(fn (array $row): Course => $row['course'])->pluck('id')
+        );
+
         $performance = collect();
 
         foreach ($rows as $row) {
             $course = $row['course'];
 
-            if ($this->assessments->forCourse($course) === null) {
+            if (! $assessed->has($course->id)) {
                 continue;
             }
 
-            $history = $this->assessments->attemptHistory($student, $course);
+            $history = $histories->get($course->id, collect());
 
             $performance->push([
                 'course' => $course,

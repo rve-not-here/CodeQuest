@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\User;
@@ -54,53 +55,81 @@ class CompetencyService
      */
     public function overview(User $user, ?Collection $courseIds = null): Collection
     {
-        return Course::query()
+        $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
             ->with('missions')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get()
             ->filter(fn (Course $course): bool => $course->missions->isNotEmpty())
-            ->map(fn (Course $course): array => $this->summarise($user, $course))
             ->values();
-    }
 
-    /**
-     * @return array{
-     *     course: Course,
-     *     name: string,
-     *     state: 'not_started'|'developing'|'practicing'|'demonstrated',
-     *     completedMissions: int,
-     *     totalMissions: int,
-     *     percent: int,
-     *     wrongSubmissions: int,
-     *     attempts: int,
-     *     challengePassed: bool,
-     * }
-     */
-    private function summarise(User $user, Course $course): array
-    {
-        $progress = $this->dashboard->courseProgress($user, $course);
-        $missionIds = $course->missions->pluck('id');
-        $attempts = $this->attemptCount($user, $course);
+        if ($courses->isEmpty()) {
+            return collect();
+        }
 
-        return [
-            'course' => $course,
-            'name' => $this->nameFor($course->type),
-            'state' => $this->stateFor(
-                $progress['completed'],
-                $progress['total'],
-                $attempts,
-                $this->wrongSubmissionCount($user, $missionIds),
-                $this->assessments->hasPassed($user, $course),
-            ),
-            'completedMissions' => $progress['completed'],
-            'totalMissions' => $progress['total'],
-            'percent' => $progress['percent'],
-            'wrongSubmissions' => $this->wrongSubmissionCount($user, $missionIds),
-            'attempts' => $attempts,
-            'challengePassed' => $this->assessments->hasPassed($user, $course),
-        ];
+        // US-911: all per-course evidence below is fetched in grouped reads.
+        // Every predicate matches the single-course methods verbatim; only
+        // the access pattern changes from one-query-per-course to constant.
+        $progress = $this->dashboard->courseProgressMap($user, $courses);
+        $states = $this->assessments->assessmentStatesForCourses($user, $courses);
+
+        $missionIds = $courses->flatMap(fn (Course $course) => $course->missions->pluck('id'));
+
+        $wrongByMission = XpTransaction::query()
+            ->where('user_id', $user->id)
+            ->where('type', XpService::TYPE_WRONG_SUBMISSION)
+            ->whereIn('mission_id', $missionIds)
+            ->selectRaw('mission_id, count(*) as wrong_count')
+            ->groupBy('mission_id')
+            ->pluck('wrong_count', 'mission_id');
+
+        $assessmentIds = collect($states)
+            ->map(fn (array $state) => $state['assessment'])
+            ->filter()
+            ->map(fn (Assessment $assessment): int => $assessment->id);
+
+        $attemptsByAssessment = AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('assessment_id', $assessmentIds)
+            ->selectRaw('assessment_id, count(*) as attempt_count')
+            ->groupBy('assessment_id')
+            ->pluck('attempt_count', 'assessment_id');
+
+        return $courses
+            ->map(function (Course $course) use ($progress, $states, $wrongByMission, $attemptsByAssessment): array {
+                // The map covers every input course; the default matches
+                // zero-mission math (0/0 → 0%) and only satisfies the type.
+                $courseProgress = $progress->get($course->id) ?? ['completed' => 0, 'total' => 0, 'percent' => 0];
+                $state = $states[$course->id];
+
+                $wrongSubmissions = $course->missions
+                    ->pluck('id')
+                    ->sum(fn (int $missionId): int => (int) $wrongByMission->get($missionId, 0));
+
+                $attempts = $state['assessment'] !== null
+                    ? (int) $attemptsByAssessment->get($state['assessment']->id, 0)
+                    : 0;
+
+                return [
+                    'course' => $course,
+                    'name' => $this->nameFor($course->type),
+                    'state' => $this->stateFor(
+                        $courseProgress['completed'],
+                        $courseProgress['total'],
+                        $attempts,
+                        $wrongSubmissions,
+                        $state['passed'],
+                    ),
+                    'completedMissions' => $courseProgress['completed'],
+                    'totalMissions' => $courseProgress['total'],
+                    'percent' => $courseProgress['percent'],
+                    'wrongSubmissions' => $wrongSubmissions,
+                    'attempts' => $attempts,
+                    'challengePassed' => $state['passed'],
+                ];
+            })
+            ->values();
     }
 
     /**
@@ -121,37 +150,6 @@ class CompetencyService
         }
 
         return 'not_started';
-    }
-
-    private function attemptCount(User $user, Course $course): int
-    {
-        $assessment = $this->assessments->forCourse($course);
-
-        if ($assessment === null) {
-            return 0;
-        }
-
-        return (int) AssessmentAttempt::query()
-            ->where('assessment_id', $assessment->id)
-            ->where('user_id', $user->id)
-            ->count();
-    }
-
-    /**
-     * Wrong submissions on the course's own missions. The only per-mission
-     * record of a wrong submission is the penalty row in the transaction log;
-     * it is queried strictly as an engagement journal (presence/count), never
-     * for its amount.
-     *
-     * @param  iterable<int, mixed>  $missionIds
-     */
-    private function wrongSubmissionCount(User $user, iterable $missionIds): int
-    {
-        return (int) XpTransaction::query()
-            ->where('user_id', $user->id)
-            ->where('type', XpService::TYPE_WRONG_SUBMISSION)
-            ->whereIn('mission_id', $missionIds)
-            ->count();
     }
 
     private function nameFor(string $type): string

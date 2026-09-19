@@ -41,12 +41,21 @@ class LearningPathController extends Controller
         $course = $this->dashboard->currentCourse($user);
         $nextMission = $this->path->nextMission($user, $course);
 
-        $tree = $this->path->build($user)
-            ->map(function (array $courseNode) use ($user): array {
-                $courseNode['boss'] = $this->bossNode($user, $courseNode);
+        $tree = $this->path->build($user);
 
-                return $courseNode;
-            });
+        // US-911: one batched assessment-state read for every boss node
+        // instead of forCourse/hasPassed/isUnlocked per course. The node
+        // verdicts below read off this map; no rule changes.
+        $states = $this->assessments->assessmentStatesForCourses(
+            $user,
+            $tree->map(fn (array $courseNode): Course => $courseNode['course'])
+        );
+
+        $tree = $tree->map(function (array $courseNode) use ($states): array {
+            $courseNode['boss'] = $this->bossNode($courseNode, $states[$courseNode['course']->id]);
+
+            return $courseNode;
+        });
 
         return view('learning-path', [
             'user' => $user,
@@ -112,12 +121,13 @@ class LearningPathController extends Controller
 
     /**
      * @param  array{course: Course, progress: array{completed: int, total: int, percent: int}}  $courseNode
+     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool}  $state
      * @return array{assessment: ?Assessment, state: 'PASSED'|'AVAILABLE'|'LOCKED', reason: string}
      */
-    private function bossNode(User $user, array $courseNode): array
+    private function bossNode(array $courseNode, array $state): array
     {
         $course = $courseNode['course'];
-        $assessment = $this->assessments->forCourse($course);
+        $assessment = $state['assessment'];
 
         if ($assessment === null) {
             return [
@@ -127,7 +137,7 @@ class LearningPathController extends Controller
             ];
         }
 
-        if ($this->assessments->hasPassed($user, $course)) {
+        if ($state['passed']) {
             return [
                 'assessment' => $assessment,
                 'state' => 'PASSED',
@@ -135,7 +145,7 @@ class LearningPathController extends Controller
             ];
         }
 
-        if ($this->assessments->isUnlocked($user, $course)) {
+        if ($course->status === 'active' && $assessment->status === 'active' && $state['eligible']) {
             return [
                 'assessment' => $assessment,
                 'state' => 'AVAILABLE',

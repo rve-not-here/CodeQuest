@@ -234,11 +234,23 @@ class RecommendationService
             return false;
         }
 
-        return Course::query()
+        // US-911: one batched pass-history read instead of hasPassed() per
+        // earlier course. Same verdict: any earlier active course whose
+        // assessment the student has ever passed.
+        $earlierIds = Course::query()
             ->where('status', 'active')
             ->where('order_num', '<', $course->order_num)
-            ->get()
-            ->contains(fn (Course $previous): bool => $this->assessments->hasPassed($user, $previous));
+            ->pluck('id');
+
+        if ($earlierIds->isEmpty()) {
+            return false;
+        }
+
+        $assessmentIds = $this->assessments->assessmentIdsByCourse($earlierIds);
+
+        return $assessmentIds
+            ->intersect($this->assessments->passedAssessmentIds($user))
+            ->isNotEmpty();
     }
 
     /**
