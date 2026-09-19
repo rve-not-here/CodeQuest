@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CurriculumVersioned;
+use App\Models\Concerns\HasCurriculumVersion;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,12 +24,47 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'validate_rule',
     'hints',
     'points',
+    'version',
 ])]
-class Mission extends Model
+class Mission extends Model implements CurriculumVersioned
 {
+    use HasCurriculumVersion;
     use HasFactory;
 
     protected $table = 'the404_missions';
+
+    /**
+     * Material mission fields (§12): task instructions (description),
+     * starter code and challenge content (broken_code, target_html),
+     * validation rules and reference solution (validate_rule,
+     * solution_code), hint content (hints), the completion reward (points),
+     * and progression structure (order_num, section_id). Title and
+     * difficulty are display labels consumed by no domain logic, so they
+     * stay version-silent.
+     *
+     * @return array<int, string>
+     */
+    public function curriculumVersionMaterialFields(): array
+    {
+        return [
+            'description',
+            'broken_code',
+            'target_html',
+            'validate_rule',
+            'solution_code',
+            'hints',
+            'points',
+            'order_num',
+            'section_id',
+        ];
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'version' => 'integer',
+        ];
+    }
 
     /**
      * Never serialize the reference solution or validation rules. A student

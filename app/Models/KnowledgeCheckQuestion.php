@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CurriculumVersioned;
+use App\Models\Concerns\HasCurriculumVersion;
 use Database\Factories\KnowledgeCheckQuestionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -12,8 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['knowledge_check_id', 'order_num', 'type', 'prompt', 'code_snippet', 'explanation'])]
 #[Hidden(['explanation'])]
-class KnowledgeCheckQuestion extends Model
+class KnowledgeCheckQuestion extends Model implements CurriculumVersioned
 {
+    use HasCurriculumVersion;
+
     /** @use HasFactory<KnowledgeCheckQuestionFactory> */
     use HasFactory;
 
@@ -24,6 +28,27 @@ class KnowledgeCheckQuestion extends Model
     public const TYPE_CONCEPT_IDENTIFICATION = 'concept_identification';
 
     protected $table = 'the404_knowledge_check_questions';
+
+    /**
+     * Questions carry no version of their own: their material edits advance
+     * the parent check, so the check version always reflects the definition
+     * students actually face.
+     */
+    public function curriculumVersionTarget(): Model
+    {
+        return $this->knowledgeCheck()->firstOrFail();
+    }
+
+    /**
+     * Material question fields: the prompt, supporting code, feedback, type,
+     * and sequence. Every persistent content field is material here.
+     *
+     * @return array<int, string>
+     */
+    public function curriculumVersionMaterialFields(): array
+    {
+        return ['type', 'prompt', 'code_snippet', 'explanation', 'order_num'];
+    }
 
     /** @return BelongsTo<KnowledgeCheck, $this> */
     public function knowledgeCheck(): BelongsTo

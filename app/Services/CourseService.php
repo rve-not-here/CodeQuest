@@ -65,7 +65,9 @@ class CourseService
      * An actual status change is recorded as 'course.status.change'; any
      * actual non-status field change is recorded as 'course.update'. An
      * unchanged submission (no-op round-trip) records nothing, mirroring
-     * UserService. A value outside the allow lists is recorded as a 'failed'
+     * UserService. A material field change also bumps the course version by
+     * one (status-only transitions do not) and names the transition in the
+     * audit summary. A value outside the allow lists is recorded as a 'failed'
      * audit row for the course before InvalidArgumentException is thrown, so
      * a rejected attempt is never silent.
      *
@@ -111,6 +113,8 @@ class CourseService
             'order_num' => $course->order_num,
         ];
 
+        $versionBefore = $course->version;
+
         $course->name = $name;
         $course->slug = $slug;
         $course->type = $type;
@@ -119,6 +123,11 @@ class CourseService
         $course->save();
 
         $summary = $this->fieldChangesSummary($before, $name, $slug, $type, $description, $orderNum);
+
+        if ($course->wasChanged('version')) {
+            $transition = "version {$versionBefore} → {$course->version}";
+            $summary = $summary !== null ? $summary.', '.$transition : $transition;
+        }
 
         if ($summary !== null) {
             $this->audit->record(

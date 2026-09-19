@@ -25,6 +25,7 @@ class KnowledgeCheckFactory extends Factory
             'instructions' => fake()->sentence(),
             'is_required' => false,
             'status' => KnowledgeCheck::STATUS_PUBLISHED,
+            'version' => 1,
         ];
     }
 

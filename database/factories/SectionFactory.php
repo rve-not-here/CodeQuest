@@ -23,6 +23,7 @@ class SectionFactory extends Factory
             'order_num' => fake()->unique()->numberBetween(1, 10),
             'title' => fake()->words(3, true),
             'description' => fake()->sentence(),
+            'version' => 1,
         ];
     }
 }

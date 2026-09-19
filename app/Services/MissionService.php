@@ -83,6 +83,7 @@ class MissionService
             Progress::query()->create([
                 'user_id' => $user->id,
                 'mission_id' => $mission->id,
+                'mission_version' => $mission->version,
                 'pts_earned' => $mission->points,
                 'completed_at' => now(),
             ]);

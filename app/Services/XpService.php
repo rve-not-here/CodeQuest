@@ -415,7 +415,10 @@ class XpService
      * Writes a ledger row. Exactly one of the two source references must be
      * set: the populated FK identifies the source (§25). There is no
      * source_type column; mission transactions carry mission_id (assessment_id
-     * null), assessment transactions the mirror image.
+     * null), assessment transactions the mirror image. The version reference
+     * rides alongside its FK: the curriculum revision in force when the
+     * transaction was recorded. Versions are evidence only — nothing here or
+     * downstream may recompute amounts from them.
      */
     private function record(User $user, ?Mission $mission, ?Assessment $assessment, int $amount, string $type, string $description): void
     {
@@ -426,7 +429,9 @@ class XpService
         XpTransaction::query()->create([
             'user_id' => $user->id,
             'mission_id' => $mission?->id,
+            'mission_version' => $mission?->version,
             'assessment_id' => $assessment?->id,
+            'assessment_version' => $assessment?->version,
             'amount' => $amount,
             'type' => $type,
             'description' => $description,

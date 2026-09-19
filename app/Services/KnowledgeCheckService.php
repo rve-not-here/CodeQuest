@@ -201,6 +201,12 @@ class KnowledgeCheckService
             $lockedAttempt->score = $score;
             $lockedAttempt->total_questions = $total;
             $lockedAttempt->percentage = $percentage;
+            // The version stamp must identify the definition actually scored
+            // here ($definition, reloaded live in this transaction), not the
+            // revision open when the attempt was started. A check edited
+            // between start and submit is evaluated — and stamped — as the
+            // newer revision; response snapshots carry the evaluated content.
+            $lockedAttempt->knowledge_check_version = $definition->version;
             $lockedAttempt->status = KnowledgeCheckAttempt::STATUS_SUBMITTED;
             $lockedAttempt->submitted_at = now();
             $lockedAttempt->save();
@@ -284,6 +290,7 @@ class KnowledgeCheckService
     {
         $attempt = new KnowledgeCheckAttempt([
             'knowledge_check_id' => $check->id,
+            'knowledge_check_version' => $check->version,
             'user_id' => $user->id,
             'attempt_number' => $attemptNumber,
             'started_at' => now(),

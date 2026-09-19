@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['knowledge_check_id', 'user_id', 'attempt_number', 'started_at'])]
+#[Fillable(['knowledge_check_id', 'knowledge_check_version', 'user_id', 'attempt_number', 'started_at'])]
 class KnowledgeCheckAttempt extends Model
 {
     /** @use HasFactory<KnowledgeCheckAttemptFactory> */
@@ -25,6 +25,7 @@ class KnowledgeCheckAttempt extends Model
     {
         return [
             'attempt_number' => 'integer',
+            'knowledge_check_version' => 'integer',
             'score' => 'integer',
             'total_questions' => 'integer',
             'percentage' => 'integer',

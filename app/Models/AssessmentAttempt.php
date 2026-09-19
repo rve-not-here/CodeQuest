@@ -30,6 +30,8 @@ class AssessmentAttempt extends Model
     {
         return [
             'score' => 'integer',
+            'assessment_version' => 'integer',
+            'passing_score_snapshot' => 'integer',
             'passed_at' => 'datetime',
             'submitted_at' => 'datetime',
         ];

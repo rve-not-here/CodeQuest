@@ -166,6 +166,10 @@ class AssessmentService
 
         $assessment = $this->forCourse($course);
 
+        if ($assessment === null) {
+            throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
+        }
+
         $attempt = $this->attempts($assessment, $user)->first();
 
         if ($attempt === null) {
@@ -175,6 +179,7 @@ class AssessmentService
             ]);
 
             $attempt->status = 'started';
+            $attempt->assessment_version = $assessment->version;
             $attempt->save();
 
             return $attempt;
@@ -380,6 +385,13 @@ class AssessmentService
             $attempt->score = $score;
             $attempt->status = $passed ? 'passed' : 'failed';
             $attempt->passed_at = $passed ? now() : null;
+            // Evidence of the exact revision that produced this verdict: the
+            // assessment version in force at evaluation time plus a copy of
+            // the rule and threshold it was scored against. Later edits to
+            // grading_rule or passing_score never rewrite these columns.
+            $attempt->assessment_version = $assessment->version;
+            $attempt->grading_rule_snapshot = $assessment->grading_rule;
+            $attempt->passing_score_snapshot = $assessment->passing_score;
             $attempt->save();
 
             // US-805: the verdict notification is created in the SAME
@@ -463,6 +475,10 @@ class AssessmentService
 
         $assessment = $this->forCourse($course);
 
+        if ($assessment === null) {
+            throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
+        }
+
         $latest = $this->latestAttemptFor($user, $course);
 
         if ($latest === null) {
@@ -479,6 +495,7 @@ class AssessmentService
         ]);
 
         $retry->status = 'started';
+        $retry->assessment_version = $assessment->version;
         $retry->save();
 
         return $retry;

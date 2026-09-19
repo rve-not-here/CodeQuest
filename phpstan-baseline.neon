@@ -247,18 +247,6 @@ parameters:
 			path: app/Models/XpTransaction.php
 
 		-
-			message: '#^Cannot access property \$id on App\\Models\\Assessment\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Services/AssessmentService.php
-
-		-
-			message: '#^Parameter \#1 \$assessment of method App\\Services\\AssessmentService\:\:attempts\(\) expects App\\Models\\Assessment, App\\Models\\Assessment\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/AssessmentService.php
-
-		-
 			message: '#^Method App\\Services\\DashboardService\:\:nextMission\(\) should return App\\Models\\Mission\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
 			identifier: return.type
 			count: 1

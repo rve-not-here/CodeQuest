@@ -25,6 +25,7 @@ class MissionFactory extends Factory
             'difficulty' => 'EASY',
             'description' => fake()->sentence(),
             'points' => fake()->numberBetween(30, 150),
+            'version' => 1,
         ];
     }
 }
