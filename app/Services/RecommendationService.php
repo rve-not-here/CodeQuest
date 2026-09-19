@@ -38,6 +38,11 @@ use Illuminate\Support\Collection as SupportCollection;
  * review cards render before a slot-4 position (3 sorts before 4). When
  * nothing is applicable the collection is empty and the page shows the empty
  * state.
+ *
+ * The optional course scope (US-909 teacher consumption) filters cards to
+ * the given courses without touching ranking or thresholds: a null scope
+ * preserves student behavior exactly; a non-null scope keeps only cards
+ * whose underlying course is contained, failing closed on an empty set.
  */
 class RecommendationService
 {
@@ -53,6 +58,7 @@ class RecommendationService
     ) {}
 
     /**
+     * @param  SupportCollection<int, int>|null  $courseIds
      * @return SupportCollection<int, array{
      *     slot: 1|2|3|4,
      *     title: string,
@@ -61,10 +67,10 @@ class RecommendationService
      *     cta: string,
      * }>
      */
-    public function recommendations(User $user): SupportCollection
+    public function recommendations(User $user, ?SupportCollection $courseIds = null): SupportCollection
     {
-        $position = $this->positionCard($user);
-        $review = $this->reviewCards($user);
+        $position = $this->positionCard($user, $courseIds);
+        $review = $this->reviewCards($user, $courseIds);
 
         if ($position === null) {
             return $review->values();
@@ -78,6 +84,7 @@ class RecommendationService
     }
 
     /**
+     * @param  SupportCollection<int, int>|null  $courseIds
      * @return null|array{
      *     slot: 1|2|3|4,
      *     title: string,
@@ -86,7 +93,7 @@ class RecommendationService
      *     cta: string,
      * }
      */
-    private function positionCard(User $user): ?array
+    private function positionCard(User $user, ?SupportCollection $courseIds = null): ?array
     {
         $resume = $this->resume->resolve($user);
 
@@ -95,6 +102,10 @@ class RecommendationService
         }
 
         $course = $resume['course'];
+
+        if ($courseIds !== null && ! $courseIds->contains($course->id)) {
+            return null;
+        }
 
         if ($resume['type'] === 'course') {
             return $this->challengeCard($course);
@@ -241,6 +252,7 @@ class RecommendationService
      * student has a Progress row for. Cards are ordered by the most recent
      * wrong submission and capped at REVIEW_LIMIT.
      *
+     * @param  SupportCollection<int, int>|null  $courseIds
      * @return SupportCollection<int, array{
      *     slot: 1|2|3|4,
      *     title: string,
@@ -249,9 +261,19 @@ class RecommendationService
      *     cta: string,
      * }>
      */
-    private function reviewCards(User $user): SupportCollection
+    private function reviewCards(User $user, ?SupportCollection $courseIds = null): SupportCollection
     {
         $windowStart = now()->subDays(self::REVIEW_WINDOW_DAYS);
+
+        $missionIds = $this->completedMissionIds($user);
+
+        if ($courseIds !== null) {
+            $missionIds = Mission::query()
+                ->whereIn('id', $missionIds)
+                ->whereIn('course_id', $courseIds)
+                ->pluck('id')
+                ->all();
+        }
 
         $qualified = XpTransaction::query()
             ->select('mission_id')
@@ -259,7 +281,7 @@ class RecommendationService
             ->where('user_id', $user->id)
             ->where('type', XpService::TYPE_WRONG_SUBMISSION)
             ->where('created_at', '>=', $windowStart)
-            ->whereIn('mission_id', $this->completedMissionIds($user))
+            ->whereIn('mission_id', $missionIds)
             ->groupBy('mission_id')
             ->havingRaw('count(*) >= ?', [self::REVIEW_WRONG_SUBMISSION_THRESHOLD])
             ->orderByDesc('last_wrong_at')

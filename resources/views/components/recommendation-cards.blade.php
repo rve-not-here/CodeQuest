@@ -1,4 +1,4 @@
-@props(['recommendations'])
+@props(['recommendations', 'actionable' => true])
 
 {{--
     Shared recommendation card rows (US-908). The single rendering of a
@@ -11,6 +11,10 @@
     instead of a link: a recommendation must never point at a target the
     student cannot open. Cards without the annotation (the /recommendations
     page) render exactly as before.
+
+    US-909 teacher mode (actionable=false) renders title and reason with no
+    anchor, href, form, or navigation target of any kind: the teacher
+    surface is informational only and cannot forge student actions.
 --}}
 <div class="divide-y divide-phosphor-dim/40">
     @foreach ($recommendations as $recommendation)
@@ -25,14 +29,14 @@
                     <p class="text-xs text-amber truncate">{{ $recommendation['locked_reason'] }}</p>
                 @endif
             </div>
-            @if ($recommendation['accessible'] ?? true)
+            @if ($actionable && ($recommendation['accessible'] ?? true))
                 <a
                     href="{{ $recommendation['href'] }}"
                     class="ml-auto shrink-0 text-sm font-bold border border-phosphor-dim text-phosphor hover:text-void hover:bg-phosphor px-3 py-1 rounded-[2px]"
                 >
                     {{ $recommendation['cta'] }} →
                 </a>
-            @else
+            @elseif (($recommendation['accessible'] ?? true) === false)
                 <span class="ml-auto shrink-0">
                     <x-badge tone="dim">LOCKED</x-badge>
                 </span>

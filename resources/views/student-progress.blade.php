@@ -34,6 +34,12 @@
         @endif
     </x-panel>
 
+    @if ($recommendations->isNotEmpty())
+        <x-panel title="RECOMMENDATIONS" class="mb-6">
+            <x-recommendation-cards :recommendations="$recommendations" :actionable="false" />
+        </x-panel>
+    @endif
+
     @if ($performance->isNotEmpty())
         <x-panel title="Assessment Performance" class="mb-6">
             <div class="overflow-x-auto">

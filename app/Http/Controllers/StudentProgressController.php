@@ -7,6 +7,7 @@ use App\Services\AssessmentService;
 use App\Services\ClassroomAccessService;
 use App\Services\CompetencyService;
 use App\Services\CourseProgressService;
+use App\Services\RecommendationService;
 use App\Services\ResumeService;
 use App\Services\SectionProgressService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -24,6 +25,7 @@ class StudentProgressController extends Controller
         private readonly ResumeService $resume,
         private readonly AssessmentService $assessments,
         private readonly CompetencyService $competencies,
+        private readonly RecommendationService $recommendations,
         private readonly ClassroomAccessService $access,
     ) {}
 
@@ -127,6 +129,12 @@ class StudentProgressController extends Controller
         // Course-scoped to the teacher's shared classrooms like the rows above.
         $competency = $this->competencies->overview($student, $courseIds);
 
+        // US-909 teacher recommendation visibility. The same
+        // RecommendationService output the student sees, filtered to the
+        // teacher's shared courses inside the service — no eligibility is
+        // calculated here, and the view renders it without action links.
+        $recommendations = $this->recommendations->recommendations($student, $courseIds);
+
         return view('student-progress', [
             'student' => $student,
             'role' => $teacher->role,
@@ -135,6 +143,7 @@ class StudentProgressController extends Controller
             'performance' => $performance,
             'attemptLog' => $attemptLog,
             'competency' => $competency,
+            'recommendations' => $recommendations,
         ]);
     }
 }
