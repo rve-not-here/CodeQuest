@@ -169,7 +169,7 @@ class AdminMissionManagementTest extends TestCase
             'target_type' => 'mission',
             'target_id' => $mission->id,
             'result' => 'success',
-            'summary' => "Mission updated: title → 'Data Arrays', description → 'Iterate over array data.', difficulty → 'HARD', points → 120, order_num → 7, section_id → {$section->id}, hints → '[\"Hint one\", \"Hint two\"]', broken_code → 'let x = ;', target_html → '<h1>Hello</h1>'",
+            'summary' => "Mission updated: title → 'Data Arrays', description → 'Iterate over array data.', difficulty → 'HARD', points → 120, order_num → 7, section_id → {$section->id}, hints → '[\"Hint one\", \"Hint two\"]', broken_code → 'let x = ;', target_html → '<h1>Hello</h1>', version 1 → 2",
         ]);
     }
 
@@ -206,7 +206,7 @@ class AdminMissionManagementTest extends TestCase
             'target_type' => 'mission',
             'target_id' => $mission->id,
             'result' => 'success',
-            'summary' => 'Mission updated: section_id → null',
+            'summary' => 'Mission updated: section_id → null, version 1 → 2',
         ]);
     }
 

@@ -125,7 +125,7 @@ class AdminSectionManagementTest extends TestCase
             'target_type' => 'section',
             'target_id' => $section->id,
             'result' => 'success',
-            'summary' => "Section updated: title → 'Data Arrays', description → 'Iterate over array data.', order_num → 7",
+            'summary' => "Section updated: title → 'Data Arrays', description → 'Iterate over array data.', order_num → 7, version 1 → 2",
         ]);
     }
 

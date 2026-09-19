@@ -122,7 +122,7 @@ class AdminAssessmentManagementTest extends TestCase
             'target_type' => 'assessment',
             'target_id' => $assessment->id,
             'result' => 'success',
-            'summary' => "Assessment updated: title → 'New Title', description → 'New description', instructions → 'New instructions', passing_score → 80",
+            'summary' => "Assessment updated: title → 'New Title', description → 'New description', instructions → 'New instructions', passing_score → 80, version 1 → 2",
         ]);
 
         $this->assertDatabaseHas('the404_admin_audit', [

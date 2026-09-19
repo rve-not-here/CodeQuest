@@ -80,7 +80,7 @@ class AdminCourseManagementTest extends TestCase
             'target_type' => 'course',
             'target_id' => $course->id,
             'result' => 'success',
-            'summary' => 'Course updated: name → \'Data Arrays\', slug → \'data-arrays\', type → \'js\', description → \'Iterate over array data.\', order_num → 7',
+            'summary' => 'Course updated: name → \'Data Arrays\', slug → \'data-arrays\', type → \'js\', description → \'Iterate over array data.\', order_num → 7, version 1 → 2',
         ]);
     }
 
