@@ -22,6 +22,12 @@
         </x-status-message>
     @endif
 
+    @if ($recommendations->isNotEmpty())
+        <x-panel title="RECOMMENDED NEXT ACTIONS" class="mb-10">
+            <x-recommendation-cards :recommendations="$recommendations" />
+        </x-panel>
+    @endif
+
     <div class="space-y-10">
         @foreach ($tree as $courseNode)
             @php
