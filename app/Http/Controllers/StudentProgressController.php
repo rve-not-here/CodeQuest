@@ -154,6 +154,7 @@ class StudentProgressController extends Controller
             'attemptLog' => $attemptLog,
             'competency' => $competency,
             'recommendations' => $recommendations,
+            'skills' => $this->competencies->skills($student, $courseIds),
         ]);
     }
 }

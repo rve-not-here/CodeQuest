@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'selected_option_snapshot',
     'correct_option_snapshot',
     'explanation_snapshot',
+    'skill_keys',
 ])]
 #[Hidden(['correct_option_id', 'correct_option_snapshot'])]
 class KnowledgeCheckResponse extends Model
@@ -34,6 +35,7 @@ class KnowledgeCheckResponse extends Model
     {
         return [
             'is_correct' => 'boolean',
+            'skill_keys' => 'array',
             'created_at' => 'datetime',
         ];
     }

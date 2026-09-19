@@ -153,7 +153,7 @@ class KnowledgeCheckService
             }
 
             $definition = KnowledgeCheck::query()
-                ->with(['questions.options'])
+                ->with(['questions.options', 'questions.skills'])
                 ->lockForUpdate()
                 ->findOrFail($check->id);
 
@@ -192,6 +192,9 @@ class KnowledgeCheckService
                     'selected_option_snapshot' => $selected->option_text,
                     'correct_option_snapshot' => $correct->option_text,
                     'explanation_snapshot' => $question->explanation,
+                    // Skill keys evaluated with the answer: later remapping
+                    // never reinterpret this row (US-905/US-906).
+                    'skill_keys' => $question->skills->pluck('key')->all(),
                 ]);
             }
 

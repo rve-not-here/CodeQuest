@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
+use App\Models\Skill;
 use App\Models\User;
 use App\Models\XpTransaction;
 use Illuminate\Support\Collection as SupportCollection;
@@ -55,6 +56,7 @@ class RecommendationService
     public function __construct(
         private readonly ResumeService $resume,
         private readonly AssessmentService $assessments,
+        private readonly CompetencyService $competencies,
     ) {}
 
     /**
@@ -302,18 +304,43 @@ class RecommendationService
 
         $missions = Mission::query()
             ->whereIn('id', $qualified->pluck('mission_id'))
-            ->with('course')
+            ->with(['course', 'skills'])
             ->get()
             ->keyBy('id');
 
         $cards = new SupportCollection;
 
-        foreach ($qualified as $row) {
-            $card = $this->reviewCard($missions->get($row->mission_id));
+        if ($qualified->isEmpty()) {
+            return $cards;
+        }
 
-            if ($card !== null) {
-                $cards->push($card);
+        // Weak-skill context (US-906) is computed once for the whole set,
+        // through the single CompetencyService path — never per card and
+        // never with a second formula. Cards whose missions map to no weak
+        // skill keep their existing reason verbatim.
+        $weakByKey = $this->competencies
+            ->weakSkills($user, $courseIds)
+            ->mapWithKeys(fn (array $skill): array => [$skill['key'] => $skill['label']]);
+
+        foreach ($qualified as $row) {
+            $mission = $missions->get($row->mission_id);
+            $card = $this->reviewCard($mission);
+
+            if ($card === null || $mission === null) {
+                continue;
             }
+
+            $weak = $mission->skills
+                ->map(fn (Skill $skill): ?string => $weakByKey->get($skill->key))
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($weak->isNotEmpty()) {
+                $card['subtitle'] .= ' · Below target: '.$weak->implode(', ');
+            }
+
+            $cards->push($card);
         }
 
         return $cards;

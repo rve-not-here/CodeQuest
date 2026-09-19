@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(AssessmentSeeder::class);
         $this->call(AchievementSeeder::class);
+        $this->call(SkillSeeder::class);
     }
 }

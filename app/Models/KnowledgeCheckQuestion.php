@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['knowledge_check_id', 'order_num', 'type', 'prompt', 'code_snippet', 'explanation'])]
@@ -60,5 +61,11 @@ class KnowledgeCheckQuestion extends Model implements CurriculumVersioned
     public function options(): HasMany
     {
         return $this->hasMany(KnowledgeCheckOption::class, 'knowledge_check_question_id')->orderBy('order_num');
+    }
+
+    /** @return BelongsToMany<Skill, $this> */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'the404_knowledge_check_question_skill', 'question_id', 'skill_id');
     }
 }

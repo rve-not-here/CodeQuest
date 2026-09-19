@@ -5,9 +5,11 @@ namespace App\Services;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
+use App\Models\Skill;
 use App\Models\User;
 use App\Models\XpTransaction;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Builds the competency overview (US-507): one competency per active course
@@ -130,6 +132,285 @@ class CompetencyService
                 ];
             })
             ->values();
+    }
+
+    /**
+     * Skill-level competency (US-905): one row per skill mapped in the
+     * applicable course scope, derived only from recorded evidence.
+     *
+     * Approved v1 formula, per skill:
+     *   KC component         = correct mapped KC responses / mapped KC responses
+     *   Challenge component  = completed mapped challenges / applicable mapped challenges
+     *   both present         = average of the two (50/50)
+     *   one present          = that source at 100% (no penalty for a missing category)
+     *   neither present      = null (NOT ASSESSED, never weak)
+     *
+     * Evidence attribution uses the skill-key snapshots stored on each
+     * evidence row at creation time, never the live pivot mappings: a later
+     * remapping cannot reinterpret history. Rows predating snapshots carry
+     * NULL and are excluded from skill attribution. Denominators use
+     * required mapped curriculum in scope, so uncompleted challenges stay
+     * incomplete evidence. Unattempted Knowledge Checks contribute no KC
+     * evidence; checks gate nothing and complete nothing, so this preserves
+     * existing progression semantics. Wrong submissions never enter the
+     * percentage; Boss evidence is excluded from v1 skill scoring entirely.
+     *
+     * All reads are grouped; nothing here queries per skill, mission,
+     * question, or course (US-911).
+     *
+     * @param  Collection<int, int>|null  $courseIds
+     * @return Collection<int, array{
+     *     key: string,
+     *     label: string,
+     *     percentage: float|null,
+     *     kcCorrect: int,
+     *     kcTotal: int,
+     *     challengesCompleted: int,
+     *     challengesApplicable: int,
+     *     state: 'not_assessed'|'weak'|'proficient',
+     *     weak: bool,
+     * }>
+     */
+    public function skills(User $user, ?Collection $courseIds = null): Collection
+    {
+        $courses = Course::query()
+            ->where('status', 'active')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
+            ->pluck('id');
+
+        if ($courses->isEmpty()) {
+            return collect();
+        }
+
+        $missionIds = DB::table('the404_missions')->whereIn('course_id', $courses)->pluck('id');
+
+        $missionSkillIds = DB::table('the404_mission_skill')
+            ->whereIn('mission_id', $missionIds)
+            ->select(['mission_id', 'skill_id'])
+            ->get();
+
+        $questionSkillIds = DB::table('the404_knowledge_check_question_skill as qsk')
+            ->join('the404_knowledge_check_questions as q', 'q.id', '=', 'qsk.question_id')
+            ->join('the404_knowledge_checks as kc', 'kc.id', '=', 'q.knowledge_check_id')
+            ->whereIn('kc.mission_id', $missionIds)
+            ->select(['qsk.question_id', 'qsk.skill_id'])
+            ->get();
+
+        $skillIds = $missionSkillIds->pluck('skill_id')
+            ->merge($questionSkillIds->pluck('skill_id'))
+            ->unique()
+            ->values();
+
+        if ($skillIds->isEmpty()) {
+            return collect();
+        }
+
+        $skills = Skill::query()->whereIn('id', $skillIds)->get()->keyBy('id');
+        $keyOf = fn (int $id): ?string => $skills->get($id)?->key;
+
+        $missionKeys = [];
+        foreach ($missionSkillIds as $row) {
+            $key = $keyOf((int) $row->skill_id);
+            if ($key !== null) {
+                $missionKeys[(int) $row->mission_id][] = $key;
+            }
+        }
+
+        $responses = DB::table('the404_knowledge_check_responses as r')
+            ->join('the404_knowledge_check_attempts as a', 'a.id', '=', 'r.knowledge_check_attempt_id')
+            ->where('a.user_id', $user->id)
+            ->whereIn('r.knowledge_check_question_id', $questionSkillIds->pluck('question_id')->unique()->values())
+            ->select(['r.is_correct', 'r.skill_keys'])
+            ->get();
+
+        $kcCorrect = [];
+        $kcTotal = [];
+        $seenKeys = [];
+        $hasEvidence = [];
+        foreach ($responses as $response) {
+            foreach (self::snapshotKeys($response->skill_keys) as $key) {
+                $seenKeys[$key] = true;
+                $hasEvidence[$key] = true;
+                $kcTotal[$key] = ($kcTotal[$key] ?? 0) + 1;
+                if ((bool) $response->is_correct) {
+                    $kcCorrect[$key] = ($kcCorrect[$key] ?? 0) + 1;
+                }
+            }
+        }
+
+        $completions = DB::table('the404_progress')
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $missionIds)
+            ->select(['mission_id', 'skill_keys'])
+            ->get();
+
+        $completedWithKey = [];
+        foreach ($completions as $progress) {
+            foreach (self::snapshotKeys($progress->skill_keys) as $key) {
+                $seenKeys[$key] = true;
+                $hasEvidence[$key] = true;
+                $completedWithKey[$key][(int) $progress->mission_id] = true;
+            }
+        }
+
+        $applicableKeys = [];
+        foreach ($missionKeys as $missionId => $keys) {
+            foreach (array_unique($keys) as $key) {
+                $applicableKeys[$key][$missionId] = true;
+            }
+        }
+        // Historical evidence keeps its missions applicable: a remapped
+        // completion still counts for the skill it was recorded under.
+        foreach ($completedWithKey as $key => $missionSet) {
+            foreach ($missionSet as $missionId => $true) {
+                $applicableKeys[$key][$missionId] = true;
+            }
+        }
+
+        $labels = $skills->mapWithKeys(fn (Skill $skill): array => [$skill->key => $skill->label]);
+        $missingLabels = array_diff(array_keys($seenKeys), $labels->keys()->all());
+        if ($missingLabels !== []) {
+            foreach (Skill::query()->whereIn('key', $missingLabels)->pluck('label', 'key') as $key => $label) {
+                $labels->put($key, $label);
+            }
+        }
+        foreach (array_keys($seenKeys) as $key) {
+            $labels->put($key, $labels->get($key, $key));
+        }
+
+        $rows = collect();
+
+        foreach ($labels->sortKeys() as $key => $label) {
+            // No evidence of any kind: NOT ASSESSED, never weak — even
+            // when required curriculum is mapped. Denominators only drag
+            // down a percentage once evidence exists.
+            if (! isset($hasEvidence[$key])) {
+                $rows->push(self::skillRow($key, $label, null, 0, 0, 0, count($applicableKeys[$key] ?? []), false));
+
+                continue;
+            }
+
+            $kcDenominator = $kcTotal[$key] ?? 0;
+            $kcPercentage = $kcDenominator > 0 ? ($kcCorrect[$key] ?? 0) / $kcDenominator * 100 : null;
+
+            $applicable = array_keys($applicableKeys[$key] ?? []);
+            $challengePercentage = null;
+            $completed = 0;
+            if ($applicable !== []) {
+                foreach ($applicable as $missionId) {
+                    if (isset($completedWithKey[$key][$missionId])) {
+                        $completed++;
+                    }
+                }
+                $challengePercentage = $completed / count($applicable) * 100;
+            }
+
+            $percentage = match (true) {
+                $kcPercentage !== null && $challengePercentage !== null => ($kcPercentage + $challengePercentage) / 2,
+                $kcPercentage !== null => $kcPercentage,
+                $challengePercentage !== null => $challengePercentage,
+                default => null,
+            };
+
+            $weak = $percentage !== null && $percentage < 70;
+
+            $rows->push(self::skillRow($key, $label, $percentage, $kcCorrect[$key] ?? 0, $kcDenominator, $completed, count($applicable), $weak));
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @return array{
+     *     key: string,
+     *     label: string,
+     *     percentage: float|null,
+     *     kcCorrect: int,
+     *     kcTotal: int,
+     *     challengesCompleted: int,
+     *     challengesApplicable: int,
+     *     state: 'not_assessed'|'weak'|'proficient',
+     *     weak: bool,
+     * }
+     */
+    private static function skillRow(
+        string $key,
+        string $label,
+        ?float $percentage,
+        int $kcCorrect,
+        int $kcTotal,
+        int $completed,
+        int $applicable,
+        bool $weak,
+    ): array {
+        if ($percentage === null) {
+            $state = 'not_assessed';
+        } elseif ($weak) {
+            $state = 'weak';
+        } else {
+            $state = 'proficient';
+        }
+
+        return [
+            'key' => $key,
+            'label' => $label,
+            'percentage' => $percentage === null ? null : round($percentage, 2),
+            'kcCorrect' => $kcCorrect,
+            'kcTotal' => $kcTotal,
+            'challengesCompleted' => $completed,
+            'challengesApplicable' => $applicable,
+            'state' => $state,
+            'weak' => $weak,
+        ];
+    }
+
+    /**
+     * Weak skills (US-906): the skill competency rows with actual evidence
+     * below 70%. Derived by filtering skills() output — there is exactly
+     * one calculation path, no second formula.
+     *
+     * @param  Collection<int, int>|null  $courseIds
+     * @return Collection<int, array{
+     *     key: string,
+     *     label: string,
+     *     percentage: float|null,
+     *     kcCorrect: int,
+     *     kcTotal: int,
+     *     challengesCompleted: int,
+     *     challengesApplicable: int,
+     *     state: 'not_assessed'|'weak'|'proficient',
+     *     weak: bool,
+     * }>
+     */
+    public function weakSkills(User $user, ?Collection $courseIds = null): Collection
+    {
+        $weak = collect();
+
+        foreach ($this->skills($user, $courseIds) as $row) {
+            if ($row['weak']) {
+                $weak->push($row);
+            }
+        }
+
+        return $weak;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function snapshotKeys(mixed $value): array
+    {
+        if (! is_string($value)) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (! is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter($decoded, fn (mixed $key): bool => is_string($key) && $key !== ''));
     }
 
     /**

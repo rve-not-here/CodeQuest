@@ -154,10 +154,13 @@ class RecommendationPerformanceTest extends TestCase
         $competency = app(CompetencyService::class);
         $ids = collect($courses)->pluck('id');
 
-        // Measured 12/13/10 on both engines; bounds leave headroom without
-        // tolerating a per-course regression (which would add ~10 here).
-        $this->assertLessThanOrEqual(16, $this->countQueries(fn () => $recommendations->recommendations($user)));
-        $this->assertLessThanOrEqual(18, $this->countQueries(fn () => $recommendations->recommendations($user, $ids)));
+        // Review cards now enrich reasons through one grouped weak-skills
+        // read (US-906), so the review path costs a constant few queries
+        // more than the position-only path. Bounds stay tight: a per-course
+        // regression would still add ~10 here. Growth tests below are the
+        // real fan-out guard.
+        $this->assertLessThanOrEqual(20, $this->countQueries(fn () => $recommendations->recommendations($user)));
+        $this->assertLessThanOrEqual(22, $this->countQueries(fn () => $recommendations->recommendations($user, $ids)));
         $this->assertLessThanOrEqual(14, $this->countQueries(fn () => $competency->overview($user)));
         $this->assertLessThanOrEqual(14, $this->countQueries(fn () => $competency->overview($user, $ids)));
     }

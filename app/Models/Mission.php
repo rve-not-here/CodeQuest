@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -105,5 +106,11 @@ class Mission extends Model implements CurriculumVersioned
     public function knowledgeChecks(): HasMany
     {
         return $this->hasMany(KnowledgeCheck::class, 'mission_id')->orderBy('order_num');
+    }
+
+    /** @return BelongsToMany<Skill, $this> */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'the404_mission_skill', 'mission_id', 'skill_id');
     }
 }

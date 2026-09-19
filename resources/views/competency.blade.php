@@ -17,8 +17,7 @@
     @endif
 
     <div class="space-y-4">
-        @foreach ($competencies as $row)
-            @php
+        @foreach ($competencies as $row)            @php
                 $state = $row['state'];
                 $stateLabel = strtoupper(str_replace('_', ' ', $state));
                 $stateTone = match ($state) {
@@ -64,4 +63,40 @@
             </x-panel>
         @endforeach
     </div>
+
+    @if ($skills->isNotEmpty())
+        <x-panel title="SKILL COMPETENCY" class="mt-6">
+            <div class="divide-y divide-phosphor-dim/40">
+                @foreach ($skills as $skill)
+                    @php
+                        $skillTone = match ($skill['state']) {
+                            'proficient' => 'phosphor',
+                            'weak' => 'amber',
+                            default => 'dim',
+                        };
+                        $skillLabel = match ($skill['state']) {
+                            'proficient' => 'ON TRACK',
+                            'weak' => 'NEEDS WORK',
+                            default => 'NOT ASSESSED',
+                        };
+                    @endphp
+                    <div class="flex items-center gap-3 py-3">
+                        <div class="min-w-0">
+                            <p class="font-body text-[15px] text-ink truncate">{{ $skill['label'] }}</p>
+                            <p class="text-xs font-bold text-phosphor-dim truncate">
+                                @if ($skill['percentage'] === null)
+                                    No evidence recorded yet.
+                                @else
+                                    {{ $skill['percentage'] }}% · {{ $skill['kcCorrect'] }}/{{ $skill['kcTotal'] }} checks · {{ $skill['challengesCompleted'] }}/{{ $skill['challengesApplicable'] }} challenges
+                                @endif
+                            </p>
+                        </div>
+                        <span class="ml-auto shrink-0">
+                            <x-badge tone="{{ $skillTone }}">{{ $skillLabel }}</x-badge>
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+        </x-panel>
+    @endif
 @endsection

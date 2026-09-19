@@ -263,6 +263,9 @@ class AssessmentService
             $attempt = new AssessmentAttempt([
                 'assessment_id' => $assessment->id,
                 'user_id' => $user->id,
+                // Skill keys live at attempt start for future mapping use.
+                // v1 skill scoring ignores Boss evidence entirely.
+                'skill_keys' => $assessment->skills->pluck('key')->all(),
             ]);
 
             $attempt->status = 'started';
@@ -639,6 +642,7 @@ class AssessmentService
         $retry = new AssessmentAttempt([
             'assessment_id' => $assessment->id,
             'user_id' => $user->id,
+            'skill_keys' => $assessment->skills->pluck('key')->all(),
         ]);
 
         $retry->status = 'started';

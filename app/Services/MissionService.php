@@ -84,6 +84,9 @@ class MissionService
                 'user_id' => $user->id,
                 'mission_id' => $mission->id,
                 'mission_version' => $mission->version,
+                // Skill keys live at completion time: a later remapping must
+                // never reinterpret this row (US-905/US-906).
+                'skill_keys' => $mission->skills->pluck('key')->all(),
                 'pts_earned' => $mission->points,
                 'completed_at' => now(),
             ]);
