@@ -131,7 +131,25 @@ class ReportAuthorizationTest extends TestCase
         $this->assertFalse($this->auth->canViewStudentReport($this->operator, $this->student));
         $this->assertFalse($this->auth->canViewCourseReport($this->operator, $this->courseA));
         $this->assertFalse($this->auth->canViewSystemReport($this->operator));
-        $this->assertTrue($this->auth->canViewStudentReport($this->operator, $this->operator));
+    }
+
+    public function test_operator_viewing_self_is_denied(): void
+    {
+        // Self-identity alone grants nothing: the self branch requires the
+        // student role, so an operator cannot inherit student self access.
+        $this->assertFalse($this->auth->canViewStudentReport($this->operator, $this->operator));
+        $this->assertSame([], $this->auth->reportCourseIds($this->operator, $this->operator)->all());
+    }
+
+    public function test_unknown_role_viewing_self_is_denied(): void
+    {
+        $unknown = User::factory()->make(['role' => 'auditor']);
+        $other = User::factory()->make(['role' => 'auditor']);
+
+        $this->assertFalse($this->auth->canViewStudentReport($unknown, $unknown));
+        $this->assertFalse($this->auth->canViewStudentReport($unknown, $other));
+        $this->assertFalse($this->auth->canViewCourseReport($unknown, $this->courseA));
+        $this->assertFalse($this->auth->canViewSystemReport($unknown));
     }
 
     public function test_verdict_is_identical_for_route_and_request_sourced_ids(): void

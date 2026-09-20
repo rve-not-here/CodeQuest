@@ -27,28 +27,40 @@ class ReportAuthorizationService
     ) {}
 
     /**
-     * Who may open a per-student report: the student themself, or anyone
-     * UserPolicy::view already permits to inspect that student's learning
-     * data (classroom-authorized teachers, fleet-wide admins).
+     * Who may open a per-student report: a student viewing their own rows,
+     * or anyone UserPolicy::view already permits to inspect that student's
+     * learning data (classroom-authorized teachers, fleet-wide admins).
+     *
+     * Self-identity alone grants nothing: the self branch additionally
+     * requires the student role, so operators and unknown roles cannot
+     * inherit student self access. UserPolicy::view is deliberately NOT
+     * consulted for the self case because its bare identity check is wider
+     * than the report contract allows.
      */
     public function canViewStudentReport(User $viewer, User $student): bool
     {
+        if ($viewer->id === $student->id) {
+            return $viewer->role === 'student';
+        }
+
         return $viewer->can('view', $student);
     }
 
     /**
      * The course ids a per-student report may include. null means no course
-     * restriction — for self-reports (row queries stay bound to the
+     * restriction — for student self-reports (row queries stay bound to the
      * student's own id) and for admins (fleet-wide by definition). Teachers
      * receive exactly the courses shared with the student through ACTIVE
      * classrooms; an empty set matches nothing, never the whole catalog.
+     * Unsupported roles receive an empty set even for themselves, so null
+     * never represents an unauthorized caller.
      *
      * @return Collection<int, int>|null
      */
     public function reportCourseIds(User $viewer, User $student): ?Collection
     {
         if ($viewer->id === $student->id) {
-            return null;
+            return $viewer->role === 'student' ? null : collect();
         }
 
         return $this->access->courseIdsForStudent($viewer, $student);
