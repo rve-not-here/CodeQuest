@@ -5,9 +5,11 @@ namespace App\Services;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
+use App\Models\Mission;
 use App\Models\Skill;
 use App\Models\User;
 use App\Models\XpTransaction;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -98,6 +100,238 @@ class CompetencyService
             ->groupBy('assessment_id')
             ->pluck('attempt_count', 'assessment_id');
 
+        return $this->buildCourseRows($courses, $progress, $states, $wrongByMission, $attemptsByAssessment);
+    }
+
+    /**
+     * Course overview rows for many students in bounded queries (US-1004).
+     * Same evidence predicates as overview(), grouped by student instead of
+     * filtered to one: progress per student/course, passed verdicts per
+     * student, wrong submissions per student/mission, attempts per
+     * student/assessment. Row construction is the shared buildCourseRows()
+     * path, so batch and single-student results cannot drift apart.
+     *
+     * @param  Collection<int, User>  $users
+     * @param  Collection<int, int>|null  $courseIds
+     * @return Collection<int, Collection<int, array{
+     *     course: Course,
+     *     name: string,
+     *     state: 'not_started'|'developing'|'practicing'|'demonstrated',
+     *     completedMissions: int,
+     *     totalMissions: int,
+     *     percent: int,
+     *     wrongSubmissions: int,
+     *     attempts: int,
+     *     challengePassed: bool,
+     * }>> keyed by user id
+     */
+    public function overviewForStudents(Collection $users, ?Collection $courseIds = null): Collection
+    {
+        if ($users->isEmpty()) {
+            return collect();
+        }
+
+        $courses = Course::query()
+            ->where('status', 'active')
+            ->orderBy('order_num')
+            ->with('missions')
+            ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
+            ->get()
+            ->filter(fn (Course $course): bool => $course->missions->isNotEmpty())
+            ->values();
+
+        $userIds = $users->pluck('id')->map(fn (mixed $id): int => (int) $id)->values();
+
+        $courseIdList = $courses->pluck('id');
+
+        $missionIdsByCourse = Mission::query()
+            ->whereIn('course_id', $courseIdList)
+            ->get(['id', 'course_id'])
+            ->groupBy('course_id');
+
+        $allMissionIds = $missionIdsByCourse->flatten()->pluck('id');
+
+        $totalByCourse = [];
+
+        foreach ($missionIdsByCourse as $courseId => $missions) {
+            $totalByCourse[(int) $courseId] = $missions->count();
+        }
+
+        $progressRows = DB::table('the404_progress as p')
+            ->join('the404_missions as m', 'm.id', '=', 'p.mission_id')
+            ->whereIn('p.user_id', $userIds)
+            ->whereIn('p.mission_id', $allMissionIds)
+            ->selectRaw('p.user_id as user_id, m.course_id as course_id, COUNT(DISTINCT p.mission_id) as done')
+            ->groupBy('p.user_id', 'm.course_id')
+            ->get();
+
+        $progressByUserCourse = [];
+
+        foreach ($progressRows as $row) {
+            $progressByUserCourse[(int) $row->user_id][(int) $row->course_id] = (int) $row->done;
+        }
+
+        $passedRows = AssessmentAttempt::query()
+            ->whereIn('user_id', $userIds)
+            ->where('status', 'passed')
+            ->distinct()
+            ->get(['user_id', 'assessment_id']);
+
+        $passedByUserAssessment = [];
+
+        foreach ($passedRows as $row) {
+            $passedByUserAssessment[(int) $row->user_id][(int) $row->assessment_id] = true;
+        }
+
+        $assessmentsByCourse = Assessment::query()
+            ->whereIn('course_id', $courseIdList)
+            ->get()
+            ->keyBy('course_id');
+
+        $assessmentIds = $assessmentsByCourse->pluck('id');
+
+        $wrongRows = XpTransaction::query()
+            ->toBase()
+            ->whereIn('user_id', $userIds)
+            ->where('type', XpService::TYPE_WRONG_SUBMISSION)
+            ->whereIn('mission_id', $allMissionIds)
+            ->selectRaw('user_id, mission_id, count(*) as wrong_count')
+            ->groupBy('user_id', 'mission_id')
+            ->get();
+
+        $wrongByUserMission = [];
+
+        foreach ($wrongRows as $row) {
+            $wrongByUserMission[(int) $row->user_id][(int) $row->mission_id] = (int) $row->wrong_count;
+        }
+
+        $attemptRows = AssessmentAttempt::query()
+            ->toBase()
+            ->whereIn('user_id', $userIds)
+            ->whereIn('assessment_id', $assessmentIds)
+            ->selectRaw('user_id, assessment_id, count(*) as attempt_count')
+            ->groupBy('user_id', 'assessment_id')
+            ->get();
+
+        $attemptsByUserAssessment = [];
+
+        foreach ($attemptRows as $row) {
+            $attemptsByUserAssessment[(int) $row->user_id][(int) $row->assessment_id] = (int) $row->attempt_count;
+        }
+
+        $byUser = [];
+
+        foreach ($userIds as $userId) {
+            $byUser[$userId] = $this->buildUserRows(
+                $userId,
+                $courses,
+                $totalByCourse,
+                $progressByUserCourse,
+                $passedByUserAssessment,
+                $assessmentsByCourse,
+                $wrongByUserMission,
+                $attemptsByUserAssessment,
+            );
+        }
+
+        return collect($byUser);
+    }
+
+    /**
+     * One student's course rows from the batch evidence maps. Thin
+     * per-student projection over grouped reads — no queries here.
+     *
+     * @param  EloquentCollection<int, Course>  $courses
+     * @param  array<int, int>  $totalByCourse
+     * @param  array<int, array<int, int>>  $progressByUserCourse
+     * @param  array<int, array<int, true>>  $passedByUserAssessment
+     * @param  Collection<int, Assessment>  $assessmentsByCourse
+     * @param  array<int, array<int, int>>  $wrongByUserMission
+     * @param  array<int, array<int, int>>  $attemptsByUserAssessment
+     * @return Collection<int, array{
+     *     course: Course,
+     *     name: string,
+     *     state: 'not_started'|'developing'|'practicing'|'demonstrated',
+     *     completedMissions: int,
+     *     totalMissions: int,
+     *     percent: int,
+     *     wrongSubmissions: int,
+     *     attempts: int,
+     *     challengePassed: bool,
+     * }>
+     */
+    private function buildUserRows(
+        int $userId,
+        EloquentCollection $courses,
+        array $totalByCourse,
+        array $progressByUserCourse,
+        array $passedByUserAssessment,
+        Collection $assessmentsByCourse,
+        array $wrongByUserMission,
+        array $attemptsByUserAssessment,
+    ): Collection {
+        // Percent math matches DashboardService::courseProgressMap(),
+        // the canonical definition the single-student path reuses.
+        $progressRows = [];
+
+        foreach ($totalByCourse as $courseId => $total) {
+            $done = $progressByUserCourse[$userId][$courseId] ?? 0;
+
+            $progressRows[$courseId] = [
+                'completed' => $done,
+                'total' => $total,
+                'percent' => $total > 0 ? (int) round(($done / $total) * 100) : 0,
+            ];
+        }
+
+        $progress = collect($progressRows);
+
+        $states = [];
+
+        foreach ($courses as $course) {
+            $assessment = $assessmentsByCourse->get($course->id);
+
+            $states[$course->id] = [
+                'assessment' => $assessment,
+                'passed' => $assessment !== null && isset($passedByUserAssessment[$userId][$assessment->id]),
+            ];
+        }
+
+        $wrongByMission = collect($wrongByUserMission[$userId] ?? []);
+        $attemptsByAssessment = collect($attemptsByUserAssessment[$userId] ?? []);
+
+        return $this->buildCourseRows($courses, $progress, $states, $wrongByMission, $attemptsByAssessment);
+    }
+
+    /**
+     * One overview row per course from pre-fetched evidence maps. Shared by
+     * the single-student and batch paths so both construct rows — state,
+     * counts, and pass verdicts — from identical logic.
+     *
+     * @param  EloquentCollection<int, Course>  $courses
+     * @param  Collection<int, array{completed: int, total: int, percent: int}>  $progress
+     * @param  array<int, array{assessment: ?Assessment, passed: bool}>  $states
+     * @param  Collection<int, int>  $wrongByMission
+     * @param  Collection<int, int>  $attemptsByAssessment
+     * @return Collection<int, array{
+     *     course: Course,
+     *     name: string,
+     *     state: 'not_started'|'developing'|'practicing'|'demonstrated',
+     *     completedMissions: int,
+     *     totalMissions: int,
+     *     percent: int,
+     *     wrongSubmissions: int,
+     *     attempts: int,
+     *     challengePassed: bool,
+     * }>
+     */
+    private function buildCourseRows(
+        EloquentCollection $courses,
+        Collection $progress,
+        array $states,
+        Collection $wrongByMission,
+        Collection $attemptsByAssessment,
+    ): Collection {
         return $courses
             ->map(function (Course $course) use ($progress, $states, $wrongByMission, $attemptsByAssessment): array {
                 // The map covers every input course; the default matches
@@ -113,16 +347,18 @@ class CompetencyService
                     ? (int) $attemptsByAssessment->get($state['assessment']->id, 0)
                     : 0;
 
+                $rowState = $this->stateFor(
+                    $courseProgress['completed'],
+                    $courseProgress['total'],
+                    $attempts,
+                    $wrongSubmissions,
+                    $state['passed'],
+                );
+
                 return [
                     'course' => $course,
                     'name' => $this->nameFor($course->type),
-                    'state' => $this->stateFor(
-                        $courseProgress['completed'],
-                        $courseProgress['total'],
-                        $attempts,
-                        $wrongSubmissions,
-                        $state['passed'],
-                    ),
+                    'state' => $rowState,
                     'completedMissions' => $courseProgress['completed'],
                     'totalMissions' => $courseProgress['total'],
                     'percent' => $courseProgress['percent'],
