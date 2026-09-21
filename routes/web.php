@@ -27,6 +27,7 @@ use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionIndexController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RecommendationsController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\SectionProgressController;
 use App\Http\Controllers\ShellController;
 use App\Http\Controllers\StudentController;
@@ -57,6 +58,10 @@ Route::middleware('auth')->group(function (): void {
 
     // Section progress overview (per-section mission state, grouped by course)
     Route::get('/section-progress', SectionProgressController::class)->name('section-progress');
+
+    // Report exports (US-1010, CSV only): the student's own progress as a
+    // download. Authorization and filters match the on-screen report.
+    Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->name('export.progress');
 
     // Mission / challenge
     Route::get('/missions', MissionIndexController::class)->name('missions');
@@ -138,6 +143,11 @@ Route::middleware(['auth', 'teacher'])->group(function (): void {
     // ClassroomAccessService. Read-only GETs, like the rest of the teacher area.
     Route::get('/classrooms', [ClassroomController::class, 'index'])->name('classrooms');
     Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])->name('classrooms.show');
+
+    // Report exports (US-1010, CSV only): teacher-scoped student and course
+    // downloads. Same authorization, scope, and filters as the reports.
+    Route::get('/export/teacher/students/{student}', [ReportExportController::class, 'teacherStudent'])->name('export.teacher-student');
+    Route::get('/export/teacher/courses/{course}', [ReportExportController::class, 'teacherCourse'])->name('export.teacher-course');
 });
 
 // Admin area (US-701): authenticated, admin-only. The 'admin' middleware is
@@ -147,6 +157,10 @@ Route::middleware(['auth', 'teacher'])->group(function (): void {
 // in the teacher group and never without the 'admin' middleware.
 Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/admin', AdminDashboardController::class)->name('admin.dashboard');
+
+    // Report exports (US-1010, CSV only): fleet system download under the
+    // same admin authorization, scope, and filters as the system report.
+    Route::get('/export/admin/system', [ReportExportController::class, 'adminSystem'])->name('export.admin-system');
 
     // User management (US-703, §9.0–§12.0): directory + create/edit. Since
     // US-704 update also accepts optional role (UserService::ROLES, operator
