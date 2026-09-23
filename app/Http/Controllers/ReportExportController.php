@@ -144,6 +144,10 @@ class ReportExportController extends Controller
             /** @var User $viewer */
             $viewer = $request->user();
 
+            if (! $this->authorization->canViewStudentReport($viewer, $student)) {
+                abort(403);
+            }
+
             $report = $this->teacherStudentReport->forTeacherStudent(
                 $viewer,
                 $student,
@@ -180,6 +184,10 @@ class ReportExportController extends Controller
         try {
             /** @var User $viewer */
             $viewer = $request->user();
+
+            if (! $this->authorization->canViewCourseReport($viewer, $course)) {
+                abort(403);
+            }
 
             $report = $this->teacherCourseReport->forTeacherCourse(
                 $viewer,

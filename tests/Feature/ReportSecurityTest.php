@@ -283,6 +283,25 @@ class ReportSecurityTest extends TestCase
             ->assertUnprocessable()->assertJsonValidationErrors($field)->assertHeaderMissing('Content-Disposition');
     }
 
+    public function test_out_of_scope_teacher_exports_authorize_before_parsing_filter_identifiers(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $this->actingAs($teacher);
+
+        foreach (['export.teacher-student' => ['student' => $student->id], 'export.teacher-course' => ['course' => $course->id]] as $route => $params) {
+            foreach (['student_id' => $student->id, 'course_id' => $course->id] as $filter => $existingId) {
+                foreach ([$existingId, 999999999] as $filterId) {
+                    foreach (['csv', 'pdf'] as $format) {
+                        $this->getJson(route($route, $params + [$filter => $filterId, 'format' => $format]))
+                            ->assertForbidden()->assertHeaderMissing('Content-Disposition');
+                    }
+                }
+            }
+        }
+    }
+
     #[DataProvider('revokedRoles')]
     public function test_teacher_report_composition_refuses_retained_assignments_for_non_teachers(string $role): void
     {
