@@ -74,3 +74,6 @@ US-803 added POST /notifications/read-all (notifications.read-all) and POST /not
 
 ## admin.announcements route + verb set
 admin.announcements, .create, .store, .edit (GET), .update (PUT), .publish (POST), .archive (POST) all live in the auth+admin group after the admin.user.index registration. Lifecycle transitions use POST (publish/archive) since they are mutations without a conventional REST verb.
+
+## Student academic routes require current student role
+US-1102: student dashboard, learning/progression, mission and assessment actions, academic self-views, and student report export require auth plus the student role middleware. Notifications and logout remain available to every active authenticated role. Role middleware runs before implicit model binding to avoid resource-existence leaks; guests still authenticate first.

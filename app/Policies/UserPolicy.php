@@ -16,7 +16,7 @@ class UserPolicy
     public function view(User $user, User $model): bool
     {
         if ($user->id === $model->id) {
-            return true;
+            return $user->role === 'student' || $user->role === 'admin';
         }
 
         return app(ClassroomAccessService::class)->isAuthorizedForStudent($user, $model);

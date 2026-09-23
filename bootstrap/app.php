@@ -2,12 +2,14 @@
 
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsStudent;
 use App\Http\Middleware\EnsureUserIsTeacherOrAdmin;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,7 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'teacher' => EnsureUserIsTeacherOrAdmin::class,
             'admin' => EnsureUserIsAdmin::class,
+            'student' => EnsureUserIsStudent::class,
         ]);
+
+        foreach ([EnsureUserIsStudent::class, EnsureUserIsTeacherOrAdmin::class, EnsureUserIsAdmin::class] as $roleMiddleware) {
+            $middleware->prependToPriorityList(before: SubstituteBindings::class, prepend: $roleMiddleware);
+        }
 
         // Every response (including /up) is server-hardened with transport
         // security + CSP headers. Global (not web-group) so the middleware

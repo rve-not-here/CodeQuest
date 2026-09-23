@@ -17,6 +17,7 @@ paths:
   - app/Services/AttentionNotificationService.php
   - app/Services/StudentReminderService.php
   - app/Services/ReportAuthorizationService.php
+  - app/Services/ClassroomAccessService.php
 ---
 
 # Services
@@ -167,3 +168,6 @@ Classroom / Enrollment Authorization: ClassroomAccessService::scopesFor($user) r
 
 ## Report role checks precede retained classroom assignments
 US-1012: changing a teacher's role can leave classroom teaching pivots intact. ReportAuthorizationService must require teacher/admin before delegating non-self student/course access or returning shared course IDs; student-self remains student-only. Unsupported roles return false/empty scope even with retained assignments. Keep this report-specific guard here; classroom membership remains owned by ClassroomAccessService. ReportSecurityTest covers retained assignments and export role boundaries.
+
+## Classroom visibility requires current role and assigned scope
+US-1102: only a current teacher may derive active classroom visibility from teaching pivots; retained assignments after a role change to student/operator confer no academic authority. Current admins retain the established fleet-wide exception. UserPolicy self-view grants academic data only to current students (or admins), not former teachers/operators.

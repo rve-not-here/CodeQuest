@@ -111,6 +111,23 @@ class AuthTest extends TestCase
         $response->assertRedirect(route('admin.dashboard'));
     }
 
+    public function test_operator_is_redirected_to_own_notifications_instead_of_the_student_dashboard(): void
+    {
+        User::factory()->create([
+            'username' => 'system-operator',
+            'password' => 'secret123',
+            'role' => 'operator',
+        ]);
+
+        $this->post(route('login'), [
+            'username' => 'system-operator',
+            'password' => 'secret123',
+        ])->assertRedirect(route('notifications'));
+
+        $this->get(route('notifications'))->assertOk();
+        $this->get(route('dashboard'))->assertForbidden();
+    }
+
     public function test_login_failure_returns_errors_and_does_not_authenticate(): void
     {
         User::factory()->create([

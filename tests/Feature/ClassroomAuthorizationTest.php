@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\User;
 use App\Services\ClassroomAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
@@ -22,6 +23,27 @@ class ClassroomAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
     use WithClassroomScope;
+
+    public function test_retained_assignments_do_not_authorize_former_teachers(): void
+    {
+        $teacher = $this->teacher();
+        $student = $this->student();
+        $course = $this->course('Assigned Course', 1);
+        $classroom = $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->assertTrue(app(ClassroomAccessService::class)->isAuthorizedForStudent($teacher, $student));
+
+        $teacher->update(['role' => 'operator']);
+
+        $access = app(ClassroomAccessService::class);
+        $this->assertFalse($access->teachesClassroom($teacher, $classroom));
+        $this->assertFalse($access->isAuthorizedForStudent($teacher, $student));
+        $this->assertFalse($access->isAuthorizedForCourse($teacher, $course));
+        $this->assertTrue($access->studentIdsFor($teacher)->isEmpty());
+        $this->assertFalse(Gate::forUser($teacher)->allows('view', $classroom));
+        $this->assertFalse(Gate::forUser($teacher)->allows('view', $student));
+        $this->assertFalse(Gate::forUser($teacher)->allows('view', $teacher));
+    }
 
     public function test_a_teacher_sees_only_their_own_classrooms(): void
     {

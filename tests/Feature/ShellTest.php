@@ -20,17 +20,11 @@ class ShellTest extends TestCase
             ->assertSee('MISSION NOT RESTORED');
     }
 
-    public function test_standby_shells_reflect_the_authenticated_users_role(): void
+    public function test_teacher_cannot_open_the_student_achievement_page(): void
     {
-        // 'achievements' left the standby sweep in US-508: it is now a real,
-        // auth-protected route covered by AchievementSystemTest. No standby
-        // navigation targets remain, so the sweep has nothing left to walk.
-        // US-603 fixed the StandbyController/standby view role hardcode: a
-        // teacher opening a standby shell now sees the instructor navigation.
         $this->actingAs(User::factory()->teacher()->create())
             ->get(route('achievements'))
-            ->assertOk()
-            ->assertDontSee('XP Ledger');
+            ->assertForbidden();
     }
 
     public function test_the_dashboard_is_an_authenticated_route(): void

@@ -76,6 +76,7 @@ class AuthController extends Controller
         return match ($role) {
             'admin' => route('admin.dashboard'),
             'teacher' => route('students'),
+            'operator' => route('notifications'),
             default => route('dashboard'),
         };
     }

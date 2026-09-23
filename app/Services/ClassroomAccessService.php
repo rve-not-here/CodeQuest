@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * The classroom authorization scope engine (Classroom / Enrollment Authorization).
  *
- * Teacher visibility is membership-driven and status-driven, never role-driven:
+ * Teacher visibility requires the current teacher role, membership, and status:
  * a teacher may monitor exactly the students enrolled in the classrooms they
  * teach, and only while those classrooms are ACTIVE. Setting a classroom
  * inactive immediately removes teacher visibility — status IS an
@@ -57,6 +57,10 @@ class ClassroomAccessService
             return Classroom::query()
                 ->orderBy('name')
                 ->get();
+        }
+
+        if ($user->role !== 'teacher') {
+            return new EloquentCollection;
         }
 
         return $user->teachingClassrooms()
@@ -232,6 +236,10 @@ class ClassroomAccessService
     {
         if ($this->isFleetWide($user)) {
             return true;
+        }
+
+        if ($user->role !== 'teacher') {
+            return false;
         }
 
         return $user->teachingClassrooms()

@@ -48,59 +48,59 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->middleware('student')->name('dashboard');
 
     // Learning path (courses -> sections -> missions)
-    Route::get('/learning-path', LearningPathController::class)->name('learning-path');
+    Route::get('/learning-path', LearningPathController::class)->middleware('student')->name('learning-path');
 
     // Course progress overview (every course's mission state + status label)
-    Route::get('/progress', CourseProgressController::class)->name('progress');
+    Route::get('/progress', CourseProgressController::class)->middleware('student')->name('progress');
 
     // Section progress overview (per-section mission state, grouped by course)
-    Route::get('/section-progress', SectionProgressController::class)->name('section-progress');
+    Route::get('/section-progress', SectionProgressController::class)->middleware('student')->name('section-progress');
 
     // Report exports (US-1010, CSV only): the student's own progress as a
     // download. Authorization and filters match the on-screen report.
-    Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->name('export.progress');
+    Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->middleware('student')->name('export.progress');
 
     // Mission / challenge
-    Route::get('/missions', MissionIndexController::class)->name('missions');
-    Route::get('/missions/{mission}', [MissionController::class, 'show'])->name('mission.show');
-    Route::get('/missions/{mission}/challenge', [MissionController::class, 'challenge'])->name('mission.challenge');
-    Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->name('mission.submit');
-    Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->name('mission.draft');
-    Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->name('mission.hint');
-    Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->name('mission.reveal');
+    Route::get('/missions', MissionIndexController::class)->middleware('student')->name('missions');
+    Route::get('/missions/{mission}', [MissionController::class, 'show'])->middleware('student')->name('mission.show');
+    Route::get('/missions/{mission}/challenge', [MissionController::class, 'challenge'])->middleware('student')->name('mission.challenge');
+    Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->middleware('student')->name('mission.submit');
+    Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->middleware('student')->name('mission.draft');
+    Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->middleware('student')->name('mission.hint');
+    Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->middleware('student')->name('mission.reveal');
 
     Route::scopeBindings()->group(function (): void {
         Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/start', [KnowledgeCheckController::class, 'start'])
-            ->name('knowledge-check.start');
+            ->middleware('student')->name('knowledge-check.start');
         Route::get('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}', [KnowledgeCheckController::class, 'show'])
-            ->name('knowledge-check.show');
+            ->middleware('student')->name('knowledge-check.show');
         Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}/submit', [KnowledgeCheckController::class, 'submit'])
-            ->name('knowledge-check.submit');
+            ->middleware('student')->name('knowledge-check.submit');
         Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/retry', [KnowledgeCheckController::class, 'retry'])
-            ->name('knowledge-check.retry');
+            ->middleware('student')->name('knowledge-check.retry');
     });
 
     // Boss Challenge (assessments)
-    Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessments');
-    Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->name('assessment.show');
-    Route::post('/assessments/{assessment}/start', [AssessmentController::class, 'start'])->name('assessment.start');
-    Route::post('/assessments/{assessment}/submit', [AssessmentController::class, 'submit'])->name('assessment.submit');
-    Route::post('/assessments/{assessment}/retry', [AssessmentController::class, 'retry'])->name('assessment.retry');
+    Route::get('/assessments', [AssessmentController::class, 'index'])->middleware('student')->name('assessments');
+    Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->middleware('student')->name('assessment.show');
+    Route::post('/assessments/{assessment}/start', [AssessmentController::class, 'start'])->middleware('student')->name('assessment.start');
+    Route::post('/assessments/{assessment}/submit', [AssessmentController::class, 'submit'])->middleware('student')->name('assessment.submit');
+    Route::post('/assessments/{assessment}/retry', [AssessmentController::class, 'retry'])->middleware('student')->name('assessment.retry');
 
     // Unified learning timeline (US-505)
-    Route::get('/timeline', TimelineController::class)->name('timeline');
+    Route::get('/timeline', TimelineController::class)->middleware('student')->name('timeline');
 
     // XP ledger history (US-506)
-    Route::get('/xp-ledger', XpLedgerController::class)->name('xp-ledger');
+    Route::get('/xp-ledger', XpLedgerController::class)->middleware('student')->name('xp-ledger');
 
     // Competency dashboard (US-507)
-    Route::get('/competency', CompetencyController::class)->name('competency');
+    Route::get('/competency', CompetencyController::class)->middleware('student')->name('competency');
 
     // Personalized recommendations (US-509)
-    Route::get('/recommendations', RecommendationsController::class)->name('recommendations');
+    Route::get('/recommendations', RecommendationsController::class)->middleware('student')->name('recommendations');
 
     // Notification center (US-801, US-802, US-803): only the authenticated
     // user's own rows. Mark-read POST routes (US-803) resolve via
@@ -112,7 +112,7 @@ Route::middleware('auth')->group(function (): void {
 
     // Achievements registry (US-508 display): the authenticated user's own
     // catalog. Awards remain server-only through AchievementService::award().
-    Route::get('/achievements', AchievementController::class)->name('achievements');
+    Route::get('/achievements', AchievementController::class)->middleware('student')->name('achievements');
 });
 
 // Teacher area (US-601): authenticated, role-gated to teacher or admin.
