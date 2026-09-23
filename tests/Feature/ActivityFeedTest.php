@@ -140,6 +140,30 @@ class ActivityFeedTest extends TestCase
             ->assertDontSee('Hint 1 on mission: Hidden-606');
     }
 
+    public function test_teacher_filters_do_not_reveal_foreign_student_or_course_existence(): void
+    {
+        $teacher = $this->teacher();
+        $student = $this->student();
+        $course = $this->course('Visible classroom');
+        $foreignStudent = $this->student();
+        $foreignCourse = $this->course('Foreign classroom');
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        foreach (['student' => $foreignStudent->id, 'course' => $foreignCourse->id] as $filter => $id) {
+            $this->actingAs($teacher)
+                ->from(route('activity'))
+                ->get(route('activity', [$filter => $id]))
+                ->assertRedirect(route('activity'))
+                ->assertSessionHasErrors($filter);
+
+            $this->actingAs($teacher)
+                ->from(route('activity'))
+                ->get(route('activity', [$filter => $id + 100000]))
+                ->assertRedirect(route('activity'))
+                ->assertSessionHasErrors($filter);
+        }
+    }
+
     public function test_the_event_type_filter_narrows_the_feed(): void
     {
         $student = $this->student();
@@ -310,14 +334,16 @@ class ActivityFeedTest extends TestCase
     public function test_user_scoping_probe_spellings_are_rejected_but_student_filter_is_allowed(): void
     {
         $student = $this->student();
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$this->course('Visible filter course')]);
 
         foreach (['user_id', 'userId', 'user', 'owner'] as $parameter) {
-            $this->actingAs($this->teacher())
+            $this->actingAs($teacher)
                 ->get(route('activity', [$parameter => $student->id]))
                 ->assertForbidden();
         }
 
-        $this->actingAs($this->teacher())
+        $this->actingAs($teacher)
             ->get(route('activity', ['student' => $student->id]))
             ->assertOk();
     }

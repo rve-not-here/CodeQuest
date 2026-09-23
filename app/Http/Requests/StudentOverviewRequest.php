@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\ClassroomAccessService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,9 +23,14 @@ class StudentOverviewRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->user();
+        $courseRule = $user !== null && $user->role === 'teacher'
+            ? Rule::in(app(ClassroomAccessService::class)->courseIdsFor($user)?->all() ?? [])
+            : Rule::exists('the404_courses', 'id');
+
         return [
             'q' => ['nullable', 'string', 'max:64'],
-            'course' => ['nullable', 'integer', Rule::exists('the404_courses', 'id')],
+            'course' => ['nullable', 'integer', $courseRule],
             'status' => ['nullable', Rule::in(['in_progress', 'ready', 'completed'])],
         ];
     }

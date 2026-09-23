@@ -315,6 +315,42 @@ class KnowledgeCheckTest extends TestCase
         $this->assertSame(KnowledgeCheckAttempt::STATUS_STARTED, $attempt->fresh()->status);
     }
 
+    public function test_invalid_answers_do_not_reveal_another_students_attempt(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        ['mission' => $mission] = $this->curriculum();
+        ['check' => $check] = $this->check($mission);
+        $attempt = $this->start($owner, $mission, $check);
+
+        $this->actingAs($intruder)
+            ->post(route('knowledge-check.submit', [$mission, $check, $attempt]), [])
+            ->assertNotFound();
+
+        $this->actingAs($intruder)
+            ->post(route('knowledge-check.submit', [$mission, $check, $attempt->id + 100000]), [])
+            ->assertNotFound();
+
+        $this->assertSame(KnowledgeCheckAttempt::STATUS_STARTED, $attempt->fresh()->status);
+        $this->assertDatabaseCount('the404_knowledge_check_responses', 0);
+    }
+
+    public function test_invalid_answers_do_not_reveal_an_unpublished_check(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->curriculum();
+        ['check' => $check] = $this->check($mission);
+        $attempt = $this->start($student, $mission, $check);
+        $check->update(['status' => KnowledgeCheck::STATUS_DRAFT]);
+
+        $this->actingAs($student)
+            ->post(route('knowledge-check.submit', [$mission, $check, $attempt]), [])
+            ->assertNotFound();
+
+        $this->assertSame(KnowledgeCheckAttempt::STATUS_STARTED, $attempt->fresh()->status);
+        $this->assertDatabaseCount('the404_knowledge_check_responses', 0);
+    }
+
     public function test_submission_is_idempotent_and_records_one_activity_event(): void
     {
         $user = User::factory()->create();

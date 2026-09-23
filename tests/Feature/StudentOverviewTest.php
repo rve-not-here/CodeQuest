@@ -148,6 +148,23 @@ class StudentOverviewTest extends TestCase
         $this->assertStringNotContainsString('learner_a', $rosterB);
     }
 
+    public function test_course_filter_does_not_reveal_a_foreign_course(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $foreignCourse = Course::factory()->create();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        foreach ([$foreignCourse->id, $foreignCourse->id + 100000] as $courseId) {
+            $this->actingAs($teacher)
+                ->from(route('students'))
+                ->get(route('students', ['course' => $courseId]))
+                ->assertRedirect(route('students'))
+                ->assertSessionHasErrors('course');
+        }
+    }
+
     public function test_student_overview_filters_by_progress_status(): void
     {
         $teacher = User::factory()->teacher()->create();
