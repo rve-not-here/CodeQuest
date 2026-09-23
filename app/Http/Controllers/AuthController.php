@@ -22,7 +22,7 @@ class AuthController extends Controller
     {
         $credentials = $request->safe(['username', 'password']);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials)) {
             return back()
                 ->withInput($request->safe()->only('username'))
                 ->withErrors(['username' => 'Invalid credentials.']);

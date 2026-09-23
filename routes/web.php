@@ -42,7 +42,7 @@ Route::get('/shell', ShellController::class)->name('shell');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 });
 
 Route::middleware('auth')->group(function (): void {

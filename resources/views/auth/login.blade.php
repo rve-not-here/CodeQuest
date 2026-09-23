@@ -91,11 +91,6 @@
                         >
                     </div>
 
-                    <label class="flex cursor-pointer items-center gap-2 text-sm text-static">
-                        <input type="checkbox" name="remember" class="h-4 w-4 accent-[#33ff00]" value="1">
-                        Remember me
-                    </label>
-
                     <button type="submit" class="btn-primary w-full">Sign in</button>
                 </form>
 
