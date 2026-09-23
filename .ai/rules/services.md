@@ -16,6 +16,7 @@ paths:
   - app/Services/NotificationService.php
   - app/Services/AttentionNotificationService.php
   - app/Services/StudentReminderService.php
+  - app/Services/ReportAuthorizationService.php
 ---
 
 # Services
@@ -163,3 +164,6 @@ US-809: syncFor(User) (student-only no-op otherwise, one DB::transaction) emits 
 
 ## ClassroomAccessService is the single visibility authority; ClassroomService the sole write path
 Classroom / Enrollment Authorization: ClassroomAccessService::scopesFor($user) returns {studentIds, courseIds, byStudent}, where byStudent maps each monitorable student to their teacher-shared course set — course-level scoping (a student with shared classrooms is visible only for exactly the courses shared with this teacher). A teacher's scope = students ∩ courses across their own ACTIVE classrooms only; an admin's = the whole fleet (null collections). Deactivating a classroom drops it from the teacher's scope instantly (pivots/history untouched); reactivation restores it. Consumers take these scopes as OPTIONAL parameters (?Collection $studentIds, ?Collection $courseIds, ?array $studentCourseScopes) — null stays fleet-wide; a scoped student with an empty shared-course set is filtered OUT, never half-shown (StudentService::index uses this exact drop). ClassroomService is the only admin write path for classroom base fields + the teacher/student/course assignment sets; a status change never rewrites pivots; reassignment REPLACES the pivot set; every applied change AND every refusal records an AdminAuditService row; non-teacher ids in teacher_ids are refused at the REQUEST layer (Rule::exists + where role=teacher) before any write. Never rebuild the teacher/student/course overlap outside ClassroomAccessService.
+
+## Report role checks precede retained classroom assignments
+US-1012: changing a teacher's role can leave classroom teaching pivots intact. ReportAuthorizationService must require teacher/admin before delegating non-self student/course access or returning shared course IDs; student-self remains student-only. Unsupported roles return false/empty scope even with retained assignments. Keep this report-specific guard here; classroom membership remains owned by ClassroomAccessService. ReportSecurityTest covers retained assignments and export role boundaries.

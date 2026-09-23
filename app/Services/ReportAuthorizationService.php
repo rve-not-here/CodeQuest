@@ -12,8 +12,8 @@ use Illuminate\Support\Collection;
  * Thin and compositional: every verdict delegates to the existing
  * primitives — UserPolicy::view for per-student inspection and
  * ClassroomAccessService for classroom/course scope — so no second
- * ownership or classroom system exists. Unknown roles fail closed because
- * none of the underlying checks pass for them.
+ * ownership or classroom system exists. Role checks precede membership
+ * checks because a role change can leave old teaching assignments intact.
  *
  * Default behavior is DENY. Controllers must abort with 403 on false;
  * authorization always runs before report data composition. Future CSV/PDF
@@ -43,6 +43,10 @@ class ReportAuthorizationService
             return $viewer->role === 'student';
         }
 
+        if (! in_array($viewer->role, ['teacher', 'admin'], true)) {
+            return false;
+        }
+
         return $viewer->can('view', $student);
     }
 
@@ -63,6 +67,10 @@ class ReportAuthorizationService
             return $viewer->role === 'student' ? null : collect();
         }
 
+        if (! in_array($viewer->role, ['teacher', 'admin'], true)) {
+            return collect();
+        }
+
         return $this->access->courseIdsForStudent($viewer, $student);
     }
 
@@ -74,7 +82,7 @@ class ReportAuthorizationService
      */
     public function canViewCourseReport(User $viewer, Course $course): bool
     {
-        if ($viewer->role === 'student') {
+        if (! in_array($viewer->role, ['teacher', 'admin'], true)) {
             return false;
         }
 

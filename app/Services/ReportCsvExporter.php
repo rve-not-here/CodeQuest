@@ -12,7 +12,7 @@ namespace App\Services;
  * Safety contract:
  * - fputcsv() writes every row; cells are never concatenated by hand, so
  *   commas, quotes, CR/LF, and Unicode survive round-trips quoted.
- * - a cell whose text starts with =, +, -, or @ is prefixed with a single
+ * - a cell whose text starts with =, +, -, @, tab, CR, or LF is prefixed with a single
  *   quote, so user-controlled titles and labels cannot become spreadsheet
  *   formulas. Null stays an empty field (distinct from numeric zero) and is
  *   never prefixed; booleans render as true/false and cannot trigger it.
@@ -64,7 +64,7 @@ class ReportCsvExporter
 
         $text = (string) $value;
 
-        if ($text !== '' && str_contains('=+-@', $text[0])) {
+        if ($text !== '' && str_contains("=+-@\t\r\n", $text[0])) {
             return "'".$text;
         }
 
