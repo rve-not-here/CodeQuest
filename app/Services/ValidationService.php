@@ -53,8 +53,8 @@ class ValidationService
         foreach ($rules as $index => $rule) {
             try {
                 $passed = $this->evaluate($rule, $code);
-            } catch (InvalidArgumentException $e) {
-                $failures[] = 'Invalid validation rule at index '.$index.': '.$e->getMessage();
+            } catch (InvalidArgumentException) {
+                $failures[] = 'Challenge validation is unavailable. Try again later.';
 
                 continue;
             }
@@ -259,11 +259,7 @@ class ValidationService
             return $rule['label'];
         }
 
-        if (isset($rule['type']) && is_string($rule['type'])) {
-            return $rule['type'].' rule '.($index + 1);
-        }
-
-        return 'Rule '.($index + 1);
+        return 'Requirement '.($index + 1);
     }
 
     /**

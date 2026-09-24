@@ -40,7 +40,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontFlash(['_token']);
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->context(function (): array {
+            if (! app()->bound('request')) {
+                return [];
+            }
+
+            /** @var Request $request */
+            $request = app('request');
+
+            return [
+                'route' => $request->route()?->getName(),
+                'method' => $request->method(),
+            ];
+        });
     })->create();

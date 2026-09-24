@@ -39,6 +39,21 @@ class MissionTest extends TestCase
         return compact('course', 'section', 'mission');
     }
 
+    public function test_invalid_challenge_rule_does_not_expose_internal_validator_details(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'secret_rule_type', 'value' => 'private-rule-value']]),
+        ]);
+
+        $this->actingAs($student)
+            ->post(route('mission.submit', $mission), ['code' => 'student work'])
+            ->assertRedirect()
+            ->assertSessionHas('mission_error', function (array $error): bool {
+                return $error['message'] === 'Challenge validation is unavailable. Try again later.';
+            });
+    }
+
     public function test_mission_show_requires_authentication(): void
     {
         $mission = Mission::factory()->create();

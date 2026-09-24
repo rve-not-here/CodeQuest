@@ -1,5 +1,11 @@
-if (document.getElementById('editor-host')) {
-    import('./editor.js');
+const editorHost = document.getElementById('editor-host');
+
+if (editorHost) {
+    import('./editor.js').catch((error) => {
+        editorHost.setAttribute('role', 'alert');
+        editorHost.textContent = 'Editor could not load. Reload this page to try again.';
+        console.error('CodeQuest editor failed to load.', error);
+    });
 }
 
 const sidebar = document.getElementById('cq-sidebar');
