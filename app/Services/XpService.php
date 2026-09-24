@@ -194,8 +194,22 @@ class XpService
      */
     public function spendSolutionReveal(User $user, Mission $mission): bool
     {
-        return $this->spend($user, $mission, self::REVEAL_COST, self::TYPE_SOLUTION_REVEALED,
-            'Solution reveal on mission: '.$mission->title);
+        return DB::transaction(function () use ($user, $mission): bool {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            if ($this->hasRevealedSolution($user, $mission)) {
+                return true;
+            }
+
+            if ($this->sumFor($user) < self::REVEAL_COST) {
+                return false;
+            }
+
+            $this->spendFrom($user, $mission, self::REVEAL_COST, self::TYPE_SOLUTION_REVEALED,
+                'Solution reveal on mission: '.$mission->title);
+
+            return true;
+        }, attempts: 3);
     }
 
     public function hintCost(int $hintNumber): int

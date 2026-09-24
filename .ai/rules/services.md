@@ -171,3 +171,6 @@ US-1012: changing a teacher's role can leave classroom teaching pivots intact. R
 
 ## Classroom visibility requires current role and assigned scope
 US-1102: only a current teacher may derive active classroom visibility from teaching pivots; retained assignments after a role change to student/operator confer no academic authority. Current admins retain the established fleet-wide exception. UserPolicy self-view grants academic data only to current students (or admins), not former teachers/operators.
+
+## Academic writes use current server state
+A student may submit evidence, never XP, verdict, completion, or unlock state. Gate mission and Knowledge Check writes on historical passes of earlier active courses; recheck course status at Boss submission. Lock and reload assessment attempts before state transitions, and serialize one-time XP purchases or awards against the user's current ledger state.

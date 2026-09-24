@@ -163,6 +163,8 @@ class AssessmentAttemptTest extends TestCase
         $second = User::factory()->create();
         ['course' => $course] = $this->makeUnlockedCourse($first);
         ['course' => $secondCourse] = $this->makeUnlockedCourse($second);
+        $course->update(['order_num' => 1]);
+        $secondCourse->update(['order_num' => 1]);
 
         $firstAttempt = $this->service->beginAttempt($first, $course);
         $secondAttempt = $this->service->beginAttempt($second, $secondCourse);
@@ -238,6 +240,24 @@ class AssessmentAttemptTest extends TestCase
         $this->assertNotNull($submitted->submitted_at);
         $this->assertNull($submitted->score);
         $this->assertNull($submitted->passed_at);
+    }
+
+    public function test_a_stale_started_attempt_cannot_overwrite_a_submitted_attempt(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $course] = $this->makeUnlockedCourse($student);
+        $attempt = $this->service->beginAttempt($student, $course);
+        $staleAttempt = AssessmentAttempt::query()->findOrFail($attempt->id);
+
+        $this->service->submitAttempt($student, $attempt, 'first submission');
+
+        try {
+            $this->service->submitAttempt($student, $staleAttempt, 'replayed submission');
+            $this->fail('A stale attempt must not overwrite submitted evidence.');
+        } catch (AssessmentAttemptStateException) {
+            $this->assertSame('first submission', $attempt->fresh()->code);
+            $this->assertSame('submitted', $attempt->fresh()->status);
+        }
     }
 
     public function test_submit_against_another_students_attempt_is_denied(): void
@@ -426,6 +446,28 @@ class AssessmentAttemptTest extends TestCase
         $this->assertSame('passed', $attempt->status);
         $this->assertSame(100, $attempt->score);
         $this->assertSame($passedAt, $attempt->passed_at?->timestamp);
+    }
+
+    public function test_a_stale_submitted_attempt_cannot_re_evaluate_a_final_result(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $course, 'assessment' => $assessment] = $this->makeUnlockedCourse($student);
+        $assessment->update([
+            'grading_rule' => json_encode([['type' => 'contains', 'value' => 'PASS']]),
+            'passing_score' => 100,
+        ]);
+        $attempt = $this->service->beginAttempt($student, $course);
+        $attempt = $this->service->submitAttempt($student, $attempt, 'PASS');
+        $staleAttempt = AssessmentAttempt::query()->findOrFail($attempt->id);
+        $this->service->evaluateAttempt($student, $attempt);
+
+        try {
+            $this->service->evaluateAttempt($student, $staleAttempt);
+            $this->fail('A finalized attempt must not be evaluated through a stale model.');
+        } catch (AssessmentAttemptStateException) {
+            $this->assertSame('passed', $attempt->fresh()->status);
+            $this->assertSame(1, XpTransaction::query()->where('type', 'assessment_completed')->count());
+        }
     }
 
     public function test_failed_result_is_immutable_against_re_evaluation(): void

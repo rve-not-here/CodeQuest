@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mission;
 use App\Models\User;
 use App\Services\AchievementService;
+use App\Services\AssessmentService;
 use App\Services\DashboardService;
 use App\Services\DraftService;
 use App\Services\KnowledgeCheckService;
@@ -23,6 +24,7 @@ class MissionController extends Controller
         private readonly DashboardService $dashboard,
         private readonly AchievementService $achievements,
         private readonly KnowledgeCheckService $knowledgeChecks,
+        private readonly AssessmentService $assessments,
     ) {}
 
     /**
@@ -36,6 +38,8 @@ class MissionController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
 
         return view('lesson', $this->lessonData($user, $mission));
     }
@@ -52,6 +56,8 @@ class MissionController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
+        $this->ensureCourseReached($user, $mission);
+
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
         }
@@ -65,6 +71,8 @@ class MissionController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
 
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
@@ -124,6 +132,8 @@ class MissionController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
+        $this->ensureCourseReached($user, $mission);
+
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
         }
@@ -146,6 +156,8 @@ class MissionController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
 
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
@@ -185,6 +197,8 @@ class MissionController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
 
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
@@ -331,6 +345,15 @@ class MissionController extends Controller
     {
         if ($mission->course === null || $mission->course->status !== 'active') {
             abort(403, 'This course is not currently active.');
+        }
+    }
+
+    private function ensureCourseReached(User $user, Mission $mission): void
+    {
+        $course = $mission->course;
+
+        if ($course === null || ! $this->assessments->isCourseReached($user, $course)) {
+            abort(403, 'Complete earlier courses before opening this Challenge.');
         }
     }
 

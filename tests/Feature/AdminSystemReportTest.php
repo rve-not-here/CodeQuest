@@ -180,6 +180,7 @@ class AdminSystemReportTest extends TestCase
 
         $courseA = $this->course('ca', 'Course A');
         $courseB = $this->course('cb', 'Course B');
+        $courseB->update(['order_num' => $courseA->order_num]);
         $missionA = $this->mission($courseA, 'Alpha One');
         $missionB = $this->mission($courseB, 'Beta One');
         $this->assessment($courseA);

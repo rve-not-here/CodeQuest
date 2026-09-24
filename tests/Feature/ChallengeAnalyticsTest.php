@@ -36,7 +36,7 @@ class ChallengeAnalyticsTest extends TestCase
 
     private function course(string $name = 'Course'): Course
     {
-        return Course::factory()->create(['name' => $name, 'status' => 'active']);
+        return Course::factory()->create(['name' => $name, 'status' => 'active', 'order_num' => 1]);
     }
 
     private function mission(Course $course, string $title, string $difficulty = 'EASY'): Mission

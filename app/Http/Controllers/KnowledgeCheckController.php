@@ -10,6 +10,7 @@ use App\Models\KnowledgeCheck;
 use App\Models\KnowledgeCheckAttempt;
 use App\Models\Mission;
 use App\Models\User;
+use App\Services\AssessmentService;
 use App\Services\KnowledgeCheckService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\ValidatedInput;
@@ -19,12 +20,14 @@ class KnowledgeCheckController extends Controller
 {
     public function __construct(
         private readonly KnowledgeCheckService $knowledgeChecks,
+        private readonly AssessmentService $assessments,
     ) {}
 
     public function start(Mission $mission, KnowledgeCheck $knowledgeCheck): RedirectResponse
     {
         $user = $this->student();
         $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission, $knowledgeCheck);
 
         try {
             $attempt = $this->knowledgeChecks->start($user, $mission, $knowledgeCheck);
@@ -42,6 +45,7 @@ class KnowledgeCheckController extends Controller
     ): View {
         $user = $this->student();
         $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission, $knowledgeCheck);
 
         try {
             $presentation = $this->knowledgeChecks->presentation($user, $mission, $knowledgeCheck, $attempt);
@@ -68,6 +72,7 @@ class KnowledgeCheckController extends Controller
     ): RedirectResponse {
         $user = $this->student();
         $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission, $knowledgeCheck);
 
         /** @var ValidatedInput $payload */
         $payload = $request->safe(['answers']);
@@ -87,6 +92,7 @@ class KnowledgeCheckController extends Controller
     {
         $user = $this->student();
         $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission, $knowledgeCheck);
 
         try {
             $attempt = $this->knowledgeChecks->retry($user, $mission, $knowledgeCheck);
@@ -116,6 +122,19 @@ class KnowledgeCheckController extends Controller
     {
         if ($mission->course === null || $mission->course->status !== 'active') {
             abort(403, 'This course is not currently active.');
+        }
+    }
+
+    private function ensureCourseReached(User $user, Mission $mission, KnowledgeCheck $check): void
+    {
+        if ($check->mission_id !== $mission->id || $check->status !== KnowledgeCheck::STATUS_PUBLISHED) {
+            abort(404);
+        }
+
+        $course = $mission->course;
+
+        if ($course === null || ! $this->assessments->isCourseReached($user, $course)) {
+            abort(403, 'Complete earlier courses before opening this Knowledge Check.');
         }
     }
 }

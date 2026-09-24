@@ -95,6 +95,14 @@ class AssessmentController extends Controller
         $user = auth()->user();
         $course = $assessment->course;
 
+        if ($course === null || ! $this->assessments->isUnlocked($user, $course)) {
+            return redirect()->route('assessments')
+                ->with('assessment_error', [
+                    'title' => 'Challenge sealed',
+                    'message' => 'Complete every mission in '.($course === null ? 'this course' : $course->name).' before submitting its Boss Challenge.',
+                ]);
+        }
+
         $validated = $request->validate([
             'code' => ['required', 'string'],
         ]);

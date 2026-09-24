@@ -174,6 +174,27 @@ class AssessmentService
     }
 
     /**
+     * Earlier active courses with missions must have a historical Boss
+     * Challenge pass before a student can work in this course.
+     */
+    public function isCourseReached(User $user, Course $course): bool
+    {
+        $earlierCourses = Course::query()
+            ->where('status', 'active')
+            ->where('order_num', '<', $course->order_num)
+            ->whereHas('missions')
+            ->get();
+
+        foreach ($earlierCourses as $earlierCourse) {
+            if (! $this->hasPassed($user, $earlierCourse)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Whether the course's Boss Challenge is unlocked for the student (§6).
      *
      * Unlocking is server-authoritative and requires all of: the COURSE is
@@ -184,7 +205,7 @@ class AssessmentService
      */
     public function isUnlocked(User $user, Course $course): bool
     {
-        if ($course->status !== 'active') {
+        if ($course->status !== 'active' || ! $this->isCourseReached($user, $course)) {
             return false;
         }
 
@@ -458,16 +479,24 @@ class AssessmentService
             throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
         }
 
-        if ($attempt->status !== 'started') {
-            throw AssessmentAttemptStateException::mismatch($attempt->id, ['started'], $attempt->status);
-        }
+        DB::transaction(function () use ($user, $attempt, $code): void {
+            $current = AssessmentAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
 
-        $attempt->code = $code;
-        $attempt->status = 'submitted';
-        $attempt->submitted_at = now();
-        $attempt->save();
+            if (! $this->hasAccessToAttempt($user, $current)) {
+                throw AssessmentAttemptAccessDeniedException::forAttempt($current->id);
+            }
 
-        return $attempt;
+            if ($current->status !== 'started') {
+                throw AssessmentAttemptStateException::mismatch($current->id, ['started'], $current->status);
+            }
+
+            $current->code = $code;
+            $current->status = 'submitted';
+            $current->submitted_at = now();
+            $current->save();
+        }, attempts: 3);
+
+        return $attempt->refresh();
     }
 
     /**
@@ -499,39 +528,50 @@ class AssessmentService
             throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
         }
 
-        if ($attempt->status !== 'submitted') {
-            throw AssessmentAttemptStateException::mismatch($attempt->id, ['submitted'], $attempt->status);
-        }
-
-        $assessment = $attempt->assessment;
-
-        if ($assessment === null) {
+        if ($attempt->assessment === null) {
             throw new \InvalidArgumentException('Assessment attempt '.$attempt->id.' references no assessment.');
         }
 
-        $result = $this->validator->validateRules($assessment->grading_rule ?? '', $attempt->code ?? '');
+        DB::transaction(function () use ($user, $attempt): void {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $attempt = AssessmentAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
 
-        $total = $result['total'];
-        // Coupling: ValidationService::validateRules() folds a malformed rule
-        // entry into the failures list, so it is counted here as a failed rule.
-        // That is currently safe only because seeded grading_rule content is
-        // assumed valid; a broken rule would otherwise score as a student
-        // failure. Guarded, not fixed: recording malformed-rule credit is a
-        // US-407 design decision we are not changing here.
-        $failed = count($result['failures']);
+            if (! $this->hasAccessToAttempt($user, $attempt)) {
+                throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
+            }
 
-        $score = $total > 0 ? (int) round((($total - $failed) / $total) * 100) : 0;
+            if ($attempt->status !== 'submitted') {
+                throw AssessmentAttemptStateException::mismatch($attempt->id, ['submitted'], $attempt->status);
+            }
 
-        $passed = $total > 0 && $score >= $assessment->passing_score;
+            $assessment = $attempt->assessment;
 
-        // The pre-state, read before this attempt is written as passed: has
-        // the student already earned a passed verdict on this assessment?
-        // Mirrors hasPassed() and feeds the award-only-on-first-pass rule.
-        $hadPassedBefore = $this->attempts($assessment, $user)
-            ->where('status', 'passed')
-            ->exists();
+            if ($assessment === null) {
+                throw new \InvalidArgumentException('Assessment attempt '.$attempt->id.' references no assessment.');
+            }
 
-        DB::transaction(function () use ($attempt, $assessment, $user, $score, $passed, $hadPassedBefore): void {
+            $result = $this->validator->validateRules($assessment->grading_rule ?? '', $attempt->code ?? '');
+
+            $total = $result['total'];
+            // Coupling: ValidationService::validateRules() folds a malformed rule
+            // entry into the failures list, so it is counted here as a failed rule.
+            // That is currently safe only because seeded grading_rule content is
+            // assumed valid; a broken rule would otherwise score as a student
+            // failure. Guarded, not fixed: recording malformed-rule credit is a
+            // US-407 design decision we are not changing here.
+            $failed = count($result['failures']);
+
+            $score = $total > 0 ? (int) round((($total - $failed) / $total) * 100) : 0;
+
+            $passed = $total > 0 && $score >= $assessment->passing_score;
+
+            // The pre-state, read before this attempt is written as passed: has
+            // the student already earned a passed verdict on this assessment?
+            // Mirrors hasPassed() and feeds the award-only-on-first-pass rule.
+            $hadPassedBefore = $this->attempts($assessment, $user)
+                ->where('status', 'passed')
+                ->exists();
+
             $attempt->score = $score;
             $attempt->status = $passed ? 'passed' : 'failed';
             $attempt->passed_at = $passed ? now() : null;
@@ -601,9 +641,10 @@ class AssessmentService
                     );
                 }
             }
-        });
 
-        return $attempt;
+        }, attempts: 3);
+
+        return $attempt->refresh();
     }
 
     /**

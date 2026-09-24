@@ -477,4 +477,20 @@ class KnowledgeCheckTest extends TestCase
             ->post(route('knowledge-check.start', [$mission, $check]))
             ->assertForbidden();
     }
+
+    public function test_unfinished_earlier_course_blocks_a_later_courses_knowledge_check(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $earlierCourse] = $this->curriculum();
+        $earlierCourse->update(['order_num' => 1]);
+        ['course' => $laterCourse, 'mission' => $laterMission] = $this->curriculum();
+        $laterCourse->update(['order_num' => 2]);
+        ['check' => $check] = $this->check($laterMission);
+
+        $this->actingAs($student)
+            ->post(route('knowledge-check.start', [$laterMission, $check]))
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('the404_knowledge_check_attempts', 0);
+    }
 }

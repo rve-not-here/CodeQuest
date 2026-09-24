@@ -246,7 +246,7 @@ class AssessmentTest extends TestCase
 
         foreach (['html', 'css', 'js'] as $type) {
             ['course' => $course, 'assessment' => $assessment] = $this->makeUnlockedChallenge($student);
-            $course->update(['type' => $type]);
+            $course->update(['type' => $type, 'order_num' => 1]);
 
             AssessmentAttempt::factory()->started()->create([
                 'assessment_id' => $assessment->id,
@@ -323,6 +323,64 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->post(route('assessment.submit', $assessment), [])
             ->assertSessionHasErrors('code');
+    }
+
+    public function test_started_attempt_cannot_be_submitted_after_its_course_is_sealed(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $course, 'assessment' => $assessment] = $this->makeUnlockedChallenge($student);
+
+        $this->actingAs($student)->post(route('assessment.start', $assessment));
+        $attempt = AssessmentAttempt::query()->sole();
+        $course->update(['status' => 'locked']);
+
+        $this->actingAs($student)
+            ->post(route('assessment.submit', $assessment), [
+                'code' => 'A B C',
+                'score' => 100,
+                'passed' => true,
+                'xp' => 999999,
+            ])
+            ->assertRedirect(route('assessments'))
+            ->assertSessionHas('assessment_error');
+
+        $this->assertSame('started', $attempt->fresh()->status);
+        $this->assertNull($attempt->fresh()->score);
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    public function test_started_attempt_cannot_be_submitted_after_its_assessment_is_sealed(): void
+    {
+        $student = User::factory()->create();
+        ['assessment' => $assessment] = $this->makeUnlockedChallenge($student);
+
+        $this->actingAs($student)->post(route('assessment.start', $assessment));
+        $attempt = AssessmentAttempt::query()->sole();
+        $assessment->update(['status' => 'locked']);
+
+        $this->actingAs($student)
+            ->post(route('assessment.submit', $assessment), ['code' => 'A B C'])
+            ->assertRedirect(route('assessments'))
+            ->assertSessionHas('assessment_error');
+
+        $this->assertSame('started', $attempt->fresh()->status);
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    public function test_later_course_boss_challenge_stays_sealed_until_earlier_course_passes(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $earlierCourse] = $this->makeSealedChallenge();
+        $earlierCourse->update(['order_num' => 1]);
+        ['course' => $laterCourse, 'assessment' => $laterAssessment] = $this->makeUnlockedChallenge($student);
+        $laterCourse->update(['order_num' => 2]);
+
+        $this->actingAs($student)
+            ->post(route('assessment.start', $laterAssessment))
+            ->assertRedirect(route('assessments'))
+            ->assertSessionHas('assessment_error');
+
+        $this->assertDatabaseCount('the404_assessment_attempts', 0);
     }
 
     public function test_assessment_submit_correct_code_passes_and_awards_xp_once(): void

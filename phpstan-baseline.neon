@@ -19,19 +19,7 @@ parameters:
 			path: app/Http/Controllers/AssessmentController.php
 
 		-
-			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:hasPassed\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/AssessmentController.php
-
-		-
 			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:isUnlocked\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/AssessmentController.php
-
-		-
-			message: '#^Parameter \#2 \$course of method App\\Services\\AssessmentService\:\:latestAttemptFor\(\) expects App\\Models\\Course, App\\Models\\Course\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/AssessmentController.php
