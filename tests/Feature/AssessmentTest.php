@@ -240,6 +240,32 @@ class AssessmentTest extends TestCase
             ->assertSee('A B');
     }
 
+    public function test_assessment_preview_grants_scripts_only_for_javascript_courses(): void
+    {
+        $student = User::factory()->create();
+
+        foreach (['html', 'css', 'js'] as $type) {
+            ['course' => $course, 'assessment' => $assessment] = $this->makeUnlockedChallenge($student);
+            $course->update(['type' => $type]);
+
+            AssessmentAttempt::factory()->started()->create([
+                'assessment_id' => $assessment->id,
+                'user_id' => $student->id,
+            ]);
+
+            $response = $this->actingAs($student)
+                ->get(route('assessment.show', $assessment))
+                ->assertOk();
+
+            if ($type === 'js') {
+                $response->assertSee('sandbox="allow-scripts"', false);
+            } else {
+                $response->assertSee('sandbox=""', false)
+                    ->assertDontSee('sandbox="allow-scripts"', false);
+            }
+        }
+    }
+
     public function test_assessment_show_restores_in_progress_code(): void
     {
         $user = User::factory()->create();

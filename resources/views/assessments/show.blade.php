@@ -124,7 +124,7 @@
             <iframe
                 id="preview-frame"
                 class="w-full min-h-[320px] bg-white border border-phosphor-dim rounded-[2px]"
-                sandbox="allow-scripts"
+                sandbox="{{ in_array($course->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"
                 title="Live preview"
             ></iframe>
         </x-panel>

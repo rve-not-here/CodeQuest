@@ -167,7 +167,7 @@
             <div class="challenge-pane-body is-frame">
                 <iframe
                     id="preview-frame"
-                    sandbox="allow-scripts"
+                    sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"
                     title="Live preview"
                 ></iframe>
             </div>

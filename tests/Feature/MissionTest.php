@@ -76,6 +76,28 @@ class MissionTest extends TestCase
             ->assertDontSee('data-open', false);
     }
 
+    public function test_challenge_preview_grants_scripts_only_for_javascript_courses(): void
+    {
+        $student = User::factory()->create();
+
+        foreach (['html', 'css'] as $type) {
+            ['mission' => $mission] = $this->createMissionWithCourse([], ['type' => $type]);
+
+            $this->actingAs($student)
+                ->get(route('mission.challenge', $mission))
+                ->assertOk()
+                ->assertSee('sandbox=""', false)
+                ->assertDontSee('sandbox="allow-scripts"', false);
+        }
+
+        ['mission' => $javascriptMission] = $this->createMissionWithCourse([], ['type' => 'js']);
+
+        $this->actingAs($student)
+            ->get(route('mission.challenge', $javascriptMission))
+            ->assertOk()
+            ->assertSee('sandbox="allow-scripts"', false);
+    }
+
     public function test_mission_submit_requires_authentication(): void
     {
         $mission = Mission::factory()->create();
