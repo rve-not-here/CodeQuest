@@ -72,7 +72,7 @@ class Mission extends Model implements CurriculumVersioned
      * must not be able to read either through any JSON/array dump of a
      * mission, only ask for the solution through the XP-gated reveal flow.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = ['solution_code', 'validate_rule'];
 
@@ -92,11 +92,13 @@ class Mission extends Model implements CurriculumVersioned
         return $this->belongsTo(Section::class, 'section_id');
     }
 
+    /** @return HasMany<Progress, $this> */
     public function progress(): HasMany
     {
         return $this->hasMany(Progress::class, 'mission_id');
     }
 
+    /** @return HasOne<MissionDraft, $this> */
     public function draft(): HasOne
     {
         return $this->hasOne(MissionDraft::class, 'mission_id');

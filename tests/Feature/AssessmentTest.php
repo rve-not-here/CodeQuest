@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\AssessmentController;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -14,6 +15,7 @@ use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class AssessmentTest extends TestCase
@@ -99,6 +101,16 @@ class AssessmentTest extends TestCase
         ['assessment' => $assessment] = $this->makeSealedChallenge();
 
         $this->get(route('assessment.show', $assessment))->assertRedirect(route('login'));
+    }
+
+    public function test_assessment_with_missing_course_is_not_found(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $assessment = Assessment::factory()->make()->setRelation('course', null);
+
+        $this->expectException(NotFoundHttpException::class);
+
+        app(AssessmentController::class)->show($assessment);
     }
 
     public function test_assessment_start_requires_authentication(): void

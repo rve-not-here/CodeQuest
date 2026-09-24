@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Activity;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
@@ -147,6 +148,7 @@ class DashboardService
         return $this->xp->balance($user);
     }
 
+    /** @return Collection<int, Activity> */
     public function recentActivity(User $user): Collection
     {
         return $user->activities()

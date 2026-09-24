@@ -25,14 +25,13 @@ class LearningPathService
 {
     public function __construct(
         private readonly DashboardService $dashboard,
-        private readonly DraftService $drafts,
     ) {}
 
     /**
      * @return Collection<int, array{
      *     course: Course,
      *     progress: array{completed: int, total: int, percent: int},
-     *     sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string, xp: int}>}>
+     *     sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>
      * }>
      */
     public function build(User $user): Collection
@@ -59,23 +58,23 @@ class LearningPathService
             ->pluck('mission_id')
             ->flip();
 
-        return $courses->map(function (Course $course) use ($completed, $drafted): array {
+        return $courses->map(function (Course $course) use ($completed, $drafted) {
             $completedIds = $course->missions
-                ->pluck('id')
+                ->map(fn (Mission $mission): int => $mission->id)
                 ->filter(fn (int $id): bool => $completed->has($id))
                 ->values()
                 ->all();
 
             $draftIds = $course->missions
-                ->pluck('id')
+                ->map(fn (Mission $mission): int => $mission->id)
                 ->filter(fn (int $id): bool => $drafted->has($id))
                 ->values()
                 ->all();
 
-            $sections = $course->sections->map(function ($section) use ($completedIds, $draftIds): array {
+            $sections = $course->sections->map(function (Section $section) use ($completedIds, $draftIds) {
                 $missions = $section->missions
                     ->sortBy('order_num')
-                    ->map(function (Mission $mission) use ($completedIds, $draftIds): array {
+                    ->map(function (Mission $mission) use ($completedIds, $draftIds) {
                         return $this->missionView($mission, $completedIds, $draftIds);
                     })
                     ->values();
@@ -220,6 +219,8 @@ class LearningPathService
     }
 
     /**
+     * @param  array<int, int>  $completedMissionIds
+     * @param  array<int, int>  $draftMissionIds
      * @return array{mission: Mission, state: string}
      */
     private function missionView(Mission $mission, array $completedMissionIds, array $draftMissionIds): array

@@ -54,6 +54,21 @@ class MissionTest extends TestCase
             });
     }
 
+    public function test_malformed_count_tag_rule_does_not_charge_a_wrong_submission(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'count_tag', 'tag' => 'di/v', 'count' => 1]]),
+        ]);
+
+        $this->actingAs($student)
+            ->post(route('mission.submit', $mission), ['code' => '<div>student work</div>'])
+            ->assertInternalServerError();
+
+        $this->assertDatabaseMissing('the404_progress', ['user_id' => $student->id, 'mission_id' => $mission->id]);
+        $this->assertDatabaseMissing('the404_xp_transactions', ['user_id' => $student->id, 'mission_id' => $mission->id]);
+    }
+
     public function test_mission_show_requires_authentication(): void
     {
         $mission = Mission::factory()->create();

@@ -69,6 +69,7 @@ class Assessment extends Model implements CurriculumVersioned
         return $this->belongsTo(Course::class, 'course_id');
     }
 
+    /** @return HasMany<AssessmentAttempt, $this> */
     public function attempts(): HasMany
     {
         return $this->hasMany(AssessmentAttempt::class, 'assessment_id');

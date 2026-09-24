@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Mission;
 use App\Services\ValidationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use RuntimeException;
 use Tests\TestCase;
 
 class ValidationServiceTest extends TestCase
@@ -139,6 +140,15 @@ class ValidationServiceTest extends TestCase
         $result = $this->service->validate($mission, '<div>A</div>');
 
         $this->assertFalse($result['passed']);
+    }
+
+    public function test_malformed_count_tag_rule_throws_without_grading(): void
+    {
+        $rule = json_encode([['type' => 'count_tag', 'tag' => 'di/v', 'count' => 1]]);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->service->validateRules($rule, '<div>A</div>');
     }
 
     public function test_count_rule_passes_on_exact_match(): void

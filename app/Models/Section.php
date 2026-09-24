@@ -42,6 +42,7 @@ class Section extends Model implements CurriculumVersioned
         return $this->belongsTo(Course::class, 'course_id');
     }
 
+    /** @return HasMany<Mission, $this> */
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class, 'section_id');

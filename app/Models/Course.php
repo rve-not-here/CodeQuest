@@ -60,11 +60,13 @@ class Course extends Model implements CurriculumVersioned
         return ['description', 'order_num'];
     }
 
+    /** @return HasMany<Mission, $this> */
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class, 'course_id');
     }
 
+    /** @return HasMany<Section, $this> */
     public function sections(): HasMany
     {
         return $this->hasMany(Section::class, 'course_id')->orderBy('order_num');

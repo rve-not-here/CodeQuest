@@ -80,7 +80,7 @@ class LearningPathController extends Controller
      * accessible. An href with no known target defaults to inaccessible
      * rather than rendering a hopeful link.
      *
-     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string, xp: int}>}>, boss: array{assessment: ?Assessment, state: string, reason: string}}>  $tree
+     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>, boss: array{assessment: ?Assessment, state: string, reason: string}}>  $tree
      * @return Collection<int, array{slot: int, title: string, subtitle: string, href: string, cta: string, accessible: bool, locked_reason: ?string}>
      */
     private function accessibleRecommendations(User $user, Collection $tree): Collection

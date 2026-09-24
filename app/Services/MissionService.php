@@ -34,7 +34,7 @@ class MissionService
      * @return array{
      *     passed: bool,
      *     alreadyCompleted: bool,
-     *     failures: array<int, string>,
+     *     failures: list<string>,
      *     xpAwarded: int,
      *     xpBalance: int
      * }
@@ -49,7 +49,7 @@ class MissionService
     }
 
     /**
-     * @return array{passed: bool, alreadyCompleted: bool, failures: array<int, string>, xpAwarded: int, xpBalance: int}
+     * @return array{passed: bool, alreadyCompleted: bool, failures: list<string>, xpAwarded: int, xpBalance: int}
      */
     private function submitForLockedUser(User $user, Mission $mission, string $code): array
     {

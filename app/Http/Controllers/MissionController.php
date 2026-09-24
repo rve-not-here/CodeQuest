@@ -267,7 +267,7 @@ class MissionController extends Controller
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $completed,
-            'code' => $solutionRevealed && $mission->solution_code !== null ? $mission->solution_code : ($draft?->code ?? ''),
+            'code' => $solutionRevealed && $mission->solution_code !== null ? $mission->solution_code : ($draft->code ?? ''),
             'hasDraft' => $draft !== null,
             'solutionRevealed' => $solutionRevealed,
             'hints' => $revealedHints,
@@ -324,6 +324,9 @@ class MissionController extends Controller
         return array_values(array_filter(array_map('strval', $decoded), fn (string $h): bool => $h !== ''));
     }
 
+    /**
+     * @param  list<string>  $failures
+     */
     private function firstFailure(array $failures): string
     {
         if ($failures === []) {

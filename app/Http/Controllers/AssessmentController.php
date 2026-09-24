@@ -48,6 +48,10 @@ class AssessmentController extends Controller
         $user = auth()->user();
         $course = $assessment->course;
 
+        if ($course === null) {
+            abort(404);
+        }
+
         if (! $this->assessments->isUnlocked($user, $course)) {
             return redirect()->route('assessments')
                 ->with('assessment_locked', [
@@ -64,6 +68,10 @@ class AssessmentController extends Controller
         /** @var User $user */
         $user = auth()->user();
         $course = $assessment->course;
+
+        if ($course === null) {
+            abort(404);
+        }
 
         try {
             $this->assessments->beginAttempt($user, $course);
@@ -164,6 +172,10 @@ class AssessmentController extends Controller
         $user = auth()->user();
         $course = $assessment->course;
 
+        if ($course === null) {
+            abort(404);
+        }
+
         try {
             $this->assessments->retryAttempt($user, $course);
         } catch (AssessmentNotUnlockedException) {
@@ -238,7 +250,7 @@ class AssessmentController extends Controller
         ];
     }
 
-    private function challengeState(?Assessment $assessment, bool $eligible, bool $passed, ?object $latest): string
+    private function challengeState(?Assessment $assessment, bool $eligible, bool $passed, ?AssessmentAttempt $latest): string
     {
         if ($assessment === null) {
             return 'none';
@@ -279,7 +291,7 @@ class AssessmentController extends Controller
             'assessment' => $assessment,
             'course' => $course,
             'attempt' => $attempt,
-            'code' => $attempt?->code ?? '',
+            'code' => $attempt->code ?? '',
             'hasPassed' => $this->assessments->hasPassed($user, $course),
             'canBegin' => $attempt === null,
             'canEdit' => in_array($attempt?->status, ['available', 'started'], true),

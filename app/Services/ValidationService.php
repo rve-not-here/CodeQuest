@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Mission;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Evaluates a submitted solution against a mission's validate_rule JSON.
@@ -19,7 +20,7 @@ class ValidationService
     /**
      * Validate a submission against a mission's rules.
      *
-     * @return array{passed: bool, failures: array<int, string>, total: int}
+     * @return array{passed: bool, failures: list<string>, total: int}
      */
     public function validate(Mission $mission, string $code): array
     {
@@ -34,7 +35,7 @@ class ValidationService
      * string/structural checks. The result includes the total rule count so a
      * caller can derive a score as the proportion of rules passed.
      *
-     * @return array{passed: bool, failures: array<int, string>, total: int}
+     * @return array{passed: bool, failures: list<string>, total: int}
      */
     public function validateRules(string $rulesJson, string $code): array
     {
@@ -146,7 +147,11 @@ class ValidationService
         $tag = $this->needString($rule, 'tag');
         $expected = $this->needInt($rule, 'count');
 
-        $occurrences = preg_match_all('/<'.$tag.'[\s>]/i', $code);
+        $occurrences = @preg_match_all('/<'.$tag.'[\s>]/i', $code);
+
+        if ($occurrences === false) {
+            throw new RuntimeException('Invalid count_tag pattern.');
+        }
 
         return $this->compareCount($occurrences, $expected, $rule);
     }
@@ -190,6 +195,9 @@ class ValidationService
         return $this->normalize($code) === $this->normalize($expected);
     }
 
+    /**
+     * @param  array<string, mixed>  $rule
+     */
     private function compareCount(int $occurrences, int $expected, array $rule): bool
     {
         return match ($rule['operator'] ?? 'eq') {
