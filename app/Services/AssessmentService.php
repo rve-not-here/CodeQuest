@@ -268,46 +268,50 @@ class AssessmentService
      */
     public function beginAttempt(User $user, Course $course): AssessmentAttempt
     {
-        if (! $this->isUnlocked($user, $course)) {
-            throw AssessmentNotUnlockedException::forCourse($course->id);
-        }
+        return DB::transaction(function () use ($user, $course): AssessmentAttempt {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
 
-        $assessment = $this->forCourse($course);
+            if (! $this->isUnlocked($user, $course)) {
+                throw AssessmentNotUnlockedException::forCourse($course->id);
+            }
 
-        if ($assessment === null) {
-            throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
-        }
+            $assessment = $this->forCourse($course);
 
-        $attempt = $this->attempts($assessment, $user)->first();
+            if ($assessment === null) {
+                throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
+            }
 
-        if ($attempt === null) {
-            $attempt = new AssessmentAttempt([
-                'assessment_id' => $assessment->id,
-                'user_id' => $user->id,
-                // Skill keys live at attempt start for future mapping use.
-                // v1 skill scoring ignores Boss evidence entirely.
-                'skill_keys' => $assessment->skills->pluck('key')->all(),
-            ]);
+            $attempt = $this->attempts($assessment, $user)->first();
 
-            $attempt->status = 'started';
-            $attempt->assessment_version = $assessment->version;
-            $attempt->save();
+            if ($attempt === null) {
+                $attempt = new AssessmentAttempt([
+                    'assessment_id' => $assessment->id,
+                    'user_id' => $user->id,
+                    // Skill keys live at attempt start for future mapping use.
+                    // v1 skill scoring ignores Boss evidence entirely.
+                    'skill_keys' => $assessment->skills->pluck('key')->all(),
+                ]);
 
-            return $attempt;
-        }
+                $attempt->status = 'started';
+                $attempt->assessment_version = $assessment->version;
+                $attempt->save();
 
-        if ($attempt->status === 'available') {
-            $attempt->status = 'started';
-            $attempt->save();
+                return $attempt;
+            }
 
-            return $attempt;
-        }
+            if ($attempt->status === 'available') {
+                $attempt->status = 'started';
+                $attempt->save();
 
-        if ($attempt->status === 'started') {
-            return $attempt;
-        }
+                return $attempt;
+            }
 
-        throw AssessmentAttemptStateException::mismatch($attempt->id, ['available', 'started'], $attempt->status);
+            if ($attempt->status === 'started') {
+                return $attempt;
+            }
+
+            throw AssessmentAttemptStateException::mismatch($attempt->id, ['available', 'started'], $attempt->status);
+        }, attempts: 3);
     }
 
     /**
@@ -660,37 +664,41 @@ class AssessmentService
      */
     public function retryAttempt(User $user, Course $course): AssessmentAttempt
     {
-        if (! $this->isUnlocked($user, $course)) {
-            throw AssessmentNotUnlockedException::forCourse($course->id);
-        }
+        return DB::transaction(function () use ($user, $course): AssessmentAttempt {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
 
-        $assessment = $this->forCourse($course);
+            if (! $this->isUnlocked($user, $course)) {
+                throw AssessmentNotUnlockedException::forCourse($course->id);
+            }
 
-        if ($assessment === null) {
-            throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
-        }
+            $assessment = $this->forCourse($course);
 
-        $latest = $this->latestAttemptFor($user, $course);
+            if ($assessment === null) {
+                throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
+            }
 
-        if ($latest === null) {
-            throw AssessmentAttemptStateException::noAttemptToRetry($course->id);
-        }
+            $latest = $this->latestAttemptFor($user, $course);
 
-        if (! in_array($latest->status, ['failed', 'passed'], true)) {
-            throw AssessmentAttemptStateException::mismatch($latest->id, ['failed', 'passed'], $latest->status);
-        }
+            if ($latest === null) {
+                throw AssessmentAttemptStateException::noAttemptToRetry($course->id);
+            }
 
-        $retry = new AssessmentAttempt([
-            'assessment_id' => $assessment->id,
-            'user_id' => $user->id,
-            'skill_keys' => $assessment->skills->pluck('key')->all(),
-        ]);
+            if (! in_array($latest->status, ['failed', 'passed'], true)) {
+                throw AssessmentAttemptStateException::mismatch($latest->id, ['failed', 'passed'], $latest->status);
+            }
 
-        $retry->status = 'started';
-        $retry->assessment_version = $assessment->version;
-        $retry->save();
+            $retry = new AssessmentAttempt([
+                'assessment_id' => $assessment->id,
+                'user_id' => $user->id,
+                'skill_keys' => $assessment->skills->pluck('key')->all(),
+            ]);
 
-        return $retry;
+            $retry->status = 'started';
+            $retry->assessment_version = $assessment->version;
+            $retry->save();
+
+            return $retry;
+        }, attempts: 3);
     }
 
     /**

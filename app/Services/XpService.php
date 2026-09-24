@@ -184,8 +184,22 @@ class XpService
     {
         $cost = $this->hintCost($hintNumber);
 
-        return $this->spend($user, $mission, $cost, self::TYPE_HINT_USED,
-            'Hint '.$hintNumber.' on mission: '.$mission->title);
+        return DB::transaction(function () use ($user, $mission, $hintNumber, $cost): bool {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            if ($this->revealedHintCount($user, $mission) >= $hintNumber) {
+                return true;
+            }
+
+            if ($cost <= 0 || $this->sumFor($user) < $cost) {
+                return false;
+            }
+
+            $this->spendFrom($user, $mission, $cost, self::TYPE_HINT_USED,
+                'Hint '.$hintNumber.' on mission: '.$mission->title);
+
+            return true;
+        }, attempts: 3);
     }
 
     /**
@@ -386,22 +400,6 @@ class XpService
             'source' => $txn->assessment_id !== null ? 'assessment' : 'mission',
             'at' => Carbon::parse($txn->created_at),
         ];
-    }
-
-    /**
-     * General spend: deducts cost if affordable, else returns false.
-     */
-    private function spend(User $user, Mission $mission, int $cost, string $type, string $description): bool
-    {
-        if ($cost <= 0 || $this->balance($user) < $cost) {
-            return false;
-        }
-
-        DB::transaction(function () use ($user, $mission, $cost, $type, $description): void {
-            $this->spendFrom($user, $mission, $cost, $type, $description);
-        });
-
-        return true;
     }
 
     /**

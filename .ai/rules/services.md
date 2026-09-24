@@ -174,3 +174,6 @@ US-1102: only a current teacher may derive active classroom visibility from teac
 
 ## Academic writes use current server state
 A student may submit evidence, never XP, verdict, completion, or unlock state. Gate mission and Knowledge Check writes on historical passes of earlier active courses; recheck course status at Boss submission. Lock and reload assessment attempts before state transitions, and serialize one-time XP purchases or awards against the user's current ledger state.
+
+## Serialize student academic read-decide-write operations
+For per-student XP spends, one-time rewards, and attempt/completion transitions, lock the authoritative user row before reading mutable state, then perform the decision and all database writes in one transaction. Keep the user-first lock order across related services; retain domain-specific unique constraints as backstops. Verify races with independent disposable MariaDB connections because SQLite does not reproduce row locks.
