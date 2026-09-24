@@ -11,6 +11,7 @@ use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
@@ -243,6 +244,79 @@ class StudentOverviewTest extends TestCase
             ->assertDontSee('cadet_01')
             ->assertDontSee('cadet_02')
             ->assertSee('SHOWING PAGE 2 OF 2');
+    }
+
+    public function test_unfiltered_roster_query_count_stays_bounded_after_the_first_page(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        [$course] = $this->createCourseWithMissions(1);
+        $students = User::factory()->count(12)->create(['role' => 'student']);
+        $classroom = $this->classroomFor($teacher, $students->all(), [$course]);
+
+        $small = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(13)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        $large = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $this->assertLessThanOrEqual($small + 10, $large, "Roster queries grew from {$small} to {$large} for 12 versus 25 students.");
+    }
+
+    public function test_displayed_roster_rows_do_not_multiply_queries(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        [$course] = $this->createCourseWithMissions(1);
+        $students = User::factory()->count(1)->create(['role' => 'student']);
+        $classroom = $this->classroomFor($teacher, $students->all(), [$course]);
+
+        $one = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(4)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        $five = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(5)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        $ten = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $this->assertLessThanOrEqual($one + 10, $five, "Roster queries grew {$one} → {$five} for 1 → 5 displayed students.");
+        $this->assertLessThanOrEqual($one + 10, $ten, "Roster queries grew {$one} → {$ten} for 1 → 10 displayed students.");
+    }
+
+    public function test_roster_queries_stay_bounded_when_displayed_students_have_completed_sections(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        [$course, $missions] = $this->createCourseWithMissions(1);
+        $students = User::factory()->count(1)->create(['role' => 'student']);
+        $classroom = $this->classroomFor($teacher, $students->all(), [$course]);
+        $this->complete($students->first(), $missions[0]);
+
+        $one = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(9)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        foreach ($more as $student) {
+            $this->complete($student, $missions[0]);
+        }
+
+        $ten = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $this->assertLessThanOrEqual($one + 10, $ten, "Completed-section roster queries grew {$one} → {$ten} for 1 → 10 students.");
+    }
+
+    private function countQueries(callable $operation): int
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $operation();
+
+            return count(DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
     }
 
     public function test_student_overview_validates_query_parameters(): void

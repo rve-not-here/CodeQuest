@@ -6,9 +6,11 @@ use App\Exceptions\AssessmentAttemptAccessDeniedException;
 use App\Exceptions\AssessmentAttemptStateException;
 use App\Exceptions\AssessmentNotUnlockedException;
 use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\User;
 use App\Services\AssessmentService;
+use App\Services\DashboardService;
 use App\Services\XpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +21,7 @@ class AssessmentController extends Controller
 {
     public function __construct(
         private readonly AssessmentService $assessments,
+        private readonly DashboardService $dashboard,
         private readonly XpService $xp,
     ) {}
 
@@ -192,23 +195,37 @@ class AssessmentController extends Controller
      */
     private function indexRows(User $user): Collection
     {
-        return Course::query()
+        $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
-            ->with('assessment')
-            ->get()
-            ->map(fn (Course $course): array => $this->indexRow($user, $course));
+            ->get();
+
+        $states = $this->assessments->assessmentStatesForCourses($user, $courses);
+        $progress = $this->dashboard->courseProgressMap($user, $courses);
+        $assessmentIds = $courses
+            ->flatMap(fn (Course $course): array => $states[$course->id]['assessment'] === null
+                ? []
+                : [$states[$course->id]['assessment']->id]);
+        $latest = $this->assessments->latestAttemptsForAssessments($user, $assessmentIds);
+
+        return $courses->map(fn (Course $course): array => $this->indexRow(
+            $course,
+            $states[$course->id],
+            $latest->get($states[$course->id]['assessment']?->id),
+            $progress->get($course->id) ?? ['completed' => 0, 'total' => 0, 'percent' => 0],
+        ));
     }
 
     /**
+     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool}  $state
+     * @param  array{completed: int, total: int, percent: int}  $progress
      * @return array<string, mixed>
      */
-    private function indexRow(User $user, Course $course): array
+    private function indexRow(Course $course, array $state, ?AssessmentAttempt $latest, array $progress): array
     {
-        $assessment = $course->assessment;
-        $eligible = $assessment !== null && $this->assessments->isEligible($user, $course);
-        $passed = $assessment !== null && $this->assessments->hasPassed($user, $course);
-        $latest = $assessment !== null ? $this->assessments->latestAttemptFor($user, $course) : null;
+        $assessment = $state['assessment'];
+        $eligible = $assessment !== null && $state['eligible'];
+        $passed = $state['passed'];
 
         return [
             'course' => $course,
@@ -216,7 +233,7 @@ class AssessmentController extends Controller
             'hasPassed' => $passed,
             'latest' => $latest,
             'unlocked' => $eligible,
-            'missionProgress' => $this->missionProgress($user, $course),
+            'missionProgress' => ['completed' => $progress['completed'], 'total' => $progress['total']],
             'state' => $this->challengeState($assessment, $eligible, $passed, $latest),
         ];
     }
@@ -243,23 +260,6 @@ class AssessmentController extends Controller
             'passed' => 'passed',
             default => 'ready',
         };
-    }
-
-    /**
-     * @return array{completed: int, total: int}
-     */
-    private function missionProgress(User $user, Course $course): array
-    {
-        $missionIds = $course->missions()->pluck('id');
-
-        $completed = $user->progress()
-            ->whereIn('mission_id', $missionIds)
-            ->count();
-
-        return [
-            'completed' => $completed,
-            'total' => $missionIds->count(),
-        ];
     }
 
     /**

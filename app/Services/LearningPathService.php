@@ -8,6 +8,7 @@ use App\Models\MissionDraft;
 use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -92,6 +93,91 @@ class LearningPathService
                 'sections' => $sections,
             ];
         });
+    }
+
+    /**
+     * Completed section beats for a set of students. Uses the same section
+     * mission membership and all-missions-complete rule as build().
+     *
+     * @param  Collection<int, User>  $users
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     * @return Collection<int, array{user_id: int, section: Section, at: Carbon}>
+     */
+    public function completedSectionBeatsForUsers(Collection $users, ?array $studentCourseScopes = null): Collection
+    {
+        if ($users->isEmpty()) {
+            return collect();
+        }
+
+        $courses = Course::query()
+            ->orderBy('order_num')
+            ->get(['id']);
+        $sectionsByCourse = Section::query()
+            ->whereIn('course_id', $courses->pluck('id'))
+            ->orderBy('order_num')
+            ->get(['id', 'course_id', 'title'])
+            ->groupBy('course_id');
+        $missionsBySection = Mission::query()
+            ->whereIn('section_id', $sectionsByCourse->flatten()->pluck('id'))
+            ->get(['id', 'section_id'])
+            ->groupBy('section_id');
+        $missionIds = $missionsBySection->flatten()->pluck('id');
+
+        $progress = Progress::query()
+            ->whereIn('user_id', $users->pluck('id'))
+            ->whereIn('mission_id', $missionIds)
+            ->when($studentCourseScopes !== null, function ($query) use ($studentCourseScopes, $sectionsByCourse, $missionsBySection): void {
+                $query->where(function ($query) use ($studentCourseScopes, $sectionsByCourse, $missionsBySection): void {
+                    foreach ($studentCourseScopes ?? [] as $userId => $allowedCourses) {
+                        $allowedSectionIds = collect($sectionsByCourse->all())->only($allowedCourses)->flatten()->pluck('id');
+                        $allowedMissionIds = collect($missionsBySection->all())->only($allowedSectionIds)->flatten()->pluck('id');
+                        $query->orWhere(fn ($query) => $query->where('user_id', $userId)->whereIn('mission_id', $allowedMissionIds));
+                    }
+                });
+            })
+            ->get(['user_id', 'mission_id', 'completed_at'])
+            ->groupBy('user_id')
+            ->map(fn (Collection $rows): Collection => $rows->keyBy('mission_id'));
+
+        $beats = collect();
+
+        foreach ($users as $user) {
+            $completed = $progress->get($user->id) ?? collect();
+
+            foreach ($courses as $course) {
+                if ($studentCourseScopes !== null && ! ($studentCourseScopes[$user->id] ?? collect())->contains($course->id)) {
+                    continue;
+                }
+
+                foreach ($sectionsByCourse->get($course->id, collect()) as $section) {
+                    $missions = $missionsBySection->get($section->id, collect());
+
+                    if ($missions->isEmpty()) {
+                        continue;
+                    }
+
+                    $completions = $missions->map(fn (Mission $mission): ?Progress => $completed->get($mission->id));
+
+                    if ($completions->filter()->count() !== $missions->count()) {
+                        continue;
+                    }
+
+                    $latest = $completions->sortByDesc('completed_at')->first();
+
+                    if ($latest === null) {
+                        continue;
+                    }
+
+                    $beats->push([
+                        'user_id' => $user->id,
+                        'section' => $section,
+                        'at' => Carbon::parse($latest->completed_at),
+                    ]);
+                }
+            }
+        }
+
+        return $beats;
     }
 
     /**

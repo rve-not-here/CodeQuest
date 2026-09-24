@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Activity;
 use App\Models\AssessmentAttempt;
 use App\Models\Progress;
-use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
 use Carbon\Carbon;
@@ -44,11 +43,10 @@ use Illuminate\Support\Collection;
  * feed (feed()) share the four source builders. The feed parameterizes them
  * over a student set: each table source runs ONE query across the set
  * (whereIn on user_id) with the student, event-type, and date-window filters
- * pushed down, then the merged beats are sorted and paginated in memory. The
- * only per-user work is the section-completion derivation, which must reuse
- * LearningPathService::build() per student (the shared DONE definition);
- * feed() bounds that pass to students who have progress rows inside the
- * queried window instead of the whole roster.
+ * pushed down, then the merged beats are sorted and paginated in memory.
+ * Section-completion evidence is batched through LearningPathService's
+ * shared all-missions-complete rule; feed() limits that work to students
+ * with progress rows inside the queried window.
  *
  * Every query is keyed by user_id ids — a client never names a user through
  * these services; the student filter is resolved server-side from the
@@ -143,6 +141,29 @@ class TimelineService
                     'seq' => $event['seq'],
                 ];
             });
+    }
+
+    /**
+     * The newest beat for each supplied account. Uses the same source
+     * composition and ordering as events(), but reads shared sources once.
+     *
+     * @param  Collection<int, User>  $users
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}>
+     */
+    public function latestForUsers(Collection $users, ?array $studentCourseScopes = null): Collection
+    {
+        if ($users->isEmpty()) {
+            return collect();
+        }
+
+        $this->seq = 0;
+
+        return $this->compose($users, null, null, null, null, $users, $studentCourseScopes)
+            ->groupBy('user_id')
+            ->map(fn (Collection $events): array => $events
+                ->sortByDesc(fn (array $event): array => [$event['at']->getTimestamp(), $event['seq']])
+                ->first() ?? throw new \LogicException('A grouped timeline user has no events.'));
     }
 
     /**
@@ -492,10 +513,9 @@ class TimelineService
 
     /**
      * One beat per section that is fully complete today, timestamped when its
-     * last mission was finished. Section enumeration and the DONE state come
-     * from the shared build() traversal; only the missing timestamp is read
-     * from the completion rows. Runs the shared traversal once per candidate
-     * student (bounded in feed() to students with in-window progress).
+     * last mission was finished. LearningPathService batches section/mission
+     * membership and completion rows across the candidate students, using
+     * the same all-missions-complete rule as build().
      *
      * @param  Collection<int, User>  $users
      * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
@@ -508,74 +528,16 @@ class TimelineService
         ?int $courseId = null,
         ?array $studentCourseScopes = null,
     ): Collection {
-        $events = new Collection;
-
-        foreach ($users as $user) {
-            $doneSections = $this->doneSections($user, $courseId, $studentCourseScopes[$user->id] ?? null);
-
-            if ($doneSections->isEmpty()) {
-                continue;
-            }
-
-            $sectionIds = $doneSections->keys();
-
-            $completions = Progress::query()
-                ->where('user_id', $user->id)
-                ->whereHas('mission', function (Builder $query) use ($sectionIds): void {
-                    $query->whereIn('section_id', $sectionIds);
-                })
-                ->with('mission.section')
-                ->orderBy('completed_at')
-                ->get();
-
-            $completions
-                ->groupBy(fn (Progress $row): int => $row->mission?->section->id ?? -1)
-                ->each(function (Collection $rows) use ($events, $user): void {
-                    $latest = $rows->last();
-                    $section = $latest?->mission?->section;
-
-                    if ($latest === null || $section === null) {
-                        return;
-                    }
-
-                    $events->push([
-                        'at' => Carbon::parse($latest->completed_at),
-                        'label' => 'Section complete: '.$section->title,
-                        'type' => 'section_completed',
-                        'pts' => null,
-                        'seq' => ++$this->seq,
-                        'user_id' => $user->id,
-                    ]);
-                });
-        }
-
-        return $events;
-    }
-
-    /**
-     * Sections of a student's path that are fully complete today, optionally
-     * scoped to one course and/or to the courses the viewer may monitor for
-     * this student. Same DONE definition as the path traversal.
-     *
-     * @param  Collection<int, int>|null  $allowedCourseIds
-     * @return Collection<int, Section>
-     */
-    private function doneSections(User $user, ?int $courseId, ?Collection $allowedCourseIds = null): Collection
-    {
-        $sections = $this->path->build($user)
-            ->flatMap(fn (array $courseRow): Collection => $courseRow['sections'])
-            ->filter(fn (array $sectionRow): bool => $sectionRow['progress']['total'] > 0 && $sectionRow['progress']['percent'] === 100)
-            ->map(fn (array $sectionRow): Section => $sectionRow['section']);
-
-        if ($courseId !== null) {
-            $sections = $sections->filter(fn (Section $section): bool => $section->course_id === $courseId);
-        }
-
-        if ($allowedCourseIds !== null) {
-            $sections = $sections->filter(fn (Section $section): bool => $allowedCourseIds->contains($section->course_id));
-        }
-
-        return $sections->keyBy(fn (Section $section): int => $section->id);
+        return $this->path->completedSectionBeatsForUsers($users, $studentCourseScopes)
+            ->filter(fn (array $beat): bool => $courseId === null || $beat['section']->course_id === $courseId)
+            ->map(fn (array $beat): array => [
+                'at' => $beat['at'],
+                'label' => 'Section complete: '.$beat['section']->title,
+                'type' => 'section_completed',
+                'pts' => null,
+                'seq' => ++$this->seq,
+                'user_id' => $beat['user_id'],
+            ]);
     }
 
     private function verb(bool $passed): string

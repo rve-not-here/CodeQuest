@@ -2,37 +2,34 @@
 
 namespace App\Services;
 
+use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Builds the teacher-facing student overview (US-602): a paginated list of every
  * student with their current course, mission progress, assessment status,
  * competency summary, and last activity.
  *
- * Everything is composed from the existing Phase 5 services — CourseProgressService,
- * AssessmentService, CompetencyService, DashboardService, TimelineService — and never
- * re-derives their formulas for a teacher-specific view. Search and filters are applied
- * server-side; the page takes no student identifier, so a client cannot pivot
- * the list onto a specific user.
+ * Academic and timeline evidence is read in batches for authorized students
+ * and their monitorable courses. Search and filters are applied server-side;
+ * the page takes no student identifier, so a client cannot pivot the list
+ * onto a specific user.
  *
- * Rows are computed for every matching student, then filtered and paginated in
- * memory. That ordering is correct-by-construction for the current-course
- * filters (derived from progress/assessment history, not stored columns). It is
- * fine at the fleet's current scale; DB-level pagination of these computed
- * filters is a known optimisation only if the roster grows.
+ * Current-course and status filters are computed from academic history before
+ * pagination. With neither filter, the database selects only the requested
+ * page before its rows are enriched.
  */
 class StudentService
 {
     public const PER_PAGE = 10;
 
     public function __construct(
-        private readonly DashboardService $dashboard,
-        private readonly CourseProgressService $progress,
-        private readonly AssessmentService $assessments,
         private readonly CompetencyService $competency,
         private readonly TimelineService $timeline,
     ) {}
@@ -74,25 +71,39 @@ class StudentService
      * @param  array<int, Collection<int, int>>|null  $studentCourseScopes  per-student
      *                                                                      monitorable course ids for a scoped teacher (null = whole roster,
      *                                                                      every student unrestricted; an empty map = nobody to monitor)
-     * @return LengthAwarePaginator<int, array<string, mixed>>
+     * @return LengthAwarePaginator<int, array{id: int, username: string, name: string, currentCourse: array{id: int, name: string}|null, progress: array{completed: int, total: int, percent: int}|null, state: string, assessment: string, competency: array{not_started: int, developing: int, practicing: int, demonstrated: int}, lastActivity: array{message: string, at: string}|null}>
      */
     public function index(?string $search, ?int $courseId, ?string $status, array $paginatorQuery, ?array $studentCourseScopes = null): LengthAwarePaginator
     {
+        if ($courseId === null && $status === null) {
+            $studentIds = $studentCourseScopes === null
+                ? null
+                : collect(array_keys(array_filter(
+                    $studentCourseScopes,
+                    fn (Collection $courseIds): bool => $courseIds->isNotEmpty(),
+                )));
+
+            $page = $this->students($search, $studentIds)->paginate(self::PER_PAGE);
+            $rows = $this->rowsForStudents($page->getCollection(), $studentCourseScopes);
+
+            return new LengthAwarePaginator(
+                $rows,
+                $page->total(),
+                self::PER_PAGE,
+                $page->currentPage(),
+                ['path' => route('students'), 'query' => $paginatorQuery],
+            );
+        }
+
         if ($studentCourseScopes === null) {
-            $students = $this->students($search);
-            $rows = $students->map(fn (User $student): array => $this->rowFor($student));
+            $students = $this->students($search)->get();
+            $rows = $this->rowsForStudents($students);
         } else {
-            $students = $this->students($search, studentIds: collect(array_keys($studentCourseScopes)));
-            $rows = $students
-                ->filter(
-                    fn (User $student): bool => ($studentCourseScopes[$student->id] ?? collect())->isNotEmpty(),
-                )
-                ->map(
-                    fn (User $student): array => $this->rowFor(
-                        $student,
-                        $studentCourseScopes[$student->id] ?? collect(),
-                    ),
-                );
+            $students = $this->students($search, studentIds: collect(array_keys($studentCourseScopes)))->get();
+            $students = $students->filter(
+                fn (User $student): bool => ($studentCourseScopes[$student->id] ?? collect())->isNotEmpty(),
+            );
+            $rows = $this->rowsForStudents($students, $studentCourseScopes);
         }
 
         if ($courseId !== null) {
@@ -121,9 +132,9 @@ class StudentService
 
     /**
      * @param  Collection<int, int>|null  $studentIds
-     * @return Collection<int, User>
+     * @return Builder<User>
      */
-    private function students(?string $search, ?Collection $studentIds = null): Collection
+    private function students(?string $search, ?Collection $studentIds = null): Builder
     {
         return User::query()
             ->where('role', 'student')
@@ -133,108 +144,84 @@ class StudentService
                     ->where('username', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%"),
             ))
-            ->orderBy('username')
-            ->get();
+            ->orderBy('username');
     }
 
     /**
-     * @param  Collection<int, int>|null  $courseIds  the monitorable course set
-     *                                                for this student (a teacher's shared classrooms); null keeps every
-     *                                                course
-     * @return array<string, mixed>
+     * Build page rows from authorized Student/Course pairs in grouped reads.
+     *
+     * @param  Collection<int, User>  $students
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     * @return Collection<int, array{id: int, username: string, name: string, currentCourse: array{id: int, name: string}|null, progress: array{completed: int, total: int, percent: int}|null, state: string, assessment: string, competency: array{not_started: int, developing: int, practicing: int, demonstrated: int}, lastActivity: array{message: string, at: string}|null}>
      */
-    private function rowFor(User $student, ?Collection $courseIds = null): array
+    private function rowsForStudents(Collection $students, ?array $studentCourseScopes = null): Collection
     {
-        $current = $this->dashboard->currentCourse($student, $courseIds);
-
-        if ($current === null) {
-            $currentCourse = null;
-            $progress = null;
-            $state = 'completed';
-            $assessment = 'ALL CLEARED';
-        } else {
-            /**
-             * @var array{
-             *     course: Course,
-             *     progress: array{completed: int, total: int, percent: int},
-             *     state: string,
-             * }|null $currentRow
-             */
-            $currentRow = $this->progress->overview($student, $courseIds)
-                ->first(fn (array $row): bool => $row['course']->id === $current->id);
-
-            $currentCourse = ['id' => $current->id, 'name' => $current->name];
-            $progress = $currentRow['progress'] ?? null;
-            $state = $this->stateKey($currentRow['state'] ?? null);
-            $assessment = $this->assessments->isUnlocked($student, $current) ? 'READY' : 'LOCKED';
+        if ($students->isEmpty()) {
+            return collect();
         }
 
-        return [
-            'id' => $student->id,
-            'username' => $student->username,
-            'name' => $student->name,
-            'currentCourse' => $currentCourse,
-            'progress' => $progress,
-            'state' => $state,
-            'assessment' => $assessment,
-            'competency' => $this->competencySummary($student, $courseIds),
-            'lastActivity' => $this->lastActivity($student, $courseIds),
-        ];
-    }
+        $scopes = $studentCourseScopes === null
+            ? null
+            : array_intersect_key($studentCourseScopes, array_fill_keys($students->pluck('id')->all(), true));
+        $courseIds = $scopes === null
+            ? null
+            : collect($scopes)->flatMap(fn (Collection $ids): Collection => $ids)->unique()->values();
+        $competencies = $this->competency->overviewForStudents($students, $courseIds, $scopes);
+        $latest = $this->timeline->latestForUsers($students, $scopes);
 
-    /**
-     * Map a CourseProgressService label to the overview's status-filter key.
-     * The current course is only ever IN PROGRESS or READY (a passed course is
-     * skipped by currentCourse() and becomes 'completed' above).
-     */
-    private function stateKey(?string $label): string
-    {
-        return match ($label) {
-            'READY' => 'ready',
-            default => 'in_progress',
-        };
-    }
+        $activeCourses = Course::query()
+            ->where('status', 'active')
+            ->whereHas('missions')
+            ->orderBy('order_num')
+            ->get(['id', 'order_num']);
+        $assessments = Assessment::query()
+            ->whereIn('course_id', $activeCourses->pluck('id'))
+            ->get(['id', 'course_id', 'status'])
+            ->keyBy('course_id');
+        $passedRows = DB::table('the404_assessment_attempts as attempt')
+            ->join('the404_assessments as assessment', 'assessment.id', '=', 'attempt.assessment_id')
+            ->whereIn('attempt.user_id', $students->pluck('id'))
+            ->whereIn('assessment.course_id', $activeCourses->pluck('id'))
+            ->where('attempt.status', 'passed')
+            ->distinct()
+            ->get(['attempt.user_id', 'assessment.course_id']);
+        $passedByStudent = [];
 
-    /**
-     * Compact per-state counts across the monitorable competency areas.
-     *
-     * @param  Collection<int, int>|null  $courseIds
-     * @return array{not_started: int, developing: int, practicing: int, demonstrated: int}
-     */
-    private function competencySummary(User $student, ?Collection $courseIds = null): array
-    {
-        $counts = ['not_started' => 0, 'developing' => 0, 'practicing' => 0, 'demonstrated' => 0];
+        foreach ($passedRows as $passedRow) {
+            $passedByStudent[(int) $passedRow->user_id][(int) $passedRow->course_id] = true;
+        }
 
-        foreach ($this->competency->overview($student, $courseIds) as $row) {
-            if (array_key_exists($row['state'], $counts)) {
+        return $students->map(function (User $student) use ($competencies, $latest, $activeCourses, $assessments, $passedByStudent): array {
+            $courseRows = $competencies->get($student->id) ?? collect();
+            $current = $courseRows->first(fn (array $row): bool => ! $row['challengePassed']);
+            $counts = ['not_started' => 0, 'developing' => 0, 'practicing' => 0, 'demonstrated' => 0];
+
+            foreach ($courseRows as $row) {
                 $counts[$row['state']]++;
             }
-        }
 
-        return $counts;
-    }
+            $course = $current['course'] ?? null;
+            $completed = $current['completedMissions'] ?? 0;
+            $total = $current['totalMissions'] ?? 0;
+            $assessment = $course === null ? null : $assessments->get($course->id);
+            $eligible = $course !== null && $total > 0 && $completed === $total;
+            $reached = $course !== null && $activeCourses
+                ->filter(fn (Course $earlier): bool => $earlier->order_num < $course->order_num)
+                ->every(fn (Course $earlier): bool => isset($passedByStudent[$student->id][$earlier->id]));
+            $ready = $eligible && $assessment?->status === 'active';
+            $beat = $latest->get($student->id);
 
-    /**
-     * Newest learning beat in the SAME four-source vocabulary as the Recent
-     * Activity strip (TimelineService::events), so the roster column and the
-     * strip can never disagree about what a student did last. When a monitorable
-     * course set is supplied the beat is confined to it — a scoped teacher never
-     * sees a student's activity from a course they do not share.
-     *
-     * @param  Collection<int, int>|null  $courseIds
-     * @return array{message: string, at: string}|null
-     */
-    private function lastActivity(User $student, ?Collection $courseIds = null): ?array
-    {
-        $beat = $this->timeline->events($student, 1, $courseIds)->first();
-
-        if ($beat === null) {
-            return null;
-        }
-
-        return [
-            'message' => $beat['label'],
-            'at' => $beat['at']->diffForHumans(),
-        ];
+            return [
+                'id' => $student->id,
+                'username' => $student->username,
+                'name' => $student->name,
+                'currentCourse' => $course === null ? null : ['id' => $course->id, 'name' => $course->name],
+                'progress' => $course === null ? null : ['completed' => $completed, 'total' => $total, 'percent' => $current['percent'] ?? 0],
+                'state' => $course === null ? 'completed' : ($ready ? 'ready' : 'in_progress'),
+                'assessment' => $course === null ? 'ALL CLEARED' : ($ready && $reached ? 'READY' : 'LOCKED'),
+                'competency' => $counts,
+                'lastActivity' => $beat === null ? null : ['message' => $beat['label'], 'at' => $beat['at']->diffForHumans()],
+            ];
+        });
     }
 }

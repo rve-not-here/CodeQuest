@@ -113,6 +113,7 @@ class CompetencyService
      *
      * @param  Collection<int, User>  $users
      * @param  Collection<int, int>|null  $courseIds
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return Collection<int, Collection<int, array{
      *     course: Course,
      *     name: string,
@@ -125,7 +126,7 @@ class CompetencyService
      *     challengePassed: bool,
      * }>> keyed by user id
      */
-    public function overviewForStudents(Collection $users, ?Collection $courseIds = null): Collection
+    public function overviewForStudents(Collection $users, ?Collection $courseIds = null, ?array $studentCourseScopes = null): Collection
     {
         if ($users->isEmpty()) {
             return collect();
@@ -161,6 +162,11 @@ class CompetencyService
             ->join('the404_missions as m', 'm.id', '=', 'p.mission_id')
             ->whereIn('p.user_id', $userIds)
             ->whereIn('p.mission_id', $allMissionIds)
+            ->when($studentCourseScopes !== null, fn ($query) => $query->where(function ($query) use ($studentCourseScopes): void {
+                foreach ($studentCourseScopes ?? [] as $userId => $allowedCourses) {
+                    $query->orWhere(fn ($query) => $query->where('p.user_id', $userId)->whereIn('m.course_id', $allowedCourses));
+                }
+            }))
             ->selectRaw('p.user_id as user_id, m.course_id as course_id, COUNT(DISTINCT p.mission_id) as done')
             ->groupBy('p.user_id', 'm.course_id')
             ->get();
@@ -174,6 +180,12 @@ class CompetencyService
         $passedRows = AssessmentAttempt::query()
             ->whereIn('user_id', $userIds)
             ->where('status', 'passed')
+            ->when($studentCourseScopes !== null, fn ($query) => $query->where(function ($query) use ($studentCourseScopes): void {
+                foreach ($studentCourseScopes ?? [] as $userId => $allowedCourses) {
+                    $query->orWhere(fn ($query) => $query->where('user_id', $userId)
+                        ->whereHas('assessment', fn ($query) => $query->whereIn('course_id', $allowedCourses)));
+                }
+            }))
             ->distinct()
             ->get(['user_id', 'assessment_id']);
 
@@ -195,6 +207,12 @@ class CompetencyService
             ->whereIn('user_id', $userIds)
             ->where('type', XpService::TYPE_WRONG_SUBMISSION)
             ->whereIn('mission_id', $allMissionIds)
+            ->when($studentCourseScopes !== null, fn ($query) => $query->where(function ($query) use ($studentCourseScopes, $missionIdsByCourse): void {
+                foreach ($studentCourseScopes ?? [] as $userId => $allowedCourses) {
+                    $missionIds = collect($missionIdsByCourse->all())->only($allowedCourses)->flatten()->pluck('id');
+                    $query->orWhere(fn ($query) => $query->where('user_id', $userId)->whereIn('mission_id', $missionIds));
+                }
+            }))
             ->selectRaw('user_id, mission_id, count(*) as wrong_count')
             ->groupBy('user_id', 'mission_id')
             ->get();
@@ -209,6 +227,12 @@ class CompetencyService
             ->toBase()
             ->whereIn('user_id', $userIds)
             ->whereIn('assessment_id', $assessmentIds)
+            ->when($studentCourseScopes !== null, fn ($query) => $query->where(function ($query) use ($studentCourseScopes, $assessmentsByCourse): void {
+                foreach ($studentCourseScopes ?? [] as $userId => $allowedCourses) {
+                    $allowedAssessmentIds = collect($assessmentsByCourse->all())->only($allowedCourses)->pluck('id');
+                    $query->orWhere(fn ($query) => $query->where('user_id', $userId)->whereIn('assessment_id', $allowedAssessmentIds));
+                }
+            }))
             ->selectRaw('user_id, assessment_id, count(*) as attempt_count')
             ->groupBy('user_id', 'assessment_id')
             ->get();
@@ -222,10 +246,14 @@ class CompetencyService
         $byUser = [];
 
         foreach ($userIds as $userId) {
+            $userCourses = $studentCourseScopes === null
+                ? $courses
+                : $courses->filter(fn (Course $course): bool => ($studentCourseScopes[$userId] ?? collect())->contains($course->id));
+            $userTotals = array_intersect_key($totalByCourse, array_fill_keys($userCourses->pluck('id')->all(), true));
             $byUser[$userId] = $this->buildUserRows(
                 $userId,
-                $courses,
-                $totalByCourse,
+                $userCourses,
+                $userTotals,
                 $progressByUserCourse,
                 $passedByUserAssessment,
                 $assessmentsByCourse,

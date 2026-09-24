@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Route;
 use InvalidArgumentException;
 
@@ -96,28 +95,18 @@ class NotificationService
     /**
      * The paginated notification center feed, newest first (§12/§44). Scoped
      * in SQL by user_id; nothing here accepts a user id parameter. Pagination
-     * mirrors the other feed services (LengthAwarePaginator, in-memory page
-     * slice of the caller's own rows).
+     * limits the row read in SQL while retaining a total count.
      *
      * @return LengthAwarePaginator<int, Notification>
      */
     public function forUser(User $user): LengthAwarePaginator
     {
-        $rows = Notification::query()
+        return Notification::query()
             ->where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->get();
-
-        $page = Paginator::resolveCurrentPage();
-
-        return new LengthAwarePaginator(
-            $rows->forPage($page, self::FEED_PER_PAGE),
-            $rows->count(),
-            self::FEED_PER_PAGE,
-            $page,
-            ['path' => route('notifications')],
-        );
+            ->paginate(self::FEED_PER_PAGE)
+            ->withPath(route('notifications'));
     }
 
     /**

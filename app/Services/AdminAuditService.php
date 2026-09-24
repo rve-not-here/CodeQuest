@@ -6,7 +6,6 @@ use App\Models\AdminAudit;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -119,7 +118,7 @@ class AdminAuditService
         ?Carbon $to,
         array $paginatorQuery,
     ): LengthAwarePaginator {
-        $rows = AdminAudit::query()
+        return AdminAudit::query()
             ->when(
                 $actorId !== null,
                 fn ($query) => $query->where('admin_user_id', $actorId),
@@ -142,20 +141,9 @@ class AdminAuditService
             )
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->get();
-
-        $page = Paginator::resolveCurrentPage();
-
-        return new LengthAwarePaginator(
-            $rows->forPage($page, self::FEED_PER_PAGE),
-            $rows->count(),
-            self::FEED_PER_PAGE,
-            $page,
-            [
-                'path' => route('admin.activity'),
-                'query' => $paginatorQuery,
-            ],
-        );
+            ->paginate(self::FEED_PER_PAGE)
+            ->withPath(route('admin.activity'))
+            ->appends($paginatorQuery);
     }
 
     /**

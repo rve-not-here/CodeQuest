@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -78,6 +79,32 @@ class NotificationCenterTest extends TestCase
             ->assertSee('PAGBATCH_31')
             ->assertDontSee('PAGBATCH_1')
             ->assertSee('SHOWING PAGE 2 OF 2');
+    }
+
+    public function test_notification_feed_bounds_the_database_row_read(): void
+    {
+        $user = User::factory()->create();
+        Notification::factory()->count(125)->create(['user_id' => $user->id]);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $page = app(NotificationService::class)->forUser($user);
+            $queries = DB::getQueryLog();
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
+
+        $rowQuery = collect($queries)
+            ->pluck('query')
+            ->first(fn (string $sql): bool => str_contains($sql, 'the404_notifications') && str_contains($sql, 'order by'));
+
+        $this->assertNotNull($rowQuery);
+        $this->assertMatchesRegularExpression('/\blimit\b/i', $rowQuery);
+        $this->assertCount(NotificationService::FEED_PER_PAGE, $page->items());
+        $this->assertSame(125, $page->total());
     }
 
     public function test_unread_count_query_uses_the_read_state_index(): void

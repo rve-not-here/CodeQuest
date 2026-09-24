@@ -13,6 +13,7 @@ use App\Models\XpTransaction;
 use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AssessmentTest extends TestCase
@@ -132,6 +133,64 @@ class AssessmentTest extends TestCase
             ->assertOk()
             ->assertSee($alpha['course']->name)
             ->assertSee($beta['course']->name);
+    }
+
+    public function test_assessment_hub_queries_stay_bounded_as_courses_grow(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (range(1, 2) as $index) {
+            $this->hubCourse($index);
+        }
+
+        $small = $this->assessmentIndexQueries($user);
+
+        foreach (range(3, 8) as $index) {
+            $this->hubCourse($index);
+        }
+
+        $large = $this->assessmentIndexQueries($user);
+
+        $this->assertLessThanOrEqual($small + 5, $large, "Assessment hub queries grew from {$small} to {$large} for 2 versus 8 courses.");
+    }
+
+    private function hubCourse(int $index): void
+    {
+        $course = Course::query()->create([
+            'slug' => "hub-{$index}",
+            'name' => "Hub Course {$index}",
+            'type' => 'html',
+            'status' => 'active',
+            'order_num' => $index,
+        ]);
+        Mission::query()->create([
+            'course_id' => $course->id,
+            'order_num' => 1,
+            'title' => "Hub Mission {$index}",
+            'difficulty' => 'EASY',
+            'points' => 50,
+        ]);
+        Assessment::query()->create([
+            'course_id' => $course->id,
+            'title' => "Hub Boss {$index}",
+            'status' => 'active',
+            'passing_score' => 70,
+        ]);
+    }
+
+    private function assessmentIndexQueries(User $user): int
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $this->actingAs($user)->get(route('assessments'))->assertOk();
+
+            return count(DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
     }
 
     public function test_assessment_index_marks_a_progress_incomplete_challenge_as_sealed(): void

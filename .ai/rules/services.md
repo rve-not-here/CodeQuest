@@ -177,3 +177,9 @@ A student may submit evidence, never XP, verdict, completion, or unlock state. G
 
 ## Serialize student academic read-decide-write operations
 For per-student XP spends, one-time rewards, and attempt/completion transitions, lock the authoritative user row before reading mutable state, then perform the decision and all database writes in one transaction. Keep the user-first lock order across related services; retain domain-specific unique constraints as backstops. Verify races with independent disposable MariaDB connections because SQLite does not reproduce row locks.
+
+## Paginate owned collection rows before per-row enrichment
+For list pages with database-filterable membership and ordering, apply the authorized scope and filters in SQL, paginate before hydrating or calculating row summaries, and retain a SQL total count. Keep derived academic filters that require complete rows separate so their semantics do not change. Test bounded query growth after the first page and verify the rendered page order and totals.
+
+## US-1108 batched roster and directory projections
+US-1108 supersedes the earlier accepted roster fan-out risk. StudentService paginates authorized students before enrichment for SQL-filterable rosters and uses scoped batch competency, progression, and TimelineService::latestForUsers data for displayed rows; derived filters still operate before pagination. TimelineService shares its four-source vocabulary for latest beats and delegates section-completion batches to LearningPathService, using the same all-missions-complete rule. Do not restore per-displayed-row service calls or fetch academic evidence outside authorized Student/Course pairs.

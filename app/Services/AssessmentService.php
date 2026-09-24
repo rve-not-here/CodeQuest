@@ -331,6 +331,34 @@ class AssessmentService
     }
 
     /**
+     * Latest attempt per assessment for one student, using only fields the
+     * assessment hub needs. Historical attempts and submitted code stay out
+     * of the returned collection.
+     *
+     * @param  Collection<int, int>  $assessmentIds
+     * @return Collection<int, AssessmentAttempt> keyed by assessment id
+     */
+    public function latestAttemptsForAssessments(User $user, Collection $assessmentIds): Collection
+    {
+        if ($assessmentIds->isEmpty()) {
+            return collect();
+        }
+
+        $latestIds = AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('assessment_id', $assessmentIds)
+            ->selectRaw('MAX(id) AS id')
+            ->groupBy('assessment_id')
+            ->pluck('id');
+
+        return AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('id', $latestIds)
+            ->get(['id', 'assessment_id', 'status'])
+            ->keyBy('assessment_id');
+    }
+
+    /**
      * Read-only attempt history for a student's Boss Challenge (US-604).
      *
      * The teacher-facing performance view reuses this instead of querying

@@ -6,7 +6,6 @@ use App\Exceptions\UserProtectionException;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use InvalidArgumentException;
@@ -26,9 +25,8 @@ use InvalidArgumentException;
  *   that are validated (US-704) and guarded against self-demotion /
  *   self-deactivation / dropping the active-admin fleet below two (§13).
  *
- * Username search uses `%term%` LIKE, same shape as StudentService. Rows are
- * computed for every matching user then paginated in memory; acceptable at
- * fleet scale and deliberately consistent with the roster's approach.
+ * Username search uses `%term%` LIKE, same shape as StudentService. SQL
+ * pagination selects only the displayed users before timeline enrichment.
  */
 class UserService
 {
@@ -68,17 +66,16 @@ class UserService
             ))
             ->when($role !== null, fn ($query) => $query->where('role', $role))
             ->orderBy('username')
-            ->get();
+            ->paginate(self::PER_PAGE);
 
-        $rows = $users->map(fn (User $user): array => $this->rowFor($user));
-
-        $page = Paginator::resolveCurrentPage();
+        $latest = $this->timeline->latestForUsers($users->getCollection());
+        $rows = $users->getCollection()->map(fn (User $user): array => $this->rowFor($user, $latest->get($user->id)));
 
         return new LengthAwarePaginator(
-            $rows->forPage($page, self::PER_PAGE),
-            $rows->count(),
+            $rows,
+            $users->total(),
             self::PER_PAGE,
-            $page,
+            $users->currentPage(),
             [
                 'path' => route('admin.users'),
                 'query' => $paginatorQuery,
@@ -87,9 +84,10 @@ class UserService
     }
 
     /**
+     * @param  array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}|null  $latest
      * @return array<string, mixed>
      */
-    private function rowFor(User $user): array
+    private function rowFor(User $user, ?array $latest): array
     {
         return [
             'id' => $user->id,
@@ -98,7 +96,7 @@ class UserService
             'role' => $user->role,
             'status' => $user->status,
             'createdAt' => $user->created_at,
-            'lastActivity' => $this->lastActivity($user),
+            'lastActivity' => $this->lastActivity($latest),
         ];
     }
 
@@ -108,12 +106,11 @@ class UserService
      * timeline can never disagree about what a user did last. Returns null for
      * accounts with no learning activity (e.g. fresh teachers/admins).
      *
+     * @param  array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}|null  $beat
      * @return array{message: string, at: string}|null
      */
-    private function lastActivity(User $user): ?array
+    private function lastActivity(?array $beat): ?array
     {
-        $beat = $this->timeline->events($user, 1)->first();
-
         if ($beat === null) {
             return null;
         }
