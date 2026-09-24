@@ -34,8 +34,14 @@ class AdminMissionUpdateRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has('section_id') && $this->input('section_id') !== null) {
-            $this->merge(['section_id' => (int) $this->input('section_id')]);
+        $sectionId = $this->input('section_id');
+
+        if (is_string($sectionId) && ctype_digit($sectionId)) {
+            $parsed = filter_var($sectionId, FILTER_VALIDATE_INT);
+
+            if ($parsed !== false) {
+                $this->merge(['section_id' => $parsed]);
+            }
         }
     }
 

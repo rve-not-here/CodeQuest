@@ -117,6 +117,35 @@ class MissionTest extends TestCase
         ]);
     }
 
+    public function test_submission_ignores_client_supplied_ownership_and_reward_fields(): void
+    {
+        $student = User::factory()->create();
+        $otherStudent = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'contains', 'value' => '<h1>']]),
+            'points' => 50,
+        ]);
+
+        $this->actingAs($student)->post(route('mission.submit', $mission), [
+            'code' => '<h1>Title</h1>',
+            'user_id' => $otherStudent->id,
+            'student_id' => $otherStudent->id,
+            'xp' => 999999,
+            'points' => 999999,
+            'score' => 100,
+            'completed_at' => '2020-01-01 00:00:00',
+        ])->assertRedirect();
+
+        $progress = Progress::query()->sole();
+        $transaction = XpTransaction::query()->where('type', 'mission_completed')->sole();
+        $this->assertSame($student->id, $progress->user_id);
+        $this->assertSame(50, $progress->pts_earned);
+        $this->assertNotEquals('2020-01-01 00:00:00', $progress->completed_at->toDateTimeString());
+        $this->assertSame($student->id, $transaction->user_id);
+        $this->assertSame(50, $transaction->amount);
+        $this->assertDatabaseMissing('the404_progress', ['user_id' => $otherStudent->id]);
+    }
+
     public function test_mission_submit_correct_code_shows_success_message(): void
     {
         $user = User::factory()->create();

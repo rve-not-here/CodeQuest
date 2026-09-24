@@ -6,6 +6,7 @@ paths:
   - 'app/Http/Requests/Admin*Request.php'
   - 'app/Http/Requests/**'
   - 'app/Http/Requests/{ActivityFeedRequest,StudentOverviewRequest}.php'
+  - 'app/Http/Requests/{AdminAssessmentUpdateRequest,AdminMissionUpdateRequest}.php'
 ---
 
 # Requests
@@ -27,3 +28,6 @@ AdminActivityFeedRequest (US-709) validates the /admin/activity filters server-s
 
 ## Teacher filters validate against active classroom scope
 Teacher-facing student and course filters must validate against ClassroomAccessService's current authorized IDs. A foreign existing ID and a nonexistent ID should produce the same validation outcome, and neither may reach the feed or roster. Admin filters retain fleet-wide existence validation.
+
+## Normalize only valid integer strings before validation
+HTML number/select values may be converted to integers before service calls, but only when the input is a digit string accepted by FILTER_VALIDATE_INT. Leave arrays, decimal strings, nonnumeric strings, and overflowing values unchanged so Form Request integer rules reject them instead of silently changing passing_score or section_id.

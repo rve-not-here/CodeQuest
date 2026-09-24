@@ -411,6 +411,38 @@ class AdminMissionManagementTest extends TestCase
         ]);
     }
 
+    public function test_malformed_section_id_cannot_be_coerced_into_a_real_assignment(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => null,
+            'title' => 'Stable Mission',
+            'difficulty' => 'EASY',
+            'points' => 50,
+            'order_num' => 1,
+        ]);
+
+        foreach ([$section->id.'.75', [$section->id], '999999999999999999999999999999'] as $malformedSectionId) {
+            $this->actingAs($admin)->put(route('admin.courses.missions.update', [$course, $mission]), [
+                'title' => $mission->title,
+                'description' => $mission->description,
+                'difficulty' => $mission->difficulty,
+                'points' => $mission->points,
+                'order_num' => $mission->order_num,
+                'section_id' => $malformedSectionId,
+                'hints' => $mission->hints,
+                'broken_code' => $mission->broken_code,
+                'target_html' => $mission->target_html,
+            ])->assertSessionHasErrors('section_id');
+        }
+
+        $this->assertNull($mission->refresh()->section_id);
+        $this->assertSame(0, AdminAudit::count());
+    }
+
     public function test_no_op_update_writes_no_audit_row(): void
     {
         $admin = User::factory()->admin()->create();
