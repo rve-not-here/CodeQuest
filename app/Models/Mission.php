@@ -110,6 +110,19 @@ class Mission extends Model implements CurriculumVersioned
         return $this->hasMany(KnowledgeCheck::class, 'mission_id')->orderBy('order_num');
     }
 
+    /**
+     * Active hidden behavioral tests in run order. Loaded only server-side
+     * during grading; never eager-loaded for student views.
+     *
+     * @return HasMany<MissionBehaviorTest, $this>
+     */
+    public function behaviorTests(): HasMany
+    {
+        return $this->hasMany(MissionBehaviorTest::class, 'mission_id')
+            ->where('active', true)
+            ->orderBy('order_num');
+    }
+
     /** @return BelongsToMany<Skill, $this> */
     public function skills(): BelongsToMany
     {

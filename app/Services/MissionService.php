@@ -19,13 +19,13 @@ use Illuminate\Support\Facades\DB;
 class MissionService
 {
     public function __construct(
-        private readonly ValidationService $validator,
         private readonly XpService $xp,
         private readonly DraftService $drafts,
         private readonly ActivityService $activity,
         private readonly AchievementService $achievements,
         private readonly AssessmentService $assessments,
         private readonly NotificationService $notifications,
+        private readonly MissionGradingService $grading,
     ) {}
 
     /**
@@ -63,9 +63,24 @@ class MissionService
             ];
         }
 
-        $result = $this->validator->validate($mission, $code);
+        $result = $this->grading->grade($user, $mission, $code);
 
         if (! $result['passed']) {
+            if ($result['unavailable']) {
+                $this->activity->record($user, [
+                    'type' => 'grading_unavailable',
+                    'message' => 'Behavioral grading unavailable on mission: '.$mission->title,
+                ]);
+
+                return [
+                    'passed' => false,
+                    'alreadyCompleted' => false,
+                    'failures' => $result['failures'],
+                    'xpAwarded' => 0,
+                    'xpBalance' => $this->xp->balance($user),
+                ];
+            }
+
             $this->xp->deductWrongSubmission($user, $mission);
             $this->activity->record($user, [
                 'type' => 'wrong_submission',
