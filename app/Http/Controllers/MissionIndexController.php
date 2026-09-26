@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Mission;
+use App\Models\Section;
 use App\Models\User;
 use App\Services\LearningPathService;
 use Illuminate\Http\Request;
@@ -34,10 +36,10 @@ class MissionIndexController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        /** @var Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: \App\Models\Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: \App\Models\Mission, state: string}>}>}> $tree */
+        /** @var Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>}> $tree */
         $tree = $this->paths->build($user);
 
-        /** @var Collection<int, array{course: Course, section: \App\Models\Section, mission: \App\Models\Mission, state: string}> $rows */
+        /** @var Collection<int, array{course: Course, section: Section, mission: Mission, state: string}> $rows */
         $rows = collect();
 
         foreach ($tree as $courseNode) {
