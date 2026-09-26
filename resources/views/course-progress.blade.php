@@ -28,6 +28,7 @@
                     'COMPLETED' => 'phosphor',
                     'READY' => 'amber',
                     'IN PROGRESS' => 'cyan',
+                    'LOCKED' => 'dim',
                     default => 'dim',
                 };
                 $xYTone = $row['progress']['percent'] >= 100 ? 'phosphor' : ($course->status === 'locked' ? 'dim' : 'cyan');

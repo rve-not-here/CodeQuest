@@ -37,7 +37,7 @@
                 @endphp
                 <div class="flex items-center gap-3 py-2">
                     <span class="font-display text-[14px] leading-none {{ $tone }} w-4 shrink-0 text-center">{{ $icon }}</span>
-                    <span class="font-body text-[15px] text-ink truncate min-w-0">{{ $event['label'] }}</span>
+                    <span class="font-body text-[15px] text-ink truncate min-w-0" title="{{ $event['label'] }}">{{ $event['label'] }}</span>
                     @if ($event['pts'] !== null && $event['pts'] !== 0)
                         <x-badge tone="{{ $event['pts'] > 0 ? 'phosphor' : 'alert' }}">
                             {{ $event['pts'] > 0 ? '+' : '' }}{{ $event['pts'] }} XP

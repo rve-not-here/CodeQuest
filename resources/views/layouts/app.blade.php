@@ -117,7 +117,7 @@
                         <a
                             href="{{ $href }}"
                             class="cq-navlink {{ $isActive ? 'cq-navlink--active' : '' }}"
-                            aria-current="{{ $isActive ? 'page' : 'false' }}"
+                            @if ($isActive) aria-current="page" @endif
                         >{{ $item['label'] }}</a>
                     @endforeach
                 </nav>

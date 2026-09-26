@@ -41,7 +41,7 @@
         </x-status-message>
     @endif
 
-    <div class="grid gap-4 lg:grid-cols-2">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <x-panel title="Briefing">
             <div class="space-y-3 font-body text-[15px] leading-snug text-ink">
                 <p><span class="text-phosphor">CONCEPT:</span> {{ $assessment->title }}</p>
@@ -65,7 +65,7 @@
         </x-panel>
     </div>
 
-    <div class="grid grid-cols-1 gap-y-4 lg:grid-cols-2">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <x-panel title="Terminal">
         @if ($canBegin)
             <p class="font-body text-[15px] text-ink mb-3">

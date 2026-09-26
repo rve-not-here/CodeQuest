@@ -67,9 +67,25 @@
                 $state = $row['state'];
                 $mission = $row['mission'];
                 $course = $row['course'];
+                $courseSealed = $course->status !== 'active';
                 $stateIcon = $state === 'COMPLETED' ? '●' : ($state === 'IN PROGRESS' ? '▶' : '○');
                 $stateTone = $state === 'COMPLETED' ? 'phosphor' : ($state === 'IN PROGRESS' ? 'amber' : 'dim');
             @endphp
+            @if ($courseSealed)
+            <article
+                class="panel p-4 opacity-80"
+                aria-label="{{ $mission->title }}, locked"
+            >
+                <div class="flex items-start justify-between gap-3 mb-2">
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-amber truncate">{{ $course->name }}</p>
+                        <h2 class="font-body text-[16px] text-ink truncate mt-1">{{ $mission->title }}</h2>
+                    </div>
+                    <x-badge tone="dim">× LOCKED</x-badge>
+                </div>
+                <p class="text-xs leading-relaxed text-static">Course access is sealed. Return when Command restores this course.</p>
+            </article>
+            @else
             <a
                 href="{{ route('mission.show', $mission) }}"
                 class="panel p-4 hover:border-phosphor transition-colors {{ $state === 'COMPLETED' ? 'opacity-80' : '' }}"
@@ -91,6 +107,7 @@
                     </span>
                 </div>
             </a>
+            @endif
         @endforeach
     </div>
 @endsection
