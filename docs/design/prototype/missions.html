@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Missions · CodeQuest</title>
+        <meta name="description" content="Browse every mission in your current course, filter by state or topic, and jump back into the one you are on." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- @include header active="missions" -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <!-- Page header. Right column is bare, not a card: course, count, one rail. -->
+            <header class="grid grid-cols-1 gap-6 border-b border-line pb-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
+                <div>
+                    <p class="eyebrow">Learn / Missions</p>
+                    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Missions</h1>
+                    <p class="mt-2 max-w-[62ch] text-fg-muted text-pretty">Practice concepts, complete coding tasks, and progress through the current course.</p>
+                </div>
+                <div>
+                    <p class="text-[15px] font-medium text-fg">Frontend Fundamentals</p>
+                    <p class="mt-1 font-mono text-xs text-fg-subtle"><span class="text-base font-medium text-fg">9 / 29</span> missions complete</p>
+                    <div class="progress mt-2" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="29" aria-valuenow="9" aria-valuetext="9 of 29 missions complete, 31 percent">
+                        <span style="width: 31%"></span>
+                    </div>
+                    <p class="sr-only">Course progress: 31 percent, 9 of 29 missions complete across four sections.</p>
+                </div>
+            </header>
+
+            <!-- Where I am. A strip of label/value pairs, not a card stack. -->
+            <section aria-labelledby="where-title" class="mt-5 border-y border-line py-3.5">
+                <h2 id="where-title" class="sr-only">Your current position</h2>
+                <div class="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_auto] lg:items-center">
+                    <div>
+                        <p class="eyebrow">Course</p>
+                        <p class="mt-0.5 text-sm text-fg">Frontend Fundamentals</p>
+                    </div>
+                    <div>
+                        <p class="eyebrow">Current section</p>
+                        <p class="mt-0.5 text-sm text-fg">CSS Selectors and the Box Model</p>
+                    </div>
+                    <div>
+                        <p class="eyebrow">Current mission</p>
+                        <p class="mt-0.5 text-sm"><span class="font-mono text-xs text-accent">M2.4</span> <span class="text-fg">Build a profile card with the box model</span></p>
+                    </div>
+                    <div class="lg:justify-self-end">
+                        <a href="learn.html" class="btn btn-quiet btn-sm">View Learning Path<svg aria-hidden="true"><use href="#i-route" /></svg></a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters. Search plus two underline groups. No pills. -->
+            <section aria-labelledby="filter-title" class="panel mt-5 p-3.5">
+                <h2 id="filter-title" class="sr-only">Filter missions</h2>
+
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-6">
+                    <div class="relative lg:w-64 lg:shrink-0">
+                        <label for="mission-search" class="sr-only">Search missions</label>
+                        <svg class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-fg-subtle" aria-hidden="true"><use href="#i-search" /></svg>
+                        <input id="mission-search" type="search" class="field pl-8" placeholder="Search missions" autocomplete="off" data-filter-search />
+                    </div>
+
+                    <div class="flex min-w-0 flex-col gap-1.5">
+                        <span class="eyebrow" id="state-filter-label">State</span>
+                        <div class="filter-group" role="group" aria-labelledby="state-filter-label" data-filter-group="state">
+                            <button type="button" class="tab" data-filter-value="all" aria-pressed="true">All</button>
+                            <button type="button" class="tab" data-filter-value="available" aria-pressed="false">Available</button>
+                            <button type="button" class="tab" data-filter-value="in-progress" aria-pressed="false">In Progress</button>
+                            <button type="button" class="tab" data-filter-value="completed" aria-pressed="false">Completed</button>
+                            <button type="button" class="tab" data-filter-value="locked" aria-pressed="false">Locked</button>
+                        </div>
+                    </div>
+
+                    <div class="flex min-w-0 flex-col gap-1.5">
+                        <span class="eyebrow" id="topic-filter-label">Topic</span>
+                        <div class="filter-group" role="group" aria-labelledby="topic-filter-label" data-filter-group="topic">
+                            <button type="button" class="tab" data-filter-value="all" aria-pressed="true">All</button>
+                            <button type="button" class="tab" data-filter-value="html" aria-pressed="false">HTML</button>
+                            <button type="button" class="tab" data-filter-value="css" aria-pressed="false">CSS</button>
+                            <button type="button" class="tab" data-filter-value="javascript" aria-pressed="false">JavaScript</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-ghost btn-sm lg:ml-auto lg:shrink-0" data-filter-reset hidden>
+                        <svg aria-hidden="true"><use href="#i-x" /></svg>Clear filters
+                    </button>
+                </div>
+
+                <p class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-3 font-mono text-xs text-fg-subtle">
+                    <span data-result-count role="status" aria-atomic="true"></span>
+                    <span data-filter-echo></span>
+                </p>
+            </section>
+
+            <!-- Loading prototype state -->
+            <section data-state-panel="loading" class="mt-5" hidden aria-busy="true" aria-label="Loading missions">
+                <div class="panel p-4">
+                    <div class="skeleton h-3 w-32"></div>
+                    <div class="skeleton mt-3 h-3 w-24"></div>
+                    <ul class="mt-4 flex flex-col gap-3">
+                        <li class="flex items-center gap-3"><div class="skeleton size-6 rounded-full"></div><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-20"></div></li>
+                        <li class="flex items-center gap-3"><div class="skeleton size-6 rounded-full"></div><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-20"></div></li>
+                        <li class="flex items-center gap-3"><div class="skeleton size-6 rounded-full"></div><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-20"></div></li>
+                        <li class="flex items-center gap-3"><div class="skeleton size-6 rounded-full"></div><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-20"></div></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- No results prototype state -->
+            <section data-state-panel="empty" class="mt-5" hidden aria-labelledby="empty-title">
+                <div class="panel flex flex-col items-center gap-2 px-6 py-12 text-center">
+                    <svg class="size-6 text-fg-subtle" aria-hidden="true"><use href="#i-search" /></svg>
+                    <h2 id="empty-title" class="text-[15px] font-medium text-fg" data-empty-title>No missions match your filters.</h2>
+                    <p class="max-w-[46ch] text-sm text-fg-muted" data-empty-copy>Try a different search term, or widen the state and topic filters.</p>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" data-filter-reset>Clear filters</button>
+                </div>
+            </section>
+
+            <!-- Caught up prototype state -->
+            <section data-state-panel="caught-up" class="mt-5" hidden aria-labelledby="caught-title">
+                <div class="panel flex flex-col items-center gap-2 px-6 py-12 text-center">
+                    <svg class="size-6 text-accent" aria-hidden="true"><use href="#i-check" /></svg>
+                    <h2 id="caught-title" class="text-[15px] font-medium text-fg">You&rsquo;re caught up.</h2>
+                    <p class="max-w-[46ch] text-sm text-fg-muted">Prototype state preview only. All coding missions in the current section are complete; its Knowledge Check remains available.</p>
+                    <a href="learn.html" class="btn btn-secondary btn-sm mt-2">View Learning Path<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                </div>
+            </section>
+
+            <div data-mission-list class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
+                <div class="flex max-w-[58rem] flex-col gap-4">
+                    <!-- Section 01 · complete -->
+                    <section class="panel" data-section="html-foundations" aria-labelledby="s01-title">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-3.5 md:px-5">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-accent-line bg-accent-soft text-accent" aria-hidden="true"><svg class="size-3"><use href="#i-check" /></svg></span>
+                            <div class="min-w-0 flex-1">
+                                <p class="eyebrow">Section 01 · Complete</p>
+                                <h2 id="s01-title" class="truncate text-[15px] font-medium">HTML Document Structure</h2>
+                            </div>
+                            <div class="hidden w-24 sm:block" aria-hidden="true"><div class="progress"><span style="width: 100%"></span></div></div>
+                            <span class="font-mono text-xs text-fg">6 / 6</span>
+                        </div>
+
+                        <ol class="px-2 py-1 md:px-3">
+                            <li class="mission-row" data-mission data-state="completed" data-topic="html" data-search="m1.1 anatomy of an html document">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M1.1</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Anatomy of an HTML document</span>
+                                        <span class="mission-desc">Set up a valid HTML5 document and link the stylesheet.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+25 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="html" data-search="m1.2 headings and landmarks">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M1.2</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Headings and landmarks</span>
+                                        <span class="mission-desc">Structure a page with headings and landmarks.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+25 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="html" data-search="m1.3 semantic containers">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M1.3</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Semantic Containers</span>
+                                        <span class="mission-desc">Replace generic divs with elements that carry meaning.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+30 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="html" data-search="m1.4 forms and labels">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M1.4</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Forms and Labels</span>
+                                        <span class="mission-desc">Wire every input to a label so the form is usable.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="2"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span></span>Intermediate</span>
+                                        <span class="mission-xp">+35 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="html" data-search="m1.5 tables and captions">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M1.5</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Tables and Captions</span>
+                                        <span class="mission-desc">Mark up tabular data with headers and a caption.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="2"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span></span>Intermediate</span>
+                                        <span class="mission-xp">+30 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="html" data-search="m1.6 image and media basics">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M1.6</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Image and Media Basics</span>
+                                        <span class="mission-desc">Add images with real alt text and intrinsic size.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+25 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-kind="check" data-state="completed" data-topic="html" data-search="kc 01 html foundations knowledge check">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-quiz" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">KC 01</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Knowledge Check: HTML</span>
+                                        <span class="mission-desc">10 questions · ~5 min</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="mission-xp">9 / 10</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </section>
+
+                    <!-- Section 02 · current -->
+                    <section class="panel border-accent-line" data-section="css-box-model" aria-labelledby="s02-title">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-3.5 md:px-5">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-accent text-accent" aria-hidden="true"><span class="size-2 rounded-full bg-accent"></span></span>
+                            <div class="min-w-0 flex-1">
+                                <p class="eyebrow text-accent">Section 02 · In progress</p>
+                                <h2 id="s02-title" class="truncate text-[15px] font-medium">CSS Selectors and the Box Model</h2>
+                            </div>
+                            <div class="hidden w-24 sm:block" aria-hidden="true"><div class="progress"><span style="width: 50%"></span></div></div>
+                            <span class="font-mono text-xs text-fg">3 / 6</span>
+                        </div>
+
+                        <ol class="px-2 py-1 md:px-3">
+                            <li class="mission-row" data-mission data-state="completed" data-topic="css" data-search="m2.1 selecting elements with css">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M2.1</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Selecting elements with CSS</span>
+                                        <span class="mission-desc">Target HTML elements with CSS selectors.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+30 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="css" data-search="m2.2 class and id selectors">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M2.2</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Class and ID selectors</span>
+                                        <span class="mission-desc">Use class and ID selectors to style a component.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+30 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="completed" data-topic="css" data-search="m2.3 padding and borders">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M2.3</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Padding and borders</span>
+                                        <span class="mission-desc">Add padding and borders to a component.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="2"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span></span>Intermediate</span>
+                                        <span class="mission-xp">+40 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Completed</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row is-current" data-mission data-state="current" data-topic="css" data-search="m2.4 build a profile card with the box model">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-play" /></svg></span>
+                                <a href="challenge.html" class="mission-body" aria-current="step">
+                                    <span class="mission-id">M2.4</span>
+                                    <span class="mission-text">
+                                        <span>
+                                            <span class="badge badge-accent">You are here</span>
+                                        </span>
+                                        <span class="mission-title">Build a profile card with the box model</span>
+                                        <span class="mission-desc">Combine padding, border and margin into a centered card.</span>
+                                        <span class="mission-note">In Progress · Draft saved · 3 of 5 tests passing</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="2"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span></span>Intermediate</span>
+                                        <span class="mission-xp">+40 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="btn btn-primary btn-sm">Continue<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></span></span>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="available" data-topic="css" data-search="m2.5 margin collapse and spacing">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-circle" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M2.5</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Margin collapse and spacing</span>
+                                        <span class="mission-desc">Apply margins without unexpected spacing.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="1"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span></span><span></span></span>Beginner</span>
+                                        <span class="mission-xp">+40 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Available</span><button type="button" class="btn btn-secondary btn-sm" data-start-mission aria-label="Start M2.5, Margin collapse and spacing">Start</button></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-state="locked" data-topic="css" data-search="m2.6 box-sizing and predictable widths">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">M2.6</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">box-sizing and predictable widths</span>
+                                        <span class="mission-desc">Include padding and borders in predictable widths.</span>
+                                        <span class="mission-note">Complete M2.4 and M2.5 to unlock.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="difficulty" data-level="2"><span class="difficulty-bars" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span></span>Intermediate</span>
+                                        <span class="mission-xp">+45 XP</span>
+                                    </span>
+                                        <span class="mission-action"><span class="mission-state">Locked</span></span>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="mission-row" data-mission data-kind="check" data-state="locked" data-topic="css" data-check-preview data-search="kc 02 css box model check knowledge check">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-quiz" /></svg></span>
+                                <div class="mission-body">
+                                    <span class="mission-id">KC 02</span>
+                                    <span class="mission-text">
+                                        <span class="mission-title">Knowledge Check: Box Model</span>
+                                        <span class="mission-desc">5 questions · ~4 min</span>
+                                        <span class="mission-note" data-check-note>Complete M2.4 to M2.6 to unlock.</span>
+                                    </span>
+                                    <div class="mission-foot">
+                                        <span class="mission-meta">
+                                        <span class="mission-xp">FORMATIVE</span>
+                                    </span>
+                                        <span class="mission-action" data-check-action><span class="mission-state">Locked</span></span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </section>
+
+                    <!-- Section 03 · locked, preview only -->
+                    <section class="panel" data-section="flexbox-foundations" aria-labelledby="s03-title">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-3.5 md:px-5">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-locked" aria-hidden="true"><svg class="size-3"><use href="#i-lock" /></svg></span>
+                            <div class="min-w-0 flex-1">
+                                <p class="eyebrow">Section 03 · Locked</p>
+                                <h2 id="s03-title" class="truncate text-[15px] font-medium text-fg-muted">Layout with Flexbox</h2>
+                            </div>
+                            <div class="hidden w-24 sm:block" aria-hidden="true"><div class="progress"><span style="width: 0%"></span></div></div>
+                            <span class="font-mono text-xs text-fg-subtle">0 / 7</span>
+                        </div>
+                        <p class="px-4 py-3.5 text-sm text-fg-subtle md:px-5">Unlocks after Knowledge Check: Box Model. Flex containers, alignment, wrapping, gap and ordering.</p>
+                    </section>
+
+                    <!-- Section 04 · locked, preview only -->
+                    <section class="panel" data-section="javascript-fundamentals" aria-labelledby="s04-title">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-3.5 md:px-5">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-locked" aria-hidden="true"><svg class="size-3"><use href="#i-lock" /></svg></span>
+                            <div class="min-w-0 flex-1">
+                                <p class="eyebrow">Section 04 · Locked</p>
+                                <h2 id="s04-title" class="truncate text-[15px] font-medium text-fg-muted">JavaScript Fundamentals</h2>
+                            </div>
+                            <div class="hidden w-24 sm:block" aria-hidden="true"><div class="progress"><span style="width: 0%"></span></div></div>
+                            <span class="font-mono text-xs text-fg-subtle">0 / 10</span>
+                        </div>
+                        <p class="px-4 py-3.5 text-sm text-fg-subtle md:px-5">Unlocks after Layout with Flexbox. Variables, functions, arrays, DOM selection and events.</p>
+                    </section>
+                </div>
+
+                <aside class="hidden lg:block" aria-label="Browser overview">
+                    <div class="sticky top-20 flex flex-col gap-6">
+                        <nav aria-labelledby="jump-title">
+                            <h2 id="jump-title" class="eyebrow mb-2">Sections</h2>
+                            <ul class="border-l border-line text-sm">
+                                <li><a href="#s01-title" class="-ml-px flex justify-between border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:text-fg">01 HTML<span class="font-mono text-2xs text-accent">6/6</span></a></li>
+                                <li><a href="#s02-title" aria-current="location" class="-ml-px flex justify-between border-l-2 border-accent py-1.5 pr-1 pl-3 font-medium text-fg">02 Box Model<span class="font-mono text-2xs">3/6</span></a></li>
+                                <li><a href="#s03-title" class="-ml-px flex justify-between border-l border-transparent py-1.5 pr-1 pl-3 text-fg-subtle hover:text-fg">03 Flexbox<span class="font-mono text-2xs text-fg-subtle">0/7</span></a></li>
+                                <li><a href="#s04-title" class="-ml-px flex justify-between border-l border-transparent py-1.5 pr-1 pl-3 text-fg-subtle hover:text-fg">04 JavaScript<span class="font-mono text-2xs text-fg-subtle">0/10</span></a></li>
+                            </ul>
+                        </nav>
+
+                        <div>
+                            <h2 class="eyebrow mb-2">State</h2>
+                            <ul class="space-y-2 text-[13px] text-fg-muted">
+                                <li class="flex items-center gap-2.5"><span class="grid size-5 place-items-center rounded-full border border-accent-line bg-accent-soft text-accent" aria-hidden="true"><svg class="size-2.5"><use href="#i-check" /></svg></span>Completed</li>
+                                <li class="flex items-center gap-2.5"><span class="grid size-5 place-items-center rounded-full bg-accent text-accent-ink" aria-hidden="true"><svg class="size-2.5"><use href="#i-play" /></svg></span>Current</li>
+                                <li class="flex items-center gap-2.5"><span class="grid size-5 place-items-center rounded-full border border-line-strong text-fg-muted" aria-hidden="true"><svg class="size-2.5"><use href="#i-circle" /></svg></span>Available</li>
+                                <li class="flex items-center gap-2.5"><span class="grid size-5 place-items-center text-fg-muted" aria-hidden="true"><svg class="size-3.5"><use href="#i-play" /></svg></span>In Progress</li>
+                                <li class="flex items-center gap-2.5"><span class="grid size-5 place-items-center rounded-full border border-line text-locked" aria-hidden="true"><svg class="size-2.5"><use href="#i-lock" /></svg></span>Locked</li>
+                                <li class="flex items-center gap-2.5"><span class="grid size-5 place-items-center text-fg-muted" aria-hidden="true"><svg class="size-3.5"><use href="#i-quiz" /></svg></span>Knowledge Check</li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Prototype state switcher. Scaffolding, not product UI. -->
+            <section aria-labelledby="states-title" class="mt-10 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <p class="mt-1 max-w-[60ch] text-[13px] text-fg-subtle">Mock student scenario: Frontend Fundamentals, 9 of 29 missions complete. Filter the list above, or preview a system state. These values are not seeded curriculum data.</p>
+                <ul class="mt-2.5 flex flex-wrap gap-2">
+                    <li><a href="missions.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="missions.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="missions.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">No results</a></li>
+                    <li><a href="missions.html?state=check-available" class="btn btn-quiet btn-sm" data-state-link="check-available">KC Available</a></li>
+                    <li><a href="missions.html?state=check-completed" class="btn btn-quiet btn-sm" data-state-link="check-completed">KC Completed</a></li>
+                    <li><a href="missions.html?state=caught-up" class="btn btn-quiet btn-sm" data-state-link="caught-up">Caught up</a></li>
+                </ul>
+            </section>
+        </main>
+
+        <dialog class="panel m-auto w-[min(26rem,calc(100vw-2rem))] p-5 text-fg backdrop:bg-black/60" aria-labelledby="start-title" data-start-dialog>
+            <h2 id="start-title" class="text-lg font-semibold">M2.5 · Margin collapse and spacing</h2>
+            <p class="mt-2 text-sm text-fg-muted">Prototype only. This mission is available, but its workspace is not implemented. The challenge screen demonstrates M2.4.</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <a href="learn.html#section-02" class="btn btn-secondary">View Learning Path</a>
+                <form method="dialog"><button class="btn btn-quiet">Close</button></form>
+            </div>
+        </dialog>
+
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./missions.js"></script>
+    </body>
+</html>

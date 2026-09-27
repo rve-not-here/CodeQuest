@@ -53,6 +53,7 @@ export default defineConfig({
             input: {
                 dashboard: resolve(root, 'index.html'),
                 learn: resolve(root, 'learn.html'),
+                missions: resolve(root, 'missions.html'),
                 challenge: resolve(root, 'challenge.html'),
                 system: resolve(root, 'design-system.html'),
             },
