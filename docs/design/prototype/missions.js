@@ -118,17 +118,18 @@ function apply() {
     stateLabel.textContent = LABELS[previewState];
     checkAction.append(stateLabel);
     if (previewState === 'available') {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'btn btn-secondary btn-sm';
-        button.textContent = 'Start';
-        button.setAttribute('aria-label', 'Start Knowledge Check 02');
-        button.addEventListener('click', () => openStartPreview('KC 02 · Knowledge Check: Box Model', 'Prototype only. The Knowledge Check screen is not implemented.'));
-        checkAction.append(button);
+        // KC 02 has a screen now, so this row links to it. M2.5 still has no
+        // workspace and keeps its placeholder dialog below.
+        const link = document.createElement('a');
+        link.className = 'btn btn-secondary btn-sm';
+        link.textContent = 'Start';
+        link.href = 'knowledge-check.html';
+        link.setAttribute('aria-label', 'Start Knowledge Check 02, Box Model');
+        checkAction.append(link);
     }
     check.querySelector('[data-check-note]').textContent = previewState === 'locked'
         ? 'Complete M2.4 to M2.6 to unlock.'
-        : 'Prototype row-state preview only. Course progress remains the normal mock scenario.';
+        : 'Opens the Knowledge Check: Box Model screen.';
     list.hidden = false;
 
     let shown = 0;

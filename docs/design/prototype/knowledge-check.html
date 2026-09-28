@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Knowledge Check: Box Model · CodeQuest</title>
+        <meta name="description" content="Five questions on the CSS box model, with a review step before you submit and an explanation for every answer." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- The check sits inside the learning flow, so Learn stays the
+             current top-nav destination. It is not a global destination. -->
+        <!-- @include header active="learn" -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="learn.html" class="hover:text-fg">Learn</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="missions.html" class="hover:text-fg">Frontend Fundamentals</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="missions.html" class="hover:text-fg">CSS Selectors and the Box Model</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">KC 02</li>
+                </ol>
+            </nav>
+
+            <header class="mt-3 border-b border-line pb-5">
+                <div class="flex flex-wrap items-start justify-between gap-x-8 gap-y-3">
+                    <div class="min-w-0">
+                        <p class="eyebrow flex items-center gap-1.5 text-info">
+                            <svg class="size-3.5" aria-hidden="true"><use href="#i-quiz" /></svg>Knowledge Check / KC 02
+                        </p>
+                        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Knowledge Check: Box Model</h1>
+                        <p class="mt-2 max-w-[58ch] text-fg-muted text-pretty">Check your understanding before moving to the next section.</p>
+                    </div>
+                    <dl class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-fg-subtle">
+                        <div class="flex items-baseline gap-1.5">
+                            <dt>Questions</dt>
+                            <dd class="text-fg">5</dd>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <dt>Time</dt>
+                            <dd class="text-fg">~4 min</dd>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <dt>Attempt</dt>
+                            <dd class="text-fg">1</dd>
+                        </div>
+                    </dl>
+                </div>
+            </header>
+
+            <!-- ── Loading ───────────────────────────────────────────────
+                 aria-busy on the region, one polite status line inside it.
+                 No answered count is rendered here, so a stale total can
+                 never be read while the check is still loading. -->
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading Knowledge Check">
+                <p class="eyebrow" role="status">Loading this check…</p>
+                <div class="kc-layout mt-3">
+                    <div class="panel p-5 md:p-6">
+                        <div class="skeleton h-3 w-24"></div>
+                        <div class="skeleton mt-3 h-4 w-4/5"></div>
+                        <div class="mt-5 grid gap-2">
+                            <div class="skeleton h-12 w-full"></div>
+                            <div class="skeleton h-12 w-full"></div>
+                            <div class="skeleton h-12 w-full"></div>
+                            <div class="skeleton h-12 w-full"></div>
+                        </div>
+                    </div>
+                    <div class="panel h-fit p-4">
+                        <div class="skeleton h-3 w-20"></div>
+                        <div class="skeleton mt-3 h-1.5 w-full"></div>
+                        <div class="mt-5 flex gap-1.5">
+                            <div class="skeleton size-9"></div>
+                            <div class="skeleton size-9"></div>
+                            <div class="skeleton size-9"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Error ─────────────────────────────────────────────────
+                 A single role="alert" so the message is announced once,
+                 with a recovery action rather than a dead end. -->
+            <section data-state-panel="error" class="mt-6" hidden>
+                <div class="panel flex flex-col items-center gap-2 px-6 py-14 text-center">
+                    <svg class="size-6 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                    <h2 class="text-[15px] font-medium text-fg" role="alert">Couldn&rsquo;t load this Knowledge Check</h2>
+                    <p class="max-w-[46ch] text-sm leading-6 text-fg-muted">Nothing was submitted and no answers were lost. Try again.</p>
+                    <div class="mt-2 flex flex-wrap justify-center gap-2">
+                        <button type="button" class="btn btn-secondary btn-sm" data-state-goto="question">Try again</button>
+                        <a href="missions.html" class="btn btn-quiet btn-sm">Back to Missions</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Locked ────────────────────────────────────────────────
+                 Named requirements and real destinations. Legibility is
+                 not borrowed from lowering opacity. -->
+            <section data-state-panel="locked" class="mt-6" hidden aria-labelledby="kc-locked-title">
+                <div class="panel flex flex-col items-center gap-2 px-6 py-14 text-center">
+                    <span class="grid size-9 place-items-center border border-line-strong text-locked" aria-hidden="true">
+                        <svg class="size-4"><use href="#i-lock" /></svg>
+                    </span>
+                    <p class="eyebrow mt-1">Knowledge Check · Locked</p>
+                    <h2 id="kc-locked-title" class="text-lg font-semibold">Knowledge Check locked</h2>
+                    <p class="max-w-[48ch] text-sm leading-6 text-fg-muted">Complete M2.4, M2.5, and M2.6 to unlock this check.</p>
+                    <ul class="mt-3 grid gap-1.5 text-left text-sm text-fg-subtle">
+                        <li class="flex items-center gap-2.5">
+                            <span class="kc-legend-mark border-line-strong text-locked" aria-hidden="true"><svg class="size-3"><use href="#i-lock" /></svg></span>
+                            M2.4 Build a profile card with the box model
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <span class="kc-legend-mark border-line-strong text-locked" aria-hidden="true"><svg class="size-3"><use href="#i-lock" /></svg></span>
+                            M2.5 Margin collapse and spacing
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <span class="kc-legend-mark border-line-strong text-locked" aria-hidden="true"><svg class="size-3"><use href="#i-lock" /></svg></span>
+                            M2.6 box-sizing and predictable widths
+                        </li>
+                    </ul>
+                    <div class="mt-3 flex flex-wrap justify-center gap-2">
+                        <a href="missions.html" class="btn btn-primary btn-sm">View Missions<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="learn.html" class="btn btn-quiet btn-sm">View Learning Path</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Result ────────────────────────────────────────────────
+                 Deliberately before the answer review in the DOM: the score
+                 and the next action are the answer to "what happened", and
+                 they must not sit below five question blocks. -->
+            <section data-state-panel="result" class="mt-6" hidden aria-labelledby="result-title">
+                <div class="panel p-5 md:p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
+                        <div class="min-w-0">
+                            <p class="eyebrow" data-result-eyebrow>KC 02</p>
+                            <h2 id="result-title" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight md:text-2xl" data-result-title>Knowledge Check complete</h2>
+                            <p class="mt-2 max-w-[54ch] text-sm leading-6 text-fg-muted" data-result-copy></p>
+                            <p class="mt-3 flex items-start gap-2 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+                                <svg class="mt-0.5 size-3.5 shrink-0" aria-hidden="true"><use href="#i-file" /></svg>
+                                <span>Prototype only. This score was computed in your browser from the answer key on this page. Nothing was sent, saved, or awarded.</span>
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="kc-result-score" data-result-score>0 / 5</p>
+                            <p class="mt-1 font-mono text-xs text-fg-subtle"><span data-result-percent>0</span>% correct</p>
+                            <p class="mt-2"><span class="badge" data-result-badge>—</span></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
+                        <a href="learn.html" class="btn btn-primary" data-result-primary>
+                            <span data-result-primary-label>Continue Learning</span><svg aria-hidden="true"><use href="#i-arrow-right" /></svg>
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-toggle-answers>Review Answers</button>
+                        <a href="missions.html" class="btn btn-quiet" data-result-secondary>Back to Missions</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Answering ─────────────────────────────────────────────
+                 Sidebar first in the DOM, so narrow widths stack progress
+                 above the question with no `order` and no override. -->
+            <div data-state-panel="answering" class="kc-layout mt-6" data-review="answering" hidden>
+                <aside class="kc-sidebar panel p-4 lg:sticky lg:top-20" aria-label="Check progress">
+                    <p class="eyebrow">Answered</p>
+                    <!-- The single progressbar in the page. The review panel
+                         reports its total as plain text so only one
+                         progressbar is ever exposed to assistive tech. -->
+                    <p class="mt-1.5 text-sm" data-progress-text aria-live="polite">0 of 5 answered</p>
+                    <div
+                        class="progress mt-2"
+                        role="progressbar"
+                        aria-label="Questions answered"
+                        aria-valuemin="0"
+                        aria-valuemax="5"
+                        aria-valuenow="0"
+                        data-progress-rail
+                    >
+                        <span style="width: 0%"></span>
+                    </div>
+
+                    <p class="eyebrow mt-5">Questions</p>
+                    <ol class="mt-2 flex flex-wrap gap-1.5" data-navigator>
+                        <li>
+                            <button type="button" class="kc-nav-cell" data-goto="1" aria-current="step" aria-label="Question 1, current, unanswered">
+                                1<svg aria-hidden="true"><use href="#i-check" /></svg>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="kc-nav-cell" data-goto="2" aria-label="Question 2, unanswered">
+                                2<svg aria-hidden="true"><use href="#i-check" /></svg>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="kc-nav-cell" data-goto="3" aria-label="Question 3, unanswered">
+                                3<svg aria-hidden="true"><use href="#i-check" /></svg>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="kc-nav-cell" data-goto="4" aria-label="Question 4, unanswered">
+                                4<svg aria-hidden="true"><use href="#i-check" /></svg>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="kc-nav-cell" data-goto="5" aria-label="Question 5, unanswered">
+                                5<svg aria-hidden="true"><use href="#i-check" /></svg>
+                            </button>
+                        </li>
+                    </ol>
+
+                    <ul class="kc-nav-legend">
+                        <li class="flex items-center gap-2">
+                            <span class="kc-legend-mark border-accent-line bg-accent-soft text-accent" aria-hidden="true"><svg class="size-2.5"><use href="#i-check" /></svg></span>
+                            Answered
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="kc-legend-mark border-line-strong text-fg-subtle" aria-hidden="true">1</span>
+                            Unanswered
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="kc-legend-mark border-accent bg-raised text-fg" aria-hidden="true">1</span>
+                            Current
+                        </li>
+                    </ul>
+
+                    <button type="button" class="btn btn-secondary mt-5 w-full" data-review-open>Review Answers</button>
+                    <button type="button" class="btn btn-primary mt-2 w-full" data-submit disabled>Submit Answers</button>
+                    <p class="mt-2 text-[13px] leading-5 text-fg-subtle" data-submit-reason>Answer all 5 questions before submitting.</p>
+                </aside>
+
+                <section class="kc-question panel p-5 md:p-6" aria-labelledby="question-heading">
+                    <h2 id="question-heading" class="sr-only">Question</h2>
+                    <div data-question-stack>
+                        <!-- Q1 · box-sizing value -->
+                        <fieldset tabindex="-1" data-question="1" data-correct="border-box">
+                            <legend class="w-full">
+                                <span class="eyebrow block">Question 1 of 5</span>
+                                <span class="mt-2 block text-[15px] leading-6 font-medium text-balance">Which <code class="code-inline">box-sizing</code> value makes the declared <code class="code-inline">width</code> include padding and border?</span>
+                            </legend>
+                            <div class="mt-4 grid gap-2">
+                                <label class="answer-option">
+                                    <input type="radio" name="q1" value="content-box" />
+                                    <span class="answer-option-value">content-box</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q1" value="border-box" />
+                                    <span class="answer-option-value">border-box</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q1" value="padding-box" />
+                                    <span class="answer-option-value">padding-box</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q1" value="inherit-width" />
+                                    <span class="answer-option-value">inherit-width</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                            </div>
+                            <div class="kc-verdict" data-verdict-block hidden>
+                                <p><span class="badge" data-verdict-label>Correct</span></p>
+                                <dl>
+                                    <div><dt>Your answer</dt><dd data-chosen>—</dd></div>
+                                </dl>
+                                <p class="kc-explanation"><code class="code-inline">border-box</code> makes the declared width the total width, so padding and border are drawn inside it. <code class="code-inline">content-box</code> is the default and adds them outside.</p>
+                            </div>
+                        </fieldset>
+
+                        <!-- Q2 · code reading, horizontal arithmetic -->
+                        <fieldset tabindex="-1" data-question="2" data-correct="370px" hidden>
+                            <legend class="w-full">
+                                <span class="eyebrow block">Question 2 of 5</span>
+                                <span class="mt-2 block text-[15px] leading-6 font-medium text-balance">What is this card&rsquo;s rendered outer width?</span>
+                            </legend>
+                            <pre class="code-block mt-3"><code>.card {
+  width: 320px;
+  padding: 24px;
+  border: 1px solid;
+  box-sizing: content-box;
+}</code></pre>
+                            <div class="mt-4 grid gap-2">
+                                <label class="answer-option">
+                                    <input type="radio" name="q2" value="320px" />
+                                    <span class="answer-option-value">320px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q2" value="322px" />
+                                    <span class="answer-option-value">322px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q2" value="368px" />
+                                    <span class="answer-option-value">368px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q2" value="370px" />
+                                    <span class="answer-option-value">370px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                            </div>
+                            <div class="kc-verdict" data-verdict-block hidden>
+                                <p><span class="badge" data-verdict-label>Correct</span></p>
+                                <dl>
+                                    <div><dt>Your answer</dt><dd data-chosen>—</dd></div>
+                                </dl>
+                                <p class="kc-explanation"><code class="code-inline">content-box</code> is the default, so the rendered width is content plus padding plus border: 320 + 24 + 24 + 1 + 1 = 370px.</p>
+                            </div>
+                        </fieldset>
+
+                        <!-- Q3 · which declaration moves a sibling -->
+                        <fieldset tabindex="-1" data-question="3" data-correct="margin" hidden>
+                            <legend class="w-full">
+                                <span class="eyebrow block">Question 3 of 5</span>
+                                <span class="mt-2 block text-[15px] leading-6 font-medium text-balance">With <code class="code-inline">content-box</code> sizing, which declaration pushes a sibling element away without changing the element&rsquo;s border-box size?</span>
+                            </legend>
+                            <div class="mt-4 grid gap-2">
+                                <label class="answer-option">
+                                    <input type="radio" name="q3" value="padding" />
+                                    <span class="answer-option-value">padding: 16px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q3" value="border" />
+                                    <span class="answer-option-value">border: 16px solid</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q3" value="margin" />
+                                    <span class="answer-option-value">margin: 16px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q3" value="outline" />
+                                    <span class="answer-option-value">outline: 16px solid</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                            </div>
+                            <div class="kc-verdict" data-verdict-block hidden>
+                                <p><span class="badge" data-verdict-label>Correct</span></p>
+                                <dl>
+                                    <div><dt>Your answer</dt><dd data-chosen>—</dd></div>
+                                </dl>
+                                <p class="kc-explanation">Margin sits outside the border and moves neighbours without changing the element&rsquo;s own size. With content-box sizing, padding and border increase the border-box size. Outline is drawn outside the border and takes no space in layout at all.</p>
+                            </div>
+                        </fieldset>
+
+                        <!-- Q4 · margin collapse, assumptions stated -->
+                        <fieldset tabindex="-1" data-question="4" data-correct="24px" hidden>
+                            <legend class="w-full">
+                                <span class="eyebrow block">Question 4 of 5</span>
+                                <span class="mt-2 block text-[15px] leading-6 font-medium text-balance">Two sibling <code class="code-inline">div</code> elements each have <code class="code-inline">margin-block: 24px</code>. What is the vertical gap between them?</span>
+                                <span class="mt-3 block border-l-2 border-info/40 pl-3 text-[13px] leading-6 font-normal text-fg-muted">
+                                    Assume the parent is a plain block container with no padding, border, or
+                                    <code class="code-inline">overflow</code>, and that it is not a flex, grid, or other new
+                                    formatting context, so adjacent vertical margins collapse.
+                                </span>
+                            </legend>
+                            <div class="mt-4 grid gap-2">
+                                <label class="answer-option">
+                                    <input type="radio" name="q4" value="0px" />
+                                    <span class="answer-option-value">0px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q4" value="12px" />
+                                    <span class="answer-option-value">12px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q4" value="24px" />
+                                    <span class="answer-option-value">24px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q4" value="48px" />
+                                    <span class="answer-option-value">48px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                            </div>
+                            <div class="kc-verdict" data-verdict-block hidden>
+                                <p><span class="badge" data-verdict-label>Correct</span></p>
+                                <dl>
+                                    <div><dt>Your answer</dt><dd data-chosen>—</dd></div>
+                                </dl>
+                                <p class="kc-explanation">These two positive sibling margins collapse to the larger margin. Both are 24px, so the gap is 24px. Making the parent a flex or grid container prevents this sibling-margin collapse, giving a 48px gap. Parent padding, borders, or overflow alone do not prevent sibling margins from collapsing.</p>
+                            </div>
+                        </fieldset>
+
+                        <!-- Q5 · code reading, vertical arithmetic -->
+                        <fieldset tabindex="-1" data-question="5" data-correct="268px" hidden>
+                            <legend class="w-full">
+                                <span class="eyebrow block">Question 5 of 5</span>
+                                <span class="mt-2 block text-[15px] leading-6 font-medium text-balance">With this <code class="code-inline">content-box</code> rule, what is this panel&rsquo;s border-box height?</span>
+                            </legend>
+                            <pre class="code-block mt-3"><code>.panel {
+  height: 200px;
+  padding: 32px;
+  border: 2px solid;
+  box-sizing: content-box;
+}</code></pre>
+                            <p class="mt-3 text-[13px] leading-6 text-fg-muted">
+                                Assume the standard box model with <code class="code-inline">content-box</code>. Padding
+                                applies to all four sides, so it adds 32px above and 32px below, and the border adds
+                                2px above and 2px below.
+                            </p>
+                            <div class="mt-4 grid gap-2">
+                                <label class="answer-option">
+                                    <input type="radio" name="q5" value="200px" />
+                                    <span class="answer-option-value">200px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q5" value="232px" />
+                                    <span class="answer-option-value">232px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q5" value="264px" />
+                                    <span class="answer-option-value">264px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                                <label class="answer-option">
+                                    <input type="radio" name="q5" value="268px" />
+                                    <span class="answer-option-value">268px</span>
+                                    <svg class="answer-option-mark" aria-hidden="true"><use href="#i-check" /></svg>
+                                </label>
+                            </div>
+                            <div class="kc-verdict" data-verdict-block hidden>
+                                <p><span class="badge" data-verdict-label>Correct</span></p>
+                                <dl>
+                                    <div><dt>Your answer</dt><dd data-chosen>—</dd></div>
+                                </dl>
+                                <p class="kc-explanation">Total height is content plus padding plus border: 200 + 32 + 32 + 2 + 2 = 268px. 264px forgets the border, and 232px counts padding on only one side.</p>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
+                        <button type="button" class="btn btn-quiet kc-paging" data-prev disabled>
+                            <svg aria-hidden="true"><use href="#i-chevron-left" /></svg>Previous
+                        </button>
+                        <button type="button" class="btn btn-secondary kc-paging" data-next>
+                            <span data-next-label>Next</span><svg aria-hidden="true"><use href="#i-chevron-right" /></svg>
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ── Review before submitting ───────────────────────────────
+                 The total is plain text, not a second progressbar. -->
+            <section data-state-panel="review" class="mt-6" hidden aria-labelledby="review-title">
+                <div class="panel p-5 md:p-6">
+                    <p class="eyebrow">Before you submit</p>
+                    <h2 id="review-title" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight">Review your answers</h2>
+                    <p class="mt-2 max-w-[56ch] text-sm leading-6 text-fg-muted" data-review-summary>0 of 5 answered.</p>
+
+                    <ul class="kc-checklist mt-4" data-review-list></ul>
+
+                    <div class="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
+                        <button type="button" class="btn btn-quiet kc-paging" data-back-to-questions>
+                            <svg aria-hidden="true"><use href="#i-chevron-left" /></svg>Back to questions
+                        </button>
+                        <button type="button" class="btn btn-primary kc-paging" data-submit disabled>Submit Answers</button>
+                    </div>
+                    <p class="mt-2 text-[13px] leading-5 text-fg-subtle" data-review-reason>Answer all 5 questions before submitting.</p>
+                </div>
+            </section>
+
+            <p class="mt-10 max-w-[70ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle">
+                <span class="eyebrow mr-2">Prototype note</span>
+                This screen is a static prototype. Nothing is sent or stored, the score is worked out in your browser,
+                and reloading clears your answers. This interactive prototype requires JavaScript.
+            </p>
+
+            <!-- Prototype state switcher. Scaffolding, not product UI. -->
+            <section aria-labelledby="states-title" class="mt-6 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <p class="mt-1 max-w-[60ch] text-[13px] text-fg-subtle">Answer the questions, or jump straight to a state.</p>
+                <ul class="mt-2.5 flex flex-wrap gap-2">
+                    <li><a href="knowledge-check.html" class="btn btn-quiet btn-sm" data-state-link="question">Question</a></li>
+                    <li><a href="knowledge-check.html?state=review" class="btn btn-quiet btn-sm" data-state-link="review">Review</a></li>
+                    <li><a href="knowledge-check.html?state=passed" class="btn btn-quiet btn-sm" data-state-link="passed">Passed</a></li>
+                    <li><a href="knowledge-check.html?state=failed" class="btn btn-quiet btn-sm" data-state-link="failed">Failed</a></li>
+                    <li><a href="knowledge-check.html?state=answers" class="btn btn-quiet btn-sm" data-state-link="answers">Answer review</a></li>
+                    <li><a href="knowledge-check.html?state=locked" class="btn btn-quiet btn-sm" data-state-link="locked">Locked</a></li>
+                    <li><a href="knowledge-check.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="knowledge-check.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                </ul>
+            </section>
+        </main>
+
+        <!-- Native dialog. Focus trapping, Escape, and focus return all
+             come from the element, so no manual restoration is written
+             and nothing can race the browser's own behaviour. -->
+        <dialog class="panel m-auto w-[min(28rem,calc(100vw-2rem))] bg-surface p-0 text-fg shadow-2xl shadow-black/60 backdrop:bg-black/60" aria-labelledby="confirm-title" aria-describedby="confirm-copy" data-confirm-dialog>
+            <form method="dialog">
+                <div class="px-5 pt-5">
+                    <p class="eyebrow flex items-center gap-1.5 text-info">
+                        <svg class="size-3.5" aria-hidden="true"><use href="#i-quiz" /></svg>Submit this check
+                    </p>
+                    <h2 id="confirm-title" class="mt-2 text-lg font-semibold">Submit your answers?</h2>
+                    <p id="confirm-copy" class="mt-2 text-sm leading-6 text-fg-muted">You answered all 5 questions.</p>
+                    <p class="mt-2 text-sm leading-6 text-fg-subtle">You won&rsquo;t be able to change these answers after submission.</p>
+                </div>
+                <div class="mt-5 flex justify-end gap-2 border-t border-line px-5 py-3">
+                    <button value="cancel" class="btn btn-quiet" autofocus>Keep reviewing</button>
+                    <button value="confirm" class="btn btn-primary">Submit Answers</button>
+                </div>
+            </form>
+        </dialog>
+
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./knowledge-check.js"></script>
+    </body>
+</html>
