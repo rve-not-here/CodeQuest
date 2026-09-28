@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Assessments · CodeQuest</title>
+        <meta name="description" content="Knowledge Checks and the Boss Challenge for Frontend Fundamentals, with what unlocks each one." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- @include header active="assessments" -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 max-sm:[&_.btn]:min-h-11 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Assessments</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow">Assessments / Frontend Fundamentals</p>
+                <h1 id="assessments-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight md:text-3xl">Assessments</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Check your understanding throughout the course and complete the Boss Challenge when all requirements are met.</p>
+            </header>
+
+            <!-- ── Loading ──────────────────────────────────────────────
+                 Nothing is rendered while this panel is up, so a stale
+                 Knowledge Check score or count can never be read. -->
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading assessments">
+                <p role="status" class="text-sm text-fg-muted">Loading your assessments…</p>
+                <div class="mt-4" aria-hidden="true">
+                    <div class="panel p-5"><div class="skeleton h-4 w-40"></div><div class="skeleton mt-4 h-2 w-full"></div></div>
+                    <div class="mt-6"><div class="skeleton h-16 w-full"></div><div class="skeleton mt-2 h-16 w-full"></div></div>
+                    <div class="skeleton mt-6 h-28 w-full"></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">Couldn't load assessments.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Your assessment record is unchanged. Try loading this view again.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <section data-state-panel="empty" class="panel mt-6 px-5 py-12" hidden aria-labelledby="empty-title">
+                <span class="grid size-9 place-items-center border border-line-strong text-fg-muted" aria-hidden="true">
+                    <svg class="size-4"><use href="#i-inbox" /></svg>
+                </span>
+                <p class="eyebrow mt-3">Your assessments</p>
+                <h2 id="empty-title" class="mt-1.5 text-lg font-semibold">No assessments available yet</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Complete course missions to unlock your first Knowledge Check.</p>
+                <a href="learn.html" class="btn btn-primary mt-4">View Learning Path<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">New-student state preview. No completed or locked assessment records are shown here.</p>
+            </section>
+
+            <div data-state-panel="default" class="mt-6">
+                <!-- Inventory: what exists and where the student stands. -->
+                <section class="panel p-5 md:p-6" aria-labelledby="summary-title">
+                    <h2 id="summary-title" class="eyebrow">Assessment summary</h2>
+                    <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-fg-muted">
+                        <li><span class="mr-1 font-mono text-fg">1</span> Knowledge Check completed</li>
+                        <li><span class="mr-1 font-mono text-fg">1</span> Knowledge Check locked</li>
+                        <li class="flex items-center gap-1.5"><svg class="size-3.5 shrink-0 text-fg-muted" aria-hidden="true"><use href="#i-lock" /></svg>Boss Challenge locked</li>
+                    </ul>
+                    <p class="mt-2.5 text-[13px] leading-6 text-fg-subtle">Counts cover the Knowledge Checks currently shown for Frontend Fundamentals, not the full course inventory. The Boss Challenge has not been attempted.</p>
+                </section>
+
+                <section class="mt-8" aria-labelledby="checks-title">
+                    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h2 id="checks-title" class="text-lg font-semibold">Knowledge Checks</h2>
+                        <a href="missions.html" class="btn btn-quiet btn-sm">View Missions<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                    </div>
+                    <ol class="rail" aria-label="Knowledge Checks">
+                        <li class="mission-row" data-state="completed">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <div class="mission-body">
+                                <span class="mission-id">KC 01</span>
+                                <span class="mission-text">
+                                    <span class="mission-title">Knowledge Check: HTML</span>
+                                    <span class="mission-desc">10 questions · ~5 min</span>
+                                    <span class="mission-note">Required for the course. Completed 9 / 10.</span>
+                                </span>
+                                <div class="mission-foot">
+                                    <span class="mission-meta"><span class="mission-xp">9 / 10</span></span>
+                                    <span class="mission-action">
+                                        <span class="mission-state">Completed</span>
+                                        <a href="missions.html?q=KC%2001" class="btn btn-quiet btn-sm">View Record<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mission-row" data-state="locked">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <div class="mission-body">
+                                <span class="mission-id">KC 02</span>
+                                <span class="mission-text">
+                                    <span class="mission-title">Knowledge Check: Box Model</span>
+                                    <span class="mission-desc">5 questions · ~4 min</span>
+                                    <span class="mission-note">Complete M2.4 to M2.6 to unlock.</span>
+                                </span>
+                                <div class="mission-foot">
+                                    <span class="mission-meta"><span class="mission-xp">Not attempted</span></span>
+                                    <span class="mission-action">
+                                        <span class="mission-state">Locked</span>
+                                        <a href="knowledge-check.html?state=locked" class="btn btn-quiet btn-sm">View Requirements<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
+                </section>
+
+                <!-- The capstone gets more room than a Knowledge Check without
+                     turning into a hero. Dashed edge is the locked language
+                     used for the Boss Challenge in the Learning Path. It sits
+                     outside the rail so it lines up with the sections and
+                     reads as a step up rather than another list row. -->
+                <section class="mt-8" aria-labelledby="boss-title">
+                    <div class="panel border-dashed px-4 py-5 md:px-6">
+                        <div class="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+                            <div class="min-w-0 flex-1 basis-80">
+                                <p class="eyebrow flex items-center gap-1.5 text-fg-muted">
+                                    <svg class="size-3.5" aria-hidden="true"><use href="#i-shield" /></svg>Boss Challenge · Locked
+                                </p>
+                                <h2 id="boss-title" class="mt-1.5 text-lg font-semibold text-balance">Frontend Fundamentals Capstone</h2>
+                                <p class="mt-1 text-[15px] text-fg-muted">Ship a responsive profile page</p>
+                            </div>
+                            <span class="font-mono text-2xs text-fg-subtle">+100 XP</span>
+                        </div>
+                        <p class="mt-3 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                            A capstone assessment that combines the skills developed across the course into one integrated programming task. It draws on your mission work, your Knowledge Check results, and the competencies you have built.
+                        </p>
+                        <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-subtle">
+                            Complete all required course missions to become eligible for the final integrated challenge. The server determines access.
+                        </p>
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+                            <a href="boss-challenge.html" class="btn btn-secondary">View Boss Challenge<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                            <span class="text-[13px] text-fg-subtle">Not yet available</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sequence rather than inventory: where the student sits in
+                     the order, and what each step is waiting on. -->
+                <section class="mt-8 border-y border-line py-5" aria-labelledby="progression-title">
+                    <h2 id="progression-title" class="text-lg font-semibold">Assessment progression</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">This course preview places Knowledge Checks between sections and the Boss Challenge after the required missions.</p>
+                    <ol class="rail mt-4" aria-label="Assessment progression, earliest first">
+                        <li data-state="completed" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <p class="eyebrow">Step 1 · Complete</p>
+                            <p class="mt-1 text-sm"><span class="mr-2 font-mono text-2xs text-fg-subtle">KC 01</span>Knowledge Check: HTML</p>
+                            <p class="mt-1 text-[13px] text-fg-muted">9 / 10. Section 01 complete; Section 02 is now in progress.</p>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <p class="eyebrow">Step 2 · Locked</p>
+                            <p class="mt-1 text-sm"><span class="mr-2 font-mono text-2xs text-fg-subtle">KC 02</span>Knowledge Check: Box Model</p>
+                            <p class="mt-1 text-[13px] text-fg-subtle">Not attempted. Needs M2.4, M2.5, and M2.6 complete.</p>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <p class="eyebrow">Step 3 · Locked</p>
+                            <p class="mt-1 text-sm"><span class="mr-2 font-mono text-2xs text-fg-subtle">Sections 03 &amp; 04</span>Layout with Flexbox, then JavaScript Fundamentals</p>
+                            <p class="mt-1 text-[13px] text-fg-subtle">Open after passing KC 02, then after Section 03.</p>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <p class="eyebrow">Step 4 · Locked</p>
+                            <p class="mt-1 text-sm"><span class="mr-2 font-mono text-2xs text-fg-subtle">Boss</span>Frontend Fundamentals Capstone</p>
+                            <p class="mt-1 text-[13px] text-fg-subtle">Unlocks after Section 04.</p>
+                        </li>
+                    </ol>
+                    <p class="mt-3 text-[13px] leading-6 text-fg-subtle">This chain shows illustrative course progression, not an eligibility calculation. The server unlocks an active Boss Challenge after all required course missions are complete and course access is granted. Knowledge Checks do not replace practical mission completion.</p>
+                </section>
+
+                <section class="mt-7" aria-labelledby="requirement-title">
+                    <h2 id="requirement-title" class="text-lg font-semibold">Current requirement</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                        The Boss Challenge is locked, so the next Knowledge Check in your path is KC 02. That needs the rest of Section 02. M2.4 is in progress with a saved draft, M2.5 is available, and M2.6 opens after M2.5.
+                    </p>
+                    <dl class="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 border-y border-line py-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm text-fg-muted">Next assessment</dt>
+                            <dd class="mt-1 text-sm font-medium">KC 02 · Knowledge Check: Box Model</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-fg-muted">Needs first</dt>
+                            <dd class="mt-1 text-sm font-medium">M2.4, M2.5, and M2.6 complete</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-fg-muted">Current mission</dt>
+                            <dd class="mt-1 text-sm font-medium">M2.4 · In Progress</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-fg-muted">Course progress</dt>
+                            <dd class="mt-1 text-sm font-medium"><span class="font-mono">9 of 29</span> missions · 31%</dd>
+                        </div>
+                    </dl>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="learn.html" class="btn btn-secondary">View Learning Path</a>
+                    </div>
+                </section>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype note</span>Fixed mock student data. No assessment records are loaded, submitted, or changed. This view does not unlock the Boss Challenge, record attempts, or award XP.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="assessments.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="assessments.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="assessments.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                    <li><a href="assessments.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                </ul>
+                <p class="mt-2 text-[13px] text-fg-subtle">The Boss Challenge detail has its own preview states, including the locked default.</p>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="boss-challenge.html" class="btn btn-quiet btn-sm">Boss Challenge · Locked</a></li>
+                </ul>
+            </section>
+        </main>
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./assessments.js"></script>
+    </body>
+</html>

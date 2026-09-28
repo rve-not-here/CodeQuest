@@ -286,6 +286,8 @@ function setState(next, { focusQuestion = null, push = true } = {}) {
         next = score().passed ? 'passed' : 'failed';
     }
     state = next;
+    $('[data-attempt-label]').textContent = next === 'locked' ? 'Status' : 'Attempt';
+    $('[data-attempt-value]').textContent = next === 'locked' ? 'Locked / Not attempted' : '1';
     const shown = PANELS_FOR[next] ?? ['answering'];
 
     for (const panel of panels) {

@@ -58,6 +58,8 @@ export default defineConfig({
                 competency: resolve(root, 'competency.html'),
                 progress: resolve(root, 'progress.html'),
                 challenge: resolve(root, 'challenge.html'),
+                assessments: resolve(root, 'assessments.html'),
+                'boss-challenge': resolve(root, 'boss-challenge.html'),
                 system: resolve(root, 'design-system.html'),
             },
         },
