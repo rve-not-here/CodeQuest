@@ -693,6 +693,17 @@
             @apply min-h-11;
         }
     }
+
+    /* Keep Progress actions practical on touch screens without changing other pages. */
+    .student-progress #course-title {
+        scroll-margin-top: 5rem;
+    }
+    @media (width < 40rem) {
+        .student-progress .btn {
+            @apply min-h-11;
+        }
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Your Progress · CodeQuest</title>
+        <meta name="description" content="Your course progress, current work, section completion, and next learning step." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- @include header active="learn" -->
+
+        <main id="main" class="student-progress mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Progress</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow">Progress / Frontend Fundamentals</p>
+                <h1 class="mt-1.5 text-2xl font-semibold tracking-tight md:text-3xl">Your Progress</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Track what you've completed, where you're working now, and what unlocks next.</p>
+            </header>
+
+            <section data-state-panel="loading" class="mt-6" hidden aria-label="Loading progress">
+                <p role="status" class="text-sm text-fg-muted">Loading your progress…</p>
+                <div class="mt-4" aria-busy="true" aria-hidden="true">
+                    <div class="panel p-5"><div class="skeleton h-4 w-48"></div><div class="skeleton mt-4 h-2 w-full"></div><div class="skeleton mt-4 h-9 w-36"></div></div>
+                    <div class="mt-6 grid gap-4"><div class="skeleton h-20 w-full"></div><div class="skeleton h-20 w-full"></div><div class="skeleton h-20 w-full"></div></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">Couldn't load your progress.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Your learning record is unchanged. Try loading this view again.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <section data-state-panel="empty" class="panel mt-6 px-5 py-12" hidden aria-labelledby="empty-title">
+                <p class="eyebrow">Your learning journey</p>
+                <h2 id="empty-title" class="mt-2 text-lg font-semibold">No progress yet</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Start your first mission to begin building your course progress.</p>
+                <a href="learn.html#section-01" class="btn btn-primary mt-4">Start Learning<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">New-student state preview. The Learning Path uses the established student scenario and shows the first section's missions.</p>
+            </section>
+
+            <div data-state-panel="default" class="mt-6">
+                <section class="panel p-5 md:p-6" aria-labelledby="course-title">
+                    <div class="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
+                        <div class="min-w-0 flex-1 basis-80">
+                            <h2 id="course-title" tabindex="-1" class="text-lg font-semibold">Frontend Fundamentals</h2>
+                            <div class="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                                <p class="text-sm text-fg-muted"><span class="font-mono text-fg">9 of 29</span> missions complete</p>
+                                <p class="font-mono text-sm text-fg">31% <span class="text-xs text-fg-subtle">course progress</span></p>
+                            </div>
+                            <div class="progress mt-3" role="progressbar" aria-label="Frontend Fundamentals course progress" aria-valuemin="0" aria-valuemax="29" aria-valuenow="9" aria-valuetext="9 of 29 missions complete, 31 percent"><span style="width: 31%"></span></div>
+                            <p class="mt-3 text-sm text-fg-muted">Current: <span class="font-mono text-fg">M2.4</span> · CSS Selectors and the Box Model</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                            <a href="learn.html" class="btn btn-secondary">View Learning Path</a>
+                        </div>
+                    </div>
+                    <ul aria-label="Mission status summary" class="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-line pt-4 text-sm text-fg-muted">
+                        <li><span class="mr-1 font-mono text-fg">9</span> Completed</li>
+                        <li><span class="mr-1 font-mono text-fg">1</span> In Progress</li>
+                        <li><span class="mr-1 font-mono text-fg">19</span> Not started</li>
+                    </ul>
+                    <p class="mt-2 text-[13px] text-fg-subtle">Mission counts exclude Knowledge Checks and the Boss Challenge.</p>
+                </section>
+
+                <section class="mt-6 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6" aria-labelledby="current-title">
+                    <div class="min-w-0 flex-1 basis-80">
+                        <h2 id="current-title" class="eyebrow">Current work</h2>
+                        <p class="mt-2 text-[15px] font-medium"><span class="mr-2 font-mono text-xs text-accent">M2.4</span>Build a profile card with the box model</p>
+                        <p class="mt-1.5 flex items-center gap-2 text-sm text-fg-muted"><svg class="size-3.5 text-accent" aria-hidden="true"><use href="#i-play" /></svg>In Progress · Draft saved</p>
+                    </div>
+                    <a href="challenge.html" class="btn btn-secondary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                </section>
+
+                <div class="mt-7 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+                    <section aria-labelledby="sections-title">
+                        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                            <h2 id="sections-title" class="text-lg font-semibold">Section progress</h2>
+                            <a href="missions.html" class="btn btn-quiet btn-sm">View Missions<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                        </div>
+                        <ol class="rail panel px-4 py-2 md:px-5" aria-label="Course sections">
+                            <li data-state="completed" class="py-4">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                                <p class="eyebrow">Section 01 · Completed</p>
+                                <h3 class="mt-1 text-[15px] font-medium">HTML Document Structure</h3>
+                                <p class="mt-2 font-mono text-xs text-fg-muted">6 / 6 missions complete</p>
+                                <div class="progress mt-2" role="progressbar" aria-label="HTML Document Structure mission completion" aria-valuemin="0" aria-valuemax="6" aria-valuenow="6"><span style="width: 100%"></span></div>
+                                <p class="mt-2 text-[13px] text-fg-subtle">KC 01 completed · 9 / 10</p>
+                            </li>
+                            <li data-state="current" class="border-t border-line py-4" aria-current="step">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-play" /></svg></span>
+                                <p class="eyebrow text-accent">Section 02 · In Progress</p>
+                                <h3 class="mt-1 text-[15px] font-semibold">CSS Selectors and the Box Model</h3>
+                                <p class="mt-2 font-mono text-xs text-fg-muted">3 / 6 missions complete</p>
+                                <div class="progress mt-2" role="progressbar" aria-label="CSS Selectors and the Box Model mission completion" aria-valuemin="0" aria-valuemax="6" aria-valuenow="3"><span style="width: 50%"></span></div>
+                                <p class="mt-2 text-[13px] leading-6 text-fg-muted">M2.4 in progress. KC 02 locked until M2.4, M2.5, and M2.6 are complete.</p>
+                            </li>
+                            <li data-state="locked" class="border-t border-line py-4">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                                <p class="eyebrow">Section 03 · Locked</p>
+                                <h3 class="mt-1 text-[15px] font-medium text-fg-muted">Layout with Flexbox</h3>
+                                <p class="mt-2 font-mono text-xs text-fg-subtle">0 / 7 missions complete</p>
+                                <div class="progress mt-2" role="progressbar" aria-label="Layout with Flexbox mission completion" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><span style="width: 0%"></span></div>
+                                <p class="mt-2 text-[13px] leading-6 text-fg-subtle">Unlocks after passing Knowledge Check: Box Model.</p>
+                            </li>
+                            <li data-state="locked" class="border-t border-line py-4">
+                                <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                                <p class="eyebrow">Section 04 · Locked</p>
+                                <h3 class="mt-1 text-[15px] font-medium text-fg-muted">JavaScript Fundamentals</h3>
+                                <p class="mt-2 font-mono text-xs text-fg-subtle">0 / 10 missions complete</p>
+                                <div class="progress mt-2" role="progressbar" aria-label="JavaScript Fundamentals mission completion" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><span style="width: 0%"></span></div>
+                                <p class="mt-2 text-[13px] leading-6 text-fg-subtle">Unlocks after Section 03.</p>
+                            </li>
+                        </ol>
+                    </section>
+
+                    <div class="min-w-0">
+                        <section aria-labelledby="upcoming-title">
+                            <h2 id="upcoming-title" class="text-lg font-semibold">Coming next</h2>
+                            <ul class="mt-3 divide-y divide-line border-y border-line">
+                                <li class="py-3.5">
+                                    <p class="text-sm font-medium"><span class="mr-2 font-mono text-xs text-fg-subtle">M2.5</span>Margin collapse and spacing</p>
+                                    <p class="mt-1.5 flex items-center gap-2 text-[13px] text-fg-muted"><svg class="size-3 text-info" aria-hidden="true"><use href="#i-circle" /></svg>Available</p>
+                                    <p class="mt-1 text-[13px] leading-6 text-fg-subtle">The Mission Browser shows this as available. Its workspace is not implemented in this prototype.</p>
+                                </li>
+                                <li class="py-3.5">
+                                    <p class="text-sm font-medium"><span class="mr-2 font-mono text-xs text-fg-subtle">M2.6</span>box-sizing and predictable widths</p>
+                                    <p class="mt-1.5 flex items-center gap-2 text-[13px] text-fg-muted"><svg class="size-3 text-fg-subtle" aria-hidden="true"><use href="#i-lock" /></svg>Locked</p>
+                                    <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Complete M2.4 and M2.5 to unlock.</p>
+                                </li>
+                            </ul>
+                        </section>
+                        <section class="mt-6" aria-labelledby="assessments-title">
+                            <h2 id="assessments-title" class="text-lg font-semibold">Knowledge Checks &amp; assessments</h2>
+                            <p class="mt-1 text-[13px] leading-6 text-fg-subtle">1 Knowledge Check completed. KC 02 has not been attempted.</p>
+                            <ul class="mt-3 divide-y divide-line border-y border-line">
+                                <li class="py-3.5">
+                                    <p class="text-sm font-medium"><span class="mr-2 font-mono text-xs text-fg-subtle">KC 01</span>Knowledge Check: HTML</p>
+                                    <p class="mt-1.5 text-[13px] text-fg-muted">Completed · 9 / 10</p>
+                                    <a href="missions.html?q=KC%2001" class="btn btn-quiet btn-sm mt-2">View KC 01 Record<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                                </li>
+                                <li class="py-3.5">
+                                    <p class="text-sm font-medium"><span class="mr-2 font-mono text-xs text-fg-subtle">KC 02</span>Knowledge Check: Box Model</p>
+                                    <p class="mt-1.5 text-[13px] text-fg-muted">Locked / Not attempted</p>
+                                    <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Complete M2.4, M2.5, and M2.6 to unlock.</p>
+                                    <a href="knowledge-check.html?state=locked" class="btn btn-quiet btn-sm mt-2">View KC 02 Requirements<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                                </li>
+                                <li class="py-3.5">
+                                    <p class="eyebrow">Boss Challenge · Locked</p>
+                                    <p class="mt-1 text-sm font-medium text-fg-muted">Ship a responsive profile page</p>
+                                    <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Not yet available. Unlocks after Section 04.</p>
+                                </li>
+                            </ul>
+                        </section>
+                    </div>
+                </div>
+
+                <section class="mt-8 border-y border-line py-5" aria-labelledby="competency-title">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 id="competency-title" class="text-lg font-semibold">Competency snapshot</h2>
+                        <a href="competency.html" class="btn btn-quiet btn-sm">View Competencies<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                    </div>
+                    <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div><dt class="text-sm text-fg-muted">HTML Structure</dt><dd class="mt-1 text-sm font-medium">Proficient</dd></div>
+                        <div><dt class="text-sm text-fg-muted">CSS Selectors</dt><dd class="mt-1 text-sm font-medium">On Track</dd></div>
+                        <div><dt class="text-sm text-fg-muted">Box Model</dt><dd class="mt-1 text-sm font-medium">On Track</dd></div>
+                        <div><dt class="text-sm text-fg-muted">Responsive Layout</dt><dd class="mt-1 text-sm font-medium text-warning">Developing</dd></div>
+                    </dl>
+                    <p class="mt-3 text-[13px] leading-6 text-fg-subtle">Illustrative competency statuses from the prototype profile. These are not calculated from course completion.</p>
+                </section>
+
+                <section class="mt-7" aria-labelledby="activity-title">
+                    <h2 id="activity-title" class="text-lg font-semibold">Recent learning activity</h2>
+                    <ol class="rail mt-3" aria-label="Recent activity, newest first">
+                        <li data-state="current" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-code" /></svg></span>
+                            <p class="eyebrow">Most recent</p>
+                            <p class="mt-1 text-sm">Draft saved on <span class="font-mono text-xs">M2.4</span>, Build a profile card with the box model</p>
+                        </li>
+                        <li data-state="completed" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <p class="eyebrow">Earlier</p>
+                            <p class="mt-1 text-sm">Completed <span class="font-mono text-xs">M2.3</span>, Padding and borders</p>
+                        </li>
+                        <li data-state="completed" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-quiz" /></svg></span>
+                            <p class="eyebrow">Earlier</p>
+                            <p class="mt-1 text-sm">Passed <span class="font-mono text-xs">KC 01</span>, Knowledge Check: HTML, with <span class="font-mono text-xs">9 / 10</span></p>
+                        </li>
+                    </ol>
+                </section>
+
+                <section class="mt-7 border-t border-line pt-5" aria-labelledby="next-title">
+                    <h2 id="next-title" class="text-lg font-semibold">What's next</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">Complete the remaining Box Model missions to unlock Knowledge Check: Box Model. Continue your saved work on M2.4.</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="learn.html" class="btn btn-secondary">View Learning Path</a>
+                    </div>
+                </section>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype note</span>Fixed mock student data. No live records are loaded or updated. This view does not change mission progress, assessments, competency, or XP.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="progress.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="progress.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="progress.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                    <li><a href="progress.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                </ul>
+            </section>
+        </main>
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./progress.js"></script>
+    </body>
+</html>

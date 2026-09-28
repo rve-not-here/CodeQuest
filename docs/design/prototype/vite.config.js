@@ -56,6 +56,7 @@ export default defineConfig({
                 missions: resolve(root, 'missions.html'),
                 'knowledge-check': resolve(root, 'knowledge-check.html'),
                 competency: resolve(root, 'competency.html'),
+                progress: resolve(root, 'progress.html'),
                 challenge: resolve(root, 'challenge.html'),
                 system: resolve(root, 'design-system.html'),
             },
