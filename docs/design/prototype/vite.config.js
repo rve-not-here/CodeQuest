@@ -64,6 +64,8 @@ export default defineConfig({
                 achievements: resolve(root, 'achievements.html'),
                 notifications: resolve(root, 'notifications.html'),
                 recommendations: resolve(root, 'recommendations.html'),
+                timeline: resolve(root, 'timeline.html'),
+                'xp-ledger': resolve(root, 'xp-ledger.html'),
                 system: resolve(root, 'design-system.html'),
             },
         },
