@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Recommendations · CodeQuest</title>
+        <meta name="description" content="What to work on next in Frontend Fundamentals, with the reason behind each suggestion." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- Recommendations live in the profile menu, not the top nav, so no
+             destination is marked current. Same as design-system.html. -->
+        <!-- @include header -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 max-sm:[&_.btn]:min-h-11 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Recommendations</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow">Recommendations / Next steps</p>
+                <h1 id="recommendations-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight md:text-3xl">What to work on next</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Suggestions drawn from the progress already on this page, each one with the reason behind it.</p>
+            </header>
+
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading recommendations">
+                <p role="status" class="text-sm text-fg-muted">Loading the suggestions preview…</p>
+                <div class="mt-4" aria-hidden="true">
+                    <div class="skeleton h-32 w-full"></div>
+                    <div class="skeleton mt-3 h-20 w-full"></div>
+                    <div class="skeleton mt-2 h-20 w-full"></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">This prototype couldn't display the recommendation state.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">The page did not render its suggestions. Your learning record is unchanged.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <section data-state-panel="empty" class="panel mt-6 px-5 py-12" hidden aria-labelledby="empty-title">
+                <span class="grid size-9 place-items-center border border-line-strong text-locked" aria-hidden="true">
+                    <svg class="size-4"><use href="#i-compass" /></svg>
+                </span>
+                <p class="eyebrow mt-3">Next steps</p>
+                <h2 id="empty-title" class="mt-1.5 text-lg font-semibold">No recommendations yet</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Start learning to build enough progress for useful next-step suggestions.</p>
+                <a href="learn.html" class="btn btn-primary mt-4">Start Learning<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">New-student state preview. No suggestions are generated for an empty record.</p>
+            </section>
+
+            <div data-state-panel="default" class="mt-6">
+                <!-- Primary. Accent edge and larger type so it wins without
+                     needing its own card style. -->
+                <section class="panel border-l-2 border-l-accent px-4 py-5 md:px-6" aria-labelledby="primary-title">
+                    <p class="eyebrow flex items-center gap-1.5 text-accent">
+                        <svg class="size-3.5" aria-hidden="true"><use href="#i-compass" /></svg>Do this next
+                    </p>
+                    <h2 id="primary-title" class="mt-2 text-xl font-semibold tracking-tight text-balance">
+                        Continue <span class="font-mono text-base font-medium text-accent">M2.4</span> Build a profile card with the box model
+                    </h2>
+                    <p class="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-fg-muted">
+                        <span class="flex items-center gap-1.5 text-accent"><svg class="size-3.5" aria-hidden="true"><use href="#i-play" /></svg>In Progress</span>
+                        <span>Draft saved</span>
+                    </p>
+                    <div class="mt-4 max-w-[62ch] border-l-2 border-line-strong pl-3.5">
+                        <p class="eyebrow">Why this</p>
+                        <p class="mt-1 text-sm leading-6 text-fg-muted">You already started this mission and have a saved draft. Continuing your current mission keeps you moving through Section 02.</p>
+                    </div>
+                    <p class="mt-4 flex flex-wrap gap-2">
+                        <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="progress.html" class="btn btn-secondary">View Progress</a>
+                    </p>
+                </section>
+
+                <section class="mt-8" aria-labelledby="next-title">
+                    <h2 id="next-title" class="text-lg font-semibold">After that</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">The next available mission and optional records to review. Continue M2.4 first.</p>
+                    <ul class="mt-4 grid gap-3">
+                        <li class="panel px-4 py-4 md:px-5">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <p class="eyebrow">Next available mission</p>
+                                <span class="badge badge-accent">Available</span>
+                            </div>
+                            <p class="mt-2 text-[15px] font-medium"><span class="mr-2 font-mono text-xs text-fg-subtle">M2.5</span>Margin collapse and spacing</p>
+                            <p class="mt-1 text-[13px] leading-5 text-fg-muted">Apply margins without unexpected spacing.</p>
+                            <div class="mt-3 max-w-[62ch] border-l-2 border-line-strong pl-3.5">
+                                <p class="eyebrow">Why this</p>
+                                <p class="mt-1 text-sm leading-6 text-fg-muted">This mission is currently available and follows M2.4 in Section 02.</p>
+                            </div>
+                            <p class="mt-3"><a href="missions.html?q=M2.5" class="btn btn-secondary btn-sm">View in Missions<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                        </li>
+                        <li class="panel px-4 py-4 md:px-5">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <p class="eyebrow">Review</p>
+                                <span class="badge badge-neutral">Box Model</span>
+                            </div>
+                            <p class="mt-2 text-[15px] font-medium">Box Model competency</p>
+                            <div class="mt-3 max-w-[62ch] border-l-2 border-line-strong pl-3.5">
+                                <p class="eyebrow">Why this</p>
+                                <p class="mt-1 text-sm leading-6 text-fg-muted">Your current section and mission focus on Box Model skills.</p>
+                            </div>
+                            <p class="mt-3"><a href="competency.html" class="btn btn-quiet btn-sm">Open Competency<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                        </li>
+                        <li class="panel px-4 py-4 md:px-5">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <p class="eyebrow">Review</p>
+                                <span class="badge badge-accent">Completed</span>
+                            </div>
+                            <p class="mt-2 text-[15px] font-medium"><span class="mr-2 font-mono text-xs text-fg-subtle">KC 01</span>Knowledge Check: HTML</p>
+                            <p class="mt-1 text-[13px] leading-5 text-fg-muted">Passed with <span class="font-mono text-fg">9 / 10</span>.</p>
+                            <div class="mt-3 max-w-[62ch] border-l-2 border-line-strong pl-3.5">
+                                <p class="eyebrow">Why this</p>
+                                <p class="mt-1 text-sm leading-6 text-fg-muted">You completed Knowledge Check: HTML with 9 / 10. Review its recorded result; this link does not start a retake.</p>
+                            </div>
+                            <p class="mt-3"><a href="missions.html?q=KC%2001" class="btn btn-quiet btn-sm">View Record<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mt-8" aria-labelledby="later-title">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <h2 id="later-title" class="text-lg font-semibold">Coming later</h2>
+                        <span class="badge badge-locked text-fg-muted!">Locked</span>
+                    </div>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">Not something to start now. Listed so you can see what the current work is leading toward.</p>
+                    <ul class="rail mt-4">
+                        <li data-state="locked" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium text-fg-muted">
+                                <span class="font-mono text-xs text-fg-subtle">KC 02</span>Knowledge Check: Box Model
+                                <span class="badge badge-locked text-fg-muted!"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Not attempted. Continue the current section to progress toward this assessment. The prototype shows M2.4, M2.5, and M2.6 as its remaining requirements.</p>
+                            <p class="mt-2"><a href="assessments.html" class="btn btn-quiet btn-sm">See what it needs<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype note</span>Prototype recommendations are derived from the progress shown in this demo. These fixed suggestions are not scored, generated by a personalization engine, or stored.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="recommendations.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="recommendations.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="recommendations.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                    <li><a href="recommendations.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                </ul>
+            </section>
+        </main>
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./recommendations.js"></script>
+    </body>
+</html>

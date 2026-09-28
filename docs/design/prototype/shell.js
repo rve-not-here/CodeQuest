@@ -42,6 +42,13 @@ menu?.addEventListener('keydown', (event) => {
         return;
     }
 
+    if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        const links = menuLinks();
+        links[event.key === 'Home' ? 0 : links.length - 1]?.focus();
+        return;
+    }
+
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         const links = menuLinks();

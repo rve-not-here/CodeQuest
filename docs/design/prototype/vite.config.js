@@ -62,6 +62,8 @@ export default defineConfig({
                 'boss-challenge': resolve(root, 'boss-challenge.html'),
                 activity: resolve(root, 'activity.html'),
                 achievements: resolve(root, 'achievements.html'),
+                notifications: resolve(root, 'notifications.html'),
+                recommendations: resolve(root, 'recommendations.html'),
                 system: resolve(root, 'design-system.html'),
             },
         },
