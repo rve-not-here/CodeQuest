@@ -601,6 +601,98 @@
             @apply min-h-11;
         }
     }
+
+    /*
+     * ── Competency ─────────────────────────────────────────────
+     * The two-column split is declared here rather than as a
+     * `lg:grid-cols-*` utility. A utility lives in Tailwind's `utilities`
+     * cascade layer, which is emitted after `components` and would beat
+     * any override written in this layer.
+     */
+    .competency-layout {
+        @apply grid grid-cols-1 items-start gap-6;
+    }
+    @media (width >= 64rem) {
+        .competency-layout {
+            grid-template-columns: 21rem minmax(0, 1fr);
+        }
+    }
+
+    /* One row is one button. Selection is marked by a left edge, a raised
+       surface and bolder text, so it never rests on colour alone. */
+    .competency-row {
+        @apply flex w-full cursor-pointer flex-col gap-2 border-l-2 border-transparent px-4 py-3.5 text-left transition-colors hover:bg-raised;
+    }
+    .competency-row:focus-visible {
+        @apply outline-2 outline-offset-[-2px] outline-accent;
+    }
+    .competency-row[aria-current='true'] {
+        @apply border-l-accent bg-raised;
+    }
+    .competency-row[aria-current='true'] .competency-name {
+        @apply font-semibold text-fg;
+    }
+    .competency-row-head {
+        @apply flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5;
+    }
+    .competency-name {
+        @apply text-[15px] text-fg;
+    }
+    .competency-row-foot {
+        @apply flex flex-wrap items-center gap-x-3 gap-y-2;
+    }
+    .competency-row-foot .meter {
+        @apply w-24 shrink-0;
+    }
+
+    /* Evidence rows borrow the Mission Browser's compact rhythm without
+       copying it. The type word is always present, so the glyph is only a
+       second signal, and a row with no destination stays a div. */
+    .evidence-row {
+        @apply border-b border-line last:border-b-0;
+    }
+    .evidence-link {
+        @apply flex flex-wrap items-center gap-x-3 gap-y-2 px-1 py-2.5 transition-colors hover:bg-raised;
+    }
+    .evidence-link:focus-visible {
+        @apply outline-2 outline-offset-[-2px] outline-accent;
+    }
+    .evidence-type {
+        @apply grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle;
+    }
+    .evidence-text {
+        @apply flex min-w-0 flex-1 basis-40 flex-wrap items-baseline gap-x-2;
+    }
+    .evidence-id {
+        @apply font-mono text-2xs text-fg-subtle;
+    }
+    .evidence-title {
+        @apply min-w-0 text-sm text-fg;
+    }
+    .evidence-kind {
+        @apply font-mono text-2xs tracking-[0.04em] text-fg-subtle uppercase;
+    }
+    .evidence-row.is-pending .evidence-title,
+    .evidence-row.is-pending .evidence-kind {
+        @apply text-fg-subtle;
+    }
+
+    /* Contextual note inside the detail: current strength or needs
+       attention. Amber only where the student has somewhere to go. */
+    .competency-callout {
+        @apply mt-5 border-l-2 bg-raised py-3 pr-3 pl-3.5 text-left;
+    }
+    .competency-callout[data-tone='info'] {
+        @apply border-l-accent;
+    }
+    .competency-callout[data-tone='warning'] {
+        @apply border-l-warning;
+    }
+    @media (width < 40rem) {
+        main:has(.competency-layout) .btn {
+            @apply min-h-11;
+        }
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
