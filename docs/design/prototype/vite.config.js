@@ -60,6 +60,8 @@ export default defineConfig({
                 challenge: resolve(root, 'challenge.html'),
                 assessments: resolve(root, 'assessments.html'),
                 'boss-challenge': resolve(root, 'boss-challenge.html'),
+                activity: resolve(root, 'activity.html'),
+                achievements: resolve(root, 'achievements.html'),
                 system: resolve(root, 'design-system.html'),
             },
         },
