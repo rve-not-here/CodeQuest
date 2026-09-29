@@ -3,6 +3,7 @@
 @source '../views/dashboard.blade.php';
 @source '../views/learning-path.blade.php';
 @source '../views/missions-index.blade.php';
+@source '../views/lesson.blade.php';
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';

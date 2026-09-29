@@ -241,6 +241,7 @@ class MissionController extends Controller
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $this->missions->isCompleted($user, $mission),
+            'totalXp' => $this->xp->balance($user),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
             'knowledgeChecks' => $this->knowledgeChecks->lessonSummaries($user, $mission),
             'outstandingRequiredCheck' => $this->knowledgeChecks->firstOutstandingRequired($user, $mission),

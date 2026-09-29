@@ -13,7 +13,7 @@
         <nav aria-label="Primary" class="hidden md:block">
             <ul class="flex items-center">
                 <li><a href="{{ route('dashboard') }}" class="nav-link" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
-                <li><a href="{{ route('learning-path') }}" class="nav-link" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
+                <li><a href="{{ route('learning-path') }}" class="nav-link {{ $studentActiveRoute === 'mission.show' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
                 <li><a href="{{ route('missions') }}" class="nav-link" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
                 <li><a href="{{ route('assessments') }}" class="nav-link">Assessments</a></li>
             </ul>
@@ -42,7 +42,7 @@
                         <p class="eyebrow px-2.5 py-1">Navigate</p>
                         <ul class="grid grid-cols-2 gap-0.5">
                             <li><a href="{{ route('dashboard') }}" class="menu-item {{ $studentActiveRoute === 'dashboard' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
-                            <li><a href="{{ route('learning-path') }}" class="menu-item {{ $studentActiveRoute === 'learning-path' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
+                            <li><a href="{{ route('learning-path') }}" class="menu-item {{ in_array($studentActiveRoute, ['learning-path', 'mission.show'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
                             <li><a href="{{ route('missions') }}" class="menu-item {{ $studentActiveRoute === 'missions' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
                             <li><a href="{{ route('assessments') }}" class="menu-item">Assessments</a></li>
                         </ul>
