@@ -1,4 +1,4 @@
-@props(['recommendations', 'actionable' => true])
+@props(['recommendations', 'actionable' => true, 'variant' => 'default'])
 
 {{--
     Shared recommendation card rows (US-908). The single rendering of a
@@ -16,29 +16,35 @@
     anchor, href, form, or navigation target of any kind: the teacher
     surface is informational only and cannot forge student actions.
 --}}
-<div class="divide-y divide-phosphor-dim/40">
+<div class="{{ $variant === 'student' ? 'divide-y divide-line' : 'divide-y divide-phosphor-dim/40' }}">
     @foreach ($recommendations as $recommendation)
-        <div class="flex items-center gap-3 py-3">
-            <x-badge tone="{{ $recommendation['slot'] === 3 ? 'amber' : 'phosphor' }}">
-                PRIORITY {{ $recommendation['slot'] }}
-            </x-badge>
+        <div class="flex flex-wrap items-center gap-3 py-3">
+            @if ($variant === 'student')
+                <span class="badge {{ $recommendation['slot'] === 3 ? 'badge-warning' : 'badge-accent' }}">PRIORITY {{ $recommendation['slot'] }}</span>
+            @else
+                <x-badge tone="{{ $recommendation['slot'] === 3 ? 'amber' : 'phosphor' }}">PRIORITY {{ $recommendation['slot'] }}</x-badge>
+            @endif
             <div class="min-w-0">
-                <p class="font-body text-[15px] text-ink truncate">{{ $recommendation['title'] }}</p>
-                <p class="text-xs font-bold text-phosphor-dim truncate">{{ $recommendation['subtitle'] }}</p>
+                <p class="truncate text-[15px] {{ $variant === 'student' ? 'text-fg' : 'font-body text-ink' }}">{{ $recommendation['title'] }}</p>
+                <p class="truncate text-xs {{ $variant === 'student' ? 'text-fg-muted' : 'font-bold text-phosphor-dim' }}">{{ $recommendation['subtitle'] }}</p>
                 @if (! ($recommendation['accessible'] ?? true) && ($recommendation['locked_reason'] ?? null))
-                    <p class="text-xs text-amber truncate">{{ $recommendation['locked_reason'] }}</p>
+                    <p class="truncate text-xs {{ $variant === 'student' ? 'text-warning' : 'text-amber' }}">{{ $recommendation['locked_reason'] }}</p>
                 @endif
             </div>
             @if ($actionable && ($recommendation['accessible'] ?? true))
                 <a
                     href="{{ $recommendation['href'] }}"
-                    class="ml-auto shrink-0 text-sm font-bold border border-phosphor-dim text-phosphor hover:text-void hover:bg-phosphor px-3 py-1 rounded-[2px]"
+                    class="ml-auto shrink-0 {{ $variant === 'student' ? 'btn btn-secondary btn-sm' : 'rounded-[2px] border border-phosphor-dim px-3 py-1 text-sm font-bold text-phosphor hover:bg-phosphor hover:text-void' }}"
                 >
                     {{ $recommendation['cta'] }} →
                 </a>
             @elseif (($recommendation['accessible'] ?? true) === false)
                 <span class="ml-auto shrink-0">
-                    <x-badge tone="dim">LOCKED</x-badge>
+                    @if ($variant === 'student')
+                        <span class="badge badge-locked">LOCKED</span>
+                    @else
+                        <x-badge tone="dim">LOCKED</x-badge>
+                    @endif
                 </span>
             @endif
         </div>

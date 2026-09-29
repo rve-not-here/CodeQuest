@@ -60,6 +60,7 @@
             && ($role !== 'student' || in_array($item['route'] ?? null, ['dashboard', 'learning-path', 'notifications'], true)),
     ));
     $standalone = $standalone ?? false;
+    $studentPrototype = $studentPrototype ?? false;
 @endphp
 
 <!DOCTYPE html>
@@ -69,12 +70,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'CodeQuest') · CodeQuest</title>
+    @if ($studentPrototype)
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap">
+    @endif
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if ($studentPrototype)
+        @vite('resources/css/student.css')
+    @endif
 </head>
-<body class="bg-surface text-ink font-body min-h-screen">
+<body class="{{ $studentPrototype ? 'student-ui' : 'bg-surface text-ink font-body' }} min-h-screen">
     <div class="flex min-h-screen flex-col">
         @unless ($standalone)
+        @if ($studentPrototype)
+            @include('components.student-header')
+        @else
         <header class="cq-topnav sticky top-0 z-40" data-role="{{ $role }}" data-drawer-content>
             <div class="cq-topnav-inner mx-auto flex max-w-[1536px] items-center gap-4 px-4 md:px-6">
                 @if ($role !== 'student' && ! ($workspace ?? false))
@@ -172,6 +183,7 @@
                 </div>
             </div>
         </header>
+        @endif
         @endunless
 
         <div class="flex flex-1 min-w-0">
@@ -219,14 +231,14 @@
             </aside>
             @endif
 
-            <main class="min-w-0 flex-1 {{ $standalone ? 'w-full' : ($workspace ?? false ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7') }}" data-drawer-content>
-                <div class="{{ $standalone || ($workspace ?? false) ? '' : 'mx-auto w-full max-w-[1180px]' }}">
+            <main @if ($studentPrototype) id="main" @endif class="min-w-0 flex-1 {{ $studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : ($workspace ?? false ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}" data-drawer-content>
+                <div class="{{ $studentPrototype ? 'mx-auto w-full max-w-[1280px]' : ($standalone || ($workspace ?? false) ? '' : 'mx-auto w-full max-w-[1180px]') }}">
                     @yield('content')
                 </div>
             </main>
         </div>
 
-        @unless ($standalone || ($workspace ?? false))
+        @unless ($standalone || ($workspace ?? false) || $studentPrototype)
         <footer class="manual-footer" data-drawer-content>
             <p>CODEQUEST // SYSTEM 404 LEARNING NETWORK</p>
             <p>STATUS: ONLINE · ACCESS: {{ strtoupper($role) }}</p>

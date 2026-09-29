@@ -1,0 +1,28 @@
+@import '../../docs/design/prototype/styles.css';
+
+@source '../views/dashboard.blade.php';
+@source '../views/learning-path.blade.php';
+@source '../views/components/student-header.blade.php';
+@source '../views/components/recommendation-cards.blade.php';
+@source '../views/layouts/app.blade.php';
+
+body.student-ui {
+    background: var(--color-canvas);
+    background-image: none;
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+}
+
+body.student-ui h1,
+body.student-ui h2,
+body.student-ui h3,
+body.student-ui h4 {
+    font-family: var(--font-sans);
+    line-height: 1.25;
+}
+
+body.student-ui .student-account[open] > summary {
+    border-color: var(--color-line);
+    background: var(--color-raised);
+    color: var(--color-fg);
+}
