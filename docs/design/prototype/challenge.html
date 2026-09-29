@@ -29,7 +29,7 @@
                 <span class="badge badge-neutral hidden sm:inline-flex">+40 XP</span>
 
                 <div class="ml-auto flex items-center gap-1">
-                    <p class="mr-2 hidden items-center gap-1.5 font-mono text-2xs text-fg-subtle xl:flex" data-draft-status role="status"><svg class="size-3.5" aria-hidden="true"><use href="#i-save" /></svg>DRAFT SAVED 21:14</p>
+                    <p class="mr-2 hidden items-center gap-1.5 font-mono text-2xs text-fg-subtle xl:flex" data-draft-status role="status"><svg class="size-3.5" aria-hidden="true"><use href="#i-save" /></svg>DRAFT SAVED</p>
                     <button type="button" class="btn btn-ghost btn-sm btn-icon hidden lg:inline-flex" aria-pressed="true" aria-label="Show instructions pane" data-toggle-pane="instructions"><svg aria-hidden="true"><use href="#i-panel-left" /></svg></button>
                     <button type="button" class="btn btn-ghost btn-sm btn-icon hidden lg:inline-flex" aria-pressed="true" aria-label="Show output pane" data-toggle-pane="results"><svg aria-hidden="true"><use href="#i-panel-right" /></svg></button>
                 </div>
@@ -81,7 +81,7 @@
                             <details class="group mt-6 rounded-sm border border-line" data-hint>
                                 <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm font-medium text-fg-muted hover:text-fg [&::-webkit-details-marker]:hidden">
                                     <svg class="size-4 text-warning" aria-hidden="true"><use href="#i-bulb" /></svg>
-                                    Hint 1 of 2
+                                    Hint 1 · 5 XP
                                     <svg class="ml-auto size-4 transition-transform group-open:rotate-180" aria-hidden="true"><use href="#i-chevron-down" /></svg>
                                 </summary>
                                 <p class="border-t border-line px-3 py-3 text-sm leading-6 text-fg-muted">Your widths are measured from the content edge. Which property changes where <code class="code-inline">width</code> is measured from?</p>
@@ -90,34 +90,39 @@
                     </div>
                 </section>
 
-                <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize instructions pane" aria-controls="pane-instructions" aria-valuemin="18" aria-valuemax="40" aria-valuenow="26" tabindex="0" data-splitter="left"></div>
+                <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize instructions pane" aria-controls="pane-instructions" aria-valuemin="20" aria-valuemax="32" aria-valuenow="26" aria-valuetext="26 percent of workspace" tabindex="0" data-splitter="left"></div>
 
                 <!-- Editor: visual center of gravity -->
                 <section id="pane-code" aria-label="Code editor" class="ws-pane flex min-w-0 flex-1 flex-col bg-canvas" data-pane="code">
-                    <div class="flex h-10 shrink-0 items-end gap-px border-b border-line bg-surface px-2" role="tablist" aria-label="Files" data-tabs="files">
-                        <button type="button" role="tab" aria-selected="false" tabindex="-1" class="flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-3 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
-                            <svg class="size-3.5" aria-hidden="true"><use href="#i-file" /></svg>index.html<span class="text-2xs text-locked">read-only</span>
+                    <div class="flex h-12 shrink-0 items-end gap-px border-b border-line bg-surface px-2" role="tablist" aria-label="Files" data-tabs="files">
+                        <button type="button" role="tab" id="ft-html" aria-controls="file-html" aria-selected="false" tabindex="-1" class="flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-2 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
+                            <svg class="size-3.5" aria-hidden="true"><use href="#i-file" /></svg>index.html<span class="text-2xs text-locked hidden xl:inline">read-only</span>
                         </button>
-                        <button type="button" role="tab" aria-selected="true" class="-mb-px flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-3 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
+                        <button type="button" role="tab" id="ft-css" aria-controls="file-css" aria-selected="true" class="-mb-px flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-2 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
                             <svg class="size-3.5 text-info" aria-hidden="true"><use href="#i-file" /></svg>styles.css<span class="size-1.5 rounded-full bg-warning" aria-hidden="true"></span><span class="sr-only">(unsaved changes)</span>
                         </button>
                         <button type="button" class="btn btn-ghost btn-sm btn-icon mb-1 ml-auto" aria-label="Reset code to starter" data-reset><svg aria-hidden="true"><use href="#i-reset" /></svg></button>
                     </div>
 
-                    <div class="scrollbar-thin flex min-h-0 flex-1 overflow-auto font-mono text-[13px] leading-6 md:text-sm md:leading-6">
+                    <div id="file-css" role="tabpanel" aria-labelledby="ft-css" class="scrollbar-thin flex min-h-0 flex-1 overflow-auto font-mono text-[13px] leading-6 md:text-sm md:leading-6">
                         <ol class="sticky left-0 shrink-0 bg-canvas py-3 pr-3 pl-4 text-right text-locked select-none" aria-hidden="true">
                             <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li class="text-fg-muted">20</li><li>21</li><li>22</li>
                         </ol>
-                        <div class="min-w-0 flex-1 py-3 pr-6 text-fg whitespace-pre outline-none focus-visible:outline-none" contenteditable="true" spellcheck="false" autocapitalize="off" role="textbox" aria-multiline="true" aria-label="styles.css" data-editor><div><span class="tok-com">/* Profile card: make it exactly 320px wide */</span></div><div><br /></div><div><span class="tok-sel">.card</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">width</span><span class="tok-pun">:</span> <span class="tok-num">320px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">40px</span> <span class="tok-val">auto</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">padding</span><span class="tok-pun">:</span> <span class="tok-num">24px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">border</span><span class="tok-pun">:</span> <span class="tok-num">1px</span> <span class="tok-val">solid</span> <span class="tok-val">#d0d7de</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">border-radius</span><span class="tok-pun">:</span> <span class="tok-num">6px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">font-family</span><span class="tok-pun">:</span> <span class="tok-val">system-ui</span><span class="tok-pun">,</span> <span class="tok-val">sans-serif</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.card h2</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">0</span> <span class="tok-num">0</span> <span class="tok-num">8px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">font-size</span><span class="tok-pun">:</span> <span class="tok-num">20px</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.card p</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">0</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">color</span><span class="tok-pun">:</span> <span class="tok-val">#57606a</span><span class="tok-pun">;</span></div><div class="-mr-6 bg-raised">  <span class="tok-com">/* TODO: fix the width without changing 320px */</span></div><div><span class="tok-pun">}</span></div><div><br /></div></div>
+                        <div class="min-w-0 flex-1 py-3 pr-6 text-fg whitespace-pre focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-[-2px]" contenteditable="true" spellcheck="false" autocapitalize="off" role="textbox" aria-multiline="true" aria-label="styles.css" data-editor><div><span class="tok-com">/* Profile card: make it exactly 320px wide */</span></div><div><br /></div><div><span class="tok-sel">.card</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">width</span><span class="tok-pun">:</span> <span class="tok-num">320px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">40px</span> <span class="tok-val">auto</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">padding</span><span class="tok-pun">:</span> <span class="tok-num">24px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">border</span><span class="tok-pun">:</span> <span class="tok-num">1px</span> <span class="tok-val">solid</span> <span class="tok-val">#d0d7de</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">border-radius</span><span class="tok-pun">:</span> <span class="tok-num">6px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">font-family</span><span class="tok-pun">:</span> <span class="tok-val">system-ui</span><span class="tok-pun">,</span> <span class="tok-val">sans-serif</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.card h2</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">0</span> <span class="tok-num">0</span> <span class="tok-num">8px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">font-size</span><span class="tok-pun">:</span> <span class="tok-num">20px</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.card p</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">0</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">color</span><span class="tok-pun">:</span> <span class="tok-val">#57606a</span><span class="tok-pun">;</span></div><div class="-mr-6 bg-raised">  <span class="tok-com">/* TODO: fix the width without changing 320px */</span></div><div><span class="tok-pun">}</span></div><div><br /></div></div>
                     </div>
 
+                    <pre id="file-html" role="tabpanel" aria-labelledby="ft-html" tabindex="0" class="scrollbar-thin min-h-0 flex-1 overflow-auto p-4 font-mono text-sm leading-6" hidden><code>&lt;article class="card"&gt;
+  &lt;h2&gt;Maya Reyes&lt;/h2&gt;
+  &lt;p&gt;Frontend learner&lt;/p&gt;
+&lt;/article&gt;</code></pre>
+
                     <div class="flex h-7 shrink-0 items-center gap-4 border-t border-line bg-surface px-4 font-mono text-2xs text-fg-subtle">
-                        <span>CSS</span><span>LN 20, COL 49</span><span class="hidden sm:inline">SPACES: 2</span>
+                        <span>CSS</span><span>STATIC EDITOR</span><span class="hidden sm:inline">SPACES: 2</span>
                         <span class="ml-auto hidden md:inline"><span class="kbd">Ctrl</span> <span class="kbd">Enter</span> run</span>
                     </div>
                 </section>
 
-                <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize output pane" aria-controls="pane-results" aria-valuemin="20" aria-valuemax="44" aria-valuenow="28" tabindex="0" data-splitter="right"></div>
+                <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize output pane" aria-controls="pane-results" aria-valuemin="22" aria-valuemax="34" aria-valuenow="28" aria-valuetext="28 percent of workspace" tabindex="0" data-splitter="right"></div>
 
                 <!-- Output: Preview / Tests -->
                 <section id="pane-results" aria-label="Output" class="ws-pane flex min-w-0 shrink-0 flex-col bg-surface" data-pane="results">
@@ -132,18 +137,18 @@
                                 <svg class="size-4 animate-spin text-accent" aria-hidden="true"><use href="#i-loader" /></svg>
                                 <div>
                                     <p class="text-sm font-medium" data-running-label>Running 5 tests</p>
-                                    <p class="font-mono text-2xs text-fg-subtle">GRADER · CSS-BOX-MODEL-V2</p>
+                                    <p class="font-mono text-2xs text-fg-subtle">STATIC RESULTS PREVIEW</p>
                                 </div>
                             </div>
 
                             <div data-view="results">
                                 <div class="hidden border-b border-danger/35 bg-danger-soft px-4 py-3" data-submit-banner>
                                     <p class="flex items-center gap-2 text-sm font-semibold text-danger"><svg class="size-4" aria-hidden="true"><use href="#i-x" /></svg>Submission failed</p>
-                                    <p class="mt-1 text-[13px] leading-5 text-fg-muted">2 requirements still failing. Your draft is kept and no attempts are lost.</p>
+                                    <p class="mt-1 text-[13px] leading-5 text-fg-muted">2 requirements still failing. This is an example result. No submission is sent or recorded.</p>
                                 </div>
 
                                 <div class="flex items-center justify-between gap-3 px-4 py-3">
-                                    <p class="text-sm"><span class="font-medium text-fg">3 of 5 passing</span> <span class="text-fg-subtle" data-last-run>· last run 21:12</span></p>
+                                    <p class="text-sm"><span class="font-medium text-fg">3 of 5 passing</span> <span class="text-fg-subtle" data-last-run>· example result</span></p>
                                     <div class="flex h-1.5 w-20 gap-0.5" aria-hidden="true"><span class="flex-1 rounded-l-full bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-danger"></span><span class="flex-1 rounded-r-full bg-danger"></span></div>
                                 </div>
 
@@ -196,8 +201,10 @@
                 </section>
             </div>
 
+            <p class="shrink-0 border-t border-line bg-surface px-4 py-1 text-xs text-fg-subtle" role="status">Prototype workspace: results are examples; code, drafts, submissions and XP are not stored or updated.</p>
+
             <!-- Persistent action footer -->
-            <div class="flex h-14 shrink-0 items-center gap-2 border-t border-line bg-surface px-3 md:px-4">
+            <div class="flex h-16 shrink-0 items-center gap-2 border-t border-line bg-surface px-3 md:px-4">
                 <button type="button" class="btn btn-ghost" data-action="hint"><svg aria-hidden="true"><use href="#i-bulb" /></svg><span class="max-sm:sr-only">Hint</span></button>
                 <button type="button" class="btn btn-ghost" data-action="solution"><svg aria-hidden="true"><use href="#i-eye" /></svg><span class="max-sm:sr-only">Show Solution</span></button>
 
@@ -209,12 +216,12 @@
             </div>
         </main>
 
-        <dialog class="panel m-auto w-[min(26rem,calc(100vw-2rem))] bg-surface p-0 text-fg shadow-2xl shadow-black/60 backdrop:bg-black/60" aria-labelledby="solution-title" data-solution-dialog>
+        <dialog class="panel m-auto w-[min(26rem,calc(100vw-2rem))] bg-surface p-0 text-fg shadow-2xl shadow-black/60 backdrop:bg-black/60" aria-labelledby="solution-title" aria-describedby="solution-description" data-solution-dialog>
             <form method="dialog">
                 <div class="px-5 pt-5">
                     <p class="eyebrow flex items-center gap-1.5 text-warning"><svg class="size-3.5" aria-hidden="true"><use href="#i-alert" /></svg>Before you continue</p>
                     <h2 id="solution-title" class="mt-2 text-lg font-semibold">Show the solution?</h2>
-                    <p class="mt-2 text-sm leading-6 text-fg-muted">Showing the solution costs <span class="font-mono text-fg">30 XP</span>, recorded as a separate deduction. The mission still awards <span class="font-mono text-fg">+40 XP</span> when you complete it. Try Hint 2 first if you haven&apos;t.</p>
+                    <p id="solution-description" class="mt-2 text-sm leading-6 text-fg-muted">Showing the solution costs <span class="font-mono text-fg">30 XP</span>, recorded as a separate deduction. The mission still awards <span class="font-mono text-fg">+40 XP</span> when you complete it. Try the hint first if you haven&apos;t.</p>
                 </div>
                 <div class="mt-5 flex justify-end gap-2 border-t border-line px-5 py-3">
                     <button value="cancel" class="btn btn-ghost" autofocus>Keep trying</button>

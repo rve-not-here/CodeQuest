@@ -27,7 +27,7 @@ trigger?.addEventListener('click', () => {
 
 document.addEventListener('click', (event) => {
     if (panel && !panel.hidden && !menu.contains(event.target)) {
-        setMenuOpen(false);
+        setMenuOpen(false, { returnFocus: panel.contains(document.activeElement) });
     }
 });
 

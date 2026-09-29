@@ -18,7 +18,7 @@ function includePartials() {
         transformIndexHtml: {
             order: 'pre',
             handler(html) {
-                return html.replace(/<!--\s*@include\s+([\w-]+)(?:\s+active="([\w-]+)")?\s*-->/g, (_, name, active) => {
+                const expanded = html.replace(/<!--\s*@include\s+([\w-]+)(?:\s+active="([\w-]+)")?\s*-->/g, (_, name, active) => {
                     let partial = readFileSync(resolve(root, 'partials', `${name}.html`), 'utf8');
 
                     if (active) {
@@ -27,6 +27,9 @@ function includePartials() {
 
                     return partial;
                 });
+
+                // This standalone preview has no root favicon asset.
+                return expanded.replace('</head>', '<link rel="icon" href="data:," />\n</head>');
             },
         },
         handleHotUpdate({ file, server }) {

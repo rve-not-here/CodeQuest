@@ -18,9 +18,9 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 const params = new URLSearchParams(location.search);
 const requested = params.get('state');
-// An unrecognised value falls back to the normal question view rather than
+// An unrecognised value falls back to the canonical locked view rather than
 // rendering nothing.
-const initial = STATES.includes(requested) ? requested : 'question';
+const initial = STATES.includes(requested) ? requested : 'locked';
 
 const panels = $$('[data-state-panel]');
 const stateLinks = $$('[data-state-link]');
@@ -286,8 +286,13 @@ function setState(next, { focusQuestion = null, push = true } = {}) {
         next = score().passed ? 'passed' : 'failed';
     }
     state = next;
-    $('[data-attempt-label]').textContent = next === 'locked' ? 'Status' : 'Attempt';
-    $('[data-attempt-value]').textContent = next === 'locked' ? 'Locked / Not attempted' : '1';
+    const contextOnly = ['locked', 'loading', 'error'].includes(next);
+    $('[data-check-preview-note]').hidden = contextOnly;
+    $('[data-attempt-label]').textContent = contextOnly ? 'Status' : 'Preview attempt';
+    $('[data-attempt-value]').textContent = next === 'locked' ? 'Locked / Not attempted' : next === 'loading' ? 'Loading' : next === 'error' ? 'Unavailable' : '1';
+    if (push && contextOnly) {
+        $('#knowledge-check-title').focus();
+    }
     const shown = PANELS_FOR[next] ?? ['answering'];
 
     for (const panel of panels) {
@@ -346,7 +351,7 @@ function setState(next, { focusQuestion = null, push = true } = {}) {
     syncProgress();
 
     if (push) {
-        const url = next === 'question' ? location.pathname : `${location.pathname}?state=${next}`;
+        const url = next === 'locked' ? location.pathname : `${location.pathname}?state=${next}`;
         history.replaceState(null, '', url);
     }
 }

@@ -19,7 +19,7 @@
     --color-fg: #e4ebe7;
     --color-fg-muted: #a3b0a8;
     --color-fg-subtle: #7a877f;
-    --color-locked: #5d6a63;
+    --color-locked: #7a877f;
 
     --color-accent: #56db8e;
     --color-accent-strong: #3ecb78;
@@ -182,7 +182,7 @@
     }
 
     .menu-item {
-        @apply flex min-h-9 max-sm:min-h-10 items-center gap-2.5 rounded-sm px-2.5 text-sm text-fg-muted hover:bg-raised hover:text-fg focus-visible:bg-raised focus-visible:text-fg;
+        @apply flex min-h-9 max-sm:min-h-11 items-center gap-2.5 rounded-sm px-2.5 text-sm text-fg-muted hover:bg-raised hover:text-fg focus-visible:bg-raised focus-visible:text-fg;
     }
     .menu-item svg {
         @apply size-4 text-fg-subtle;
@@ -720,8 +720,8 @@
 
 /* Workspace: three panes ≥1024px, one tabbed pane below */
 .ws {
-    --left: 26rem;
-    --right: 28rem;
+    --left: 26%;
+    --right: 28%;
 }
 @media (width >= 64rem) {
     .ws-pane[data-pane='instructions'] {
@@ -752,5 +752,22 @@
     .scrollbar-thin {
         scrollbar-width: thin;
         scrollbar-color: var(--color-line-strong) transparent;
+    }
+}
+
+/* Mobile controls keep a 44px target; passive text links keep their rhythm. */
+@media (width < 40rem) {
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    .ws [role="tab"] {
+        min-height: 44px;
+    }
+    .ws [role="tablist"] {
+        min-height: 48px;
+    }
+    .btn-icon {
+        min-width: 44px;
     }
 }

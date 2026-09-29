@@ -83,7 +83,12 @@ function stateMatches(mission, wanted) {
 }
 
 function matches(mission) {
-    if (filters.q && !normalize(mission.dataset.search + ' ' + mission.querySelector('.mission-text').textContent).includes(normalize(filters.q))) {
+    const query = normalize(filters.q);
+    const identifierQuery = /^(?:m\d+\.\d+|kc\s+\d+)$/.test(query);
+    const searchable = identifierQuery
+        ? normalize(mission.querySelector('.mission-id').textContent)
+        : normalize(mission.dataset.search + ' ' + mission.querySelector('.mission-text').textContent);
+    if (query && (identifierQuery ? searchable !== query : !searchable.includes(query))) {
         return false;
     }
     return stateMatches(mission, filters.state) && (filters.topic === 'all' || mission.dataset.topic === filters.topic);
@@ -123,7 +128,7 @@ function apply() {
         const link = document.createElement('a');
         link.className = 'btn btn-secondary btn-sm';
         link.textContent = 'Start';
-        link.href = 'knowledge-check.html';
+        link.href = 'knowledge-check.html?state=question';
         link.setAttribute('aria-label', 'Start Knowledge Check 02, Box Model');
         checkAction.append(link);
     }

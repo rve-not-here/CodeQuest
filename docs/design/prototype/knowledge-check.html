@@ -34,7 +34,8 @@
                         <p class="eyebrow flex items-center gap-1.5 text-info">
                             <svg class="size-3.5" aria-hidden="true"><use href="#i-quiz" /></svg>Knowledge Check / KC 02
                         </p>
-                        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Knowledge Check: Box Model</h1>
+                        <h1 id="knowledge-check-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Knowledge Check: Box Model</h1>
+                        <p class="mt-2 text-[13px] text-fg-subtle" data-check-preview-note hidden>Prototype preview. KC 02 remains locked for this student; this example attempt changes no course records or XP.</p>
                         <p class="mt-2 max-w-[58ch] text-fg-muted text-pretty">Check your understanding before moving to the next section.</p>
                     </div>
                     <dl class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-fg-subtle">
@@ -92,7 +93,7 @@
                     <h2 class="text-[15px] font-medium text-fg" role="alert">Couldn&rsquo;t load this Knowledge Check</h2>
                     <p class="max-w-[46ch] text-sm leading-6 text-fg-muted">Nothing was submitted and no answers were lost. Try again.</p>
                     <div class="mt-2 flex flex-wrap justify-center gap-2">
-                        <button type="button" class="btn btn-secondary btn-sm" data-state-goto="question">Try again</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-state-goto="locked">Try again</button>
                         <a href="missions.html" class="btn btn-quiet btn-sm">Back to Missions</a>
                     </div>
                 </div>
@@ -485,9 +486,9 @@
             <!-- Prototype state switcher. Scaffolding, not product UI. -->
             <section aria-labelledby="states-title" class="mt-6 border-t border-line pt-4">
                 <h2 id="states-title" class="eyebrow">Prototype states</h2>
-                <p class="mt-1 max-w-[60ch] text-[13px] text-fg-subtle">Answer the questions, or jump straight to a state.</p>
+                <p class="mt-1 max-w-[60ch] text-[13px] text-fg-subtle">KC 02 is locked for this student. Other states preview an example attempt.</p>
                 <ul class="mt-2.5 flex flex-wrap gap-2">
-                    <li><a href="knowledge-check.html" class="btn btn-quiet btn-sm" data-state-link="question">Question</a></li>
+                    <li><a href="knowledge-check.html?state=question" class="btn btn-quiet btn-sm" data-state-link="question">Question</a></li>
                     <li><a href="knowledge-check.html?state=review" class="btn btn-quiet btn-sm" data-state-link="review">Review</a></li>
                     <li><a href="knowledge-check.html?state=passed" class="btn btn-quiet btn-sm" data-state-link="passed">Passed</a></li>
                     <li><a href="knowledge-check.html?state=failed" class="btn btn-quiet btn-sm" data-state-link="failed">Failed</a></li>
