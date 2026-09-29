@@ -18,7 +18,6 @@
             <p class="eyebrow">Student dashboard</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance">Welcome back, {{ $firstName }}</h1>
         </div>
-        <a href="{{ route('notifications') }}" class="btn btn-quiet btn-sm">Notifications</a>
     </div>
 
     <section aria-labelledby="continue-heading" class="panel overflow-hidden">

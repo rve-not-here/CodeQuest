@@ -3,7 +3,9 @@
 @section('title', 'Learning Path')
 
 @section('content')
-    @php($currentCourseId = $course?->id)
+    @php
+        $currentCourseId = $course?->id;
+    @endphp
 
     <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
         <ol class="flex items-center gap-1.5">
@@ -148,7 +150,9 @@
                             <h3 id="sections-{{ $pathCourse->id }}-heading" class="eyebrow mb-2">Sections</h3>
                             <ul class="border-l border-line text-sm">
                                 @foreach ($courseNode['sections'] as $sectionNode)
-                                    @php($overviewSection = $sectionNode['section'])
+                                    @php
+                                        $overviewSection = $sectionNode['section'];
+                                    @endphp
                                     <li><a href="#section-{{ $overviewSection->id }}" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }} {{ $overviewSection->title }}</span><span class="shrink-0 font-mono text-2xs">{{ $sectionNode['progress']['completed'] }}/{{ $sectionNode['progress']['total'] }}</span></a></li>
                                 @endforeach
                             </ul>

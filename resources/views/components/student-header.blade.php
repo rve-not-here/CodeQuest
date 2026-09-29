@@ -1,4 +1,6 @@
-@php($studentActiveRoute = request()->route()?->getName())
+@php
+    $studentActiveRoute = request()->route()?->getName();
+@endphp
 <a href="#main" class="sr-only z-50 rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-accent-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Skip to content</a>
 
 <header class="sticky top-0 z-40 shrink-0 border-b border-line bg-canvas" data-role="student">
@@ -12,7 +14,7 @@
             <ul class="flex items-center">
                 <li><a href="{{ route('dashboard') }}" class="nav-link" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
                 <li><a href="{{ route('learning-path') }}" class="nav-link" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
-                <li><a href="{{ route('missions') }}" class="nav-link">Missions</a></li>
+                <li><a href="{{ route('missions') }}" class="nav-link" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
                 <li><a href="{{ route('assessments') }}" class="nav-link">Assessments</a></li>
             </ul>
         </nav>
@@ -24,7 +26,7 @@
             </a>
 
             <details class="student-account relative cq-account-menu">
-                <summary class="flex h-9 max-sm:h-11 cursor-pointer list-none items-center gap-2 rounded-sm border border-transparent pr-2 pl-1 text-fg-muted hover:border-line hover:bg-raised hover:text-fg focus-visible:border-accent [&::-webkit-details-marker]:hidden" aria-label="Open profile menu">
+                <summary class="flex h-9 max-sm:h-11 cursor-pointer list-none items-center gap-2 rounded-sm border border-transparent pr-2 pl-1 text-fg-muted hover:border-line hover:bg-raised hover:text-fg focus-visible:border-accent [&::-webkit-details-marker]:hidden" aria-label="Open account menu">
                     <span class="grid size-7 place-items-center rounded-sm bg-overlay font-mono text-xs font-medium text-fg" aria-hidden="true">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
                     <span class="hidden text-sm lg:inline">{{ $displayName }}</span>
                     <span class="font-mono text-xs" aria-hidden="true">⌄</span>
@@ -41,7 +43,7 @@
                         <ul class="grid grid-cols-2 gap-0.5">
                             <li><a href="{{ route('dashboard') }}" class="menu-item {{ $studentActiveRoute === 'dashboard' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
                             <li><a href="{{ route('learning-path') }}" class="menu-item {{ $studentActiveRoute === 'learning-path' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
-                            <li><a href="{{ route('missions') }}" class="menu-item">Missions</a></li>
+                            <li><a href="{{ route('missions') }}" class="menu-item {{ $studentActiveRoute === 'missions' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
                             <li><a href="{{ route('assessments') }}" class="menu-item">Assessments</a></li>
                         </ul>
                     </nav>

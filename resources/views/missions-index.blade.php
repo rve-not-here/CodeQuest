@@ -1,113 +1,144 @@
-@extends('layouts.app', ['role' => $role])
+@extends('layouts.app', ['role' => $role, 'studentPrototype' => true])
 
-@section('title', 'Challenge Index')
+@section('title', 'Missions')
 
 @section('content')
-    <x-page-header
-        title="Challenge Index"
-        subtitle="Every active challenge in course order, tagged with your server-verified state. Open one to begin writing code from scratch."
-        icon="⚡"
-    >
-        <x-slot:actions>
-            <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <header class="grid grid-cols-1 gap-6 border-b border-line pb-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
+        <div>
+            <p class="eyebrow">Learn / Missions</p>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Missions</h1>
+            <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Practice concepts and track your coding missions across courses.</p>
+        </div>
+        <div class="lg:text-right">
+            <p class="eyebrow">Your learning record</p>
+            <p class="mt-1 font-mono text-sm text-fg">{{ $rows->count() }} {{ $rows->count() === 1 ? 'mission' : 'missions' }} shown · XP {{ number_format($totalXp) }}</p>
+            <a href="{{ route('learning-path') }}" class="btn btn-quiet btn-sm mt-3">View Learning Path →</a>
+        </div>
+    </header>
 
-    <form method="GET" action="{{ route('missions') }}" class="panel p-4 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <form method="GET" action="{{ route('missions') }}" class="panel mt-5 p-4" role="search">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
-                <label for="cq-q" class="text-xs font-bold text-phosphor-dim">Search</label>
-                <input
-                    id="cq-q"
-                    name="q"
-                    type="text"
-                    value="{{ $filters['q'] }}"
-                    class="terminal-input w-full mt-1"
-                    placeholder="Challenge or course"
-                >
+                <label for="mission-search" class="eyebrow">Search missions</label>
+                <input id="mission-search" name="q" type="search" value="{{ $filters['q'] }}" class="field mt-1.5 w-full" placeholder="Mission or course" autocomplete="off">
             </div>
             <div>
-                <label for="cq-course" class="text-xs font-bold text-phosphor-dim">Course</label>
-                <select id="cq-course" name="course" class="terminal-input w-full mt-1">
-                    <option value="">ALL COURSES</option>
-                    @foreach ($courses as $course)
-                        <option value="{{ $course->id }}" @selected($filters['course'] === $course->id)>
-                            {{ $course->name }}
-                        </option>
+                <label for="mission-course" class="eyebrow">Course</label>
+                <select id="mission-course" name="course" class="field mt-1.5 w-full">
+                    <option value="">All courses</option>
+                    @foreach ($courses as $filterCourse)
+                        <option value="{{ $filterCourse->id }}" @selected($filters['course'] === $filterCourse->id)>{{ $filterCourse->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div>
-                <label for="cq-status" class="text-xs font-bold text-phosphor-dim">State</label>
-                <select id="cq-status" name="status" class="terminal-input w-full mt-1">
-                    <option value="">ALL STATES</option>
-                    @foreach (['COMPLETED', 'IN PROGRESS', 'NOT STARTED'] as $state)
-                        <option value="{{ $state }}" @selected($filters['status'] === $state)>{{ $state }}</option>
+                <label for="mission-state" class="eyebrow">State</label>
+                <select id="mission-state" name="status" class="field mt-1.5 w-full">
+                    <option value="">All states</option>
+                    @foreach (['COMPLETED' => 'Completed', 'IN PROGRESS' => 'In Progress', 'NOT STARTED' => 'Not Started'] as $value => $label)
+                        <option value="{{ $value }}" @selected($filters['status'] === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
-        <div class="mt-3 flex items-center gap-2">
-            <button type="submit" class="btn-ghost">FILTER →</button>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">Filter missions</button>
             @if ($filters['q'] !== '' || $filters['status'] !== null || $filters['course'] !== null)
-                <a href="{{ route('missions') }}" class="btn-ghost">CLEAR</a>
+                <a href="{{ route('missions') }}" class="btn btn-ghost btn-sm">Clear filters</a>
             @endif
         </div>
     </form>
 
     @if ($rows->isEmpty())
-        <x-status-message type="info" title="NO CHALLENGES">
-            No challenges match the current filters.
-        </x-status-message>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        @foreach ($rows as $row)
-            @php
-                $state = $row['state'];
-                $mission = $row['mission'];
-                $course = $row['course'];
-                $courseSealed = $course->status !== 'active';
-                $stateIcon = $state === 'COMPLETED' ? '●' : ($state === 'IN PROGRESS' ? '▶' : '○');
-                $stateTone = $state === 'COMPLETED' ? 'phosphor' : ($state === 'IN PROGRESS' ? 'amber' : 'dim');
-            @endphp
-            @if ($courseSealed)
-            <article
-                class="panel p-4 opacity-80"
-                aria-label="{{ $mission->title }}, locked"
-            >
-                <div class="flex items-start justify-between gap-3 mb-2">
-                    <div class="min-w-0">
-                        <p class="text-xs font-bold text-amber truncate">{{ $course->name }}</p>
-                        <h2 class="font-body text-[16px] text-ink truncate mt-1">{{ $mission->title }}</h2>
-                    </div>
-                    <x-badge tone="dim">× LOCKED</x-badge>
-                </div>
-                <p class="text-xs leading-relaxed text-static">Course access is sealed. Return when Command restores this course.</p>
-            </article>
-            @else
-            <a
-                href="{{ route('mission.show', $mission) }}"
-                class="panel p-4 hover:border-phosphor transition-colors {{ $state === 'COMPLETED' ? 'opacity-80' : '' }}"
-            >
-                <div class="flex items-start justify-between gap-3 mb-2">
-                    <div class="min-w-0">
-                        <p class="text-xs font-bold text-amber truncate">{{ $course->name }}</p>
-                        <h2 class="font-body text-[16px] text-ink truncate mt-1">{{ $mission->title }}</h2>
-                    </div>
-                    <x-badge tone="{{ $stateTone }}">{{ $stateIcon }} {{ $state }}</x-badge>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <x-badge tone="cyan">{{ $course->type }}</x-badge>
-                    <x-badge tone="{{ $mission->difficulty === 'HARD' ? 'alert' : ($mission->difficulty === 'MEDIUM' ? 'amber' : 'cyan') }}">
-                        {{ $mission->difficulty }}
-                    </x-badge>
-                    <span class="text-xs font-bold text-phosphor-dim">
-                        {{ $mission->points }} XP · CH {{ $mission->order_num }}
-                    </span>
-                </div>
-            </a>
+        <section class="panel mt-5 px-6 py-10 text-center" aria-labelledby="empty-missions-title">
+            <h2 id="empty-missions-title" class="text-[15px] font-medium">NO CHALLENGES</h2>
+            <p class="mt-2 text-sm text-fg-muted">No missions match the current filters.</p>
+            @if ($filters['q'] !== '' || $filters['status'] !== null || $filters['course'] !== null)
+                <a href="{{ route('missions') }}" class="btn btn-secondary btn-sm mt-4">Clear filters</a>
             @endif
-        @endforeach
-    </div>
+        </section>
+    @else
+        @php
+            $courseGroups = $rows->groupBy(fn (array $row): int => $row['course']->id);
+        @endphp
+        <div data-mission-list class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
+            <div class="flex min-w-0 flex-col gap-6">
+                @foreach ($courseGroups as $courseId => $courseRows)
+                    @php
+                        $listedCourse = $courseRows->first()['course'];
+                        $courseAccessible = $courseRows->first()['accessible'];
+                        $sectionGroups = $courseRows->groupBy(fn (array $row): int => $row['section']->id);
+                    @endphp
+                    <section aria-labelledby="course-{{ $courseId }}-missions">
+                        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                            <div>
+                                <p class="eyebrow">Course {{ str_pad((string) $listedCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseAccessible ? 'AVAILABLE' : 'LOCKED' }}</p>
+                                <h2 id="course-{{ $courseId }}-missions" class="mt-1 text-lg font-semibold">{{ $listedCourse->name }}</h2>
+                            </div>
+                            <span class="font-mono text-xs text-fg-subtle">{{ $courseRows->count() }} shown</span>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            @foreach ($sectionGroups as $sectionId => $sectionRows)
+                                @php
+                                    $listedSection = $sectionRows->first()['section'];
+                                @endphp
+                                <section id="mission-section-{{ $sectionId }}" class="panel" aria-labelledby="mission-section-{{ $sectionId }}-title">
+                                    <div class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3.5 md:px-5">
+                                        <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-muted" aria-hidden="true">{{ $courseAccessible ? '○' : '×' }}</span>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="eyebrow">Section {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
+                                            <h3 id="mission-section-{{ $sectionId }}-title" class="text-[15px] font-medium">{{ $listedSection->title }}</h3>
+                                        </div>
+                                        <span class="font-mono text-xs text-fg-subtle">{{ $sectionRows->count() }} shown</span>
+                                    </div>
+                                    <ol class="px-2 py-1 md:px-3">
+                                        @foreach ($sectionRows as $row)
+                                            @php
+                                                $mission = $row['mission'];
+                                                $state = ! $row['accessible'] ? 'LOCKED' : $row['state'];
+                                                $isCurrent = $row['accessible'] && $currentMissionId === $mission->id;
+                                            @endphp
+                                            <li class="mission-row {{ $isCurrent ? 'is-current' : '' }}" data-state="{{ $isCurrent ? 'current' : ($state === 'NOT STARTED' ? 'available' : strtolower(str_replace(' ', '-', $state))) }}">
+                                                <span class="node font-mono text-xs" aria-hidden="true">{{ match ($state) { 'COMPLETED' => '✓', 'IN PROGRESS' => '▶', 'LOCKED' => '×', default => '○' } }}</span>
+                                                @if ($row['accessible'])
+                                                    <a href="{{ route('mission.show', $mission) }}" class="mission-body" @if ($isCurrent) aria-current="step" @endif>
+                                                        <span class="mission-id">{{ $mission->order_num }}</span>
+                                                        <span class="mission-text">
+                                                            @if ($isCurrent)<span class="badge badge-accent w-fit">You are here</span>@endif
+                                                            <span class="mission-title">{{ $mission->title }}</span>
+                                                            @if ($mission->description)<span class="mission-desc">{{ $mission->description }}</span>@endif
+                                                        </span>
+                                                        <span class="mission-foot">
+                                                            <span class="mission-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span>
+                                                            <span class="mission-action"><span class="mission-state">{{ $isCurrent ? 'CURRENT' : ($state === 'NOT STARTED' ? 'Available' : $state) }}</span><span class="btn btn-secondary btn-sm">{{ $state === 'COMPLETED' ? 'Review' : ($isCurrent ? 'Continue' : 'Start') }} →</span></span>
+                                                        </span>
+                                                    </a>
+                                                @else
+                                                    <div class="mission-body" aria-label="{{ $mission->title }}, locked">
+                                                        <span class="mission-id">{{ $mission->order_num }}</span>
+                                                        <span class="mission-text"><span class="mission-title">{{ $mission->title }}</span><span class="mission-desc">{{ $listedCourse->status !== 'active' ? 'Course access is sealed. Return when Command restores this course.' : 'Complete earlier courses to unlock this mission.' }}</span></span>
+                                                        <span class="mission-foot"><span class="mission-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span><span class="mission-action"><span class="badge badge-locked">LOCKED</span></span></span>
+                                                    </div>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ol>
+                                </section>
+                            @endforeach
+                        </div>
+                    </section>
+                @endforeach
+            </div>
+            <aside class="hidden lg:block" aria-label="Mission overview">
+                <nav class="sticky top-20" aria-labelledby="mission-overview-heading">
+                    <h2 id="mission-overview-heading" class="eyebrow mb-2">Courses</h2>
+                    <ul class="border-l border-line text-sm">
+                        @foreach ($courseGroups as $courseId => $courseRows)
+                            <li><a href="#course-{{ $courseId }}-missions" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ $courseRows->first()['course']->name }}</span><span class="shrink-0 font-mono text-2xs">{{ $courseRows->count() }}</span></a></li>
+                        @endforeach
+                    </ul>
+                </nav>
+            </aside>
+        </div>
+    @endif
 @endsection

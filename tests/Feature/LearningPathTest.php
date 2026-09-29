@@ -144,6 +144,7 @@ class LearningPathTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('learning-path'))
+            ->assertOk()
             ->assertSee('COMPLETED')
             ->assertSee('CURRENT')
             ->assertSee('AVAILABLE');
@@ -161,6 +162,7 @@ class LearningPathTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('learning-path'))
+            ->assertOk()
             ->assertSee('LOCKED')
             ->assertSee('Course access is sealed. Return when Command restores this course.')
             ->assertDontSee(route('mission.show', $mission));
@@ -186,6 +188,7 @@ class LearningPathTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('learning-path'))
+            ->assertOk()
             ->assertSee('FINAL COURSE MILESTONE')
             ->assertSee('BOSS AVAILABLE')
             ->assertSee(route('assessment.show', $assessment));
