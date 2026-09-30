@@ -12,6 +12,7 @@ use App\Models\Mission;
 use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\KnowledgeCheckService;
+use App\Services\XpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\ValidatedInput;
 use Illuminate\View\View;
@@ -21,6 +22,7 @@ class KnowledgeCheckController extends Controller
     public function __construct(
         private readonly KnowledgeCheckService $knowledgeChecks,
         private readonly AssessmentService $assessments,
+        private readonly XpService $xp,
     ) {}
 
     public function start(Mission $mission, KnowledgeCheck $knowledgeCheck): RedirectResponse
@@ -55,6 +57,7 @@ class KnowledgeCheckController extends Controller
 
         return view('knowledge-check', [
             'role' => $user->role,
+            'totalXp' => $this->xp->balance($user),
             'mission' => $mission,
             'course' => $mission->course,
             'section' => $mission->section,

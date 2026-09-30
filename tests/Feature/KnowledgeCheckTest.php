@@ -123,7 +123,7 @@ class KnowledgeCheckTest extends TestCase
         $this->actingAs($user)
             ->get(route('knowledge-check.show', [$mission, $check, $attempt]))
             ->assertOk()
-            ->assertSee('FORMATIVE // CONCEPT CHECK')
+            ->assertSee('aria-label="Return to '.$mission->title.' lesson"', false)
             ->assertSee('Question 1 of 3')
             ->assertSee('type="radio"', false)
             ->assertDontSee('SERVER-ONLY EXPLANATION')
@@ -190,7 +190,7 @@ class KnowledgeCheckTest extends TestCase
             ->assertSee('3 / 3 correct')
             ->assertSee('100%')
             ->assertSee('SERVER-ONLY EXPLANATION 1')
-            ->assertSee('CORRECT');
+            ->assertSee('Correct');
     }
 
     public function test_incorrect_submission_scores_zero(): void
