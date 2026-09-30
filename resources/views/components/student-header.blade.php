@@ -63,7 +63,7 @@
                             <p class="eyebrow px-2.5 py-1">More</p>
                             <a href="{{ route('recommendations') }}" class="menu-item {{ $studentActiveRoute === 'recommendations' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'recommendations') aria-current="page" @endif>Recommendations</a>
                             <a href="{{ route('achievements') }}" class="menu-item {{ $studentActiveRoute === 'achievements' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'achievements') aria-current="page" @endif>Achievements</a>
-                            <a href="{{ route('notifications') }}" class="menu-item">Notifications</a>
+                            <a href="{{ route('notifications') }}" class="menu-item {{ $studentActiveRoute === 'notifications' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'notifications') aria-current="page" @endif>Notifications</a>
                         </nav>
                     </div>
 
