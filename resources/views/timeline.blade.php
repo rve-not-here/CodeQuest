@@ -1,53 +1,53 @@
-@extends('layouts.app', ['role' => $role])
+@extends('layouts.app', ['role' => $role, 'studentPrototype' => true])
 
 @section('title', 'Timeline')
 
 @section('content')
-    <x-page-header
-        title="Learning Timeline"
-        subtitle="Chronological record of learning activity. Login and logout are not logged."
-        icon="≡"
-    >
-        <x-slot:actions>
-            <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="mx-auto w-full max-w-[1080px]">
+        <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+            <div>
+                <p class="eyebrow">Learning record</p>
+                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Learning Timeline</h1>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Your missions, Knowledge Checks, and Boss Challenges in the order they happened.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="font-mono text-sm text-fg-muted">XP {{ number_format($totalXp) }}</span>
+                <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
+            </div>
+        </header>
 
-    @if ($events->isEmpty())
-        <x-status-message type="info" title="NO LEARNING EVENTS">
-            No learning activity recorded yet. Complete Knowledge Checks, missions, and Boss Challenges to populate your timeline.
-        </x-status-message>
-    @endif
-
-    <x-panel title="EVENT LOG">
-        <div class="divide-y divide-phosphor-dim/40">
-            @foreach ($events as $event)
-                @php
-                    [$icon, $tone] = match ($event['type']) {
-                        'mission_completed' => ['⚡', 'text-phosphor'],
-                        'wrong_submission' => ['✕', 'text-alert'],
-                        'knowledge_check_completed' => ['?', 'text-cyan'],
-                        'hint_used' => ['◈', 'text-cyan'],
-                        'solution_revealed' => ['◎', 'text-amber'],
-                        'assessment_completed', 'assessment_passed' => ['◆', 'text-phosphor'],
-                        'assessment_failed' => ['◈', 'text-alert'],
-                        'section_completed' => ['▦', 'text-amber'],
-                        default => ['·', 'text-phosphor-dim'],
-                    };
-                @endphp
-                <div class="flex items-center gap-3 py-2">
-                    <span class="font-display text-[14px] leading-none {{ $tone }} w-4 shrink-0 text-center">{{ $icon }}</span>
-                    <span class="font-body text-[15px] text-ink truncate min-w-0" title="{{ $event['label'] }}">{{ $event['label'] }}</span>
-                    @if ($event['pts'] !== null && $event['pts'] !== 0)
-                        <x-badge tone="{{ $event['pts'] > 0 ? 'phosphor' : 'alert' }}">
-                            {{ $event['pts'] > 0 ? '+' : '' }}{{ $event['pts'] }} XP
-                        </x-badge>
-                    @endif
-                    <span class="text-xs font-bold text-phosphor-dim shrink-0 ml-auto">
-                        {{ $event['at']->format('M d, H:i') }}
-                    </span>
-                </div>
-            @endforeach
-        </div>
-    </x-panel>
+        @if ($events->isEmpty())
+            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-events-title">
+                <h2 id="no-events-title" class="text-lg font-semibold">NO LEARNING EVENTS</h2>
+                <p class="mt-2 text-sm text-fg-muted">Your completed learning activities will appear here.</p>
+            </section>
+        @else
+            <section class="mt-6" aria-labelledby="events-title">
+                <h2 id="events-title" class="eyebrow mb-3">Recent learning activity</h2>
+                <ol class="panel divide-y divide-line">
+                    @foreach ($events as $event)
+                        @php
+                            [$marker, $markerTone] = match ($event['type']) {
+                                'mission_completed', 'assessment_completed', 'assessment_passed' => ['✓', 'text-accent'],
+                                'wrong_submission', 'assessment_failed' => ['×', 'text-danger'],
+                                'knowledge_check_completed' => ['?', 'text-accent'],
+                                'hint_used', 'solution_revealed', 'section_completed' => ['·', 'text-warning'],
+                                default => ['·', 'text-fg-subtle'],
+                            };
+                        @endphp
+                        <li class="flex min-w-0 flex-wrap items-start gap-3 px-5 py-4 md:flex-nowrap md:px-6" data-event-type="{{ $event['type'] }}">
+                            <span class="grid size-7 shrink-0 place-items-center rounded-sm border border-line font-mono text-xs {{ $markerTone }}" aria-hidden="true">{{ $marker }}</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm leading-6 text-fg text-pretty">{{ $event['label'] }}</p>
+                                <time class="mt-1 block font-mono text-xs text-fg-subtle" datetime="{{ $event['at']->toIso8601String() }}">{{ $event['at']->format('M d, Y · H:i') }}</time>
+                            </div>
+                            @if ($event['pts'] !== null && $event['pts'] !== 0)
+                                <span class="badge {{ $event['pts'] > 0 ? 'badge-accent' : 'badge-warning' }}">{{ $event['pts'] > 0 ? '+' : '' }}{{ $event['pts'] }} XP</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
+            </section>
+        @endif
+    </div>
 @endsection
