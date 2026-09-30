@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             'username' => 'test',
         ]);
 
+        $this->call(CurriculumContentSeeder::class);
         $this->call(AssessmentSeeder::class);
         $this->call(AchievementSeeder::class);
         $this->call(SkillSeeder::class);
