@@ -12,51 +12,64 @@
             @endif
         </div>
         <div class="challenge-context-meta">
+            @if ($completed)
+                <span class="badge badge-accent">MISSION COMPLETE</span>
+            @endif
             <span class="badge badge-neutral">{{ $mission->difficulty }}</span>
             <span class="badge badge-accent">+{{ $mission->points }} XP</span>
         </div>
     </header>
 
-    <div class="challenge-alert-stack">
-    @if ($completed)
-        <x-status-message type="success" title="MISSION COMPLETE" dismissible>
-            You have already passed this mission.
-        </x-status-message>
-    @endif
+    <div class="challenge-toast-stack" aria-label="Challenge messages">
     @if (session('mission_info'))
-        <x-status-message type="info" title="{{ session('mission_info')['title'] }}">
+        <x-student-toast type="info" title="{{ session('mission_info')['title'] }}">
             {{ session('mission_info')['message'] }}
-        </x-status-message>
+        </x-student-toast>
     @endif
     @if (session('mission_error'))
-        <x-status-message type="error" title="{{ session('mission_error')['title'] }}">
+        <x-student-toast type="error" title="{{ session('mission_error')['title'] }}">
             {{ session('mission_error')['message'] }}
-        </x-status-message>
+        </x-student-toast>
     @endif
     @if (session('hint_error') && session('mission_error') === null)
-        <x-status-message type="error" title="INSUFFICIENT XP">
+        <x-student-toast type="error" title="INSUFFICIENT XP">
             Hint costs {{ session('hint_error')['cost'] }} XP. Your balance is {{ session('hint_error')['balance'] }}.
-        </x-status-message>
+        </x-student-toast>
     @endif
     @if (session('reveal_error') && session('mission_error') === null)
-        <x-status-message type="error" title="INSUFFICIENT XP">
+        <x-student-toast type="error" title="INSUFFICIENT XP">
             Solution reveal costs {{ session('reveal_error')['cost'] }} XP. Your balance is {{ session('reveal_error')['balance'] }}.
-        </x-status-message>
+        </x-student-toast>
+    @endif
+    @if (session('hint_revealed'))
+        <x-student-toast type="warning" title="HINT {{ session('hint_revealed') }} REVEALED">
+            Read it in Assistance below.
+        </x-student-toast>
     @endif
     @if (session('hint_flat'))
-        <x-status-message type="info" title="NO HINTS REMAINING">
+        <x-student-toast type="info" title="NO HINTS REMAINING">
             All hints revealed or no hints available.
-        </x-status-message>
+        </x-student-toast>
     @endif
     @if (session('reveal_flat'))
-        <x-status-message type="info" title="NOT NEEDED">
+        <x-student-toast type="info" title="NOT NEEDED">
             Solution reveal not needed on a completed mission.
-        </x-status-message>
+        </x-student-toast>
     @endif
     @if (session('solution_revealed'))
-        <x-status-message type="warning" title="SOLUTION REVEALED">
+        <x-student-toast type="warning" title="SOLUTION REVEALED">
             The reference solution has been loaded.
-        </x-status-message>
+        </x-student-toast>
+    @endif
+    @if (session('draft_saved'))
+        <x-student-toast type="success" title="DRAFT SAVED">
+            Your code is ready when you return.
+        </x-student-toast>
+    @endif
+    @if ($errors->any())
+        <x-student-toast type="error" title="CHECK YOUR CODE">
+            {{ $errors->first() }}
+        </x-student-toast>
     @endif
     </div>
 
@@ -217,6 +230,12 @@
     @push('scripts')
     <script>
         (function () {
+            document.querySelectorAll('[data-toast-dismiss]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    button.closest('.student-toast')?.remove();
+                });
+            });
+
             var initial = JSON.parse('{!! json_encode(old('code', $code), JSON_HEX_APOS | JSON_HEX_QUOT) !!}');
             var host = document.getElementById('editor-host');
             var source = document.getElementById('editor-source');
