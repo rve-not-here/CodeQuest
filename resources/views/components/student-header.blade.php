@@ -57,7 +57,7 @@
                             <a href="{{ route('section-progress') }}" class="menu-item {{ $studentActiveRoute === 'section-progress' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'section-progress') aria-current="page" @endif>Section Progress</a>
                             <a href="{{ route('competency') }}" class="menu-item {{ $studentActiveRoute === 'competency' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'competency') aria-current="page" @endif>Competency</a>
                             <a href="{{ route('timeline') }}" class="menu-item {{ $studentActiveRoute === 'timeline' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'timeline') aria-current="page" @endif>Timeline</a>
-                            <a href="{{ route('xp-ledger') }}" class="menu-item">XP Ledger</a>
+                            <a href="{{ route('xp-ledger') }}" class="menu-item {{ $studentActiveRoute === 'xp-ledger' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'xp-ledger') aria-current="page" @endif>XP Ledger</a>
                         </nav>
                         <nav aria-label="More learning tools">
                             <p class="eyebrow px-2.5 py-1">More</p>
