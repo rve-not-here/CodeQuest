@@ -20,10 +20,12 @@
         </nav>
 
         <div class="ml-auto flex items-center gap-3">
-            <a href="{{ route('xp-ledger') }}" class="hidden items-center gap-1.5 font-mono text-xs text-fg-muted hover:text-fg sm:flex" aria-label="XP balance {{ $totalXp }}. Open XP ledger">
-                <span class="size-1.5 rotate-45 bg-accent" aria-hidden="true"></span>
-                <span>XP <span class="text-fg">{{ number_format($totalXp) }}</span></span>
-            </a>
+            @isset($totalXp)
+                <a href="{{ route('xp-ledger') }}" class="hidden items-center gap-1.5 font-mono text-xs text-fg-muted hover:text-fg sm:flex" aria-label="XP balance {{ $totalXp }}. Open XP ledger">
+                    <span class="size-1.5 rotate-45 bg-accent" aria-hidden="true"></span>
+                    <span>XP <span class="text-fg">{{ number_format($totalXp) }}</span></span>
+                </a>
+            @endisset
 
             <details class="student-account relative cq-account-menu">
                 <summary class="flex h-9 max-sm:h-11 cursor-pointer list-none items-center gap-2 rounded-sm border border-transparent pr-2 pl-1 text-fg-muted hover:border-line hover:bg-raised hover:text-fg focus-visible:border-accent [&::-webkit-details-marker]:hidden" aria-label="Open account menu">
@@ -53,7 +55,7 @@
                             <p class="eyebrow px-2.5 py-1">Learning record</p>
                             <a href="{{ route('progress') }}" class="menu-item {{ $studentActiveRoute === 'progress' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'progress') aria-current="page" @endif>Course Progress</a>
                             <a href="{{ route('section-progress') }}" class="menu-item {{ $studentActiveRoute === 'section-progress' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'section-progress') aria-current="page" @endif>Section Progress</a>
-                            <a href="{{ route('competency') }}" class="menu-item">Competency</a>
+                            <a href="{{ route('competency') }}" class="menu-item {{ $studentActiveRoute === 'competency' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'competency') aria-current="page" @endif>Competency</a>
                             <a href="{{ route('timeline') }}" class="menu-item">Timeline</a>
                             <a href="{{ route('xp-ledger') }}" class="menu-item">XP Ledger</a>
                         </nav>
