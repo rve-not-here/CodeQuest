@@ -268,6 +268,7 @@ class MissionController extends Controller
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $completed,
+            'totalXp' => $this->xp->balance($user),
             'code' => $solutionRevealed && $mission->solution_code !== null ? $mission->solution_code : ($draft->code ?? ''),
             'hasDraft' => $draft !== null,
             'solutionRevealed' => $solutionRevealed,

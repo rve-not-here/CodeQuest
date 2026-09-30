@@ -5,6 +5,7 @@
 @source '../views/missions-index.blade.php';
 @source '../views/lesson.blade.php';
 @source '../views/knowledge-check.blade.php';
+@source '../views/challenge.blade.php';
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';
@@ -28,4 +29,250 @@ body.student-ui .student-account[open] > summary {
     border-color: var(--color-line);
     background: var(--color-raised);
     color: var(--color-fg);
+}
+
+/* The coding workspace uses the whole viewport below the student navigation. */
+@media (min-width: 1101px) {
+    body.student-ui:has(.challenge-workspace) {
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    body.student-ui:has(.challenge-workspace) > div {
+        height: 100%;
+    }
+
+    body.student-ui:has(.challenge-workspace) > div,
+    body.student-ui:has(.challenge-workspace) main,
+    body.student-ui:has(.challenge-workspace) main > div {
+        min-height: 0;
+    }
+
+    body.student-ui:has(.challenge-workspace) main,
+    body.student-ui:has(.challenge-workspace) main > div {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+    }
+}
+
+body.student-ui .challenge-context-bar {
+    min-height: 3.75rem;
+    gap: 0.75rem;
+    border-color: var(--color-line);
+    background: var(--color-surface);
+    padding: 0.65rem 1rem;
+}
+
+body.student-ui .challenge-context-bar h1 {
+    margin: 0;
+    color: var(--color-fg);
+    font: inherit;
+    font-weight: 600;
+    text-transform: none;
+}
+
+body.student-ui .challenge-context-meta {
+    color: var(--color-fg-subtle);
+    font: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+body.student-ui .challenge-alert-stack {
+    gap: 0.5rem;
+    max-height: min(26vh, 14rem);
+    overflow-y: auto;
+    padding: 0.5rem 1rem;
+}
+
+body.student-ui .challenge-alert-stack:empty {
+    padding: 0;
+}
+
+body.student-ui .challenge-alert-stack [role='status'] {
+    border-color: var(--color-line-strong);
+    background: var(--color-raised);
+}
+
+body.student-ui .challenge-alert-stack [role='status'] p {
+    color: var(--color-fg);
+}
+
+body.student-ui .challenge-alert-stack [role='status'] div {
+    color: var(--color-fg-muted);
+}
+
+body.student-ui .challenge-workspace {
+    flex: 1 1 auto;
+    grid-template-columns: minmax(15rem, 24%) minmax(0, 44%) minmax(16rem, 32%);
+    height: auto;
+    min-height: 0;
+}
+
+body.student-ui .challenge-pane {
+    border: 0;
+    border-radius: 0;
+    background: var(--color-surface);
+}
+
+body.student-ui .challenge-pane + .challenge-pane {
+    border-left: 1px solid var(--color-line);
+}
+
+body.student-ui .challenge-pane-header {
+    min-height: 2.75rem;
+    border-color: var(--color-line);
+    background: var(--color-raised);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+body.student-ui .challenge-draft-status,
+body.student-ui .challenge-draft-status span {
+    color: var(--color-fg-subtle);
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    letter-spacing: normal;
+}
+
+body.student-ui .challenge-pane-body {
+    color: var(--color-fg);
+    padding: 1.25rem;
+}
+
+body.student-ui .challenge-requirements {
+    gap: 0;
+    border: 1px solid var(--color-line);
+    padding: 0;
+}
+
+body.student-ui .challenge-requirements p {
+    gap: 0.8rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-fg-muted);
+    padding: 0.75rem;
+}
+
+body.student-ui .challenge-requirements p:first-child {
+    border-top: 0;
+}
+
+body.student-ui .challenge-requirements span {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+}
+
+body.student-ui .challenge-pane-body.editor-pane,
+body.student-ui .challenge-pane-editor {
+    background: #0b0e14;
+    padding: 0;
+}
+
+body.student-ui .challenge-pane-editor .cm-focused {
+    outline-color: var(--color-accent);
+}
+
+body.student-ui .challenge-toolbar {
+    gap: 0.4rem;
+    border-color: var(--color-line);
+    background: var(--color-surface);
+    padding: 0.6rem;
+}
+
+body.student-ui .challenge-toolbar .btn {
+    min-height: 2.5rem;
+    font-size: 0.77rem;
+}
+
+body.student-ui .challenge-assistance {
+    border-color: var(--color-line);
+    background: var(--color-surface);
+}
+
+body.student-ui .challenge-assistance h3,
+body.student-ui .challenge-assistance-heading p {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+body.student-ui .challenge-assistance h3 {
+    color: var(--color-fg);
+    font-size: 0.85rem;
+}
+
+body.student-ui .challenge-pane-body.is-frame {
+    background: #fff;
+    padding: 0;
+}
+
+body.student-ui .completion-dialog {
+    border-color: var(--color-accent-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: 0 24px 64px rgb(0 0 0 / 0.6);
+}
+
+body.student-ui .completion-dialog h2,
+body.student-ui .completion-results dd,
+body.student-ui .completion-achievement strong {
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    text-transform: none;
+}
+
+body.student-ui .completion-results,
+body.student-ui .completion-results div {
+    border-color: var(--color-line);
+}
+
+body.student-ui .completion-summary,
+body.student-ui .completion-results dt {
+    color: var(--color-fg-muted);
+}
+
+@media (max-width: 1100px) {
+    body.student-ui .challenge-workspace {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    body.student-ui .challenge-pane,
+    body.student-ui .challenge-pane:first-child {
+        min-height: 0;
+        border: 1px solid var(--color-line);
+    }
+
+    body.student-ui .challenge-pane:nth-child(2) {
+        min-height: 34rem;
+    }
+
+    body.student-ui .challenge-pane-body.is-frame {
+        min-height: 22rem;
+    }
+}
+
+@media (max-width: 640px) {
+    body.student-ui .challenge-context-bar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    body.student-ui .challenge-context-meta {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    body.student-ui .challenge-toolbar,
+    body.student-ui .challenge-toolbar form,
+    body.student-ui .challenge-toolbar .btn {
+        width: 100%;
+    }
 }

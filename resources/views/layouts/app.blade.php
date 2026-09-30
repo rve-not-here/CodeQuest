@@ -231,8 +231,8 @@
             </aside>
             @endif
 
-            <main @if ($studentPrototype) id="main" @endif class="min-w-0 flex-1 {{ $studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : ($workspace ?? false ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}" data-drawer-content>
-                <div class="{{ $studentPrototype ? 'mx-auto w-full max-w-[1280px]' : ($standalone || ($workspace ?? false) ? '' : 'mx-auto w-full max-w-[1180px]') }}">
+            <main @if ($studentPrototype) id="main" @endif class="min-w-0 flex-1 {{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}" data-drawer-content>
+                <div class="{{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'mx-auto w-full max-w-[1280px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1180px]')) }}">
                     @yield('content')
                 </div>
             </main>
