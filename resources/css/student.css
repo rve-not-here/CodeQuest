@@ -7,6 +7,7 @@
 @source '../views/knowledge-check.blade.php';
 @source '../views/challenge.blade.php';
 @source '../views/assessments/index.blade.php';
+@source '../views/assessments/show.blade.php';
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';
@@ -276,4 +277,14 @@ body.student-ui .completion-results dt {
     body.student-ui .challenge-toolbar .btn {
         width: 100%;
     }
+}
+
+body.student-ui #editor-host .cm-editor {
+    min-height: 380px;
+    font-size: 0.9rem;
+}
+
+body.student-ui #editor-host .cm-focused {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
 }

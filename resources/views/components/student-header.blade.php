@@ -15,7 +15,7 @@
                 <li><a href="{{ route('dashboard') }}" class="nav-link" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
                 <li><a href="{{ route('learning-path') }}" class="nav-link {{ in_array($studentActiveRoute, ['mission.show', 'knowledge-check.show', 'mission.challenge'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
                 <li><a href="{{ route('missions') }}" class="nav-link" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
-                <li><a href="{{ route('assessments') }}" class="nav-link" @if ($studentActiveRoute === 'assessments') aria-current="page" @endif>Assessments</a></li>
+                <li><a href="{{ route('assessments') }}" class="nav-link {{ $studentActiveRoute === 'assessment.show' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'assessments') aria-current="page" @endif>Assessments</a></li>
             </ul>
         </nav>
 
@@ -44,7 +44,7 @@
                             <li><a href="{{ route('dashboard') }}" class="menu-item {{ $studentActiveRoute === 'dashboard' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
                             <li><a href="{{ route('learning-path') }}" class="menu-item {{ in_array($studentActiveRoute, ['learning-path', 'mission.show', 'knowledge-check.show', 'mission.challenge'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
                             <li><a href="{{ route('missions') }}" class="menu-item {{ $studentActiveRoute === 'missions' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
-                            <li><a href="{{ route('assessments') }}" class="menu-item {{ $studentActiveRoute === 'assessments' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'assessments') aria-current="page" @endif>Assessments</a></li>
+                            <li><a href="{{ route('assessments') }}" class="menu-item {{ in_array($studentActiveRoute, ['assessments', 'assessment.show'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'assessments') aria-current="page" @endif>Assessments</a></li>
                         </ul>
                     </nav>
 

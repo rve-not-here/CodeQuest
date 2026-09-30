@@ -284,6 +284,7 @@ class AssessmentController extends Controller
     private function showData(User $user, Assessment $assessment, Course $course): array
     {
         $attempt = $this->assessments->latestAttemptFor($user, $course);
+        $xpBalance = $this->xp->balance($user);
 
         return [
             'user' => $user,
@@ -296,7 +297,8 @@ class AssessmentController extends Controller
             'canBegin' => $attempt === null,
             'canEdit' => in_array($attempt?->status, ['available', 'started'], true),
             'canRetry' => in_array($attempt?->status, ['passed', 'failed'], true),
-            'xpBalance' => $this->xp->balance($user),
+            'xpBalance' => $xpBalance,
+            'totalXp' => $xpBalance,
             'reward' => $this->xp->assessmentPassedAmount(),
         ];
     }
