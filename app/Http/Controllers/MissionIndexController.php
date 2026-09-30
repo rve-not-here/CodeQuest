@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Mission;
+use App\Models\Section;
 use App\Models\User;
+use App\Services\AssessmentService;
 use App\Services\LearningPathService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -23,6 +26,7 @@ class MissionIndexController extends Controller
 {
     public function __construct(
         private readonly LearningPathService $paths,
+        private readonly AssessmentService $assessments,
     ) {}
 
     public function __invoke(Request $request): View
@@ -34,10 +38,16 @@ class MissionIndexController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        /** @var Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: \App\Models\Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: \App\Models\Mission, state: string}>}>}> $tree */
+        /** @var Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>}> $tree */
         $tree = $this->paths->build($user);
 
-        /** @var Collection<int, array{course: Course, section: \App\Models\Section, mission: \App\Models\Mission, state: string}> $rows */
+        // Use the same course-reach verdict as MissionController::show.
+        $reachedCourses = $tree->mapWithKeys(fn (array $node): array => [
+            $node['course']->id => $node['course']->status === 'active'
+                && $this->assessments->isCourseReached($user, $node['course']),
+        ]);
+
+        /** @var Collection<int, array{course: Course, section: Section, mission: Mission, state: string, accessible: bool}> $rows */
         $rows = collect();
 
         foreach ($tree as $courseNode) {
@@ -48,6 +58,7 @@ class MissionIndexController extends Controller
                         'section' => $sectionNode['section'],
                         'mission' => $row['mission'],
                         'state' => $row['state'],
+                        'accessible' => $reachedCourses->get($courseNode['course']->id, false),
                     ]);
                 }
             }
@@ -82,6 +93,7 @@ class MissionIndexController extends Controller
                 'course' => $request->filled('course') && ctype_digit((string) $courseId) ? (int) $courseId : null,
             ],
             'totalXp' => (int) $user->xpTransactions()->sum('amount'),
+            'currentMissionId' => $this->paths->nextMission($user)?->id,
         ]);
     }
 }

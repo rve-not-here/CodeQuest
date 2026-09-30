@@ -12,6 +12,7 @@ use App\Services\DashboardService;
 use App\Services\NotificationService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 /**
@@ -23,6 +24,7 @@ use Tests\TestCase;
 class NotificationIntegrationTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     protected function setUp(): void
     {
@@ -47,6 +49,8 @@ class NotificationIntegrationTest extends TestCase
             ['token' => '<p>', 'points' => 50],
         ], 'ALL_CLEAR');
 
+        $this->classroomFor($teacher, [$student], [$alpha, $beta]);
+
         $this->passMission($student, $alphaMissions[0], '<h1>Intro</h1>');
         $this->passMission($student, $alphaMissions[1], '<nav>Menu</nav>');
 
@@ -64,8 +68,9 @@ class NotificationIntegrationTest extends TestCase
 
         $this->actingAs($student)->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('CHALLENGE UNLOCKED')
-            ->assertSee(route('assessment.show', $alphaChallenge));
+            ->assertSee(route('notifications'))
+            ->assertDontSee('CHALLENGE UNLOCKED')
+            ->assertDontSee(route('assessment.show', $alphaChallenge));
 
         $this->actingAs($student)->get(route('notifications'))
             ->assertOk()

@@ -27,3 +27,6 @@ admin/activity.blade.php (US-709) mirrors activity.blade.php's structure: GET fi
 
 ## Dashboard Incoming Transmissions panel stays a teaser, links only from notificationLinks map
 US-810: the 'Incoming Transmissions' panel is the last item in the dashboard grid — appended after System Activity so Continue Learning keeps the top-right/primary CTA slot untouched. It renders only the two newest priority rows (teaser, never the feed): no MARK READ forms, no pagination. Row titles link only when $notificationLinks[$id] is non-null (mirror of the center's linkFor map); unread rows get an amber NEW badge, read rows opacity-60. Unread line shows '{n} UNREAD' or 'INBOX CLEAR'; VIEW ALL → always links to route('notifications').
+
+## Grant preview scripts only for JavaScript courses
+Student code previews use srcdoc in a sandboxed iframe. Grant allow-scripts only when the authoritative course type is js/javascript; HTML and CSS previews use an empty sandbox. Never add allow-same-origin, parent navigation, forms, popups, or downloads without a verified lesson requirement and a parent-access regression.

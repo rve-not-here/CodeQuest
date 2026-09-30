@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Course;
+use App\Models\Mission;
+use App\Models\Progress;
+use App\Models\Section;
 use App\Models\User;
 use App\Services\AdminAuditService;
 use App\Services\UserService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use InvalidArgumentException;
 use Tests\TestCase;
@@ -108,6 +113,69 @@ class AdminUserTest extends TestCase
             ->assertSee('SHOWING PAGE 2 OF 2')
             ->assertSee('page_user_11')
             ->assertDontSee('page_user_01');
+    }
+
+    public function test_user_directory_queries_stay_bounded_after_the_first_page(): void
+    {
+        User::factory()->admin()->create();
+        User::factory()->count(12)->create();
+
+        $small = $this->directoryQueryCount();
+
+        User::factory()->count(13)->create();
+        $large = $this->directoryQueryCount();
+
+        $this->assertLessThanOrEqual($small + 10, $large, "Directory queries grew from {$small} to {$large} for 13 versus 26 users.");
+    }
+
+    public function test_displayed_directory_rows_do_not_multiply_queries(): void
+    {
+        User::factory()->admin()->create();
+
+        $one = $this->directoryQueryCount();
+
+        User::factory()->count(4)->create();
+        $five = $this->directoryQueryCount();
+
+        User::factory()->count(5)->create();
+        $ten = $this->directoryQueryCount();
+
+        $this->assertLessThanOrEqual($one + 10, $five, "Directory queries grew {$one} → {$five} for 1 → 5 displayed users.");
+        $this->assertLessThanOrEqual($one + 10, $ten, "Directory queries grew {$one} → {$ten} for 1 → 10 displayed users.");
+    }
+
+    public function test_directory_queries_stay_bounded_for_users_with_completed_sections(): void
+    {
+        $course = Course::factory()->create();
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create(['course_id' => $course->id, 'section_id' => $section->id]);
+        $user = User::factory()->create();
+        Progress::factory()->create(['user_id' => $user->id, 'mission_id' => $mission->id]);
+
+        $one = $this->directoryQueryCount();
+
+        $more = User::factory()->count(9)->create();
+        foreach ($more as $student) {
+            Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $mission->id]);
+        }
+        $ten = $this->directoryQueryCount();
+
+        $this->assertLessThanOrEqual($one + 10, $ten, "Completed-section directory queries grew {$one} → {$ten} for 1 → 10 users.");
+    }
+
+    private function directoryQueryCount(): int
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            app(UserService::class)->index(null, null, []);
+
+            return count(DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
     }
 
     public function test_user_directory_last_activity_uses_timeline_vocabulary(): void

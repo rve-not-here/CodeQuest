@@ -193,6 +193,37 @@ class AchievementServiceTest extends TestCase
         ]);
     }
 
+    public function test_full_clear_matches_passed_assessments_by_assessment_primary_key(): void
+    {
+        $user = User::factory()->create();
+        $this->seedCatalog();
+        [$courseA, $missionsA] = $this->createCourseWithMissions(1, 'html', 1);
+        [$courseB, $missionsB] = $this->createCourseWithMissions(2, 'css', 1);
+
+        $assessmentA = Assessment::factory()->make(['course_id' => $courseA->id]);
+        $assessmentA->id = 9001;
+        $assessmentA->save();
+
+        $assessmentB = Assessment::factory()->make(['course_id' => $courseB->id]);
+        $assessmentB->id = 9002;
+        $assessmentB->save();
+
+        $this->assertNotSame($courseA->id, $assessmentA->id, 'the fixture must keep course and assessment ids distinct');
+        $this->assertNotSame($courseB->id, $assessmentB->id, 'the fixture must keep course and assessment ids distinct');
+
+        $this->complete($user, $missionsA[0]);
+        $this->complete($user, $missionsB[0]);
+        $this->attempt($user, $assessmentA, 'passed');
+        $this->attempt($user, $assessmentB, 'passed');
+
+        $this->service->evaluateAssessmentPass($user);
+
+        $this->assertDatabaseHas('the404_user_achievements', [
+            'user_id' => $user->id,
+            'achievement_id' => $this->achievementId(AchievementService::SLUG_FULL_CLEAR),
+        ]);
+    }
+
     public function test_full_clear_is_not_awarded_while_a_course_is_outstanding(): void
     {
         $user = User::factory()->create();

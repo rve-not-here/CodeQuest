@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Your Competencies · CodeQuest</title>
+        <meta name="description" content="How your mission work and knowledge checks build each programming skill, and what to work on next." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- Competency is a learning-flow view of the Dashboard's existing
+             concept, not a new global destination, so Learn stays current. -->
+        <!-- @include header active="learn" -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Competency</li>
+                </ol>
+            </nav>
+
+            <header class="mt-3 border-b border-line pb-5">
+                <div class="flex flex-wrap items-start justify-between gap-x-8 gap-y-3">
+                    <div class="min-w-0">
+                        <p class="eyebrow">Competency / Frontend Fundamentals</p>
+                        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Your Competencies</h1>
+                        <p class="mt-2 max-w-[58ch] text-fg-muted text-pretty">Review your skill profile and the activities to work on next. Percentages and levels are illustrative prototype values, not calculated scores.</p>
+                    </div>
+                    <p data-profile-context class="max-w-[26ch] font-mono text-xs leading-5 text-fg-subtle">
+                        Frontend Fundamentals<br />
+                        9 of 29 missions complete<br />
+                        31% course progress
+                    </p>
+                </div>
+            </header>
+
+            <!-- ── Loading ─────────────────────────────────────────────── -->
+            <section data-state-panel="loading" class="mt-6" hidden aria-label="Loading competency data">
+                <p class="eyebrow" role="status">Loading your competency profile…</p>
+                <div class="competency-layout mt-3" aria-hidden="true" aria-busy="true">
+                    <ul class="panel divide-y divide-line">
+                        <li class="flex items-center gap-3 px-4 py-3.5"><div class="skeleton size-6 rounded-full"></div><div class="skeleton h-3 flex-1"></div></li>
+                        <li class="flex items-center gap-3 px-4 py-3.5"><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-16"></div></li>
+                        <li class="flex items-center gap-3 px-4 py-3.5"><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-16"></div></li>
+                        <li class="flex items-center gap-3 px-4 py-3.5"><div class="skeleton h-3 flex-1"></div><div class="skeleton h-3 w-16"></div></li>
+                    </ul>
+                    <div class="panel p-5">
+                        <div class="skeleton h-4 w-40"></div>
+                        <div class="skeleton mt-3 h-3 w-full"></div>
+                        <div class="skeleton mt-2 h-3 w-4/5"></div>
+                        <div class="skeleton mt-5 h-24 w-full"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Error ───────────────────────────────────────────────── -->
+            <section data-state-panel="error" class="mt-6" hidden>
+                <div class="panel flex flex-col items-center gap-2 px-6 py-14 text-center">
+                    <svg class="size-6 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                    <h2 class="text-[15px] font-medium text-fg" role="alert">Couldn&rsquo;t load competency data</h2>
+                    <p class="max-w-[44ch] text-sm leading-6 text-fg-muted">Your mission record is unchanged. Try again.</p>
+                    <button type="button" class="btn btn-secondary btn-sm mt-1" data-state-goto="default">Try again</button>
+                </div>
+            </section>
+
+            <!-- ── Empty profile ─────────────────────────────────────────
+                 A student with no evidence gets one clear message, not six
+                 zero-valued rows. -->
+            <section data-state-panel="empty" class="mt-6" hidden aria-labelledby="empty-title">
+                <div class="panel flex flex-col items-center gap-2 px-6 py-16 text-center">
+                    <span class="grid size-9 place-items-center border border-line text-fg-subtle" aria-hidden="true">
+                        <svg class="size-4"><use href="#i-compass" /></svg>
+                    </span>
+                    <h2 id="empty-title" class="text-[15px] font-medium text-fg">No competency evidence yet</h2>
+                    <p class="max-w-[46ch] text-sm leading-6 text-fg-muted">Complete your first mission to start building your competency profile.</p>
+                    <a href="learn.html" class="btn btn-primary btn-sm mt-2">View Learning Path<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                </div>
+            </section>
+
+            <!-- ── Profile ───────────────────────────────────────────────
+                 All six details live in the committed DOM and are shown one
+                 at a time, so there is no second copy of this content to
+                 drift out of sync. -->
+            <div data-state-panel="profile" class="mt-6" hidden>
+                <!-- Compact orientation. Hairline-separated metadata, not KPI
+                     cards: the page is about skills, not a scoreboard. -->
+                <section aria-labelledby="summary-title" class="border-b border-line pb-4">
+                    <h2 id="summary-title" class="eyebrow">Course summary</h2>
+                    <ul class="mt-2.5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                        <li class="flex items-baseline gap-1.5">
+                            <span class="font-mono text-lg leading-none font-semibold text-fg">1</span>
+                            <span class="text-sm text-fg-muted">Proficient</span>
+                        </li>
+                        <li class="flex items-baseline gap-1.5">
+                            <span class="font-mono text-lg leading-none font-semibold text-fg">2</span>
+                            <span class="text-sm text-fg-muted">On Track</span>
+                        </li>
+                        <li class="flex items-baseline gap-1.5">
+                            <span class="font-mono text-lg leading-none font-semibold text-fg">2</span>
+                            <span class="text-sm text-fg-muted">Developing</span>
+                        </li>
+                        <li class="flex items-baseline gap-1.5">
+                            <span class="font-mono text-lg leading-none font-semibold text-fg">1</span>
+                            <span class="text-sm text-fg-muted">Not Started</span>
+                        </li>
+                        <li class="ml-auto hidden font-mono text-2xs text-fg-subtle lg:block">Levels use a 4-step scale</li>
+                    </ul>
+                </section>
+
+                <div class="competency-layout mt-6">
+                    <!-- ── Competency list ───────────────────────────────── -->
+                    <nav aria-labelledby="list-title" class="panel">
+                        <h2 id="list-title" class="border-b border-line px-4 py-3 text-[15px] font-semibold">Competencies</h2>
+                        <ul class="divide-y divide-line">
+                            <li>
+                                <button type="button" class="competency-row" data-competency="html-structure">
+                                    <span class="competency-row-head">
+                                        <span class="competency-name">HTML Structure</span>
+                                        <span class="badge badge-accent">Proficient</span>
+                                    </span>
+                                    <span class="competency-row-foot">
+                                        <span class="meter" role="img" aria-label="HTML Structure: level 3 of 4, proficient"><span data-on></span><span data-on></span><span data-on></span><span></span></span>
+                                        <span class="font-mono text-2xs text-fg-subtle"><span class="text-fg">88</span>% · 7 evidence</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="competency-row" data-competency="css-selectors">
+                                    <span class="competency-row-head">
+                                        <span class="competency-name">CSS Selectors</span>
+                                        <span class="badge badge-neutral">On Track</span>
+                                    </span>
+                                    <span class="competency-row-foot">
+                                        <span class="meter" role="img" aria-label="CSS Selectors: level 3 of 4, on track"><span data-on></span><span data-on></span><span data-on></span><span></span></span>
+                                        <span class="font-mono text-2xs text-fg-subtle"><span class="text-fg">76</span>% · 2 evidence</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="competency-row" data-competency="box-model">
+                                    <span class="competency-row-head">
+                                        <span class="competency-name">Box Model</span>
+                                        <span class="badge badge-neutral">On Track</span>
+                                    </span>
+                                    <span class="competency-row-foot">
+                                        <span class="meter" role="img" aria-label="Box Model: level 3 of 4, on track"><span data-on></span><span data-on></span><span data-on></span><span></span></span>
+                                        <span class="font-mono text-2xs text-fg-subtle"><span class="text-fg">72</span>% · 4 evidence</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="competency-row" data-competency="responsive-layout">
+                                    <span class="competency-row-head">
+                                        <span class="competency-name">Responsive Layout</span>
+                                        <span class="badge badge-warning">Developing</span>
+                                    </span>
+                                    <span class="competency-row-foot">
+                                        <span class="meter" data-tone="warning" role="img" aria-label="Responsive Layout: level 2 of 4, developing"><span data-on></span><span data-on></span><span></span><span></span></span>
+                                        <span class="font-mono text-2xs text-fg-subtle"><span class="text-fg">44</span>% · 1 evidence</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="competency-row" data-competency="javascript-fundamentals">
+                                    <span class="competency-row-head">
+                                        <span class="competency-name">JavaScript Fundamentals</span>
+                                        <span class="badge badge-locked">Not Started</span>
+                                    </span>
+                                    <span class="competency-row-foot">
+                                        <span class="meter" role="img" aria-label="JavaScript Fundamentals: not started"><span></span><span></span><span></span><span></span></span>
+                                        <span class="font-mono text-2xs text-fg-subtle">0% · no evidence</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="competency-row" data-competency="problem-solving">
+                                    <span class="competency-row-head">
+                                        <span class="competency-name">Problem Solving</span>
+                                        <span class="badge badge-warning">Developing</span>
+                                    </span>
+                                    <span class="competency-row-foot">
+                                        <span class="meter" data-tone="warning" role="img" aria-label="Problem Solving: level 2 of 4, developing"><span data-on></span><span data-on></span><span></span><span></span></span>
+                                        <span class="font-mono text-2xs text-fg-subtle"><span class="text-fg">51</span>% · 4 evidence</span>
+                                    </span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- ── Selected competency detail ─────────────────────
+                         Selection focuses its heading to announce the new detail. -->
+                    <section class="panel competency-detail p-5 md:p-6" data-competency-detail="box-model" aria-labelledby="detail-title-box-model">
+                        <p class="eyebrow" data-detail-eyebrow>Selected competency</p>
+                        <h2 id="detail-title-box-model" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight" >Box Model</h2>
+
+                        <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+                            <div>
+                                <dt class="eyebrow">Status</dt>
+                                <dd class="mt-1"><span class="badge badge-neutral" data-detail-status>On Track</span></dd>
+                            </div>
+                            <div>
+                                <dt class="eyebrow">Prototype score</dt>
+                                <dd class="mt-1 font-mono text-lg font-semibold text-fg" data-detail-score>72%</dd>
+                            </div>
+                            <div>
+                                <dt class="eyebrow">Evidence</dt>
+                                <dd class="mt-1 text-[15px] text-fg" data-detail-evidence-count>4 items</dd>
+                            </div>
+                        </dl>
+
+                        <div class="mt-4" data-detail-meter-wrap>
+                            <div class="meter" role="img" aria-label="Box Model: level 3 of 4, on track" data-detail-meter><span data-on></span><span data-on></span><span data-on></span><span></span></div>
+                        </div>
+
+                        <p class="prose-cq mt-5 max-w-[62ch]" data-detail-summary>You consistently identify how width, padding, border, and box-sizing affect element dimensions. Continue practicing multi-element layout problems before moving deeper into responsive layout.</p>
+
+                        <section aria-labelledby="why-title-box-model" class="mt-6 border-t border-line pt-5">
+                            <h3 id="why-title-box-model" class="eyebrow">Why this result</h3>
+                            <dl class="mt-2.5 grid gap-1.5 text-sm">
+                                <div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3">
+                                    <dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Mission evidence</dt>
+                                    <dd class="text-fg-muted">4 relevant activities</dd>
+                                </div>
+                                <div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3">
+                                    <dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Knowledge Check</dt>
+                                    <dd class="text-fg-muted">KC 02 · Locked / Not attempted</dd>
+                                </div>
+                                <div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3">
+                                    <dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Current work</dt>
+                                    <dd class="text-fg-muted">M2.4 · In Progress</dd>
+                                </div>
+                            </dl>
+                            <p class="mt-2.5 max-w-[62ch] text-[13px] leading-6 text-fg-subtle">
+                                These activities provide context for this illustrative profile. The percentage is a fixed prototype value and is not derived from these records.
+                            </p>
+                        </section>
+
+                        <section aria-labelledby="evidence-title-box-model" class="mt-6 border-t border-line pt-5">
+                            <h3 id="evidence-title-box-model" class="eyebrow">Evidence</h3>
+                            <ul class="mt-2.5">
+                                <li class="evidence-row">
+                                    <a href="missions.html?q=M2.1" class="evidence-link">
+                                        <span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                                        <span class="evidence-text">
+                                            <span class="evidence-id">M2.1</span>
+                                            <span class="evidence-title">Selecting elements with CSS</span>
+                                        </span>
+                                        <span class="evidence-kind">Mission</span>
+                                        <span class="badge badge-accent">Completed</span>
+                                    </a>
+                                </li>
+                                <li class="evidence-row">
+                                    <a href="missions.html?q=M2.2" class="evidence-link">
+                                        <span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                                        <span class="evidence-text">
+                                            <span class="evidence-id">M2.2</span>
+                                            <span class="evidence-title">Class and ID selectors</span>
+                                        </span>
+                                        <span class="evidence-kind">Mission</span>
+                                        <span class="badge badge-accent">Completed</span>
+                                    </a>
+                                </li>
+                                <li class="evidence-row">
+                                    <a href="missions.html?q=M2.3" class="evidence-link">
+                                        <span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                                        <span class="evidence-text">
+                                            <span class="evidence-id">M2.3</span>
+                                            <span class="evidence-title">Padding and borders</span>
+                                        </span>
+                                        <span class="evidence-kind">Mission</span>
+                                        <span class="badge badge-accent">Completed</span>
+                                    </a>
+                                </li>
+                                <li class="evidence-row">
+                                    <a href="challenge.html" class="evidence-link">
+                                        <span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                                        <span class="evidence-text">
+                                            <span class="evidence-id">M2.4</span>
+                                            <span class="evidence-title">Build a profile card with the box model</span>
+                                        </span>
+                                        <span class="evidence-kind">Mission</span>
+                                        <span class="badge badge-warning">In Progress</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <p class="mt-2.5 font-mono text-2xs text-fg-subtle">4 evidence items</p>
+                        </section>
+
+                        <section aria-labelledby="upcoming-title-box-model" class="mt-6 border-t border-line pt-5">
+                            <h3 id="upcoming-title-box-model" class="eyebrow">Upcoming activities, not evidence yet</h3>
+                            <p class="mt-2 text-sm leading-6 text-fg-muted">Complete M2.4, M2.5, and M2.6 to unlock KC 02. The Boss Challenge unlocks after Section 04.</p>
+                            <ul class="mt-2.5">
+                                <li class="evidence-row">
+                                    <a href="knowledge-check.html?state=locked" class="evidence-link">
+                                        <span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-quiz" /></svg></span>
+                                        <span class="evidence-text">
+                                            <span class="evidence-id">KC 02</span>
+                                            <span class="evidence-title">Knowledge Check: Box Model</span>
+                                        </span>
+                                        <span class="evidence-kind">Knowledge Check</span>
+                                        <span class="badge badge-locked">Locked / Not attempted</span>
+                                    </a>
+                                </li>
+                                <li class="evidence-row is-pending">
+                                    <div class="evidence-link">
+                                    <span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-shield" /></svg></span>
+                                    <span class="evidence-text">
+                                        <span class="evidence-id">Boss</span>
+                                        <span class="evidence-title">Ship a responsive profile page</span>
+                                    </span>
+                                    <span class="evidence-kind">Assessment</span>
+                                    <span class="badge badge-locked">Locked</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </section>
+
+                        <section aria-labelledby="next-title-box-model" class="mt-6 border-t border-line pt-5">
+                            <h3 id="next-title-box-model" class="eyebrow">Next action</h3>
+                            <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Finish M2.4, M2.5, and M2.6, then pass KC 02 to open the next section.</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                                <a href="knowledge-check.html?state=locked" class="btn btn-secondary">View KC 02 Requirements</a>
+                            </div>
+                        </section>
+
+                        <p class="mt-6 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+                            Prototype data. The competency values and evidence on this page are illustrative and were not calculated by CodeQuest.
+                        </p>
+                    </section>
+<section class="panel competency-detail p-5 md:p-6" data-competency-detail="html-structure" hidden aria-labelledby="detail-title-html-structure">
+    <p class="eyebrow">Selected competency</p>
+    <h2 id="detail-title-html-structure" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight" >HTML Structure</h2>
+    <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+        <div><dt class="eyebrow">Status</dt><dd class="mt-1"><span class="badge badge-accent">Proficient</span></dd></div>
+        <div><dt class="eyebrow">Prototype score</dt><dd class="mt-1 font-mono text-lg font-semibold text-fg">88%</dd></div>
+        <div><dt class="eyebrow">Evidence</dt><dd class="mt-1 text-[15px] text-fg">7 items</dd></div>
+    </dl>
+    <div class="mt-4"><div class="meter" role="img" aria-label="HTML Structure: level 3 of 4, proficient"><span data-on></span><span data-on></span><span data-on></span><span></span></div></div>
+    <p class="prose-cq mt-5 max-w-[62ch]">You consistently reach for the right element and use document structure to support every layer above it. This is the strongest part of your profile, and the foundation the rest of the course builds on.</p>
+    <p class="competency-callout" data-tone="info"><span class="eyebrow flex items-center gap-1.5"><svg class="size-3.5" aria-hidden="true"><use href="#i-award" /></svg>Current strength</span><span class="mt-1.5 block text-sm text-fg">HTML Structure · Proficient</span><span class="mt-1 block text-sm leading-6 text-fg-muted">Completed HTML missions show consistent understanding of semantic structure and document hierarchy.</span></p>
+    <section aria-labelledby="why-title-html-structure" class="mt-6 border-t border-line pt-5">
+        <h3 id="why-title-html-structure" class="eyebrow">Why this result</h3>
+        <dl class="mt-2.5 grid gap-1.5 text-sm"><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Mission evidence</dt><dd class="text-fg-muted">6 relevant activities</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Knowledge Check</dt><dd class="text-fg-muted">KC 01 · 9 / 10</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Current work</dt><dd class="text-fg-muted">None. Section 01 is complete.</dd></div></dl>
+    </section>
+    <section aria-labelledby="evidence-title-html-structure" class="mt-6 border-t border-line pt-5">
+        <h3 id="evidence-title-html-structure" class="eyebrow">Evidence</h3>
+        <ul class="mt-2.5">
+            <li class="evidence-row"><a href="missions.html?q=M1.1" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.1</span><span class="evidence-title">Anatomy of an HTML document</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M1.2" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.2</span><span class="evidence-title">Headings and landmarks</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M1.3" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.3</span><span class="evidence-title">Semantic Containers</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M1.4" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.4</span><span class="evidence-title">Forms and Labels</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M1.5" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.5</span><span class="evidence-title">Tables and Captions</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M1.6" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.6</span><span class="evidence-title">Image and Media Basics</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=KC%2001" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-quiz" /></svg></span><span class="evidence-text"><span class="evidence-id">KC 01</span><span class="evidence-title">Knowledge Check: HTML</span></span><span class="evidence-kind">Knowledge Check</span><span class="badge badge-accent">9 / 10</span></a></li>
+        </ul>
+        <p class="mt-2.5 font-mono text-2xs text-fg-subtle">7 items</p>
+    </section>
+    <section aria-labelledby="next-title-html-structure" class="mt-6 border-t border-line pt-5">
+        <h3 id="next-title-html-structure" class="eyebrow">Next action</h3>
+        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Section 01 is complete. Continue where you left off in the CSS section.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <a href="learn.html#section-02" class="btn btn-primary">Continue Current Section<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+            <a href="missions.html?q=KC%2001" class="btn btn-secondary">View KC 01 Record</a>
+        </div>
+    </section>
+    <p class="mt-6 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+        Prototype data. The competency values and evidence on this page are illustrative and were not calculated by CodeQuest.
+    </p>
+</section>
+
+<section class="panel competency-detail p-5 md:p-6" data-competency-detail="css-selectors" hidden aria-labelledby="detail-title-css-selectors">
+    <p class="eyebrow">Selected competency</p>
+    <h2 id="detail-title-css-selectors" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight" >CSS Selectors</h2>
+    <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+        <div><dt class="eyebrow">Status</dt><dd class="mt-1"><span class="badge badge-neutral">On Track</span></dd></div>
+        <div><dt class="eyebrow">Prototype score</dt><dd class="mt-1 font-mono text-lg font-semibold text-fg">76%</dd></div>
+        <div><dt class="eyebrow">Evidence</dt><dd class="mt-1 text-[15px] text-fg">2 items</dd></div>
+    </dl>
+    <div class="mt-4"><div class="meter" role="img" aria-label="CSS Selectors: level 3 of 4, on track"><span data-on></span><span data-on></span><span data-on></span><span></span></div></div>
+    <p class="prose-cq mt-5 max-w-[62ch]">You recognise and apply class, ID and type selectors reliably. Specificity and descendant combinators are the part most likely to surprise you, and they have had the least practice so far.</p>
+    <section aria-labelledby="why-title-css-selectors" class="mt-6 border-t border-line pt-5">
+        <h3 id="why-title-css-selectors" class="eyebrow">Why this result</h3>
+        <dl class="mt-2.5 grid gap-1.5 text-sm"><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Mission evidence</dt><dd class="text-fg-muted">2 relevant activities</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Knowledge Check</dt><dd class="text-fg-muted">Not yet attempted</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Current work</dt><dd class="text-fg-muted">M2.4 · In Progress</dd></div></dl>
+    </section>
+    <section aria-labelledby="evidence-title-css-selectors" class="mt-6 border-t border-line pt-5">
+        <h3 id="evidence-title-css-selectors" class="eyebrow">Evidence</h3>
+        <ul class="mt-2.5">
+            <li class="evidence-row"><a href="missions.html?q=M2.1" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M2.1</span><span class="evidence-title">Selecting elements with CSS</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M2.2" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M2.2</span><span class="evidence-title">Class and ID selectors</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+        </ul>
+        <p class="mt-2.5 font-mono text-2xs text-fg-subtle">2 items</p>
+    </section>
+    <section aria-labelledby="next-title-css-selectors" class="mt-6 border-t border-line pt-5">
+        <h3 id="next-title-css-selectors" class="eyebrow">Next action</h3>
+                        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">M2.4 continues the CSS work in this section.</p>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+            <a href="learn.html#section-02" class="btn btn-primary">Continue Current Section<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        </div>
+    </section>
+    <p class="mt-6 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+        Prototype data. The competency values and evidence on this page are illustrative and were not calculated by CodeQuest.
+    </p>
+</section>
+
+<section class="panel competency-detail p-5 md:p-6" data-competency-detail="responsive-layout" hidden aria-labelledby="detail-title-responsive-layout">
+    <p class="eyebrow">Selected competency</p>
+    <h2 id="detail-title-responsive-layout" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight" >Responsive Layout</h2>
+    <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+        <div><dt class="eyebrow">Status</dt><dd class="mt-1"><span class="badge badge-warning">Developing</span></dd></div>
+        <div><dt class="eyebrow">Prototype score</dt><dd class="mt-1 font-mono text-lg font-semibold text-fg">44%</dd></div>
+        <div><dt class="eyebrow">Evidence</dt><dd class="mt-1 text-[15px] text-fg">1 item</dd></div>
+    </dl>
+    <div class="mt-4"><div class="meter" data-tone="warning" role="img" aria-label="Responsive Layout: level 2 of 4, developing"><span data-on></span><span data-on></span><span></span><span></span></div></div>
+    <p class="prose-cq mt-5 max-w-[62ch]">Evidence here is thin because the prerequisites are still in progress. Nothing in the responsive-layout section is unlocked yet, so the 44% is only an illustrative prototype value. The current card mission is preparatory CSS practice, not completed responsive-layout work.</p>
+    <p class="competency-callout" data-tone="warning"><span class="eyebrow flex items-center gap-1.5"><svg class="size-3.5" aria-hidden="true"><use href="#i-alert" /></svg>Needs attention</span><span class="mt-1.5 block text-sm text-fg">Responsive Layout · Developing</span><span class="mt-1 block text-sm leading-6 text-fg-muted">Evidence is still limited. Continue the current CSS section before moving into responsive-layout work.</span></p>
+    <section aria-labelledby="why-title-responsive-layout" class="mt-6 border-t border-line pt-5">
+        <h3 id="why-title-responsive-layout" class="eyebrow">Why this result</h3>
+        <dl class="mt-2.5 grid gap-1.5 text-sm"><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Mission evidence</dt><dd class="text-fg-muted">1 relevant activity</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Knowledge Check</dt><dd class="text-fg-muted">Locked</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Current work</dt><dd class="text-fg-muted">M2.4 · In Progress</dd></div></dl>
+    </section>
+    <section aria-labelledby="evidence-title-responsive-layout" class="mt-6 border-t border-line pt-5">
+        <h3 id="evidence-title-responsive-layout" class="eyebrow">Evidence</h3>
+        <ul class="mt-2.5">
+            <li class="evidence-row"><a href="challenge.html" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M2.4</span><span class="evidence-title">Build a profile card with the box model</span></span><span class="evidence-kind">Mission</span><span class="badge badge-warning">In Progress</span></a></li>
+        </ul>
+        <p class="mt-2.5 font-mono text-2xs text-fg-subtle">1 item</p>
+    </section>
+    <section aria-labelledby="next-title-responsive-layout" class="mt-6 border-t border-line pt-5">
+        <h3 id="next-title-responsive-layout" class="eyebrow">Next action</h3>
+        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Responsive-layout work stays locked until the Box Model section is done.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <a href="learn.html#section-02" class="btn btn-primary">Continue CSS Section<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        </div>
+    </section>
+    <p class="mt-6 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+        Prototype data. The competency values and evidence on this page are illustrative and were not calculated by CodeQuest.
+    </p>
+</section>
+
+<section class="panel competency-detail p-5 md:p-6" data-competency-detail="javascript-fundamentals" hidden aria-labelledby="detail-title-javascript-fundamentals">
+    <p class="eyebrow">Selected competency</p>
+    <h2 id="detail-title-javascript-fundamentals" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight" >JavaScript Fundamentals</h2>
+    <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+        <div><dt class="eyebrow">Status</dt><dd class="mt-1"><span class="badge badge-locked">Not Started</span></dd></div>
+        <div><dt class="eyebrow">Prototype score</dt><dd class="mt-1 font-mono text-lg font-semibold text-fg">0%</dd></div>
+        <div><dt class="eyebrow">Evidence</dt><dd class="mt-1 text-[15px] text-fg">0 items</dd></div>
+    </dl>
+    <div class="mt-4"><div class="meter" role="img" aria-label="JavaScript Fundamentals: level 0 of 4, not started"><span></span><span></span><span></span><span></span></div></div>
+    <p class="prose-cq mt-5 max-w-[62ch]">No competency evidence yet. Complete the prerequisite CSS sections to unlock JavaScript learning activities.</p>
+    <section aria-labelledby="why-title-javascript-fundamentals" class="mt-6 border-t border-line pt-5">
+        <h3 id="why-title-javascript-fundamentals" class="eyebrow">Why this result</h3>
+        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">There is nothing to explain yet, because nothing has been attempted.</p>
+    </section>
+    <section aria-labelledby="evidence-title-javascript-fundamentals" class="mt-6 border-t border-line pt-5">
+        <h3 id="evidence-title-javascript-fundamentals" class="eyebrow">Evidence</h3>
+        <p class="mt-2.5 text-sm font-medium text-fg">No competency evidence yet.</p>
+        <p class="mt-1 max-w-[62ch] text-sm leading-6 text-fg-muted">No JavaScript mission or knowledge check has been attempted in this student scenario.</p>
+    </section>
+    <section aria-labelledby="next-title-javascript-fundamentals" class="mt-6 border-t border-line pt-5">
+        <h3 id="next-title-javascript-fundamentals" class="eyebrow">Next action</h3>
+        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">JavaScript is locked behind the CSS sections. Nothing here can be started yet.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <a href="learn.html" class="btn btn-primary">View Learning Path<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        </div>
+    </section>
+    <p class="mt-6 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+        Prototype data. The competency values and evidence on this page are illustrative and were not calculated by CodeQuest.
+    </p>
+</section>
+
+<section class="panel competency-detail p-5 md:p-6" data-competency-detail="problem-solving" hidden aria-labelledby="detail-title-problem-solving">
+    <p class="eyebrow">Selected competency</p>
+    <h2 id="detail-title-problem-solving" tabindex="-1" class="mt-1.5 text-xl font-semibold tracking-tight" >Problem Solving</h2>
+    <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+        <div><dt class="eyebrow">Status</dt><dd class="mt-1"><span class="badge badge-warning">Developing</span></dd></div>
+        <div><dt class="eyebrow">Prototype score</dt><dd class="mt-1 font-mono text-lg font-semibold text-fg">51%</dd></div>
+        <div><dt class="eyebrow">Evidence</dt><dd class="mt-1 text-[15px] text-fg">4 items</dd></div>
+    </dl>
+    <div class="mt-4"><div class="meter" data-tone="warning" role="img" aria-label="Problem Solving: level 2 of 4, developing"><span data-on></span><span data-on></span><span></span><span></span></div></div>
+    <p class="prose-cq mt-5 max-w-[62ch]">This one is drawn from mission work across sections rather than a separate module. It tracks how you approach unfamiliar tasks, not how much of the syllabus you have covered.</p>
+    <section aria-labelledby="why-title-problem-solving" class="mt-6 border-t border-line pt-5">
+        <h3 id="why-title-problem-solving" class="eyebrow">Why this result</h3>
+        <dl class="mt-2.5 grid gap-1.5 text-sm"><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Mission evidence</dt><dd class="text-fg-muted">3 relevant activities</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Knowledge Check</dt><dd class="text-fg-muted">KC 01 · 9 / 10</dd></div><div class="grid grid-cols-1 gap-0.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3"><dt class="font-mono text-2xs tracking-[0.06em] text-fg-subtle uppercase">Current work</dt><dd class="text-fg-muted">M2.4 · In Progress</dd></div></dl>
+    </section>
+    <section aria-labelledby="evidence-title-problem-solving" class="mt-6 border-t border-line pt-5">
+        <h3 id="evidence-title-problem-solving" class="eyebrow">Evidence</h3>
+        <ul class="mt-2.5">
+            <li class="evidence-row"><a href="missions.html?q=M1.4" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M1.4</span><span class="evidence-title">Forms and Labels</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=M2.3" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M2.3</span><span class="evidence-title">Padding and borders</span></span><span class="evidence-kind">Mission</span><span class="badge badge-accent">Completed</span></a></li>
+            <li class="evidence-row"><a href="challenge.html" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span><span class="evidence-text"><span class="evidence-id">M2.4</span><span class="evidence-title">Build a profile card with the box model</span></span><span class="evidence-kind">Mission</span><span class="badge badge-warning">In Progress</span></a></li>
+            <li class="evidence-row"><a href="missions.html?q=KC%2001" class="evidence-link"><span class="evidence-type" aria-hidden="true"><svg class="size-3.5"><use href="#i-quiz" /></svg></span><span class="evidence-text"><span class="evidence-id">KC 01</span><span class="evidence-title">Knowledge Check: HTML</span></span><span class="evidence-kind">Knowledge Check</span><span class="badge badge-accent">9 / 10</span></a></li>
+        </ul>
+        <p class="mt-2.5 font-mono text-2xs text-fg-subtle">4 items</p>
+    </section>
+    <section aria-labelledby="next-title-problem-solving" class="mt-6 border-t border-line pt-5">
+        <h3 id="next-title-problem-solving" class="eyebrow">Next action</h3>
+        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Finish M2.4, M2.5, and M2.6, then pass KC 02 to open the next section.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        </div>
+    </section>
+    <p class="mt-6 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">
+        Prototype data. The competency values and evidence on this page are illustrative and were not calculated by CodeQuest.
+    </p>
+</section>
+
+                </div>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle">
+                <span class="eyebrow mr-2">Prototype note</span>
+                A static page with a fixed competency profile. Nothing is sent or stored, and selecting a competency only
+                changes the URL.
+            </p>
+
+            <!-- Prototype state switcher. Scaffolding, not product UI. -->
+            <section aria-labelledby="states-title" class="mt-6 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <p class="mt-1 max-w-[60ch] text-[13px] text-fg-subtle">Switch state, or select any competency.</p>
+                <ul class="mt-2.5 flex flex-wrap gap-2">
+                    <li><a href="competency.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="competency.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="competency.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                    <li><a href="competency.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                </ul>
+            </section>
+        </main>
+
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./competency.js"></script>
+    </body>
+</html>

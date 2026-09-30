@@ -19,13 +19,13 @@ use Illuminate\Support\Facades\DB;
 class MissionService
 {
     public function __construct(
-        private readonly ValidationService $validator,
         private readonly XpService $xp,
         private readonly DraftService $drafts,
         private readonly ActivityService $activity,
         private readonly AchievementService $achievements,
         private readonly AssessmentService $assessments,
         private readonly NotificationService $notifications,
+        private readonly MissionGradingService $grading,
     ) {}
 
     /**
@@ -34,12 +34,24 @@ class MissionService
      * @return array{
      *     passed: bool,
      *     alreadyCompleted: bool,
-     *     failures: array<int, string>,
+     *     failures: list<string>,
      *     xpAwarded: int,
      *     xpBalance: int
      * }
      */
     public function submit(User $user, Mission $mission, string $code): array
+    {
+        return DB::transaction(function () use ($user, $mission, $code): array {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            return $this->submitForLockedUser($user, $mission, $code);
+        }, attempts: 3);
+    }
+
+    /**
+     * @return array{passed: bool, alreadyCompleted: bool, failures: list<string>, xpAwarded: int, xpBalance: int}
+     */
+    private function submitForLockedUser(User $user, Mission $mission, string $code): array
     {
         if ($this->isCompleted($user, $mission)) {
             return [
@@ -51,9 +63,24 @@ class MissionService
             ];
         }
 
-        $result = $this->validator->validate($mission, $code);
+        $result = $this->grading->grade($user, $mission, $code);
 
         if (! $result['passed']) {
+            if ($result['unavailable']) {
+                $this->activity->record($user, [
+                    'type' => 'grading_unavailable',
+                    'message' => 'Behavioral grading unavailable on mission: '.$mission->title,
+                ]);
+
+                return [
+                    'passed' => false,
+                    'alreadyCompleted' => false,
+                    'failures' => $result['failures'],
+                    'xpAwarded' => 0,
+                    'xpBalance' => $this->xp->balance($user),
+                ];
+            }
+
             $this->xp->deductWrongSubmission($user, $mission);
             $this->activity->record($user, [
                 'type' => 'wrong_submission',
@@ -77,55 +104,57 @@ class MissionService
         // steady-state completions.
         $wasUnlocked = $course !== null && $this->assessments->isUnlocked($user, $course);
 
-        DB::transaction(function () use ($user, $mission, $course, $wasUnlocked): void {
-            $this->xp->awardCompletion($user, $mission);
+        $this->xp->awardCompletion($user, $mission);
 
-            Progress::query()->create([
-                'user_id' => $user->id,
-                'mission_id' => $mission->id,
-                'pts_earned' => $mission->points,
-                'completed_at' => now(),
-            ]);
+        Progress::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+            'mission_version' => $mission->version,
+            // Skill keys live at completion time: a later remapping must
+            // never reinterpret this row (US-905/US-906).
+            'skill_keys' => $mission->skills->pluck('key')->all(),
+            'pts_earned' => $mission->points,
+            'completed_at' => now(),
+        ]);
 
-            $this->achievements->evaluateMissionCompletion($user);
+        $this->achievements->evaluateMissionCompletion($user);
 
-            // US-804: the mission-completed notification is created in the
-            // SAME transaction as the Progress row (§19); a rollback removes
-            // both. US-805: when this completion is what unlocks the course's
-            // Boss Challenge (transition, not steady state), the student also
-            // hears that the challenge is open.
-            $this->notifications->create(
-                $user,
-                NotificationService::TYPE_MISSION_COMPLETED,
-                'MISSION COMPLETED',
-                "Mission completed: {$mission->title}",
-                "mission_completed:{$mission->id}",
-                NotificationService::payload('mission.show', ['mission' => $mission->id]),
-            );
+        // US-804: the mission-completed notification is created in the
+        // SAME transaction as the Progress row (§19); a rollback removes
+        // both. US-805: when this completion is what unlocks the course's
+        // Boss Challenge (transition, not steady state), the student also
+        // hears that the challenge is open.
+        $this->notifications->create(
+            $user,
+            NotificationService::TYPE_MISSION_COMPLETED,
+            'MISSION COMPLETED',
+            "Mission completed: {$mission->title}",
+            "mission_completed:{$mission->id}",
+            NotificationService::payload('mission.show', ['mission' => $mission->id]),
+        );
 
-            if ($course !== null && ! $wasUnlocked && $this->assessments->isUnlocked($user, $course)) {
-                $assessment = $this->assessments->forCourse($course);
+        if ($course !== null && ! $wasUnlocked && $this->assessments->isUnlocked($user, $course)) {
+            $assessment = $this->assessments->forCourse($course);
 
-                if ($assessment !== null) {
-                    $this->notifications->create(
-                        $user,
-                        NotificationService::TYPE_ASSESSMENT_UNLOCKED,
-                        'CHALLENGE UNLOCKED',
-                        "Boss Challenge unlocked: {$assessment->title}",
-                        "assessment_unlocked:{$assessment->id}",
-                        NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),
-                    );
-                }
+            if ($assessment !== null) {
+                $this->notifications->create(
+                    $user,
+                    NotificationService::TYPE_ASSESSMENT_UNLOCKED,
+                    'CHALLENGE UNLOCKED',
+                    "Boss Challenge unlocked: {$assessment->title}",
+                    "assessment_unlocked:{$assessment->id}",
+                    NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),
+                );
             }
+        }
 
-            $this->drafts->delete($user, $mission);
+        $this->drafts->delete($user, $mission);
 
-            $this->activity->record($user, [
-                'type' => 'mission_completed',
-                'message' => 'Mission completed: '.$mission->title,
-                'pts' => $mission->points,
-            ]);
-        });
+        $this->activity->record($user, [
+            'type' => 'mission_completed',
+            'message' => 'Mission completed: '.$mission->title,
+            'pts' => $mission->points,
+        ]);
 
         return [
             'passed' => true,

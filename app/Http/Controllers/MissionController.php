@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Mission;
 use App\Models\User;
+use App\Services\AchievementService;
+use App\Services\AssessmentService;
+use App\Services\DashboardService;
 use App\Services\DraftService;
-use App\Services\LearningPathService;
+use App\Services\KnowledgeCheckService;
 use App\Services\MissionService;
 use App\Services\XpService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +21,10 @@ class MissionController extends Controller
         private readonly MissionService $missions,
         private readonly DraftService $drafts,
         private readonly XpService $xp,
-        private readonly LearningPathService $path,
+        private readonly DashboardService $dashboard,
+        private readonly AchievementService $achievements,
+        private readonly KnowledgeCheckService $knowledgeChecks,
+        private readonly AssessmentService $assessments,
     ) {}
 
     /**
@@ -33,6 +39,8 @@ class MissionController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
+        $this->ensureCourseReached($user, $mission);
+
         return view('lesson', $this->lessonData($user, $mission));
     }
 
@@ -41,12 +49,18 @@ class MissionController extends Controller
      * lightweight context (breadcrumb, title, objective, XP reward, back
      * navigation) accompanies the CodeMirror / RUN / SUBMIT surfaces.
      */
-    public function challenge(Mission $mission): View
+    public function challenge(Mission $mission): RedirectResponse|View
     {
         $this->ensureCourseActive($mission);
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
+
+        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+            return $redirect;
+        }
 
         return view('challenge', $this->viewData($user, $mission));
     }
@@ -58,18 +72,39 @@ class MissionController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
+        $this->ensureCourseReached($user, $mission);
+
+        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+            return $redirect;
+        }
+
         $validated = $request->validate([
             'code' => ['required', 'string'],
         ]);
 
+        $course = $mission->course;
+        $progressBefore = $course !== null
+            ? $this->dashboard->courseProgress($user, $course)['percent']
+            : null;
+        $achievementsBefore = $this->achievementNames($user);
+
         $outcome = $this->missions->submit($user, $mission, $validated['code']);
 
         if ($outcome['passed'] && ! $outcome['alreadyCompleted']) {
+            $progressAfter = $course !== null
+                ? $this->dashboard->courseProgress($user, $course)['percent']
+                : null;
+
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('mission_success', [
                     'title' => 'Mission complete',
                     'message' => '+'.$outcome['xpAwarded'].' XP awarded.',
+                    'xp_awarded' => $outcome['xpAwarded'],
+                    'xp_balance' => $outcome['xpBalance'],
+                    'progress_before' => $progressBefore,
+                    'progress_after' => $progressAfter,
+                    'achievement' => $this->newAchievementName($user, $achievementsBefore),
                 ]);
         }
 
@@ -97,6 +132,12 @@ class MissionController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
+        $this->ensureCourseReached($user, $mission);
+
+        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+            return $redirect;
+        }
+
         $validated = $request->validate([
             'code' => ['required', 'string'],
         ]);
@@ -115,6 +156,12 @@ class MissionController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
+
+        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+            return $redirect;
+        }
 
         if ($this->missions->isCompleted($user, $mission)) {
             return back()
@@ -150,6 +197,12 @@ class MissionController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
+
+        $this->ensureCourseReached($user, $mission);
+
+        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+            return $redirect;
+        }
 
         if ($this->missions->isCompleted($user, $mission)) {
             return back()
@@ -188,7 +241,10 @@ class MissionController extends Controller
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $this->missions->isCompleted($user, $mission),
+            'totalXp' => $this->xp->balance($user),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
+            'knowledgeChecks' => $this->knowledgeChecks->lessonSummaries($user, $mission),
+            'outstandingRequiredCheck' => $this->knowledgeChecks->firstOutstandingRequired($user, $mission),
         ];
     }
 
@@ -212,7 +268,9 @@ class MissionController extends Controller
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $completed,
-            'code' => $solutionRevealed && $mission->solution_code !== null ? $mission->solution_code : ($draft?->code ?? ''),
+            'totalXp' => $this->xp->balance($user),
+            'code' => $solutionRevealed && $mission->solution_code !== null ? $mission->solution_code : ($draft->code ?? ''),
+            'hasDraft' => $draft !== null,
             'solutionRevealed' => $solutionRevealed,
             'hints' => $revealedHints,
             'revealedHintCount' => $revealedCount,
@@ -220,14 +278,34 @@ class MissionController extends Controller
             'nextHintCost' => $this->xp->hintCost($revealedCount + 1),
             'revealCost' => $this->xp->revealCost(),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
-            'xpBalance' => $this->xp->balance($user),
-            'nextMissionId' => $this->nextMissionId($user, $mission),
         ];
     }
 
-    private function nextMissionId(User $user, Mission $mission): ?int
+    /**
+     * @return array<string, string>
+     */
+    private function achievementNames(User $user): array
     {
-        return $this->path->nextMission($user, $mission->course)?->id;
+        return $this->achievements->catalog($user)
+            ->filter(fn (array $achievement): bool => $achievement['awarded'])
+            ->mapWithKeys(fn (array $achievement): array => [
+                $achievement['slug'] => $achievement['name'],
+            ])
+            ->all();
+    }
+
+    /**
+     * @param  array<string, string>  $achievementsBefore
+     */
+    private function newAchievementName(User $user, array $achievementsBefore): ?string
+    {
+        foreach ($this->achievementNames($user) as $slug => $name) {
+            if (! array_key_exists($slug, $achievementsBefore)) {
+                return $name;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -248,6 +326,9 @@ class MissionController extends Controller
         return array_values(array_filter(array_map('strval', $decoded), fn (string $h): bool => $h !== ''));
     }
 
+    /**
+     * @param  list<string>  $failures
+     */
     private function firstFailure(array $failures): string
     {
         if ($failures === []) {
@@ -270,5 +351,29 @@ class MissionController extends Controller
         if ($mission->course === null || $mission->course->status !== 'active') {
             abort(403, 'This course is not currently active.');
         }
+    }
+
+    private function ensureCourseReached(User $user, Mission $mission): void
+    {
+        $course = $mission->course;
+
+        if ($course === null || ! $this->assessments->isCourseReached($user, $course)) {
+            abort(403, 'Complete earlier courses before opening this Challenge.');
+        }
+    }
+
+    private function knowledgeCheckGate(User $user, Mission $mission): ?RedirectResponse
+    {
+        $required = $this->knowledgeChecks->firstOutstandingRequired($user, $mission);
+
+        if ($required === null) {
+            return null;
+        }
+
+        return redirect()->route('mission.show', $mission)
+            ->with('knowledge_check_info', [
+                'title' => 'Knowledge Check required',
+                'message' => "Complete {$required->title} before opening this Challenge.",
+            ]);
     }
 }

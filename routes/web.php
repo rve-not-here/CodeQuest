@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminActivityController;
 use App\Http\Controllers\AdminAnalyticsController;
 use App\Http\Controllers\AdminAnnouncementController;
 use App\Http\Controllers\AdminAssessmentController;
+use App\Http\Controllers\AdminClassroomController;
 use App\Http\Controllers\AdminCourseController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminMissionController;
@@ -15,15 +16,18 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AttentionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\CompetencyController;
 use App\Http\Controllers\CourseAnalyticsController;
 use App\Http\Controllers\CourseProgressController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KnowledgeCheckController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionIndexController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RecommendationsController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\SectionProgressController;
 use App\Http\Controllers\ShellController;
 use App\Http\Controllers\StudentController;
@@ -38,50 +42,65 @@ Route::get('/shell', ShellController::class)->name('shell');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 });
 
 Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->middleware('student')->name('dashboard');
 
     // Learning path (courses -> sections -> missions)
-    Route::get('/learning-path', LearningPathController::class)->name('learning-path');
+    Route::get('/learning-path', LearningPathController::class)->middleware('student')->name('learning-path');
 
     // Course progress overview (every course's mission state + status label)
-    Route::get('/progress', CourseProgressController::class)->name('progress');
+    Route::get('/progress', CourseProgressController::class)->middleware('student')->name('progress');
 
     // Section progress overview (per-section mission state, grouped by course)
-    Route::get('/section-progress', SectionProgressController::class)->name('section-progress');
+    Route::get('/section-progress', SectionProgressController::class)->middleware('student')->name('section-progress');
+
+    // Report exports (US-1010, CSV only): the student's own progress as a
+    // download. Authorization and filters match the on-screen report.
+    Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->middleware('student')->name('export.progress');
 
     // Mission / challenge
-    Route::get('/missions', MissionIndexController::class)->name('missions');
-    Route::get('/missions/{mission}', [MissionController::class, 'show'])->name('mission.show');
-    Route::get('/missions/{mission}/challenge', [MissionController::class, 'challenge'])->name('mission.challenge');
-    Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->name('mission.submit');
-    Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->name('mission.draft');
-    Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->name('mission.hint');
-    Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->name('mission.reveal');
+    Route::get('/missions', MissionIndexController::class)->middleware('student')->name('missions');
+    Route::get('/missions/{mission}', [MissionController::class, 'show'])->middleware('student')->name('mission.show');
+    Route::get('/missions/{mission}/challenge', [MissionController::class, 'challenge'])->middleware('student')->name('mission.challenge');
+    Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->middleware('student')->name('mission.submit');
+    Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->middleware('student')->name('mission.draft');
+    Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->middleware('student')->name('mission.hint');
+    Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->middleware('student')->name('mission.reveal');
+
+    Route::scopeBindings()->group(function (): void {
+        Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/start', [KnowledgeCheckController::class, 'start'])
+            ->middleware('student')->name('knowledge-check.start');
+        Route::get('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}', [KnowledgeCheckController::class, 'show'])
+            ->middleware('student')->name('knowledge-check.show');
+        Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}/submit', [KnowledgeCheckController::class, 'submit'])
+            ->middleware('student')->name('knowledge-check.submit');
+        Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/retry', [KnowledgeCheckController::class, 'retry'])
+            ->middleware('student')->name('knowledge-check.retry');
+    });
 
     // Boss Challenge (assessments)
-    Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessments');
-    Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->name('assessment.show');
-    Route::post('/assessments/{assessment}/start', [AssessmentController::class, 'start'])->name('assessment.start');
-    Route::post('/assessments/{assessment}/submit', [AssessmentController::class, 'submit'])->name('assessment.submit');
-    Route::post('/assessments/{assessment}/retry', [AssessmentController::class, 'retry'])->name('assessment.retry');
+    Route::get('/assessments', [AssessmentController::class, 'index'])->middleware('student')->name('assessments');
+    Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->middleware('student')->name('assessment.show');
+    Route::post('/assessments/{assessment}/start', [AssessmentController::class, 'start'])->middleware('student')->name('assessment.start');
+    Route::post('/assessments/{assessment}/submit', [AssessmentController::class, 'submit'])->middleware('student')->name('assessment.submit');
+    Route::post('/assessments/{assessment}/retry', [AssessmentController::class, 'retry'])->middleware('student')->name('assessment.retry');
 
     // Unified learning timeline (US-505)
-    Route::get('/timeline', TimelineController::class)->name('timeline');
+    Route::get('/timeline', TimelineController::class)->middleware('student')->name('timeline');
 
     // XP ledger history (US-506)
-    Route::get('/xp-ledger', XpLedgerController::class)->name('xp-ledger');
+    Route::get('/xp-ledger', XpLedgerController::class)->middleware('student')->name('xp-ledger');
 
     // Competency dashboard (US-507)
-    Route::get('/competency', CompetencyController::class)->name('competency');
+    Route::get('/competency', CompetencyController::class)->middleware('student')->name('competency');
 
     // Personalized recommendations (US-509)
-    Route::get('/recommendations', RecommendationsController::class)->name('recommendations');
+    Route::get('/recommendations', RecommendationsController::class)->middleware('student')->name('recommendations');
 
     // Notification center (US-801, US-802, US-803): only the authenticated
     // user's own rows. Mark-read POST routes (US-803) resolve via
@@ -93,7 +112,7 @@ Route::middleware('auth')->group(function (): void {
 
     // Achievements registry (US-508 display): the authenticated user's own
     // catalog. Awards remain server-only through AchievementService::award().
-    Route::get('/achievements', AchievementController::class)->name('achievements');
+    Route::get('/achievements', AchievementController::class)->middleware('student')->name('achievements');
 });
 
 // Teacher area (US-601): authenticated, role-gated to teacher or admin.
@@ -117,6 +136,18 @@ Route::middleware(['auth', 'teacher'])->group(function (): void {
     Route::get('/activity', ActivityController::class)->name('activity');
     Route::get('/course-analytics', CourseAnalyticsController::class)->name('course-analytics');
     Route::get('/needs-attention', AttentionController::class)->name('needs-attention');
+
+    // Classroom / Enrollment Authorization (teacher read side): a teacher sees
+    // exactly their own teaching classrooms while ACTIVE, and the monitoring
+    // data on every teacher page above is scoped in depth by
+    // ClassroomAccessService. Read-only GETs, like the rest of the teacher area.
+    Route::get('/classrooms', [ClassroomController::class, 'index'])->name('classrooms');
+    Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])->name('classrooms.show');
+
+    // Report exports (US-1010, CSV only): teacher-scoped student and course
+    // downloads. Same authorization, scope, and filters as the reports.
+    Route::get('/export/teacher/students/{student}', [ReportExportController::class, 'teacherStudent'])->name('export.teacher-student');
+    Route::get('/export/teacher/courses/{course}', [ReportExportController::class, 'teacherCourse'])->name('export.teacher-course');
 });
 
 // Admin area (US-701): authenticated, admin-only. The 'admin' middleware is
@@ -126,6 +157,10 @@ Route::middleware(['auth', 'teacher'])->group(function (): void {
 // in the teacher group and never without the 'admin' middleware.
 Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/admin', AdminDashboardController::class)->name('admin.dashboard');
+
+    // Report exports (US-1010, CSV only): fleet system download under the
+    // same admin authorization, scope, and filters as the system report.
+    Route::get('/export/admin/system', [ReportExportController::class, 'adminSystem'])->name('export.admin-system');
 
     // User management (US-703, §9.0–§12.0): directory + create/edit. Since
     // US-704 update also accepts optional role (UserService::ROLES, operator
@@ -226,4 +261,20 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
     // explicit SAFE_CONFIG_KEYS allowlist, never credentials, keys, or
     // connection internals. Route is not nested: it describes the deployment.
     Route::get('/admin/system', AdminSystemController::class)->name('admin.system');
+
+    // Classroom management (Classroom / Enrollment Authorization): admin-owned
+    // CRUD for the three base fields and the three membership assignment sets.
+    // Create + assignments + edit run through ClassroomService and write a
+    // persist audit trail row for every applied change and every refusal. The
+    // assignment POSTs are separate membership operations — they never touch
+    // academic history, and a status change never rewrites (or clears) the
+    // pivots. No delete/destroy route (§14 no-destructive posture).
+    Route::get('/admin/classrooms', [AdminClassroomController::class, 'index'])->name('admin.classrooms');
+    Route::get('/admin/classrooms/create', [AdminClassroomController::class, 'create'])->name('admin.classrooms.create');
+    Route::post('/admin/classrooms', [AdminClassroomController::class, 'store'])->name('admin.classrooms.store');
+    Route::get('/admin/classrooms/{classroom}/edit', [AdminClassroomController::class, 'edit'])->name('admin.classrooms.edit');
+    Route::put('/admin/classrooms/{classroom}', [AdminClassroomController::class, 'update'])->name('admin.classrooms.update');
+    Route::post('/admin/classrooms/{classroom}/teachers', [AdminClassroomController::class, 'assignTeachers'])->name('admin.classrooms.teachers');
+    Route::post('/admin/classrooms/{classroom}/students', [AdminClassroomController::class, 'enrollStudents'])->name('admin.classrooms.students');
+    Route::post('/admin/classrooms/{classroom}/courses', [AdminClassroomController::class, 'assignCourses'])->name('admin.classrooms.courses');
 });

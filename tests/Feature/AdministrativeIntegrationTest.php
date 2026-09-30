@@ -15,6 +15,7 @@ use App\Services\SectionService;
 use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 /**
@@ -45,6 +46,7 @@ use Tests\TestCase;
 class AdministrativeIntegrationTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     protected function setUp(): void
     {
@@ -69,6 +71,8 @@ class AdministrativeIntegrationTest extends TestCase
             $this->courseWithAssessment('CSS Foundations', 2, [
                 ['token' => '<p>', 'points' => 50],
             ], 'ALL_CLEAR');
+
+        $this->classroomFor($teacher, [$student], [$alpha, $beta]);
 
         // The student completes the first mission BEFORE the admin edits, so a
         // baseline of recorded progress exists to prove the edits never touch
@@ -204,7 +208,7 @@ class AdministrativeIntegrationTest extends TestCase
         // TEACHER MONITORING (Phase 6) reflects the same live state, keyed off
         // the renamed course, straight after the student's pass POST.
         $dashboard = $this->actingAs($teacher)->get(route('students'));
-        $dashboard->assertSee('Mission completed: '.$alphaMissions[1]->title);
+        $dashboard->assertSee('Boss Challenge passed: '.$alphaChallenge->title);
 
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString('The 404 Challenge', $roster);

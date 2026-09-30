@@ -9,6 +9,7 @@ use App\Exceptions\AssessmentNotUnlockedException;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
+use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -63,6 +64,92 @@ class AssessmentService
     }
 
     /**
+     * Batched read companions for the per-course assessment predicates below
+     * (US-911). Fleet and overview paths aggregate in SQL and consume these
+     * sets instead of issuing one lookup per course; the predicates stay
+     * verbatim: an assessment belongs to the course holding its course_id
+     * (unique per course), a pass is a 'passed' attempt row owned by the
+     * student, eligibility is every course mission completed with at least
+     * one mission present.
+     *
+     * @param  Collection<int, int>  $courseIds
+     * @return Collection<int, int> course_id => assessment_id
+     */
+    public function assessmentIdsByCourse(Collection $courseIds): Collection
+    {
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        return Assessment::query()
+            ->whereIn('course_id', $courseIds)
+            ->pluck('id', 'course_id');
+    }
+
+    /**
+     * @return Collection<int, int> assessment ids with at least one passed attempt by the user
+     */
+    public function passedAssessmentIds(User $user): Collection
+    {
+        return AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'passed')
+            ->distinct()
+            ->pluck('assessment_id');
+    }
+
+    /**
+     * Per-course assessment state for a set of courses in a constant number
+     * of queries: the assessment row, the hasPassed() verdict, and the
+     * isEligible() verdict, each computed from the same predicates as the
+     * single-course methods.
+     *
+     * @param  Collection<int, Course>  $courses
+     * @return array<int, array{assessment: ?Assessment, passed: bool, eligible: bool}> keyed by course id
+     */
+    public function assessmentStatesForCourses(User $user, Collection $courses): array
+    {
+        if ($courses->isEmpty()) {
+            return [];
+        }
+
+        $courseIds = $courses->pluck('id');
+
+        $assessments = Assessment::query()
+            ->whereIn('course_id', $courseIds)
+            ->get()
+            ->keyBy('course_id');
+
+        $missionIdsByCourse = Mission::query()
+            ->whereIn('course_id', $courseIds)
+            ->get(['id', 'course_id'])
+            ->groupBy('course_id');
+
+        $completed = Progress::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $missionIdsByCourse->flatten()->pluck('id'))
+            ->pluck('mission_id')
+            ->flip();
+
+        $passed = $this->passedAssessmentIds($user)->flip();
+
+        $states = [];
+
+        foreach ($courses as $course) {
+            $missionIds = $missionIdsByCourse->get($course->id, collect())->pluck('id')->all();
+            $assessment = $assessments->get($course->id);
+
+            $states[$course->id] = [
+                'assessment' => $assessment,
+                'passed' => $assessment !== null && $passed->has($assessment->id),
+                'eligible' => $missionIds !== [] && collect($missionIds)->every(fn (int $id): bool => $completed->has($id)),
+            ];
+        }
+
+        return $states;
+    }
+
+    /**
      * Whether a student may attempt the course's Boss Challenge (§5.1).
      *
      * A course is assessment-eligible only when the student has completed
@@ -87,6 +174,27 @@ class AssessmentService
     }
 
     /**
+     * Earlier active courses with missions must have a historical Boss
+     * Challenge pass before a student can work in this course.
+     */
+    public function isCourseReached(User $user, Course $course): bool
+    {
+        $earlierCourses = Course::query()
+            ->where('status', 'active')
+            ->where('order_num', '<', $course->order_num)
+            ->whereHas('missions')
+            ->get();
+
+        foreach ($earlierCourses as $earlierCourse) {
+            if (! $this->hasPassed($user, $earlierCourse)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Whether the course's Boss Challenge is unlocked for the student (§6).
      *
      * Unlocking is server-authoritative and requires all of: the COURSE is
@@ -97,7 +205,7 @@ class AssessmentService
      */
     public function isUnlocked(User $user, Course $course): bool
     {
-        if ($course->status !== 'active') {
+        if ($course->status !== 'active' || ! $this->isCourseReached($user, $course)) {
             return false;
         }
 
@@ -160,38 +268,50 @@ class AssessmentService
      */
     public function beginAttempt(User $user, Course $course): AssessmentAttempt
     {
-        if (! $this->isUnlocked($user, $course)) {
-            throw AssessmentNotUnlockedException::forCourse($course->id);
-        }
+        return DB::transaction(function () use ($user, $course): AssessmentAttempt {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
 
-        $assessment = $this->forCourse($course);
+            if (! $this->isUnlocked($user, $course)) {
+                throw AssessmentNotUnlockedException::forCourse($course->id);
+            }
 
-        $attempt = $this->attempts($assessment, $user)->first();
+            $assessment = $this->forCourse($course);
 
-        if ($attempt === null) {
-            $attempt = new AssessmentAttempt([
-                'assessment_id' => $assessment->id,
-                'user_id' => $user->id,
-            ]);
+            if ($assessment === null) {
+                throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
+            }
 
-            $attempt->status = 'started';
-            $attempt->save();
+            $attempt = $this->attempts($assessment, $user)->first();
 
-            return $attempt;
-        }
+            if ($attempt === null) {
+                $attempt = new AssessmentAttempt([
+                    'assessment_id' => $assessment->id,
+                    'user_id' => $user->id,
+                    // Skill keys live at attempt start for future mapping use.
+                    // v1 skill scoring ignores Boss evidence entirely.
+                    'skill_keys' => $assessment->skills->pluck('key')->all(),
+                ]);
 
-        if ($attempt->status === 'available') {
-            $attempt->status = 'started';
-            $attempt->save();
+                $attempt->status = 'started';
+                $attempt->assessment_version = $assessment->version;
+                $attempt->save();
 
-            return $attempt;
-        }
+                return $attempt;
+            }
 
-        if ($attempt->status === 'started') {
-            return $attempt;
-        }
+            if ($attempt->status === 'available') {
+                $attempt->status = 'started';
+                $attempt->save();
 
-        throw AssessmentAttemptStateException::mismatch($attempt->id, ['available', 'started'], $attempt->status);
+                return $attempt;
+            }
+
+            if ($attempt->status === 'started') {
+                return $attempt;
+            }
+
+            throw AssessmentAttemptStateException::mismatch($attempt->id, ['available', 'started'], $attempt->status);
+        }, attempts: 3);
     }
 
     /**
@@ -208,6 +328,34 @@ class AssessmentService
         return $this->attempts($assessment, $user)
             ->latest('id')
             ->first();
+    }
+
+    /**
+     * Latest attempt per assessment for one student, using only fields the
+     * assessment hub needs. Historical attempts and submitted code stay out
+     * of the returned collection.
+     *
+     * @param  Collection<int, int>  $assessmentIds
+     * @return Collection<int, AssessmentAttempt> keyed by assessment id
+     */
+    public function latestAttemptsForAssessments(User $user, Collection $assessmentIds): Collection
+    {
+        if ($assessmentIds->isEmpty()) {
+            return collect();
+        }
+
+        $latestIds = AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('assessment_id', $assessmentIds)
+            ->selectRaw('MAX(id) AS id')
+            ->groupBy('assessment_id')
+            ->pluck('id');
+
+        return AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('id', $latestIds)
+            ->get(['id', 'assessment_id', 'status'])
+            ->keyBy('assessment_id');
     }
 
     /**
@@ -240,15 +388,75 @@ class AssessmentService
         return $this->attempts($assessment, $user)
             ->orderByDesc('id')
             ->get()
-            ->map(function (AssessmentAttempt $attempt): array {
-                return [
-                    'id' => $attempt->id,
-                    'status' => $attempt->status,
-                    'score' => $attempt->score,
-                    'passed_at' => $attempt->passed_at,
-                    'submitted_at' => $attempt->submitted_at,
-                ];
-            });
+            ->map(fn (AssessmentAttempt $attempt): array => $this->presentAttempt($attempt));
+    }
+
+    /**
+     * Attempt histories for many courses in two queries, for fleet and
+     * overview paths (US-911). Same rows, order, and shape as calling
+     * attemptHistory() per course; courses without attempts are simply
+     * absent from the map.
+     *
+     * @param  Collection<int, Course>  $courses
+     * @return Collection<int, Collection<int, array{
+     *     id: int,
+     *     status: string,
+     *     score: int|null,
+     *     passed_at: Carbon|null,
+     *     submitted_at: Carbon|null,
+     * }>>  keyed by course id
+     */
+    public function attemptHistoriesForCourses(User $user, Collection $courses): Collection
+    {
+        $aidsByCourse = $this->assessmentIdsByCourse($courses->pluck('id'));
+
+        if ($aidsByCourse->isEmpty()) {
+            return collect();
+        }
+
+        $grouped = AssessmentAttempt::query()
+            ->where('user_id', $user->id)
+            ->whereIn('assessment_id', $aidsByCourse->values())
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('assessment_id');
+
+        $courseByAid = $aidsByCourse->flip();
+        $histories = [];
+
+        foreach ($grouped as $assessmentId => $attempts) {
+            $courseId = $courseByAid->get($assessmentId);
+
+            if ($courseId === null) {
+                continue;
+            }
+
+            $histories[$courseId] = $attempts
+                ->map(fn (AssessmentAttempt $attempt): array => $this->presentAttempt($attempt))
+                ->values();
+        }
+
+        return collect($histories);
+    }
+
+    /**
+     * @return array{
+     *     id: int,
+     *     status: string,
+     *     score: int|null,
+     *     passed_at: Carbon|null,
+     *     submitted_at: Carbon|null,
+     * }
+     */
+    private function presentAttempt(AssessmentAttempt $attempt): array
+    {
+        return [
+            'id' => $attempt->id,
+            'status' => $attempt->status,
+            'score' => $attempt->score,
+            'passed_at' => $attempt->passed_at,
+            'submitted_at' => $attempt->submitted_at,
+        ];
     }
 
     /**
@@ -303,16 +511,24 @@ class AssessmentService
             throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
         }
 
-        if ($attempt->status !== 'started') {
-            throw AssessmentAttemptStateException::mismatch($attempt->id, ['started'], $attempt->status);
-        }
+        DB::transaction(function () use ($user, $attempt, $code): void {
+            $current = AssessmentAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
 
-        $attempt->code = $code;
-        $attempt->status = 'submitted';
-        $attempt->submitted_at = now();
-        $attempt->save();
+            if (! $this->hasAccessToAttempt($user, $current)) {
+                throw AssessmentAttemptAccessDeniedException::forAttempt($current->id);
+            }
 
-        return $attempt;
+            if ($current->status !== 'started') {
+                throw AssessmentAttemptStateException::mismatch($current->id, ['started'], $current->status);
+            }
+
+            $current->code = $code;
+            $current->status = 'submitted';
+            $current->submitted_at = now();
+            $current->save();
+        }, attempts: 3);
+
+        return $attempt->refresh();
     }
 
     /**
@@ -344,42 +560,60 @@ class AssessmentService
             throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
         }
 
-        if ($attempt->status !== 'submitted') {
-            throw AssessmentAttemptStateException::mismatch($attempt->id, ['submitted'], $attempt->status);
-        }
-
-        $assessment = $attempt->assessment;
-
-        if ($assessment === null) {
+        if ($attempt->assessment === null) {
             throw new \InvalidArgumentException('Assessment attempt '.$attempt->id.' references no assessment.');
         }
 
-        $result = $this->validator->validateRules($assessment->grading_rule ?? '', $attempt->code ?? '');
+        DB::transaction(function () use ($user, $attempt): void {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $attempt = AssessmentAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
 
-        $total = $result['total'];
-        // Coupling: ValidationService::validateRules() folds a malformed rule
-        // entry into the failures list, so it is counted here as a failed rule.
-        // That is currently safe only because seeded grading_rule content is
-        // assumed valid; a broken rule would otherwise score as a student
-        // failure. Guarded, not fixed: recording malformed-rule credit is a
-        // US-407 design decision we are not changing here.
-        $failed = count($result['failures']);
+            if (! $this->hasAccessToAttempt($user, $attempt)) {
+                throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
+            }
 
-        $score = $total > 0 ? (int) round((($total - $failed) / $total) * 100) : 0;
+            if ($attempt->status !== 'submitted') {
+                throw AssessmentAttemptStateException::mismatch($attempt->id, ['submitted'], $attempt->status);
+            }
 
-        $passed = $total > 0 && $score >= $assessment->passing_score;
+            $assessment = $attempt->assessment;
 
-        // The pre-state, read before this attempt is written as passed: has
-        // the student already earned a passed verdict on this assessment?
-        // Mirrors hasPassed() and feeds the award-only-on-first-pass rule.
-        $hadPassedBefore = $this->attempts($assessment, $user)
-            ->where('status', 'passed')
-            ->exists();
+            if ($assessment === null) {
+                throw new \InvalidArgumentException('Assessment attempt '.$attempt->id.' references no assessment.');
+            }
 
-        DB::transaction(function () use ($attempt, $assessment, $user, $score, $passed, $hadPassedBefore): void {
+            $result = $this->validator->validateRules($assessment->grading_rule ?? '', $attempt->code ?? '');
+
+            $total = $result['total'];
+            // Coupling: ValidationService::validateRules() folds a malformed rule
+            // entry into the failures list, so it is counted here as a failed rule.
+            // That is currently safe only because seeded grading_rule content is
+            // assumed valid; a broken rule would otherwise score as a student
+            // failure. Guarded, not fixed: recording malformed-rule credit is a
+            // US-407 design decision we are not changing here.
+            $failed = count($result['failures']);
+
+            $score = $total > 0 ? (int) round((($total - $failed) / $total) * 100) : 0;
+
+            $passed = $total > 0 && $score >= $assessment->passing_score;
+
+            // The pre-state, read before this attempt is written as passed: has
+            // the student already earned a passed verdict on this assessment?
+            // Mirrors hasPassed() and feeds the award-only-on-first-pass rule.
+            $hadPassedBefore = $this->attempts($assessment, $user)
+                ->where('status', 'passed')
+                ->exists();
+
             $attempt->score = $score;
             $attempt->status = $passed ? 'passed' : 'failed';
             $attempt->passed_at = $passed ? now() : null;
+            // Evidence of the exact revision that produced this verdict: the
+            // assessment version in force at evaluation time plus a copy of
+            // the rule and threshold it was scored against. Later edits to
+            // grading_rule or passing_score never rewrite these columns.
+            $attempt->assessment_version = $assessment->version;
+            $attempt->grading_rule_snapshot = $assessment->grading_rule;
+            $attempt->passing_score_snapshot = $assessment->passing_score;
             $attempt->save();
 
             // US-805: the verdict notification is created in the SAME
@@ -439,9 +673,10 @@ class AssessmentService
                     );
                 }
             }
-        });
 
-        return $attempt;
+        }, attempts: 3);
+
+        return $attempt->refresh();
     }
 
     /**
@@ -457,31 +692,41 @@ class AssessmentService
      */
     public function retryAttempt(User $user, Course $course): AssessmentAttempt
     {
-        if (! $this->isUnlocked($user, $course)) {
-            throw AssessmentNotUnlockedException::forCourse($course->id);
-        }
+        return DB::transaction(function () use ($user, $course): AssessmentAttempt {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
 
-        $assessment = $this->forCourse($course);
+            if (! $this->isUnlocked($user, $course)) {
+                throw AssessmentNotUnlockedException::forCourse($course->id);
+            }
 
-        $latest = $this->latestAttemptFor($user, $course);
+            $assessment = $this->forCourse($course);
 
-        if ($latest === null) {
-            throw AssessmentAttemptStateException::noAttemptToRetry($course->id);
-        }
+            if ($assessment === null) {
+                throw new \InvalidArgumentException('Course '.$course->id.' has no assessment.');
+            }
 
-        if (! in_array($latest->status, ['failed', 'passed'], true)) {
-            throw AssessmentAttemptStateException::mismatch($latest->id, ['failed', 'passed'], $latest->status);
-        }
+            $latest = $this->latestAttemptFor($user, $course);
 
-        $retry = new AssessmentAttempt([
-            'assessment_id' => $assessment->id,
-            'user_id' => $user->id,
-        ]);
+            if ($latest === null) {
+                throw AssessmentAttemptStateException::noAttemptToRetry($course->id);
+            }
 
-        $retry->status = 'started';
-        $retry->save();
+            if (! in_array($latest->status, ['failed', 'passed'], true)) {
+                throw AssessmentAttemptStateException::mismatch($latest->id, ['failed', 'passed'], $latest->status);
+            }
 
-        return $retry;
+            $retry = new AssessmentAttempt([
+                'assessment_id' => $assessment->id,
+                'user_id' => $user->id,
+                'skill_keys' => $assessment->skills->pluck('key')->all(),
+            ]);
+
+            $retry->status = 'started';
+            $retry->assessment_version = $assessment->version;
+            $retry->save();
+
+            return $retry;
+        }, attempts: 3);
     }
 
     /**

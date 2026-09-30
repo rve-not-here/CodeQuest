@@ -66,7 +66,9 @@ class AdminAssessmentService
      *
      * An actual change records 'assessment.update'; a status change records a
      * separate 'assessment.status.change' row (mirroring CourseService); a
-     * no-op round-trip records nothing. A value outside the allow lists, or a
+     * no-op round-trip records nothing. A material field change also bumps
+     * the assessment version by one (status-only transitions do not) and
+     * names the transition in the audit summary. A value outside the allow lists, or a
      * cross-course assessment, records a 'failed' audit row before
      * InvalidArgumentException is thrown, so a rejected attempt is never
      * silent.
@@ -114,6 +116,8 @@ class AdminAssessmentService
             'passing_score' => $assessment->passing_score,
         ];
 
+        $versionBefore = $assessment->version;
+
         $assessment->title = $title;
         $assessment->description = $description === '' ? null : $description;
         $assessment->instructions = $instructions === '' ? null : $instructions;
@@ -121,6 +125,11 @@ class AdminAssessmentService
         $assessment->save();
 
         $summary = $this->fieldChangesSummary($before, $title, $description, $instructions, $passingScore);
+
+        if ($assessment->wasChanged('version')) {
+            $transition = "version {$versionBefore} → {$assessment->version}";
+            $summary = $summary !== null ? $summary.', '.$transition : $transition;
+        }
 
         if ($summary !== null) {
             $this->audit->record(

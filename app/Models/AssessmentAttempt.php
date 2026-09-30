@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
     'user_id',
     'code',
     'submitted_at',
+    'skill_keys',
 ])]
 class AssessmentAttempt extends Model
 {
@@ -30,6 +31,9 @@ class AssessmentAttempt extends Model
     {
         return [
             'score' => 'integer',
+            'assessment_version' => 'integer',
+            'passing_score_snapshot' => 'integer',
+            'skill_keys' => 'array',
             'passed_at' => 'datetime',
             'submitted_at' => 'datetime',
         ];

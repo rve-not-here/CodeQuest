@@ -1,76 +1,72 @@
-@extends('layouts.app', ['role' => $role])
+@extends('layouts.app', ['role' => $role, 'studentPrototype' => true])
 
 @section('title', 'Section Progress')
 
 @section('content')
-    <x-page-header
-        title="Section Progress"
-        subtitle="Directive sections. Mission completion within each section."
-        icon="▦"
-    >
-        <x-slot:actions>
-            <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="mx-auto w-full max-w-[1080px]">
+        <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+            <div>
+                <p class="eyebrow">Learning record</p>
+                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Section Progress</h1>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Track mission completion within each course section.</p>
+            </div>
+            <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
+        </header>
 
-    @if ($tree->isEmpty())
-        <x-status-message type="info" title="NO COURSES">
-            No course directives are loaded. Awaiting new directives from Command.
-        </x-status-message>
-    @endif
-
-    <div class="space-y-6">
-        @foreach ($tree as $courseRow)
-            @php
-                $course = $courseRow['course'];
-                $courseTone = $courseRow['progress']['percent'] >= 100 ? 'phosphor' : ($course->status === 'locked' ? 'dim' : 'cyan');
-            @endphp
-
-            <x-panel title="{{ $course->name }}" class="panel-link">
-                <x-slot:actions>
-                    <x-badge tone="{{ $courseTone }}">
-                        {{ $courseRow['progress']['completed'] }}/{{ $courseRow['progress']['total'] }}
-                    </x-badge>
-                </x-slot:actions>
-
-                <div class="space-y-5">
-                    @foreach ($courseRow['sections'] as $sectionRow)
-                        @php
-                            $section = $sectionRow['section'];
-                            $state = $sectionRow['state'];
-                            $stateTone = match ($state) {
-                                'DONE' => 'phosphor',
-                                'IN PROGRESS' => 'amber',
-                                default => 'dim',
-                            };
-                            $xYTone = $sectionRow['progress']['percent'] === 100 && $sectionRow['progress']['total'] > 0
-                                ? 'phosphor'
-                                : ($sectionRow['progress']['total'] === 0 ? 'dim' : 'cyan');
-                        @endphp
-
-                        <div>
-                            <div class="flex items-baseline justify-between gap-3 mb-2">
-                                <h3 class="text-sm font-bold text-amber">
-                                    {{ $section->title }}
-                                </h3>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <x-badge tone="{{ $xYTone }}">
-                                        {{ $sectionRow['progress']['completed'] }}/{{ $sectionRow['progress']['total'] }}
-                                    </x-badge>
-                                    <x-badge tone="{{ $stateTone }}">{{ $state }}</x-badge>
-                                </div>
+        @if ($tree->isEmpty())
+            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-sections-title">
+                <h2 id="no-sections-title" class="text-lg font-semibold">NO COURSES</h2>
+                <p class="mt-2 text-sm text-fg-muted">No courses are available in your learning path yet.</p>
+            </section>
+        @else
+            <div class="mt-6 space-y-8">
+                @foreach ($tree as $courseRow)
+                    @php
+                        $course = $courseRow['course'];
+                        $courseProgress = $courseRow['progress'];
+                    @endphp
+                    <section aria-labelledby="course-{{ $course->id }}-sections">
+                        <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+                            <div>
+                                <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
+                                <h2 id="course-{{ $course->id }}-sections" class="mt-1 text-lg font-semibold">{{ $course->name }}</h2>
                             </div>
-
-                            <x-progress-bar
-                                label="Section Progress"
-                                :total="$sectionRow['progress']['total']"
-                                :current="$sectionRow['progress']['completed']"
-                                tone="{{ $state === 'DONE' ? 'phosphor' : 'amber' }}"
-                            />
+                            <span class="font-mono text-xs text-fg-subtle">{{ $courseProgress['completed'] }}/{{ $courseProgress['total'] }} missions complete</span>
                         </div>
-                    @endforeach
-                </div>
-            </x-panel>
-        @endforeach
+                        @if ($courseRow['sections']->isEmpty())
+                            <div class="panel px-5 py-6 text-sm text-fg-muted">No sections have been added to this course.</div>
+                        @else
+                            <ol class="grid grid-cols-1 gap-3">
+                                @foreach ($courseRow['sections'] as $sectionRow)
+                                    @php
+                                        $section = $sectionRow['section'];
+                                        $sectionProgress = $sectionRow['progress'];
+                                        $state = $sectionRow['state'];
+                                    @endphp
+                                    <li class="panel min-w-0 px-5 py-4 md:px-6" data-section-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
+                                        <div class="flex flex-wrap items-start justify-between gap-3">
+                                            <div class="min-w-0">
+                                                <p class="eyebrow">Section {{ str_pad((string) $section->order_num, 2, '0', STR_PAD_LEFT) }}</p>
+                                                <h3 class="mt-1 text-[15px] font-semibold text-balance">{{ $section->title }}</h3>
+                                            </div>
+                                            <span class="badge {{ $state === 'DONE' ? 'badge-accent' : ($state === 'IN PROGRESS' ? 'badge-warning' : 'badge-neutral') }}">{{ $state }}</span>
+                                        </div>
+                                        <div class="mt-4 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                                            <span class="font-mono text-fg">{{ $sectionProgress['completed'] }}/{{ $sectionProgress['total'] }} missions complete</span>
+                                            <span class="font-mono text-fg-muted">{{ $sectionProgress['percent'] }}%</span>
+                                        </div>
+                                        @if ($sectionProgress['total'] > 0)
+                                            <div class="progress mt-2" role="progressbar" aria-label="{{ $section->title }} mission progress" aria-valuemin="0" aria-valuemax="{{ $sectionProgress['total'] }}" aria-valuenow="{{ $sectionProgress['completed'] }}" aria-valuetext="{{ $sectionProgress['completed'] }} of {{ $sectionProgress['total'] }} missions complete">
+                                                <span style="width: {{ $sectionProgress['percent'] }}%"></span>
+                                            </div>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ol>
+                        @endif
+                    </section>
+                @endforeach
+            </div>
+        @endif
     </div>
 @endsection

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Design System · CodeQuest</title>
+        <meta name="description" content="CodeQuest design tokens, components and system states." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- @include header -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 md:px-6 lg:px-8">
+            <header class="border-b border-line pb-6">
+                <p class="eyebrow">CodeQuest / System404</p>
+                <h1 class="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">Design system</h1>
+                <p class="mt-2 max-w-[64ch] text-fg-muted">A small, restrained set of tokens and components. Green marks emphasis and progression only. Status is always icon + word, never color alone.</p>
+            </header>
+
+            <!-- Color -->
+            <section aria-labelledby="ds-color" class="border-b border-line py-8">
+                <h2 id="ds-color" class="text-lg font-semibold">Color</h2>
+                <div class="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-3 lg:grid-cols-6">
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs border border-line bg-canvas"></div><p class="mt-2 text-sm">Canvas</p><p class="font-mono text-2xs text-fg-subtle">#0A0D0C</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs border border-line bg-surface"></div><p class="mt-2 text-sm">Surface</p><p class="font-mono text-2xs text-fg-subtle">#0F1412</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs border border-line bg-raised"></div><p class="mt-2 text-sm">Raised</p><p class="font-mono text-2xs text-fg-subtle">#151B18</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs border border-line bg-overlay"></div><p class="mt-2 text-sm">Overlay</p><p class="font-mono text-2xs text-fg-subtle">#1B231F</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-line"></div><p class="mt-2 text-sm">Border</p><p class="font-mono text-2xs text-fg-subtle">#222B27</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-line-strong"></div><p class="mt-2 text-sm">Border strong</p><p class="font-mono text-2xs text-fg-subtle">#34413B</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-fg"></div><p class="mt-2 text-sm">Text primary</p><p class="font-mono text-2xs text-fg-subtle">#E4EBE7 · 15.8:1</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-fg-muted"></div><p class="mt-2 text-sm">Text secondary</p><p class="font-mono text-2xs text-fg-subtle">#A3B0A8 · 8.6:1</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-fg-subtle"></div><p class="mt-2 text-sm">Text subtle</p><p class="font-mono text-2xs text-fg-subtle">#7A877F · 5.0:1</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-locked"></div><p class="mt-2 text-sm">Locked</p><p class="font-mono text-2xs text-fg-subtle">#5D6A63</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-accent"></div><p class="mt-2 text-sm">Accent / success</p><p class="font-mono text-2xs text-fg-subtle">#56DB8E</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-info"></div><p class="mt-2 text-sm">Info</p><p class="font-mono text-2xs text-fg-subtle">#62C8DC</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-warning"></div><p class="mt-2 text-sm">Warning</p><p class="font-mono text-2xs text-fg-subtle">#E5B64A</p></div>
+                    <div class="bg-surface p-3"><div class="h-10 rounded-xs bg-danger"></div><p class="mt-2 text-sm">Danger</p><p class="font-mono text-2xs text-fg-subtle">#F07A70</p></div>
+                </div>
+            </section>
+
+            <!-- Type + spacing -->
+            <section aria-labelledby="ds-type" class="grid grid-cols-1 gap-8 border-b border-line py-8 lg:grid-cols-2">
+                <div>
+                    <h2 id="ds-type" class="text-lg font-semibold">Typography</h2>
+                    <p class="mt-1 text-sm text-fg-muted">IBM Plex Sans for reading. JetBrains Mono only for code, labels, IDs and data.</p>
+                    <dl class="mt-4 divide-y divide-line border-y border-line">
+                        <div class="flex items-baseline gap-4 py-3"><dt class="w-16 shrink-0 font-mono text-2xs text-fg-subtle">30/36</dt><dd class="text-3xl font-semibold tracking-tight">Page title</dd></div>
+                        <div class="flex items-baseline gap-4 py-3"><dt class="w-16 shrink-0 font-mono text-2xs text-fg-subtle">20/28</dt><dd class="text-xl font-semibold">Section heading</dd></div>
+                        <div class="flex items-baseline gap-4 py-3"><dt class="w-16 shrink-0 font-mono text-2xs text-fg-subtle">15/28</dt><dd class="prose-cq">Lesson body text at a comfortable 62ch measure.</dd></div>
+                        <div class="flex items-baseline gap-4 py-3"><dt class="w-16 shrink-0 font-mono text-2xs text-fg-subtle">13/20</dt><dd class="text-[13px] text-fg-muted">Secondary / metadata text</dd></div>
+                        <div class="flex items-baseline gap-4 py-3"><dt class="w-16 shrink-0 font-mono text-2xs text-fg-subtle">11/16</dt><dd class="eyebrow">Technical label · M2.4</dd></div>
+                        <div class="flex items-baseline gap-4 py-3"><dt class="w-16 shrink-0 font-mono text-2xs text-fg-subtle">14/24</dt><dd class="font-mono text-sm"><span class="tok-sel">.card</span> <span class="tok-pun">{</span> <span class="tok-prop">padding</span><span class="tok-pun">:</span> <span class="tok-num">24px</span><span class="tok-pun">; }</span></dd></div>
+                    </dl>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold">Spacing &amp; radius</h2>
+                    <p class="mt-1 text-sm text-fg-muted">4px base. Radii 2 / 3 / 4px; pills only for progress bars and state dots.</p>
+                    <ul class="mt-4 space-y-2 font-mono text-2xs text-fg-subtle">
+                        <li class="flex items-center gap-3"><span class="w-8">4</span><span class="h-3 w-1 bg-accent"></span></li>
+                        <li class="flex items-center gap-3"><span class="w-8">8</span><span class="h-3 w-2 bg-accent"></span></li>
+                        <li class="flex items-center gap-3"><span class="w-8">12</span><span class="h-3 w-3 bg-accent"></span></li>
+                        <li class="flex items-center gap-3"><span class="w-8">16</span><span class="h-3 w-4 bg-accent"></span></li>
+                        <li class="flex items-center gap-3"><span class="w-8">24</span><span class="h-3 w-6 bg-accent"></span></li>
+                        <li class="flex items-center gap-3"><span class="w-8">32</span><span class="h-3 w-8 bg-accent"></span></li>
+                        <li class="flex items-center gap-3"><span class="w-8">48</span><span class="h-3 w-12 bg-accent"></span></li>
+                    </ul>
+                    <div class="mt-6 flex gap-4">
+                        <div class="text-center"><div class="size-14 rounded-xs border border-line-strong bg-raised"></div><p class="mt-1.5 font-mono text-2xs text-fg-subtle">XS 2</p></div>
+                        <div class="text-center"><div class="size-14 rounded-sm border border-line-strong bg-raised"></div><p class="mt-1.5 font-mono text-2xs text-fg-subtle">SM 3</p></div>
+                        <div class="text-center"><div class="size-14 rounded-md border border-line-strong bg-raised"></div><p class="mt-1.5 font-mono text-2xs text-fg-subtle">MD 4</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Controls -->
+            <section aria-labelledby="ds-controls" class="grid grid-cols-1 gap-8 border-b border-line py-8 lg:grid-cols-2">
+                <div>
+                    <h2 id="ds-controls" class="text-lg font-semibold">Buttons</h2>
+                    <p class="mt-1 text-sm text-fg-muted">One primary per view. Hierarchy: Submit &gt; Run &gt; Save Draft &gt; Hint.</p>
+                    <div class="mt-4 flex flex-wrap items-center gap-2">
+                        <button type="button" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary"><svg aria-hidden="true"><use href="#i-play" /></svg>Run</button>
+                        <button type="button" class="btn btn-quiet">Save Draft</button>
+                        <button type="button" class="btn btn-ghost"><svg aria-hidden="true"><use href="#i-bulb" /></svg>Hint</button>
+                        <button type="button" class="btn btn-primary" disabled>Disabled</button>
+                    </div>
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <button type="button" class="btn btn-primary btn-sm">Small</button>
+                        <button type="button" class="btn btn-primary btn-lg">Large</button>
+                        <button type="button" class="btn btn-secondary btn-icon" aria-label="Reset"><svg aria-hidden="true"><use href="#i-reset" /></svg></button>
+                    </div>
+
+                    <h2 class="mt-8 text-lg font-semibold">Badges &amp; progress</h2>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Completed</span>
+                        <span class="badge badge-accent">You are here</span>
+                        <span class="badge badge-neutral">Available</span>
+                        <span class="badge badge-locked"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                        <span class="badge badge-info">In review</span>
+                        <span class="badge badge-warning">Needs attention</span>
+                        <span class="badge badge-danger"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span>
+                    </div>
+                    <div class="mt-5 space-y-4">
+                        <div>
+                            <div class="mb-1.5 flex justify-between text-[13px]"><span class="text-fg-muted">Course progress</span><span class="font-mono text-xs">38%</span></div>
+                            <div class="progress" role="progressbar" aria-label="Example progress" aria-valuenow="38" aria-valuemin="0" aria-valuemax="100"><span style="width: 38%"></span></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><div class="mb-1.5 flex justify-between text-[13px]"><span class="text-fg-muted">CSS</span><span class="font-mono text-2xs">PROFICIENT</span></div><div class="meter" aria-hidden="true"><span data-on></span><span data-on></span><span data-on></span><span></span></div></div>
+                            <div><div class="mb-1.5 flex justify-between text-[13px]"><span class="text-fg-muted">JavaScript</span><span class="font-mono text-2xs text-warning">DEVELOPING</span></div><div class="meter" data-tone="warning" aria-hidden="true"><span data-on></span><span></span><span></span><span></span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-semibold">Form controls</h2>
+                    <div class="mt-4 space-y-4">
+                        <label class="block">
+                            <span class="mb-1.5 block text-sm font-medium">Search missions</span>
+                            <span class="relative block"><svg class="pointer-events-none absolute top-2.5 left-3 size-4 text-fg-subtle" aria-hidden="true"><use href="#i-search" /></svg><input type="search" class="field pl-9" placeholder="box-sizing, flexbox…" /></span>
+                        </label>
+                        <fieldset>
+                            <legend class="mb-2 text-sm font-medium">Knowledge check answer</legend>
+                            <div class="space-y-2">
+                                <label class="flex min-h-11 cursor-pointer items-center gap-3 rounded-sm border border-line px-3 text-sm hover:border-line-strong has-checked:border-accent has-checked:bg-accent-soft">
+                                    <input type="radio" name="kc" class="size-4 accent-[#56db8e]" /><code class="font-mono text-[13px]">content-box</code>
+                                </label>
+                                <label class="flex min-h-11 cursor-pointer items-center gap-3 rounded-sm border border-line px-3 text-sm hover:border-line-strong has-checked:border-accent has-checked:bg-accent-soft">
+                                    <input type="radio" name="kc" class="size-4 accent-[#56db8e]" checked /><code class="font-mono text-[13px]">border-box</code>
+                                </label>
+                            </div>
+                        </fieldset>
+                        <div class="rounded-sm border border-accent-line bg-accent-soft p-3 text-sm">
+                            <p class="flex items-center gap-2 font-medium text-accent"><svg class="size-4" aria-hidden="true"><use href="#i-check" /></svg>Correct</p>
+                            <p class="mt-1 text-fg-muted"><code class="code-inline">border-box</code> includes padding and border inside the declared width.</p>
+                        </div>
+                        <div class="rounded-sm border border-danger/35 bg-danger-soft p-3 text-sm">
+                            <p class="flex items-center gap-2 font-medium text-danger"><svg class="size-4" aria-hidden="true"><use href="#i-x" /></svg>Incorrect</p>
+                            <p class="mt-1 text-fg-muted">The correct answer is <code class="code-inline">border-box</code>. <code class="code-inline">content-box</code> is the default.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System states -->
+            <section aria-labelledby="ds-states" class="py-8">
+                <h2 id="ds-states" class="text-lg font-semibold">System states</h2>
+                <p class="mt-1 text-sm text-fg-muted">One structure for every state: icon, short title, one sentence, optional single action.</p>
+                <ul class="mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Loading</p>
+                        <div class="space-y-2" aria-hidden="true"><div class="h-3 w-2/3 animate-pulse rounded-xs bg-overlay"></div><div class="h-3 w-full animate-pulse rounded-xs bg-overlay"></div><div class="h-3 w-5/6 animate-pulse rounded-xs bg-overlay"></div></div>
+                        <p class="sr-only">Loading missions</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Empty</p>
+                        <p class="flex items-center gap-2 text-sm font-medium"><svg class="size-4 text-fg-subtle" aria-hidden="true"><use href="#i-inbox" /></svg>No achievements yet</p>
+                        <p class="mt-1 text-[13px] text-fg-muted">Finish your first section to earn one.</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">No results</p>
+                        <p class="flex items-center gap-2 text-sm font-medium"><svg class="size-4 text-fg-subtle" aria-hidden="true"><use href="#i-search" /></svg>No missions match &ldquo;grid&rdquo;</p>
+                        <button type="button" class="btn btn-quiet btn-sm mt-3">Clear filters</button>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Locked</p>
+                        <p class="flex items-center gap-2 text-sm font-medium text-fg-muted"><svg class="size-4 text-locked" aria-hidden="true"><use href="#i-lock" /></svg>Knowledge Check 02</p>
+                        <p class="mt-1 text-[13px] text-fg-subtle">Complete M2.4 – M2.6 to unlock.</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Unavailable</p>
+                        <p class="flex items-center gap-2 text-sm font-medium"><svg class="size-4 text-info" aria-hidden="true"><use href="#i-alert" /></svg>Boss Challenge not yet available</p>
+                        <p class="mt-1 text-[13px] text-fg-muted">Complete the required course missions to unlock this assessment.</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Error</p>
+                        <p class="flex items-center gap-2 text-sm font-medium text-danger"><svg class="size-4" aria-hidden="true"><use href="#i-alert" /></svg>Couldn&apos;t load this lesson</p>
+                        <button type="button" class="btn btn-quiet btn-sm mt-3"><svg aria-hidden="true"><use href="#i-reset" /></svg>Try again</button>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Grader unavailable</p>
+                        <p class="flex items-center gap-2 text-sm font-medium text-warning"><svg class="size-4" aria-hidden="true"><use href="#i-cloud-off" /></svg>Tests can&apos;t run right now</p>
+                        <p class="mt-1 text-[13px] text-fg-muted">Your draft is safe. Submit is paused until the grader is back.</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Draft saved</p>
+                        <p class="flex items-center gap-1.5 font-mono text-2xs text-accent"><svg class="size-3.5" aria-hidden="true"><use href="#i-save" /></svg>DRAFT SAVED 21:14</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Submission running</p>
+                        <p class="flex items-center gap-2 text-sm font-medium"><svg class="size-4 animate-spin text-accent" aria-hidden="true"><use href="#i-loader" /></svg>Running 5 graded tests</p>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Runtime error</p>
+                        <p class="flex items-center gap-2 text-sm font-medium text-danger"><svg class="size-4" aria-hidden="true"><use href="#i-terminal" /></svg>TypeError on line 12</p>
+                        <pre class="code-block mt-2 text-xs text-danger">Cannot read properties of null (reading 'textContent')</pre>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Submission passed</p>
+                        <p class="flex items-center gap-2 text-sm font-medium text-accent"><svg class="size-4" aria-hidden="true"><use href="#i-check" /></svg>All 5 tests passed</p>
+                        <p class="mt-1 text-[13px] text-fg-muted"><span class="font-mono text-fg">+40 XP</span> · M2.5 unlocked</p>
+                        <a href="learn.html" class="btn btn-primary btn-sm mt-3">Next mission<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                    </li>
+                    <li class="bg-surface p-4">
+                        <p class="eyebrow mb-3">Submission failed</p>
+                        <p class="flex items-center gap-2 text-sm font-medium text-danger"><svg class="size-4" aria-hidden="true"><use href="#i-x" /></svg>3 of 5 tests passed</p>
+                        <p class="mt-1 text-[13px] text-fg-muted">Review the failing tests. Your draft is kept.</p>
+                    </li>
+                </ul>
+            </section>
+        </main>
+
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+    </body>
+</html>

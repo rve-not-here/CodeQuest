@@ -1,17 +1,18 @@
-@props(['title' => '', 'subtitle' => ''])
+@props(['title' => '', 'subtitle' => '', 'icon' => null])
 
-<header class="mb-6 flex items-start gap-4 border-b border-phosphor-dim pb-4">
+<header class="page-header">
     <div class="min-w-0">
         @if ($title)
-            <h1 class="font-display text-2xl md:text-3xl font-bold tracking-tight text-[#0a0a23]">
-                {{ $title }}
+            <p class="terminal-kicker">SYSTEM 404 // LEARNING NETWORK</p>
+            <h1 class="mt-2 font-display text-2xl font-bold uppercase tracking-[-0.025em] text-ink md:text-3xl">
+                @if ($icon)<span aria-hidden="true">{{ $icon }} </span>@endif{{ $title }}
             </h1>
         @endif
         @if ($subtitle)
-            <p class="mt-1 text-base text-[#3b3b4f] max-w-3xl">{{ $subtitle }}</p>
+            <p class="mt-2 max-w-3xl text-sm leading-relaxed text-static md:text-base">{{ $subtitle }}</p>
         @endif
     </div>
     @isset($actions)
-        <div class="ml-auto flex items-center gap-2 shrink-0">{{ $actions }}</div>
+        <div class="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2">{{ $actions }}</div>
     @endisset
 </header>

@@ -27,6 +27,7 @@ class CourseFactory extends Factory
             'description' => fake()->sentence(),
             'status' => 'active',
             'order_num' => fake()->unique()->numberBetween(1, 10),
+            'version' => 1,
         ];
     }
 

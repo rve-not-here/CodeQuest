@@ -1,0 +1,14 @@
+{
+    "name": "codequest-js-grader",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "Internal CodeQuest service: runs hidden behavioral JS tests in ephemeral sandboxes. No dependencies.",
+    "scripts": {
+        "start": "node src/server.js",
+        "test": "node --test test/"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}

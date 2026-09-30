@@ -4,9 +4,9 @@
 > **Architecture:** Laravel 13 + PHP 8.5 + MariaDB + Blade + JavaScript + CodeMirror 6  
 > **Legacy Reference:** `~/system404`  
 > **Laravel Project:** `~/codequest`  
-> **Final Planned Phase:** Phase 12  
+> **Final Planned Phase:** Phase 13
 > **Specification Status:** Implementation-Grade Master Specification  
-> **Revision:** 2026-09-16 — formative Knowledge Check integration, Classroom-scoped teacher monitoring, W3Schools + freeCodeCamp + Boot.dev learning model, separate-mode student UX, and domain-contract hardening
+> **Revision:** 2026-09-24 — system-wide UX/layout architecture hardened around user-goal-first composition, freeCodeCamp-inspired challenge workspaces, Boot.dev-inspired progression, consistent action hierarchy, responsive pane behavior, and formal Phase 12 QA/UAT; Final Integration / Deployment remains Phase 13
 
 ---
 
@@ -63,7 +63,7 @@ CodeQuest borrows sequential progression, visible advancement, XP, locked/unlock
 This does **not** automatically add streaks, leaderboards, hearts/energy, daily XP caps, paid progression, social competition, or any other mechanic unless separately approved.
 
 ### System 404 influence — identity layer
-CodeQuest preserves the CRT/emergency-terminal visual identity, phosphor styling, mission language, system-state messaging, and retro technical atmosphere.
+CodeQuest preserves the CRT/emergency-terminal visual identity, mission language, system-state messaging, and retro technical atmosphere. The exact production color palette is not fixed by the legacy phosphor-green treatment and may evolve during visual-system refinement.
 
 The visual theme must support learning rather than reduce readability or accessibility.
 
@@ -205,7 +205,7 @@ Not every lesson needs every optional element, but lessons must not degrade into
 42. Test counts are evidence, not acceptance criteria by themselves.
 43. Major domain rules must be traceable to the service or phase that enforces them.
 44. Production deployment requires both database safety and application rollback planning.
-45. Anything beyond Phase 12 is CodeQuest v2, maintenance, or separately approved extension work.
+45. Anything beyond Phase 13 is CodeQuest v2, maintenance, or separately approved extension work.
 46. Knowledge Checks are formative concept checks integrated into the learning flow; they are not a second summative assessment system.
 47. Knowledge Checks never replace required practical Coding Challenges for Boss Challenge eligibility.
 48. Knowledge Check scoring, attempts, answer keys, and completion state are server-authoritative.
@@ -1128,7 +1128,7 @@ Establish the visual foundation and reusable application shell.
 - responsive structure
 - typography
 - CRT styling
-- phosphor green visual system
+- CodeQuest-owned retro-digital color system
 - buttons
 - status indicators
 - progress bars
@@ -1139,11 +1139,412 @@ Establish the visual foundation and reusable application shell.
 - light mode support
 
 ## Visual Direction
-Preserve `--phosphor: #33ff00`, monospace typography, scanlines, glow, terminal panels, and System 404 messaging.
+Preserve the **CodeQuest/System 404 retro-digital identity** through typography, technical language, restrained CRT atmosphere, terminal-inspired status treatment, and focused coding surfaces. Do **not** treat the legacy phosphor-green palette as mandatory.
 
-Avoid generic SaaS styling, purple/blue AI dashboards, glassmorphism, excessive rounded cards, and meaningless icons.
+The final production palette remains a CodeQuest-owned design decision and may be refined after layout validation. Color choices must support hierarchy, readability, accessibility, editor legibility, and clear state communication. No single prototype accent color, including phosphor green, amber, mint, cyan, or another candidate palette, becomes authoritative merely because it appears in a layout reference.
 
-The learning interface must visually distinguish teaching content, examples, Try It Yourself areas, formative Knowledge Checks, Challenges, locked nodes, completed nodes, Boss Challenges, feedback, and authoritative system state without abandoning the CRT identity.
+Avoid generic SaaS styling, purple/blue AI dashboards, glassmorphism, excessive rounded cards, meaningless icons, and decorative effects that compete with the task.
+
+The learning interface must visually distinguish teaching content, examples, Try It Yourself areas, formative Knowledge Checks, Challenges, locked nodes, completed nodes, Boss Challenges, feedback, and authoritative system state without sacrificing the CodeQuest identity.
+
+### Canonical Layout Reference — `index(2).html`
+
+The approved `index(2).html` prototype is an **authoritative layout and interaction reference**, especially for the desktop Challenge Workspace. It defines the intended spatial hierarchy and control grouping, not the final production color palette, typography tokens, exact border radii, or decorative treatment.
+
+Preserve from the reference where applicable:
+
+```text
+compact single context header
+three-pane Challenge workspace
+Instructions | Editor | Preview/Test Results
+editor file tabs inside the Editor pane
+Preview and Test Results sharing the same result pane
+one persistent footer/action zone
+Hint / Review Lesson grouped as learning utilities
+Draft status presented as passive state
+Run / Submit grouped together as execution actions
+minimal application chrome while coding
+clear panel boundaries and large uninterrupted work surfaces
+```
+
+Do not copy from the reference as fixed production requirements:
+
+```text
+exact amber/mint palette
+exact dark gray values
+exact font pairing
+exact pixel widths
+exact radii
+exact glow or animation treatment
+```
+
+The reference is therefore interpreted as:
+
+```text
+LAYOUT / INTERACTION STRUCTURE → authoritative design reference
+COLOR / VISUAL THEME           → still subject to CodeQuest design refinement
+DOMAIN / BUSINESS BEHAVIOR     → master specification and accepted implementation remain authoritative
+```
+
+## System-Wide UX, Information Architecture & Layout Contract
+
+The `index(2).html` prototype is the current **layout-quality benchmark** for spacing discipline, pane hierarchy, action grouping, and focused-workspace behavior. Other CodeQuest screens should feel compositionally related to it without forcing the Challenge three-pane geometry onto unrelated tasks. Its colors are explicitly non-authoritative.
+
+This contract is authoritative across **student, teacher, admin, operator, notification, analytics, and report interfaces**. Screen composition starts from the user's goal, not from available database entities or reusable card components.
+
+### 1. User-Goal-First Design Order
+
+Every major screen must be designed in this order:
+
+```text
+USER GOAL
+→ INFORMATION REQUIRED TO COMPLETE THAT GOAL
+→ PRIMARY ACTION
+→ SECONDARY / OPTIONAL ACTIONS
+→ SCREEN COMPOSITION
+→ INTERACTION PATTERN
+→ VISUAL TREATMENT
+```
+
+Do not start from cards, modals, navbars, database tables, or decorative CRT components and then attempt to fit the task inside them.
+
+Every major screen must make these questions easy to answer:
+
+```text
+WHERE AM I?
+WHAT AM I DOING HERE?
+WHAT INFORMATION DO I NEED NOW?
+WHAT IS THE PRIMARY NEXT ACTION?
+WHAT CHANGED AFTER I ACTED?
+```
+
+### 2. One Dominant Goal Per Screen
+
+A screen may contain supporting information, but one user goal must dominate the composition.
+
+Canonical examples:
+
+```text
+Student Dashboard       → resume the most meaningful learning work
+Learning Path           → understand progression and choose the next valid node
+Lesson                  → understand the current concept
+Knowledge Check         → verify concept understanding
+Challenge Workspace     → solve the coding task
+Boss Challenge          → complete the formal practical assessment
+Teacher Dashboard       → identify classroom state and students needing attention
+Student Monitoring      → understand one student's authoritative progress
+Admin Directory         → find and manage the intended platform object
+Reports                 → understand authoritative evidence and apply filters/exports
+Notifications           → understand recent state changes and act where relevant
+```
+
+Do not give unrelated tasks equal visual weight.
+
+### 3. Navigation Architecture
+
+CodeQuest must not stack competing navigation systems.
+
+Normal application screens use one stable application navigation shell appropriate to the role. Contextual breadcrumbs, Back actions, tabs, pane controls, and filters are not second global navbars.
+
+```text
+GLOBAL NAVIGATION
+→ changes major application area
+
+CONTEXT / BREADCRUMB
+→ explains current location
+
+LOCAL TABS
+→ switch views of the same object/workflow
+
+PANE CONTROLS
+→ show/hide/rescale workspace surfaces
+```
+
+A page must not duplicate the same destinations in both sidebar and top navigation without a clear responsive reason.
+
+Focused coding and formal assessment workspaces may temporarily reduce normal application chrome to preserve concentration. The user must still have an explicit, safe Exit/Back path.
+
+### 4. Action Hierarchy & Placement
+
+Actions are positioned by meaning and frequency, not by available empty space.
+
+Rules:
+
+```text
+PRIMARY ACTION
+→ one obvious action per decision context
+→ strongest visual emphasis
+→ stable placement across equivalent screens
+
+SECONDARY ACTION
+→ visually quieter
+→ placed near the content it affects
+
+TERTIARY ACTION
+→ text/icon treatment where appropriate
+→ must not compete with primary flow
+
+DESTRUCTIVE / IRREVERSIBLE ACTION
+→ never visually mistaken for the normal next step
+→ requires clear consequence communication where appropriate
+```
+
+Equivalent screens must place equivalent actions consistently. A Submit action must not appear top-left on one assessment, bottom-center on another, and inside a card on a third without a task-driven reason.
+
+Do not create dense button clusters containing unrelated actions such as Hint, Review Lesson, Run, Submit, Exit, and pane visibility controls.
+
+### 5. Component Choice by Interaction Need
+
+Use the smallest interaction surface that matches the task:
+
+```text
+PAGE / WORKSPACE
+→ complete task or substantial workflow
+
+PANE
+→ information needed simultaneously with the active task
+
+DRAWER
+→ contextual detail that should not replace the current page
+
+POPOVER / MENU
+→ compact contextual action set
+
+MODAL / DIALOG
+→ important decision, confirmation, or milestone that requires temporary focus
+
+TOAST / LIVE STATUS
+→ passive confirmation or non-blocking status
+
+INLINE FEEDBACK
+→ validation, field help, task/result feedback adjacent to the relevant content
+```
+
+Do not use modals simply to make the interface feel less plain. Do not turn primary workflows into chains of dialogs.
+
+### 6. Information Density & Card Discipline
+
+Avoid generic SaaS "card soup."
+
+Use cards/panels only when grouping is semantically useful. Do not wrap every heading, metric, filter, table, and action in separate equal-weight rectangles.
+
+Prefer:
+
+```text
+strong page title/context
+one dominant working region
+clear sections
+real tables for tabular data
+progression visualization for progression
+panes for simultaneous coding information
+compact status summaries for secondary metrics
+```
+
+Dashboard statistics are supporting information unless the user's primary task is analysis.
+
+### 7. Visual Hierarchy
+
+Visual hierarchy must come primarily from task importance, typography, spacing, alignment, grouping, and state—not from excessive borders, glow, animation, or card count.
+
+CRT identity is a visual layer, not the information architecture.
+
+Use CRT/retro-digital effects, scanlines, terminal framing, status language, and motion with restraint. The production palette is intentionally not locked here. The active task, code, lesson text, data table, and primary action must remain more legible than decorative effects.
+
+### 8. Feedback & System Status
+
+Every meaningful action must reveal its result close to where the user acted.
+
+Examples:
+
+```text
+Save Draft      → Saving / Saved / Failed state
+Run             → Preview/Output update
+Submit          → validating state → safe result
+Hint purchase   → cost/result/balance feedback
+Mission pass    → completion transition + XP/progress effects
+Filter change   → visible filtered state/count
+Admin update    → inline result or non-blocking confirmation
+Long operation  → progress/loading state without duplicate submission
+```
+
+Never make the user infer whether an action succeeded from a silent redirect.
+
+### 9. Progressive Disclosure
+
+Show frequently needed information first. Reveal secondary detail only when useful.
+
+Examples:
+
+```text
+Student detail from teacher roster → drawer/detail view
+advanced report filters             → expandable filter region/drawer where useful
+secondary row actions               → overflow menu
+locked-node explanation             → contextual explanation/dialog
+full achievement detail             → secondary detail
+```
+
+Do not hide information required to complete the current task.
+
+### 10. Responsive Composition
+
+Responsive design must preserve task priority, not merely stack desktop boxes vertically.
+
+```text
+DESKTOP
+→ may use simultaneous panes/tables where useful
+
+TABLET
+→ reduce secondary surfaces; use drawers/toggles for contextual panes
+
+MOBILE
+→ one dominant work surface at a time; preserve obvious primary action and safe navigation
+```
+
+No responsive transition may lose draft state or alter authoritative academic state.
+
+### 11. Role-Specific Composition Rules
+
+#### Student
+
+Prioritize continuation, progression, comprehension, coding, result feedback, and the next valid academic step. Avoid exposing teacher/admin-style analytics density on normal student pages.
+
+#### Teacher
+
+Prioritize classroom scope, roster scanning, attention signals, progress comparison, and drill-down. Prefer tables/list views plus contextual student detail over grids of equal cards.
+
+#### Admin
+
+Prioritize object management, search/filtering, lifecycle state, safe bulk/context actions, and auditability. Prefer predictable management layouts and real data tables over decorative dashboards.
+
+#### Operator
+
+Prioritize explicit operational tasks and system state only. Do not mix academic monitoring into operational UI unless an approved permission requires it.
+
+### 12. Teacher Monitoring Layout Contract
+
+Teacher monitoring should normally follow:
+
+```text
+PAGE CONTEXT / CLASSROOM
+→ concise summary strip
+→ search + filters
+→ student roster / monitoring table
+→ contextual student detail drawer/page
+→ report/export action where authorized
+```
+
+Do not force teachers to navigate through multiple dashboard-card screens to inspect one student.
+
+The roster must emphasize student identity, current learning position, progress, assessment state, competency/attention state, and last meaningful activity. Secondary details belong in drill-down.
+
+### 13. Admin Management Layout Contract
+
+Equivalent admin directories should follow a predictable structure:
+
+```text
+PAGE TITLE / OBJECT TYPE                       PRIMARY CREATE ACTION
+
+SEARCH                FILTERS                 SORT where useful
+
+DATA TABLE / STRUCTURED LIST
+
+PAGINATION / RESULT COUNT
+```
+
+Row actions should expose the common View/Edit action directly only when useful; lower-frequency actions should use an overflow menu. Destructive actions must not compete with the normal primary action.
+
+### 14. Reports & Analytics Layout Contract
+
+Reports must prioritize interpretation rather than decoration:
+
+```text
+REPORT TITLE / SCOPE
+FILTERS / DATE RANGE
+KEY SUMMARY METRICS when meaningful
+PRIMARY TABLE / CHART / EVIDENCE
+DRILL-DOWN / SECONDARY DETAIL
+EXPORT
+```
+
+Do not present many equally weighted charts merely because data is available. Every visualization must answer a defined metric question and use the authoritative metric definition.
+
+### 15. Notification Layout Contract
+
+Notifications are a chronological state-change feed, not a dashboard.
+
+Prioritize:
+
+```text
+read/unread distinction
+clear event title
+student-safe message
+meaningful timestamp
+single relevant action where applicable
+```
+
+Avoid card-heavy presentation for every notification when a compact accessible list communicates the information better.
+
+### 16. Modal, Drawer & Overlay Rules
+
+Use dialogs for decisions or milestones such as:
+
+```text
+confirming a meaningful XP spend
+confirming solution reveal
+entering a formal Boss Challenge when confirmation is useful
+mission/course completion milestone
+high-impact destructive admin action
+```
+
+Use drawers for contextual detail that benefits from preserving the parent page, such as teacher student detail or advanced filters.
+
+Dialogs must provide accessible focus management, keyboard operation, visible focus, Escape behavior where safe, meaningful labels, and focus return to the invoking control.
+
+### 17. Consistency Rule
+
+A user should be able to learn a layout once and predict equivalent screens.
+
+Consistency applies to:
+
+```text
+navigation
+page headings
+primary-action placement
+filters
+tables
+status labels
+empty states
+loading states
+confirmation patterns
+pane controls
+form actions
+pagination
+error feedback
+```
+
+Consistency may be broken only when the task meaningfully requires a different interaction model.
+
+### 18. Design Reference Boundaries
+
+Use the references by responsibility rather than blending their full interfaces:
+
+```text
+BOOT.DEV
+→ progression, milestone emphasis, current/next state
+
+W3SCHOOLS
+→ concise teaching, examples, low-friction experimentation
+
+FREECODECAMP
+→ focused coding workspace, instructions/code/result relationship,
+  minimal distraction during challenges, practical editor emphasis
+
+CODEQUEST / SYSTEM 404
+→ academic rules, Boss Challenge, competency, XP/progression authority,
+  teacher/admin monitoring, CRT identity, system-state language
+```
+
+References guide interaction principles; CodeQuest must not copy branding, curriculum, or proprietary implementation.
 
 ## Canonical Student Experience & Interface Contract
 
@@ -1623,106 +2024,88 @@ After authoritative submission, show concise student-safe feedback. Do not expos
 
 ## Screen E — Challenge Workspace
 
-### Inspiration
+### Inspiration and Core Mental Model
 
-Primarily freeCodeCamp-inspired focused coding, adapted to CodeQuest's own learning and security rules.
+The Challenge Workspace is structurally **freeCodeCamp-inspired** but remains visually and academically CodeQuest.
 
-### Purpose
-
-The Challenge Workspace answers:
+The student needs three things at the same time:
 
 ```text
-What exactly must I build?
-Where do I write my solution?
-How can I preview/run it?
-What feedback did I receive?
-How do I submit it for authoritative validation?
+WHAT MUST I BUILD?       → INSTRUCTIONS
+WHERE DO I WRITE IT?     → EDITOR
+WHAT DID IT PRODUCE?     → PREVIEW / OUTPUT / FEEDBACK
 ```
 
-Once the student enters this screen, the full Learning Path and the full Lesson article are removed from the main workspace.
+Those three questions define the desktop workspace. Do not add a second navigation bar or a separate pane-navigation toolbar merely to label them.
 
-### Challenge Context Header
+### Focused Workspace Mode
 
-Keep context compact:
+Entering a Challenge transitions into a focused coding workspace. Normal application chrome may be reduced so navigation and dashboard controls do not compete with the coding task.
+
+A compact context header may contain only information such as:
 
 ```text
-← BACK
-HTML FUNDAMENTALS > TEXT ELEMENTS > PARAGRAPHS
-MISSION 04
-XP: 450
-Draft: Saved / Saving / Unsaved
+CODEQUEST identity
+course / lesson / challenge context
+XP balance where useful
+Draft status where useful
+safe Exit / Back action
 ```
 
-The header should not contain unrelated dashboard metrics.
+It must not become another global navbar.
 
-### Desktop Workspace
-
-Preferred conceptual composition:
+### Canonical Desktop Three-Pane Layout
 
 ```text
-┌──────────────────────────────────────────────────────────────────────┐
-│ ← BACK  HTML > TEXT > PARAGRAPHS              XP 450   DRAFT SAVED │
-├───────────────────────────────┬──────────────────────────────────────┤
-│ MISSION 04 // PARAGRAPHS      │ EDITOR                               │
-│                               │                                      │
-│ OBJECTIVE                     │ 1  <p>...</p>                         │
-│ Create two paragraphs.        │ 2                                    │
-│                               │ 3                                    │
-│ REQUIREMENTS                  │                                      │
-│ □ Create the first paragraph  │                                      │
-│ □ Create the second paragraph │                                      │
-│ □ Use valid paragraph tags    │                                      │
-│                               │                                      │
-│ [ HINT ]                      │                                      │
-├───────────────────────────────┼──────────────────────────────────────┤
-│ FEEDBACK / STATUS             │ PREVIEW / OUTPUT                      │
-│ Awaiting submission           │                                      │
-│                               │ rendered result                      │
-│                               │                                      │
-│                               │ [ RUN / PREVIEW ]  [ SUBMIT ]        │
-└───────────────────────────────┴──────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CODEQUEST   HTML FUNDAMENTALS / MISSION 04            XP 475        EXIT   │
+├───────────────────────┬────────────────────────────────┬────────────────────┤
+│ INSTRUCTIONS        ‹ │ EDITOR                         │ PREVIEW          ›  │
+│                       │ index.html | styles.css         │                    │
+│ Objective             │                                │                    │
+│ Requirements          │ CodeMirror                     │ live preview       │
+│ Constraints           │                                │ / output           │
+│                       │                                │ / feedback         │
+│ Hint                  │                                │                    │
+│ Review Lesson         │                                │                    │
+├───────────────────────┴────────────────────────────────┴────────────────────┤
+│ STEP / STATUS                  DRAFT SAVED              RUN      SUBMIT     │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-This does not mean every implementation must use equal-width quadrants. The editor should usually receive the largest practical working area.
-
-### Workspace Priorities
-
-During a Challenge, visual priority is:
+The exact visual styling and color system may evolve, but the structural relationship is authoritative and follows the approved `index(2).html` layout reference:
 
 ```text
-1. Code editor / active coding task
-2. Mission objective and requirements
-3. Run/Preview and Submit actions
-4. Validation feedback
-5. Preview/output
-6. Draft/save state
-7. Secondary XP/progression context
+Instructions | Editor | Preview/Feedback
 ```
 
-The interface must not force the student to constantly scroll between requirements and the editor on normal desktop widths.
+On desktop, the Challenge uses a **single compact context header**, the three-pane workspace, and **one persistent footer/action zone**. Do not add a second navigation bar or a separate pane-toolbar above the workspace.
 
-### Instructions Pane
+### Pane Responsibilities
 
-The Challenge instructions pane should contain only information needed to solve the current Challenge:
+#### Instructions Pane
+
+Contains only information required to solve the current Challenge:
 
 ```text
 Challenge title
-Objective
-Requirements
-Relevant constraints
+objective
+requirements
+relevant constraints
+student-safe task context
 Hint access
-Student-safe feedback
+Review Lesson action
 ```
 
-It should not repeat the entire preceding Lesson article.
+Do not repeat the full Lesson article.
 
-A small `Review Lesson` action may return the student to the Lesson without losing their Challenge draft.
+The Instructions pane is independently scrollable and may be collapsed.
 
-### Code Editor
+#### Editor Pane
 
-CodeMirror is the primary work surface.
+The Editor is the primary work surface and must remain available throughout normal Challenge use.
 
-Requirements:
+CodeMirror requirements include:
 
 ```text
 line numbers
@@ -1734,36 +2117,144 @@ clear focus state
 accessible contrast
 responsive sizing
 preserved draft
-CRT styling that never harms readability
+CRT styling that does not reduce code readability
 ```
 
-Avoid decorative scanlines/glow directly over code if they reduce legibility.
+The Editor must not be hidden as a normal pane-visibility option.
+
+Relevant file tabs may be shown only when the Challenge genuinely uses multiple files, for example:
+
+```text
+index.html
+styles.css
+script.js
+```
+
+Do not show meaningless empty file tabs.
+
+#### Preview / Output / Feedback Pane
+
+The third pane represents the result of the student's work.
+
+Its content may change by course type:
+
+```text
+HTML/CSS      → Preview + Feedback
+JavaScript    → Preview/Output + Feedback where applicable
+future types  → Output/Test/Feedback appropriate to that supported activity
+```
+
+Do not create a fourth permanent feedback pane. Validation/test feedback should use the result pane or a contextual region within it.
+
+### Pane Collapse Behavior
+
+Pane visibility controls belong on the pane edge/header they control; they are not global navigation buttons.
+
+Canonical behavior:
+
+```text
+Instructions → collapsible
+Editor       → always present
+Preview      → collapsible
+```
+
+States:
+
+```text
+DEFAULT
+Instructions | Editor | Preview
+
+CODE FOCUS
+Editor | Preview
+
+INSTRUCTION + CODE
+Instructions | Editor
+
+FULL CODE FOCUS
+Editor
+
+FAILED SUBMISSION
+Instructions | Editor | Feedback
+```
+
+Collapsing a pane must immediately release space to the remaining workspace.
+
+### Resizable Panes
+
+On desktop/laptop, workspace dividers must support resizing where practical.
+
+At minimum, the **Editor ↔ Preview** divider must be draggable and keyboard-accessible.
+
+Preferred default proportions are guidance rather than fixed pixels:
+
+```text
+Instructions  ~25–30%
+Editor        ~45–50%
+Preview       ~25–30%
+```
+
+When Instructions are hidden, a sensible default is approximately:
+
+```text
+Editor  ~60–70%
+Preview ~30–40%
+```
+
+Students may resize toward coding focus or preview focus. Enforce minimum usable pane dimensions so neither surface becomes accidentally unusable.
+
+The splitter must provide accessible separator semantics, visible keyboard focus, and keyboard resizing. A reset-to-default behavior should be available where practical.
+
+Presentation preferences such as collapsed panes and split ratios may be stored locally. They are UI preferences only and must never alter draft, submission, validation, XP, progression, or assessment authority.
+
+### Action Zone
+
+`RUN` and `SUBMIT` are the two core execution actions and must remain grouped in one stable action zone throughout equivalent Challenge screens.
+
+```text
+RUN
+→ secondary action
+→ preview current work
+
+SUBMIT
+→ primary action
+→ authoritative server validation
+```
+
+Do not mix Hint, Review Lesson, Exit, pane collapse, account navigation, and Submit in one button cluster.
+
+Hint remains associated with Instructions. Exit/Back remains associated with workspace context. Pane controls remain attached to panes.
+
+The approved layout reference resolves the ordinary desktop placement: `RUN` and `SUBMIT` belong together in the persistent **footer/action zone**, aligned away from learning utilities. Hint/Review Lesson remain on the utility side of that same footer and draft/save state remains passive status. Do not move Run/Submit into the header or scatter them across panes without a later explicitly approved usability revision. Equivalent Boss Challenge workspaces should preserve the same action geography unless assessment semantics require a documented difference.
 
 ### Run / Preview vs Submit
 
-These controls must be unmistakably different in meaning.
-
-`RUN / PREVIEW` means:
+Preview is non-authoritative:
 
 ```text
-show me what my current code does
+RUN / PREVIEW
+→ show what the current code does
+→ no completion
+→ no XP reward
+→ no progression
 ```
 
-`SUBMIT` means:
+Submit is authoritative:
 
 ```text
-send my current solution to the authoritative server validator
+SUBMIT
+→ server validation
+→ immutable attempt where required
+→ student-safe feedback
+→ authoritative pass/fail effects
 ```
 
-Preview must never create completion, XP, unlocks, or assessment results.
-
-The Submit action should have greater semantic weight than Run/Preview but should not be dangerously easy to trigger accidentally.
+The controls must be visually and semantically distinct.
 
 ### Save Draft
 
-Draft saving must not be confused with submission.
+Draft saving must remain separate from submission.
 
-Useful status text:
+Useful states:
 
 ```text
 SAVING...
@@ -1772,23 +2263,67 @@ UNSAVED CHANGES
 SAVE FAILED — RETRY
 ```
 
-Draft loss during normal navigation, panel changes, or responsive-layout changes is unacceptable.
+Draft loss during navigation, pane collapse, pane resizing, responsive changes, or Preview switching is unacceptable.
 
-### Preview / Output / Feedback
+### Failure Behavior
 
-The output region may support contextual modes:
+A failed submission must preserve the student's coding context.
+
+Do not replace the workspace or navigate back to the Learning Path.
+
+Prefer switching or emphasizing the result pane as Feedback:
 
 ```text
-PREVIEW
-OUTPUT
-FEEDBACK
+Instructions | Editor | FEEDBACK
 ```
 
-Web content typically uses Preview.
+The student keeps code, draft, and relevant preview state and can immediately correct and retry.
 
-Future language/course types may emphasize Output or test feedback instead.
+### Success Behavior
 
-Protected validator rules, hidden regexes, solution code, and assessment internals are never displayed.
+Successful authoritative completion may use a focused completion overlay/dialog because it represents a meaningful state transition.
+
+It may communicate:
+
+```text
+MISSION COMPLETE
+XP earned when applicable
+updated XP balance
+progress change
+achievement/unlock when applicable
+primary Continue action
+```
+
+The overlay must not hide the authoritative meaning of the transition or turn routine editor interactions into modal chains.
+
+### Tablet and Mobile
+
+Do not force three narrow columns onto small screens.
+
+Tablet may preserve the Editor as the primary surface while Instructions and Preview become toggled panels/drawers.
+
+Mobile should use one dominant surface at a time, conceptually:
+
+```text
+TASK | CODE | RESULT
+```
+
+The student must always be able to reach the primary Run/Submit actions, return to task requirements, and inspect feedback without losing draft state.
+
+### Challenge Anti-Patterns
+
+Do not implement:
+
+```text
+global sidebar + global navbar + workspace toolbar stacked together
+pane names as a second navigation bar
+four equal quadrants for Instructions/Editor/Feedback/Preview
+multiple unrelated primary-looking button clusters
+full Learning Path beside the editor
+full Lesson article beside the editor
+non-resizable desktop Editor/Preview when space allows resizing
+card-grid treatment inside the active coding workspace
+```
 
 ---
 
@@ -2594,31 +3129,34 @@ draft state
 Back to Path / Review Lesson
 ```
 
-Preferred desktop composition:
+Preferred desktop composition follows the approved layout reference:
 
 ```text
-┌───────────────────────────────┬──────────────────────────────────────┐
-│ TASK / REQUIREMENTS           │ CODEMIRROR EDITOR                    │
-│                               │                                      │
-│ Objective                     │ student's code                       │
-│ Requirement checklist         │                                      │
-│ Hints                         │                                      │
-│ Feedback summary              │                                      │
-├───────────────────────────────┼──────────────────────────────────────┤
-│ VALIDATION / STATUS           │ PREVIEW / OUTPUT                      │
-│                               │                                      │
-│ current student-safe result   │ rendered/output result               │
-│                               │ [ RUN / PREVIEW ]   [ SUBMIT ]       │
-└───────────────────────────────┴──────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ COMPACT CHALLENGE CONTEXT HEADER                                           │
+├───────────────────────┬────────────────────────────────┬────────────────────┤
+│ INSTRUCTIONS          │ CODEMIRROR EDITOR              │ PREVIEW / RESULTS  │
+│                       │                                │                    │
+│ objective             │ file tabs when needed          │ live preview       │
+│ requirements          │ student's code                 │ or test results    │
+│ constraints           │                                │                    │
+│                       │                                │                    │
+├───────────────────────┴────────────────────────────────┴────────────────────┤
+│ Hint  Review Lesson      Draft Saved                     Run     Submit      │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The editor should normally receive the largest practical working area. The exact panel proportions may change by challenge type and viewport.
+The editor should normally receive the largest practical working area. Instructions and Preview may collapse; the Editor remains available. The Editor/Preview split must be resizable on desktop/laptop, with accessible splitter behavior and minimum usable widths.
 
-On narrower screens, use tabs/stacked panels such as:
+Do not create a 2×2 Challenge quadrant, a second navigation bar, or a separate toolbar that duplicates pane identity. Preview and Test Results are alternate states of the same result pane.
+
+On narrower screens, preserve the same mental model through mode switching/stacking rather than squeezing three unusable columns. A compact treatment may use:
 
 ```text
-[ TASK ] [ CODE ] [ PREVIEW ] [ FEEDBACK ]
+[ TASK ] [ CODE ] [ RESULT ]
 ```
+
+`RESULT` contains Preview, Output, Test Results, or Feedback as appropriate; it is not a fourth permanent workspace pane.
 
 The current draft must survive panel switching, responsive changes, and navigation to `Review Lesson`/`Back` according to the draft contract.
 
@@ -2816,8 +3354,12 @@ Give teachers a read-oriented monitoring interface.
 ## Teacher Dashboard
 Show authorized classroom/student counts, active students, courses in progress, Knowledge Check and Boss Challenge performance, students needing attention, and meaningful recent activity.
 
+The dashboard is a monitoring workspace, not a grid of equally weighted metric cards. The dominant flow should be classroom/scope context → concise summary → students needing attention / roster → drill-down. Use tables or structured lists when comparing students. Student detail should preserve classroom context through a drawer or focused detail view where appropriate.
+
 ## Student Overview
 Show name/username, current course, section, progress, assessment state, competency, last activity, and attention indicator.
+
+The roster must support scanning: stable columns, search/filter controls, textual status labels, predictable row actions, and no unnecessary nested cards per student.
 
 ## Student Detail
 Show course/section progress, Knowledge Check performance, Challenge progress/attempts, Boss Challenge result, competency, activity, and other meaningful performance data.
@@ -2863,6 +3405,11 @@ US-713 End-to-End Administrative Integration
 
 ## Objective
 Allow admins to manage the platform without turning the admin interface into unrestricted database access.
+
+## Admin Interface Composition
+Admin management screens should use the global Admin Management Layout Contract: page title/context, primary create action where applicable, search/filter controls, structured table/list, pagination/result count, and contextual row actions. Avoid card-heavy directory pages and duplicate action bars.
+
+The admin dashboard should summarize system state and direct the admin toward required management work; it must not become a wall of decorative metrics.
 
 ## Admin Capabilities
 - dashboard
@@ -2956,6 +3503,8 @@ Meaningful Event
 Route: `/notifications`.
 
 Show unread count, type, title, message, timestamp, read state, and safe internal action.
+
+Use a compact chronological list/feed with clear unread state rather than a grid of notification cards. A notification may expose one relevant contextual action; secondary actions should not compete with the message itself.
 
 ## Reminders
 Must be deterministic, documented, testable, and non-spammy. Define trigger condition, minimum interval, maximum frequency, suppression condition, and resolution condition. Periodic reminders should use Laravel scheduling/queues where appropriate.
@@ -3087,6 +3636,9 @@ Completions, failure attempts, completion rate, average attempts, and challenge 
 
 Challenge metrics must likewise use shared metric definitions so dashboards, CSV exports, and PDFs cannot disagree about the same named measure.
 
+## Report Interface Composition
+Report screens follow the Reports & Analytics Layout Contract: report title/scope → validated filters → key summary metrics only when meaningful → primary evidence/table/chart → drill-down → export. Visualizations must answer a defined metric question and must not be added merely to decorate the page.
+
 ## Filtering
 Support validated date ranges and relevant student/course/status filters.
 
@@ -3164,7 +3716,734 @@ Security audits pass, N+1/performance issues are reviewed, DB integrity is check
 
 ---
 
-# Phase 12 — Final Integration, Deployment & Project Completion
+# Phase 12 — Quality Assurance, UI/UX Validation & User Acceptance Testing
+
+## Epic
+Final System Quality Assurance & Release-Candidate Validation
+
+## Stories
+
+```text
+US-1201 QA Environment & Test Plan
+US-1202 Student Functional QA
+US-1203 Teacher Functional QA
+US-1204 Admin Functional QA
+US-1205 Learning Journey End-to-End QA
+US-1206 Knowledge Check & Boss Challenge QA
+US-1207 XP / Progression / Competency QA
+US-1208 Classroom / Assignment / Monitoring QA
+US-1209 Notifications / Reports / Analytics QA
+US-1210 UI/UX Consistency Audit
+US-1211 Responsive / Device QA
+US-1212 Accessibility Acceptance QA
+US-1213 Error / Empty / Loading / Recovery-State QA
+US-1214 Cross-Browser QA
+US-1215 Security & Performance Regression QA
+US-1216 Fresh-Database Full-System End-to-End QA
+US-1217 Defect Fix & Regression Cycle
+US-1218 Final UAT / QA Sign-Off
+```
+
+## Objective
+Validate CodeQuest as a complete, integrated product from the perspective of real students, teachers, admins, and authorized operational roles before deployment work begins.
+
+Phase 12 is not a feature-development phase. Its purpose is to prove that the implemented system is functionally correct, usable, accessible, responsive, secure, internally consistent, and ready to become a release candidate.
+
+```text
+PHASE 11
+Security / Performance / System Hardening
+        ↓
+PHASE 12
+Functional QA / UI-UX QA / E2E / UAT
+        ↓
+QA SIGN-OFF
+Release Candidate
+        ↓
+PHASE 13
+Deployment / Documentation / Final Release
+```
+
+Phase 13 must not begin until Phase 12 exit criteria are satisfied or any explicitly accepted residual issue is documented with owner, severity, rationale, and release decision.
+
+## QA Authority and Source of Truth
+QA validates the system against this master specification and the accepted implementation contracts from earlier phases.
+
+Priority order:
+
+```text
+MASTER SPECIFICATION
+→ ACCEPTED PHASE / DOMAIN CONTRACTS
+→ ACCEPTED SECURITY / INTEGRITY INVARIANTS
+→ USER-FACING UX CONTRACTS
+→ IMPLEMENTATION AND TEST EVIDENCE
+```
+
+Existing behavior is not automatically correct merely because it already has a test. A defect is any reproducible behavior that contradicts an authoritative requirement, accepted workflow, security boundary, accessibility contract, or preserved-data invariant.
+
+## Entry Criteria
+Phase 12 begins only after Phase 11 is accepted.
+
+Minimum entry state:
+
+```text
+Phase 11 stories complete
+clean review baseline
+full automated regression suite passing
+security integration checks passing
+static analysis passing
+formatting checks passing
+known Phase 11 deferrals documented
+QA database/environment available
+representative role fixtures available
+```
+
+QA must use isolated test data. Development, test, and disposable verification databases must never contaminate production data.
+
+## Scope Freeze
+Once Phase 12 begins:
+
+```text
+NO NEW MAJOR FEATURES
+NO DOMAIN REDESIGN WITHOUT EXPLICIT APPROVAL
+NO UNSCOPED UI REBUILD
+```
+
+Allowed work is limited to:
+
+```text
+confirmed bug fixes
+security fixes
+integrity fixes
+accessibility fixes
+responsive fixes
+usability corrections
+performance regressions
+error/recovery improvements
+documentation corrections
+QA automation needed to prove existing requirements
+```
+
+Any proposed enhancement that changes product scope is deferred to CodeQuest v2 or a separately approved extension.
+
+## QA Layers
+Phase 12 uses multiple complementary QA layers. Passing one layer does not replace the others.
+
+```text
+1. Functional QA
+2. Role / Authorization QA
+3. End-to-End Workflow QA
+4. UI/UX QA
+5. Responsive QA
+6. Accessibility QA
+7. Negative / Edge-Case QA
+8. Data-Integrity QA
+9. Cross-Browser QA
+10. Security / Performance Regression QA
+11. Fresh-Database Acceptance QA
+12. User Acceptance Testing
+```
+
+## QA Environment and Test Data
+Maintain deterministic QA fixtures or reproducible seed scenarios for at least:
+
+```text
+student_fresh
+student_mid_course
+student_boss_unlocked
+student_course_completed
+student_low_xp
+student_with_failures
+student_with_draft
+student_with_notifications
+teacher
+authorized_teacher_with_students
+unauthorized_teacher
+admin
+operator
+```
+
+Where practical, acceptance scenarios should also be runnable from a fresh database so stale development data cannot hide integration defects.
+
+The QA record must state the application commit, schema/migration state, browser, viewport/device class, database engine, and relevant fixture used for each significant defect or acceptance run.
+
+## Defect Register
+Every confirmed QA defect must receive a stable identifier and enough evidence for another tester or developer to reproduce it.
+
+Recommended format:
+
+```text
+BUG-001
+Area: Student / Mission
+Severity: High
+Environment: Firefox / Desktop / MariaDB QA
+Precondition: student_mid_course
+Steps:
+1. Login as student
+2. Complete the current Challenge
+3. Return to Learning Path
+Expected:
+Next valid node becomes available.
+Actual:
+Next node remains locked.
+Evidence:
+Screenshot / log / failing automated regression where applicable
+Status: Open
+Regression Test: Required
+```
+
+## Defect Severity
+Use the following default severity model:
+
+```text
+CRITICAL
+security compromise, data corruption/loss, unauthorized academic-state change,
+system-wide outage, or core system unusable with no safe workaround
+
+HIGH
+major required workflow is broken, authoritative state is wrong, or a primary role
+cannot complete an essential task
+
+MEDIUM
+feature behaves incorrectly or causes substantial usability/accessibility difficulty,
+but a reasonable workaround exists and authoritative state remains safe
+
+LOW
+minor visual, copy, spacing, consistency, or low-impact usability defect that does
+not block the required workflow
+```
+
+Severity describes impact, not implementation effort.
+
+## Defect Lifecycle
+
+```text
+DISCOVER
+→ REPRODUCE
+→ RECORD
+→ TRIAGE
+→ FIX
+→ FOCUSED RETEST
+→ REGRESSION TEST
+→ CLOSE OR REOPEN
+```
+
+A defect must not be marked fixed based only on code inspection. The original reproduction must be rerun, and affected surrounding workflows must be regression-tested.
+
+Critical and High defects require automated regression coverage where technically practical. Medium defects should receive automation when the behavior is stable and testable. Purely visual Low defects may use documented manual evidence when automation would not provide meaningful protection.
+
+## US-1201 — QA Environment & Test Plan
+Establish the QA baseline before product acceptance testing.
+
+Required work:
+
+- confirm the exact Git baseline and clean worktree;
+- document the QA database and reset/seed procedure;
+- confirm representative student, teacher, admin, and operator fixtures;
+- define browser and viewport/device coverage;
+- define defect recording format and severity;
+- define manual versus automated evidence expectations;
+- create a QA execution checklist mapped to the master-spec workflows;
+- identify any accepted Phase 11 limitations that QA must specifically observe.
+
+## US-1202 — Student Functional QA
+Test the student system as a real user rather than as isolated endpoints.
+
+At minimum verify:
+
+```text
+registration/login/logout where enabled
+dashboard
+Continue Learning
+learning path
+course/section/lesson navigation
+Try It Yourself / experiment mode
+Knowledge Checks
+Challenge entry
+CodeMirror editing
+draft save/restore
+Run / Preview
+Submit
+validation feedback
+failed-submission XP effect
+hints
+solution reveal
+mission completion
+one-time XP reward
+progress/unlocks
+Boss Challenge eligibility
+Boss Challenge attempt/retry/result
+course completion
+next-course unlock
+competency
+achievements
+recommendations
+timeline/activity
+notifications
+student reports
+```
+
+The student must never be able to convert preview/UI state into authoritative completion, XP, progression, or assessment results.
+
+## US-1203 — Teacher Functional QA
+Verify teacher-facing workflows using only explicitly authorized academic scope.
+
+At minimum verify:
+
+```text
+teacher dashboard
+authorized classroom list/detail
+authorized student roster
+course/class monitoring
+Knowledge Check evidence
+Challenge progress
+Boss Challenge results
+competency views
+attention/recommendation views
+activity/timeline
+teacher reports
+filters/exports where provided
+read-only academic outcome protection
+```
+
+Also verify negative scope cases: a teacher must not gain access to unrelated students, classrooms, courses, drafts, attempts, or reports by direct URL or crafted request.
+
+## US-1204 — Admin Functional QA
+Verify platform-management workflows without treating admin as unrestricted academic-state authority.
+
+At minimum verify:
+
+```text
+admin dashboard
+user/account management
+role/status management
+classrooms/enrollments
+courses
+sections
+lessons
+Knowledge Checks
+missions/challenges
+Boss Challenge configuration
+announcements
+reports/analytics
+audit trail
+system status / approved operational controls
+```
+
+Verify that normal admin UI cannot arbitrarily falsify student XP, completion, scores, competency, or historical attempts.
+
+## US-1205 — Learning Journey End-to-End QA
+Run a complete student journey from a fresh or known starting state.
+
+Canonical acceptance flow:
+
+```text
+NEW / FRESH STUDENT
+→ LOGIN
+→ DASHBOARD
+→ CONTINUE LEARNING
+→ LEARNING PATH
+→ LESSON
+→ TRY / EXPERIMENT
+→ KNOWLEDGE CHECK WHEN CONFIGURED
+→ CHALLENGE
+→ WRITE CODE
+→ PREVIEW
+→ FAILED AUTHORITATIVE SUBMISSION
+→ SAFE FEEDBACK / XP EFFECT
+→ FIX
+→ PASS
+→ XP + PROGRESS
+→ NEXT NODE
+→ COMPLETE REQUIRED CHALLENGES
+→ BOSS CHALLENGE
+→ PASS
+→ COURSE COMPLETE
+→ NEXT COURSE UNLOCK
+→ COMPETENCY / ACHIEVEMENT / TIMELINE / NOTIFICATION
+→ REPORTS REFLECT THE SAME AUTHORITATIVE STATE
+```
+
+At each transition verify both visible UI and persisted authoritative state.
+
+## US-1206 — Knowledge Check & Boss Challenge QA
+Verify formative and summative assessment flows remain distinct.
+
+Knowledge Check QA includes:
+
+- question rendering;
+- answer submission;
+- authoritative scoring;
+- retry/history behavior;
+- student-safe feedback;
+- local progression rule where configured;
+- no course completion or XP authority unless explicitly defined elsewhere;
+- protected answer keys remain hidden.
+
+Boss Challenge QA includes:
+
+- eligibility;
+- attempt creation;
+- submission;
+- scoring/verdict;
+- retry history;
+- first-pass effects;
+- course completion;
+- next-course unlock;
+- historical immutability;
+- student-safe result presentation.
+
+## US-1207 — XP / Progression / Competency QA
+Reconcile visible gamification and academic state with authoritative records.
+
+Verify:
+
+```text
+XP never negative
+first mission reward only once
+failed-submission deductions follow the approved rule
+hint and solution costs are correct and duplicate-safe
+course progression cannot be bypassed
+completed work remains completed
+Boss pass effects occur once
+competency matches CompetencyService authority
+achievements are idempotent
+recommendations do not bypass progression
+```
+
+UI totals, reports, and dashboards must agree with the same underlying authoritative state.
+
+## US-1208 — Classroom / Assignment / Monitoring QA
+Verify the institutional teacher/student relationship flows.
+
+Test:
+
+- classroom creation/management by authorized admin controls;
+- teacher assignment;
+- student enrollment;
+- course assignment;
+- authorized teacher visibility;
+- unauthorized teacher denial;
+- classroom assignments where implemented;
+- status changes and historical behavior;
+- monitoring pages with empty, small, and realistic datasets.
+
+## US-1209 — Notifications / Reports / Analytics QA
+Verify communication and reporting as consumers of authoritative state.
+
+Notifications:
+
+- correct recipient;
+- correct event/message;
+- deduplication;
+- read/unread behavior;
+- empty state;
+- pagination;
+- privacy.
+
+Reports/analytics:
+
+- student reports;
+- teacher student/course reports;
+- admin/system reports;
+- date/course/student/status filters;
+- CSV/PDF exports where implemented;
+- authorization parity between UI and export;
+- metric consistency;
+- empty datasets;
+- realistic datasets;
+- authoritative values reconcile with learning state.
+
+## US-1210 — UI/UX Consistency Audit
+Review CodeQuest as one coherent interface rather than separate feature implementations.
+
+Audit:
+
+```text
+user goal is obvious on each major screen
+information hierarchy
+one global navigation system per context
+no duplicate/competing navbars
+breadcrumbs/back/exit behavior
+one obvious primary action per decision context
+stable placement of equivalent actions
+secondary/tertiary action discipline
+modal/drawer/popover choice matches task
+form layout
+labels and helper text
+validation feedback near the relevant action
+success/failure feedback
+loading states
+empty states
+error states
+confirmation/destructive actions
+tables and pagination
+card density / avoidance of card soup
+student dashboard continuation priority
+learning-path progression clarity
+lesson readability
+Knowledge Check clarity
+Challenge three-pane workspace focus
+Instructions collapse behavior
+Preview collapse behavior
+Editor/Preview resizing and minimum sizes
+CodeMirror usability
+Run/Submit grouping and distinction
+Boss Challenge distinction
+teacher roster scanning and drill-down
+admin directory consistency
+progress/XP/competency presentation
+notification feed clarity
+report hierarchy/readability
+component consistency
+CRT visual consistency without reduced legibility
+```
+
+The canonical student focus rule remains authoritative: full Learning Path, full Lesson, and full Challenge Workspace must not compete simultaneously.
+
+QA must verify that Run/Preview, Save Draft, Submit Challenge, and Submit Assessment are visually and semantically distinct.
+
+On desktop/laptop, QA must also verify the canonical Challenge relationship `Instructions | Editor | Preview/Feedback`, collapse/restore behavior for Instructions and Preview, accessible Editor/Preview resizing, preservation of draft state during layout changes, and the absence of a redundant second navigation bar or scattered action clusters.
+
+## US-1211 — Responsive / Device QA
+Validate layout and interaction behavior across representative viewport classes.
+
+Required classes:
+
+```text
+DESKTOP
+LAPTOP
+TABLET
+MOBILE
+```
+
+Test, where applicable:
+
+- navigation collapse/expansion;
+- dashboards;
+- learning path;
+- lesson content;
+- Knowledge Checks;
+- CodeMirror/editor sizing;
+- Challenge instructions/editor/preview composition;
+- Boss Challenge workspace;
+- forms;
+- tables;
+- filters;
+- dialogs/modals;
+- reports;
+- notifications;
+- horizontal overflow;
+- touch target usability;
+- zoom/reflow.
+
+Responsive changes must not lose Challenge drafts or alter authoritative application state.
+
+## US-1212 — Accessibility Acceptance QA
+Validate the Accessibility Contract for the CRT UI in real rendered screens.
+
+At minimum test:
+
+```text
+keyboard-only navigation
+logical focus order
+visible focus
+semantic labels
+form associations
+button/link semantics
+heading structure
+status/error announcement behavior
+sufficient contrast
+200% zoom/reflow where applicable
+prefers-reduced-motion
+no required flicker
+scanlines/glow readability
+CodeMirror keyboard accessibility
+non-color state communication
+```
+
+CRT identity is not an exception to accessibility. Reduced motion must suppress or substantially reduce non-essential flicker/animation, and visual effects must never make lesson/editor text unreadable.
+
+## US-1213 — Error / Empty / Loading / Recovery-State QA
+Verify the system behaves clearly when normal operations do not succeed.
+
+Test representative cases such as:
+
+```text
+invalid input
+missing required input
+invalid or deleted ID
+unauthorized direct URL
+expired/invalid session
+locked course/mission/assessment
+insufficient XP
+duplicate click/request
+stale page/state
+empty classroom
+empty report
+no notifications
+no recommendations
+failed draft save
+validation failure
+server error presentation
+network/interrupted request where testable
+```
+
+User-facing errors must be safe and actionable. SQL messages, secrets, stack traces, hidden validation rules, protected answer keys, and internal exception details must never be exposed.
+
+## US-1214 — Cross-Browser QA
+Verify the principal user flows in supported modern browser engines.
+
+Required baseline:
+
+```text
+Chromium-based browser
+Firefox
+```
+
+Also test WebKit/Safari when the deployment environment or institutional target requires it.
+
+Prioritize browser-sensitive areas:
+
+- CodeMirror;
+- iframe `srcdoc` preview;
+- CSS layout/reflow;
+- forms;
+- dialogs;
+- keyboard interaction;
+- download/export behavior;
+- reduced-motion media queries.
+
+Browser differences must not alter authoritative server behavior.
+
+## US-1215 — Security & Performance Regression QA
+QA must verify that usability or bug fixes do not reopen Phase 11 defects.
+
+Rerun the relevant Phase 11 protections, including:
+
+```text
+authentication/session
+RBAC
+IDOR/object authorization
+mass assignment/input validation
+preview sandbox
+student-code execution prohibition
+assessment/XP authority
+concurrency/database integrity
+query-performance regressions
+frontend-performance regressions
+error/logging safety
+```
+
+Use realistic rendered workflows in addition to automated regressions where UI behavior is relevant.
+
+## US-1216 — Fresh-Database Full-System End-to-End QA
+Create a clean disposable environment using the documented install/migration/seed process.
+
+From that clean state, prove the major system lifecycle without relying on hand-edited development records.
+
+Canonical integration scenario:
+
+```text
+ADMIN configures or verifies valid curriculum
+→ ADMIN establishes classroom/enrollment relationships
+→ STUDENT begins learning
+→ STUDENT completes Knowledge Checks and Challenges
+→ SYSTEM records progress and XP
+→ SYSTEM derives competency/recommendations
+→ STUDENT completes Boss Challenge
+→ SYSTEM completes course and unlocks next course
+→ TEACHER sees authorized current state
+→ ADMIN sees correct aggregate state
+→ NOTIFICATIONS reflect events
+→ REPORTS reconcile with authoritative state
+```
+
+The fresh-environment run must expose migration, seed, default-data, integration, and hidden dependency problems before release.
+
+## US-1217 — Defect Fix & Regression Cycle
+Fix confirmed QA defects in severity and dependency order.
+
+For each fix:
+
+1. preserve the original reproduction;
+2. implement the smallest correct change;
+3. add automated regression where practical;
+4. rerun the focused scenario;
+5. rerun affected integration paths;
+6. rerun security/integrity regressions when the fix touches authoritative state;
+7. update the defect register;
+8. close only after verification.
+
+Do not batch unrelated speculative refactors into QA bug fixes.
+
+## US-1218 — Final UAT / QA Sign-Off
+Conduct final acceptance against the complete product rather than individual implementation stories.
+
+Required acceptance perspectives:
+
+```text
+STUDENT
+Can complete the intended learning journey clearly and safely.
+
+TEACHER
+Can monitor only authorized academic scope and understand student state.
+
+ADMIN
+Can manage the platform without corrupting authoritative academic history.
+
+SYSTEM
+Maintains consistent XP, progress, assessment, competency, notification, report,
+security, performance, accessibility, and historical-integrity behavior.
+```
+
+Final UAT should include representative human/manual walkthroughs in addition to automated test evidence.
+
+## Phase 12 Exit Criteria
+Phase 12 is complete only when:
+
+```text
+all Critical defects are closed
+all High defects are closed unless explicitly release-blocked/accepted by documented decision
+required student/teacher/admin workflows pass
+fresh-database E2E passes
+data reconciliation passes
+responsive QA passes
+accessibility acceptance passes
+cross-browser baseline passes
+security/performance regressions pass
+full automated regression suite passes
+known residual Medium/Low issues are documented
+QA/UAT sign-off is recorded
+```
+
+Phase 12 completion establishes a **Release Candidate**. It does not itself deploy CodeQuest.
+
+## QA Evidence Package
+Retain or summarize, as appropriate:
+
+```text
+QA baseline commit
+QA environment details
+defect register
+manual test checklist
+screenshots or recordings for relevant UI defects
+automated regression references
+browser/device matrix
+accessibility findings
+fresh-database E2E result
+security/performance regression result
+final regression result
+residual known-issues list
+UAT sign-off
+```
+
+## Definition of Done
+CodeQuest has been exercised as a complete product across student, teacher, admin, and cross-role workflows; confirmed defects have been fixed and regression-tested; UI/UX, responsive behavior, accessibility, negative states, data integrity, browser behavior, security, and performance have been validated; a fresh-database end-to-end run passes; and the system is formally accepted as a release candidate for Phase 13 deployment work.
+
+
+---
+
+# Phase 13 — Final Integration, Deployment & Project Completion
 
 ## Epic
 CodeQuest Final Integration & Release
@@ -3172,24 +4451,26 @@ CodeQuest Final Integration & Release
 ## Stories
 
 ```text
-US-1201 Final Student Workflow
-US-1202 Final Teacher Workflow
-US-1203 Final Admin Workflow
-US-1204 Cross-Role Integration
-US-1205 Data Reconciliation
-US-1206 Production Configuration
-US-1207 Deployment Process
-US-1208 Database Backup / Migration Verification
-US-1209 Final Documentation
-US-1210 Final Security Verification
-US-1211 Final Performance Verification
-US-1212 Final Responsive / Accessibility Verification
-US-1213 Final Regression Suite
-US-1214 Release Acceptance
+US-1301 Final Student Workflow
+US-1302 Final Teacher Workflow
+US-1303 Final Admin Workflow
+US-1304 Cross-Role Integration
+US-1305 Data Reconciliation
+US-1306 Production Configuration
+US-1307 Deployment Process
+US-1308 Database Backup / Migration Verification
+US-1309 Final Documentation
+US-1310 Final Security Verification
+US-1311 Final Performance Verification
+US-1312 Final Responsive / Accessibility Verification
+US-1313 Final Regression Suite
+US-1314 Release Acceptance
 ```
 
 ## Objective
-Prove CodeQuest operates as one integrated system. No major new feature belongs here.
+Take the Phase 12 QA-approved release candidate through final integration, deployment preparation, documentation, release verification, and project completion. No major new feature belongs here.
+
+Phase 13 starts from the recorded Phase 12 QA/UAT sign-off. Deployment must not be used as a substitute for unresolved product QA.
 
 ## Final Student Flow
 
@@ -3333,7 +4614,7 @@ All student, teacher, admin, assessment, gamification, competency, notification,
 37. freeCodeCamp inspires hands-on coding practice and retry; it is not copied.
 38. Boot.dev inspires progression and gamification; unlisted mechanics are not automatically included.
 39. CodeQuest owns assessment, competency, monitoring, reporting, and institutional integration.
-40. Phase 12 closes the initial lifecycle; major new features belong to v2 or separately approved extensions.
+40. Phase 13 closes the initial lifecycle; Phase 12 establishes the release candidate through formal QA/UAT, and major new features belong to v2 or separately approved extensions.
 ```
 
 # Final Phase Map
@@ -3350,7 +4631,8 @@ Phase 8  — Notifications & Learning Engagement
 Phase 9  — Personalized Learning & Competency Intelligence
 Phase 10 — Reports, Analytics & Academic Insights
 Phase 11 — Security, Performance & System Hardening
-Phase 12 — Final Integration, Deployment & Project Completion
+Phase 12 — Quality Assurance, UI/UX Validation & User Acceptance Testing
+Phase 13 — Final Integration, Deployment & Project Completion
 ```
 
 # Final Product Identity
@@ -3450,4 +4732,4 @@ TEACHER MONITORING + REPORTING
 CONTINUE LEARNING
 ```
 
-**Phase 12 closes the initial CodeQuest development lifecycle. Anything beyond Phase 12 should be treated as CodeQuest v2, maintenance, or a separately approved extension.**
+**Phase 13 closes the initial CodeQuest development lifecycle. Phase 12 establishes the release candidate through formal QA/UAT. Anything beyond Phase 13 should be treated as CodeQuest v2, maintenance, or a separately approved extension.**

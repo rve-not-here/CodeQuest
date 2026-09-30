@@ -169,7 +169,7 @@ class AdminMissionManagementTest extends TestCase
             'target_type' => 'mission',
             'target_id' => $mission->id,
             'result' => 'success',
-            'summary' => "Mission updated: title → 'Data Arrays', description → 'Iterate over array data.', difficulty → 'HARD', points → 120, order_num → 7, section_id → {$section->id}, hints → '[\"Hint one\", \"Hint two\"]', broken_code → 'let x = ;', target_html → '<h1>Hello</h1>'",
+            'summary' => "Mission updated: title → 'Data Arrays', description → 'Iterate over array data.', difficulty → 'HARD', points → 120, order_num → 7, section_id → {$section->id}, hints → '[\"Hint one\", \"Hint two\"]', broken_code → 'let x = ;', target_html → '<h1>Hello</h1>', version 1 → 2",
         ]);
     }
 
@@ -206,7 +206,7 @@ class AdminMissionManagementTest extends TestCase
             'target_type' => 'mission',
             'target_id' => $mission->id,
             'result' => 'success',
-            'summary' => 'Mission updated: section_id → null',
+            'summary' => 'Mission updated: section_id → null, version 1 → 2',
         ]);
     }
 
@@ -409,6 +409,38 @@ class AdminMissionManagementTest extends TestCase
             'result' => 'failed',
             'summary' => 'Refused: Mission section must belong to the same course as the mission.',
         ]);
+    }
+
+    public function test_malformed_section_id_cannot_be_coerced_into_a_real_assignment(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => null,
+            'title' => 'Stable Mission',
+            'difficulty' => 'EASY',
+            'points' => 50,
+            'order_num' => 1,
+        ]);
+
+        foreach ([$section->id.'.75', [$section->id], '999999999999999999999999999999'] as $malformedSectionId) {
+            $this->actingAs($admin)->put(route('admin.courses.missions.update', [$course, $mission]), [
+                'title' => $mission->title,
+                'description' => $mission->description,
+                'difficulty' => $mission->difficulty,
+                'points' => $mission->points,
+                'order_num' => $mission->order_num,
+                'section_id' => $malformedSectionId,
+                'hints' => $mission->hints,
+                'broken_code' => $mission->broken_code,
+                'target_html' => $mission->target_html,
+            ])->assertSessionHasErrors('section_id');
+        }
+
+        $this->assertNull($mission->refresh()->section_id);
+        $this->assertSame(0, AdminAudit::count());
     }
 
     public function test_no_op_update_writes_no_audit_row(): void

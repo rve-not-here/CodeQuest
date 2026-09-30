@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Boss Challenge · CodeQuest</title>
+        <meta name="description" content="The Frontend Fundamentals capstone: what it assesses, what unlocks it, and what to do while it is still locked." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- @include header active="assessments" -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 max-sm:[&_.btn]:min-h-11 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="assessments.html" class="hover:text-fg">Assessments</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Boss Challenge</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow flex items-center gap-1.5 text-fg-muted">
+                    <svg class="size-3.5" aria-hidden="true"><use href="#i-shield" /></svg>Boss Challenge
+                </p>
+                <h1 id="boss-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Frontend Fundamentals Capstone</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Ship a responsive profile page. One integrated task that uses everything from the course.</p>
+            </header>
+
+            <!-- Status strip. The label is always plain text next to the
+                 badge, so the locked state is never carried by colour alone. -->
+            <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <p class="flex items-center gap-2 text-sm">
+                    <span class="eyebrow">Status</span>
+                    <span class="badge badge-locked text-fg-muted!" data-boss-badge><svg aria-hidden="true"><use href="#i-lock" /></svg><span data-boss-status>Locked</span></span>
+                    <span class="text-fg-muted" data-boss-note>Not yet available</span>
+                </p>
+                <p class="flex items-center gap-2 font-mono text-2xs text-fg-subtle">
+                    <svg class="size-3.5" aria-hidden="true"><use href="#i-award" /></svg>+100 XP
+                </p>
+            </div>
+
+            <!-- Any state other than locked is a prototype preview. The note
+                 is rendered by JS next to the status strip so it cannot be
+                 missed when someone lands on ?state=passed directly. -->
+            <p class="mt-3 rounded-sm border border-warning/40 bg-warning-soft px-3.5 py-2.5 text-[13px] leading-5 text-fg-muted" data-preview-note hidden>
+                <span class="font-medium text-fg">Prototype preview.</span>
+                <span data-preview-note-text>This state is illustrative and is not the current student's saved assessment state.</span>
+            </p>
+
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading Boss Challenge">
+                <p role="status" class="text-sm text-fg-muted">Loading the Boss Challenge…</p>
+                <div class="mt-4" aria-hidden="true">
+                    <div class="panel p-5"><div class="skeleton h-4 w-56"></div><div class="skeleton mt-4 h-2 w-full"></div><div class="skeleton mt-4 h-2 w-4/5"></div></div>
+                    <div class="mt-4 grid gap-4 lg:grid-cols-2"><div class="skeleton h-32 w-full"></div><div class="skeleton h-32 w-full"></div></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">Couldn't load the Boss Challenge.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Your attempt history is unchanged. Try loading this view again.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <!-- ── Locked (default) ─────────────────────────────────────── -->
+            <div data-state-panel="locked" class="mt-6">
+                <section class="panel p-5 md:p-6" aria-labelledby="purpose-title">
+                    <h2 id="purpose-title" class="eyebrow">Purpose</h2>
+                    <p class="mt-2 max-w-[65ch] text-[15px] leading-7 text-fg-muted">
+                        A graded capstone assessment that combines the skills developed across the course into one integrated programming task. The server grades production submissions; this static prototype only previews the interface.
+                    </p>
+                    <div class="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 border-t border-line pt-4 sm:grid-cols-3">
+                        <div>
+                            <p class="eyebrow">From missions</p>
+                            <p class="mt-1 text-sm text-fg-muted">Build real HTML, CSS, and JavaScript rather than answering questions about them.</p>
+                        </div>
+                        <div>
+                            <p class="eyebrow">From Knowledge Checks</p>
+                            <p class="mt-1 text-sm text-fg-muted">Confirms the rules you were asked to recall on their own.</p>
+                        </div>
+                        <div>
+                            <p class="eyebrow">From competencies</p>
+                            <p class="mt-1 text-sm text-fg-muted">Where you have demonstrated skill, and where you still need work.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mt-8" aria-labelledby="skills-title">
+                    <h2 id="skills-title" class="text-lg font-semibold">Skills assessed</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">The same six areas as your <a href="competency.html" class="text-fg underline decoration-line-strong underline-offset-2 hover:decoration-fg">competency profile</a>.</p>
+                    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                        <li class="panel flex items-center gap-3 px-4 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                            <span class="min-w-0 text-sm text-fg">HTML Structure</span>
+                        </li>
+                        <li class="panel flex items-center gap-3 px-4 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                            <span class="min-w-0 text-sm text-fg">CSS Selectors</span>
+                        </li>
+                        <li class="panel flex items-center gap-3 px-4 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                            <span class="min-w-0 text-sm text-fg">Box Model</span>
+                        </li>
+                        <li class="panel flex items-center gap-3 px-4 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                            <span class="min-w-0 text-sm text-fg">Responsive Layout</span>
+                        </li>
+                        <li class="panel flex items-center gap-3 px-4 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                            <span class="min-w-0 text-sm text-fg">JavaScript Fundamentals</span>
+                        </li>
+                        <li class="panel flex items-center gap-3 px-4 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-compass" /></svg></span>
+                            <span class="min-w-0 text-sm text-fg">Problem Solving</span>
+                        </li>
+                    </ul>
+                    <p class="mt-3 text-[13px] leading-6 text-fg-subtle">Competency scores are not a gate. Nothing on this page is blocked by a percentage you have not reached.</p>
+                </section>
+
+                <section class="mt-8" aria-labelledby="unlock-title">
+                    <h2 id="unlock-title" class="text-lg font-semibold">Progress toward unlock</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                        Finish the required course missions, including Section 04. These rows show your current course progression.
+                    </p>
+                    <ol class="rail mt-4" aria-label="Progress toward the Boss Challenge">
+                        <li data-state="in-progress" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-play" /></svg></span>
+                            <p class="eyebrow">In Progress · Course missions</p>
+                            <div class="mt-1.5 flex flex-wrap items-baseline justify-between gap-2">
+                                <p class="text-sm text-fg-muted"><span class="font-mono text-fg">9 of 29</span> missions complete</p>
+                                <p class="font-mono text-xs text-fg">31%</p>
+                            </div>
+                            <div class="progress mt-2" role="progressbar" aria-label="Course missions complete" aria-valuemin="0" aria-valuemax="29" aria-valuenow="9" aria-valuetext="9 of 29 missions complete, 31 percent"><span style="width: 31%"></span></div>
+                        </li>
+                        <li data-state="current" class="border-t border-line py-3" aria-current="step">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-play" /></svg></span>
+                            <p class="eyebrow text-accent">In Progress · Section 02, CSS Selectors and the Box Model</p>
+                            <div class="mt-1.5 flex flex-wrap items-baseline justify-between gap-2">
+                                <p class="text-sm text-fg-muted"><span class="font-mono text-fg">3 of 6</span> missions complete</p>
+                                <p class="font-mono text-xs text-fg">50%</p>
+                            </div>
+                            <div class="progress mt-2" role="progressbar" aria-label="Section 02 missions complete" aria-valuemin="0" aria-valuemax="6" aria-valuenow="3" aria-valuetext="3 of 6 Section 02 missions complete, 50 percent"><span style="width: 50%"></span></div>
+                            <p class="mt-2 text-[13px] text-fg-muted">M2.4 in progress. M2.5 available. M2.6 locked.</p>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <p class="eyebrow">Locked · Knowledge Check: Box Model</p>
+                            <p class="mt-1 text-sm text-fg-muted">Not attempted. Passes to open Section 03.</p>
+                            <p class="mt-1 text-[13px] text-fg-subtle">Needs M2.4, M2.5, and M2.6 complete.</p>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <p class="eyebrow">Locked · Sections 03 and 04</p>
+                            <p class="mt-1 text-sm text-fg-muted">Layout with Flexbox, then JavaScript Fundamentals.</p>
+                            <p class="mt-1 text-[13px] text-fg-subtle">Section 03 opens after KC 02. Section 04 opens after Section 03.</p>
+                        </li>
+                    </ol>
+                    <p class="mt-3 text-[13px] leading-6 text-fg-subtle">These rows describe progress, not the server eligibility formula. The server requires all course missions complete, an active course and Boss Challenge, and access through earlier courses. Knowledge Checks and competency percentages do not replace mission completion.</p>
+                </section>
+
+                <section class="mt-8" aria-labelledby="format-title">
+                    <h2 id="format-title" class="text-lg font-semibold">Assessment format</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">What to expect once it opens. The task prompt itself is not published while the challenge is locked.</p>
+                    <ul class="mt-4 divide-y divide-line border-y border-line">
+                        <li class="flex items-start gap-3 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-file" /></svg></span>
+                            <div>
+                                <p class="text-sm font-medium">Integrated coding task</p>
+                                <p class="mt-0.5 text-[13px] leading-5 text-fg-muted">A single brief to build, not a set of isolated questions.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-code" /></svg></span>
+                            <div>
+                                <p class="text-sm font-medium">Code editor workspace</p>
+                                <p class="mt-0.5 text-[13px] leading-5 text-fg-muted">The same editor and preview you use in missions.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-play" /></svg></span>
+                            <div>
+                                <p class="text-sm font-medium">Preview and test results</p>
+                                <p class="mt-0.5 text-[13px] leading-5 text-fg-muted">Preview fixed example results here. Production submissions are evaluated by the server.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-check" /></svg></span>
+                            <div>
+                                <p class="text-sm font-medium">Multiple requirements</p>
+                                <p class="mt-0.5 text-[13px] leading-5 text-fg-muted">Each requirement reports pass or fail with the expected value against yours.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 py-3">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-inbox" /></svg></span>
+                            <div>
+                                <p class="text-sm font-medium">Final submission</p>
+                                <p class="mt-0.5 text-[13px] leading-5 text-fg-muted">One deliberate submission sends your work for evaluation.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mt-8 border-t border-line pt-5" aria-labelledby="next-title">
+                    <h2 id="next-title" class="text-lg font-semibold">What to do now</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                        The Boss Challenge cannot be started yet. Finish Section 02 to open KC 02, which opens the sections after it. Your saved work on M2.4 is the shortest step.
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="learn.html" class="btn btn-secondary">View Learning Path</a>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ── Available (preview) ──────────────────────────────────── -->
+            <div data-state-panel="available" class="mt-6" hidden>
+                <section class="panel p-5 md:p-6" aria-labelledby="available-title">
+                    <h2 id="available-title" class="text-lg font-semibold">Boss Challenge available</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">You have met the requirements. This is what starting it involves.</p>
+
+                    <h3 class="mt-5 text-sm font-semibold">Estimated scope</h3>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                        Illustrative scope: one profile page with HTML, CSS, and basic JavaScript across the four course sections. The production Boss Challenge is graded by the server. This static preview does not grade. No duration or time limit is specified.
+                    </p>
+
+                    <h3 class="mt-5 text-sm font-semibold">Skills covered</h3>
+                    <ul class="mt-2 flex flex-wrap gap-1.5">
+                        <li><span class="badge badge-neutral">HTML Structure</span></li>
+                        <li><span class="badge badge-neutral">CSS Selectors</span></li>
+                        <li><span class="badge badge-neutral">Box Model</span></li>
+                        <li><span class="badge badge-neutral">Responsive Layout</span></li>
+                        <li><span class="badge badge-neutral">JavaScript Fundamentals</span></li>
+                        <li><span class="badge badge-neutral">Problem Solving</span></li>
+                    </ul>
+
+                    <h3 class="mt-5 text-sm font-semibold">Submission rules</h3>
+                    <ul class="mt-2 divide-y divide-line border-y border-line text-sm">
+                        <li class="flex items-start gap-3 py-2.5">
+                            <svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg>
+                            <span class="flex-1 text-fg-muted">Draft as often as you like. Drafts do not count as attempts.</span>
+                        </li>
+                        <li class="flex items-start gap-3 py-2.5">
+                            <svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg>
+                            <span class="flex-1 text-fg-muted">Run tests as often as you like before submitting.</span>
+                        </li>
+                        <li class="flex items-start gap-3 py-2.5">
+                            <svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg>
+                            <span class="flex-1 text-fg-muted">Submission is one action and asks for confirmation first.</span>
+                        </li>
+                        <li class="flex items-start gap-3 py-2.5">
+                            <svg class="mt-1 size-3.5 shrink-0 text-fg-subtle" aria-hidden="true"><use href="#i-x" /></svg>
+                            <span class="flex-1 text-fg-muted">This preview has no Hint or Show Solution controls.</span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-primary" data-enter-workspace>Start Boss Challenge<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></button>
+                        <a href="assessments.html" class="btn btn-secondary">Back to Assessments</a>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ── In progress / submitted / passed / failed ──────────────
+                 The workspace reuses the accepted Challenge Workspace
+                 system: same panes, same editor, same tests and preview. -->
+            <div data-state-panel="in-progress" class="boss-workspace mt-6" hidden>
+                <div class="ws flex h-[min(44rem,80dvh)] min-h-[34rem] flex-col rounded-md border border-line bg-canvas" style="--left: 24%; --right: 28%" data-boss-ws data-tab="code" data-collapsed="">
+                    <div class="flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface px-3 md:px-4">
+                        <span class="eyebrow hidden shrink-0 sm:inline">Boss Challenge</span>
+                        <h2 class="min-w-0 truncate text-sm font-medium">Frontend Fundamentals Capstone</h2>
+                        <div class="ml-auto hidden items-center gap-1 lg:flex">
+                            <button type="button" class="btn btn-ghost btn-icon" aria-label="Toggle instructions pane" aria-pressed="true" data-toggle-pane="instructions"><svg aria-hidden="true"><use href="#i-panel-left" /></svg></button>
+                            <button type="button" class="btn btn-ghost btn-icon" aria-label="Toggle output pane" aria-pressed="true" data-toggle-pane="results"><svg aria-hidden="true"><use href="#i-panel-right" /></svg></button>
+                        </div>
+                    </div>
+
+                    <div role="tablist" aria-label="Workspace" class="flex shrink-0 border-b border-line bg-surface px-1 lg:hidden" data-tabs="mobile">
+                        <button type="button" role="tab" id="bt-instructions" aria-controls="bpane-instructions" aria-selected="false" tabindex="-1" class="tab flex-1 justify-center" data-tab-value="instructions">Instructions</button>
+                        <button type="button" role="tab" id="bt-code" aria-controls="bpane-code" aria-selected="true" class="tab flex-1 justify-center" data-tab-value="code">Code</button>
+                        <button type="button" role="tab" id="bt-results" aria-controls="bpane-results" aria-selected="false" tabindex="-1" class="tab flex-1 justify-center" data-tab-value="results">Results<span class="font-mono text-2xs text-danger" data-results-count>4/9</span></button>
+                    </div>
+
+                    <div class="flex min-h-0 flex-1 overflow-hidden">
+                        <section id="bpane-instructions" aria-label="Instructions" class="ws-pane flex min-w-0 shrink-0 flex-col bg-surface" data-pane="instructions">
+                            <div class="scrollbar-thin flex-1 overflow-y-auto">
+                                <article class="mx-auto max-w-[62ch] px-4 py-5 md:px-6">
+                                    <p class="eyebrow">Capstone task · Illustrative</p>
+                                    <h3 class="mt-1.5 text-xl font-semibold tracking-tight text-balance">Ship a responsive profile page</h3>
+                                    <div class="mt-4 rounded-sm border border-line bg-raised/60 px-3.5 py-3">
+                                        <p class="eyebrow text-accent">Objective</p>
+                                        <p class="mt-1 text-sm leading-6 text-fg">Build a profile page that reads well on a phone and on a wide screen, styled with your own selectors, and made interactive with a small script.</p>
+                                    </div>
+                                    <h4 class="mt-5 text-sm font-semibold">Requirements</h4>
+                                    <ol class="mt-2 divide-y divide-line rounded-sm border border-line text-sm">
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted">Semantic landmarks: <code class="code-inline">header</code>, <code class="code-inline">main</code>, <code class="code-inline">footer</code></span><span class="sr-only">Passing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted">Profile is styled with class and descendant selectors</span><span class="sr-only">Passing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted">Card width is predictable with <code class="code-inline">box-sizing</code></span><span class="sr-only">Passing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted">Layout adapts at 640px</span><span class="sr-only">Passing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">A skill filter responds to a click</span><span class="sr-only">Failing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">The filter hides unmatched entries</span><span class="sr-only">Failing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">Skills render from a data array when JavaScript is available</span><span class="sr-only">Failing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">The profile has readable fallback content without JavaScript</span><span class="sr-only">Failing</span></li>
+                                        <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">No horizontal overflow at 360px</span><span class="sr-only">Failing</span></li>
+                                    </ol>
+                                    <p class="mt-3 text-[13px] leading-5 text-fg-subtle">This capstone preview omits hints and worked solutions. Assistance rules for production remain governed by the assessment requirements.</p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize instructions pane" aria-controls="bpane-instructions" aria-valuemin="20" aria-valuemax="32" aria-valuenow="24" aria-valuetext="24 percent of workspace" tabindex="0" data-splitter="left"></div>
+
+                        <section id="bpane-code" aria-label="Code editor" class="ws-pane flex min-w-0 flex-1 flex-col bg-canvas" data-pane="code">
+                            <div class="flex h-10 shrink-0 items-end gap-px border-b border-line bg-surface px-2" role="tablist" aria-label="Files" data-tabs="files">
+                                <button type="button" role="tab" id="bf-css" aria-controls="bfile-css" aria-selected="true" class="-mb-px flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-3 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
+                                    <svg class="size-3.5 text-info" aria-hidden="true"><use href="#i-file" /></svg>styles.css<span class="size-1.5 rounded-full bg-warning" aria-hidden="true"></span><span class="sr-only">(unsaved changes)</span>
+                                </button>
+                                <button type="button" role="tab" id="bf-js" aria-controls="bfile-js" aria-selected="false" tabindex="-1" class="flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-3 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
+                                    <svg class="size-3.5" aria-hidden="true"><use href="#i-file" /></svg>script.js<span class="text-2xs text-fg-muted">empty</span>
+                                </button>
+                            </div>
+                            <div id="bfile-css" role="tabpanel" aria-labelledby="bf-css" class="scrollbar-thin flex min-h-0 flex-1 overflow-auto font-mono text-[13px] leading-6 md:text-sm md:leading-6">
+                                <ol class="sticky left-0 shrink-0 bg-canvas py-3 pr-3 pl-4 text-right text-fg-muted select-none" aria-hidden="true">
+                                    <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li>
+                                </ol>
+                                <div class="min-w-0 flex-1 py-3 pr-6 text-fg whitespace-pre " contenteditable="true" spellcheck="false" autocapitalize="off" role="textbox" aria-multiline="true" aria-label="styles.css" data-editor><div><span class="tok-sel">.profile</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">box-sizing</span><span class="tok-pun">:</span> <span class="tok-val">border-box</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">max-width</span><span class="tok-pun">:</span> <span class="tok-num">680px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">margin-inline</span><span class="tok-pun">:</span> <span class="tok-val">auto</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">padding</span><span class="tok-pun">:</span> <span class="tok-num">24px</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.profile .skills</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">display</span><span class="tok-pun">:</span> <span class="tok-val">flex</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">flex-wrap</span><span class="tok-pun">:</span> <span class="tok-val">wrap</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">gap</span><span class="tok-pun">:</span> <span class="tok-num">8px</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-com">/* TODO: filter skills on click */</span></div></div>
+                            </div>
+                            <div id="bfile-js" role="tabpanel" aria-labelledby="bf-js" class="scrollbar-thin min-h-0 flex-1 overflow-auto px-4 py-3 font-mono text-sm" hidden>
+                                <div contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="script.js" class="min-h-40 whitespace-pre" data-editor>// Illustrative empty script. Add the skill filter here.</div>
+                            </div>
+                            <div class="flex h-7 shrink-0 items-center gap-4 border-t border-line bg-surface px-4 font-mono text-2xs text-fg-subtle">
+                                <span data-file-language>CSS</span><span>ILLUSTRATIVE EDITOR</span><span class="hidden sm:inline">SPACES: 2</span>
+                            </div>
+                        </section>
+
+                        <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize output pane" aria-controls="bpane-results" aria-valuemin="22" aria-valuemax="34" aria-valuenow="28" aria-valuetext="28 percent of workspace" tabindex="0" data-splitter="right"></div>
+
+                        <section id="bpane-results" aria-label="Output" class="ws-pane flex min-w-0 shrink-0 flex-col bg-surface" data-pane="results">
+                            <div role="tablist" aria-label="Output" class="flex h-10 shrink-0 border-b border-line px-1" data-tabs="output">
+                                <button type="button" role="tab" id="bot-tests" aria-controls="bop-tests" aria-selected="true" class="tab">Tests<span class="font-mono text-2xs text-danger" data-results-count>4/9</span></button>
+                                <button type="button" role="tab" id="bot-preview" aria-controls="bop-preview" aria-selected="false" tabindex="-1" class="tab"><svg class="size-3.5" aria-hidden="true"><use href="#i-eye" /></svg>Preview</button>
+                            </div>
+                            <div id="bop-tests" role="tabpanel" aria-labelledby="bot-tests" class="scrollbar-thin flex-1 overflow-y-auto" tabindex="0">
+                                <div aria-live="polite">
+                                    <div class="flex items-center gap-3 px-4 py-6" hidden data-view="running">
+                                        <svg class="size-4 animate-spin text-accent" aria-hidden="true"><use href="#i-loader" /></svg>
+                                        <div>
+                                            <p class="text-sm font-medium" data-running-label>Previewing 9 example checks</p>
+                                            <p class="font-mono text-2xs text-fg-subtle">STATIC RESULTS · NO GRADER</p>
+                                        </div>
+                                    </div>
+                                    <div data-view="results">
+                                        <div class="flex items-center justify-between gap-3 px-4 py-3">
+                                            <p class="text-sm"><span class="font-medium text-fg">4 of 9 passing</span> <span class="text-fg-subtle" data-last-run>· fixed example results</span></p>
+                                            <div class="flex h-1.5 w-20 gap-0.5" aria-hidden="true"><span class="flex-1 rounded-l-full bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-danger"></span><span class="flex-1 bg-danger"></span><span class="flex-1 bg-danger"></span><span class="flex-1 bg-danger"></span><span class="flex-1 rounded-r-full bg-danger"></span></div>
+                                        </div>
+                                        <ul class="border-t border-line">
+                                            <li class="border-b border-line px-4 py-3">
+                                                <details open class="group">
+                                                    <summary class="flex cursor-pointer list-none items-start gap-2.5 text-sm [&::-webkit-details-marker]:hidden">
+                                                        <span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span>
+                                                        <span class="flex-1 text-fg">Skills render from a data array when JavaScript is available</span>
+                                                        <svg class="mt-1 size-4 text-fg-subtle transition-transform group-open:rotate-180" aria-hidden="true"><use href="#i-chevron-down" /></svg>
+                                                    </summary>
+                                                    <dl class="mt-3 grid grid-cols-[5rem_minmax(0,1fr)] overflow-hidden rounded-sm border border-line font-mono text-xs">
+                                                        <dt class="border-b border-line bg-raised px-2.5 py-2 text-fg-subtle">EXPECTED</dt>
+                                                        <dd class="border-b border-line px-2.5 py-2 text-accent">array of skills</dd>
+                                                        <dt class="bg-raised px-2.5 py-2 text-fg-subtle">ACTUAL</dt>
+                                                        <dd class="px-2.5 py-2 text-danger">hard-coded markup</dd>
+                                                    </dl>
+                                                    <p class="mt-2 text-[13px] leading-5 text-fg-muted">The capstone asks for data-driven rendering so the filter in requirement 5 has something to filter.</p>
+                                                </details>
+                                            </li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted">Semantic landmarks present</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted">Class and descendant selectors used</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted">box-sizing declared</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted">Layout changes at 640px</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span><span class="text-fg-muted">Skill filter responds to a click</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span><span class="text-fg-muted">Filter hides unmatched entries</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span><span class="text-fg-muted">Readable fallback content without JavaScript</span></li>
+                                            <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span><span class="text-fg-muted">No horizontal overflow at 360px</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="bop-preview" role="tabpanel" aria-labelledby="bot-preview" class="flex flex-1 flex-col" hidden>
+                                <div class="flex h-8 shrink-0 items-center gap-2 border-b border-line px-3 font-mono text-2xs text-fg-subtle">
+                                    <span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>FIXED PREVIEW · INDEX.HTML
+                                </div>
+                                <iframe class="w-full flex-1 bg-white" title="Fixed illustrative profile preview" sandbox="" data-preview srcdoc="<!doctype html><style>body{margin:0;background:#f6f8fa;font:15px/1.5 system-ui,sans-serif;color:#1f2328}.profile{box-sizing:border-box;max-width:680px;margin:24px auto;padding:24px;background:#fff;border:1px solid #d0d7de;border-radius:8px}.skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.skills span{padding:4px 10px;border:1px solid #d0d7de;border-radius:999px;font-size:13px}</style><div class='profile'><h1>Maya Reyes</h1><p>BSIT student. Frontend Fundamentals.</p><div class='skills'><span>HTML</span><span>CSS</span><span>Box Model</span><span>Flexbox</span><span>JavaScript</span></div></div>"></iframe>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="flex min-h-14 shrink-0 flex-wrap items-center gap-2 border-t border-line bg-surface px-3 py-2 md:px-4">
+                        <p class="font-mono text-2xs text-fg-subtle" data-draft-status role="status"><svg class="mr-1 inline size-3.5 align-text-bottom" aria-hidden="true"><use href="#i-save" /></svg>DRAFT PREVIEW · NOT SAVED</p>
+                        <div class="ml-auto flex items-center gap-2">
+                            <button type="button" class="btn btn-ghost min-h-11 min-w-11" data-action="save"><svg aria-hidden="true"><use href="#i-save" /></svg><span class="max-sm:sr-only">Save Draft</span></button>
+                            <button type="button" class="btn btn-secondary min-h-11" data-action="run"><svg aria-hidden="true"><use href="#i-play" /></svg>Run</button>
+                            <button type="button" class="btn btn-primary min-h-11 px-5" data-action="submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">Workspace preview. The editor does not run code, tests are fixed, and nothing is saved.</p>
+            </div>
+
+            <!-- ── Submitted (preview) ──────────────────────────────────── -->
+            <div data-state-panel="submitted" class="mt-6" hidden>
+                <section class="panel px-5 py-12 text-center" aria-labelledby="submitted-title">
+                    <span class="mx-auto grid size-9 place-items-center rounded-full border border-line text-fg-muted" aria-hidden="true">
+                        <svg class="size-4"><use href="#i-inbox" /></svg>
+                    </span>
+                    <p class="eyebrow mt-3">Submission received</p>
+                    <h2 id="submitted-title" tabindex="-1" class="mt-1.5 text-lg font-semibold">Evaluation pending</h2>
+                    <p class="mx-auto mt-2 max-w-[52ch] text-sm leading-6 text-fg-muted">
+                        This illustrates an evaluation-pending view. Nothing is sent and no evaluation job exists. Return to the workspace to inspect the draft preview.
+                    </p>
+                    <dl class="mx-auto mt-5 grid max-w-md grid-cols-1 gap-x-8 gap-y-3 border-y border-line py-4 text-left sm:grid-cols-2">
+                        <div>
+                            <dt class="text-[13px] text-fg-muted">Submitted</dt>
+                            <dd class="mt-1 text-sm font-medium">19:41 today</dd>
+                        </div>
+                        <div>
+                            <dt class="text-[13px] text-fg-muted">Illustrative checks at submission</dt>
+                            <dd class="mt-1 text-sm font-medium">4 of 9</dd>
+                        </div>
+                    </dl>
+                    <div class="mt-5 flex flex-wrap justify-center gap-2">
+                        <a href="assessments.html" class="btn btn-primary">Back to Assessments<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <button type="button" class="btn btn-secondary" data-reopen-workspace>Return to workspace</button>
+                    </div>
+                    <p class="mt-4 text-[13px] text-fg-subtle">No completion time is estimated here. The prototype does not define an evaluation duration.</p>
+                </section>
+            </div>
+
+            <!-- ── Passed (preview) ─────────────────────────────────────── -->
+            <div data-state-panel="passed" class="mt-6" hidden>
+                <section class="panel p-5 md:p-6" aria-labelledby="passed-title">
+                    <p class="eyebrow flex items-center gap-1.5 text-accent">
+                        <svg class="size-3.5" aria-hidden="true"><use href="#i-award" /></svg>Boss Challenge complete
+                    </p>
+                    <h2 id="passed-title" class="mt-1.5 text-lg font-semibold">Passed</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">This illustrative result shows all nine example requirements met. Production pass/fail uses the configured passing score.</p>
+
+                    <h3 class="mt-5 text-sm font-semibold">Requirements met</h3>
+                    <p class="mt-1.5 text-sm text-fg-muted"><span class="font-mono text-fg">9 of 9</span> illustrative task checks passing</p>
+                    <div class="progress mt-2" role="progressbar" aria-label="Illustrative Boss Challenge requirements met" aria-valuemin="0" aria-valuemax="9" aria-valuenow="9" aria-valuetext="9 of 9 illustrative task requirements met"><span style="width: 100%"></span></div>
+
+                    <h3 class="mt-5 text-sm font-semibold">Competencies demonstrated</h3>
+                    <ul class="mt-2 divide-y divide-line border-y border-line">
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                            <span class="text-fg">HTML Structure</span>
+                            <span class="flex items-center gap-2"><span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span></span>
+                        </li>
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                            <span class="text-fg">CSS Selectors</span>
+                            <span class="flex items-center gap-2"><span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span></span>
+                        </li>
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                            <span class="text-fg">Box Model</span>
+                            <span class="flex items-center gap-2"><span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span></span>
+                        </li>
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                            <span class="text-fg">Responsive Layout</span>
+                            <span class="flex items-center gap-2"><span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span></span>
+                        </li>
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                            <span class="text-fg">JavaScript Fundamentals</span>
+                            <span class="flex items-center gap-2"><span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span></span>
+                        </li>
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                            <span class="text-fg">Problem Solving</span>
+                            <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span>
+                        </li>
+                    </ul>
+                    <p class="mt-2.5 text-[13px] leading-6 text-fg-subtle">The demonstrated skills describe this illustrative result. Current competency statuses remain unchanged; production grading uses the configured assessment rules and passing score.</p>
+
+                    <h3 class="mt-5 text-sm font-semibold">Reward</h3>
+                    <p class="mt-1.5 text-sm text-fg-muted">Production first-pass reward: <span class="font-mono text-fg">+100 XP</span>. This preview awards nothing and does not change your XP balance.</p>
+
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        <a href="assessments.html" class="btn btn-primary">Back to Assessments<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="progress.html" class="btn btn-secondary">View Progress</a>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ── Failed (preview) ─────────────────────────────────────── -->
+            <div data-state-panel="failed" class="mt-6" hidden>
+                <section class="panel p-5 md:p-6" aria-labelledby="failed-title">
+                    <p class="eyebrow flex items-center gap-1.5 text-warning">
+                        <svg class="size-3.5" aria-hidden="true"><use href="#i-alert" /></svg>Submission reviewed
+                    </p>
+                    <h2 id="failed-title" class="mt-1.5 text-lg font-semibold">Needs another attempt</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                        Five requirements were not met. Your draft is kept, so you can keep working from where you stopped.
+                    </p>
+
+                    <h3 class="mt-5 text-sm font-semibold">Where to revise</h3>
+                    <ul class="mt-2 divide-y divide-line border-y border-line">
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm">
+                                <span class="text-fg">JavaScript Fundamentals</span>
+                                <span class="badge badge-warning">Not demonstrated</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-5 text-fg-muted">The skill filter has no event handler, and the skill list is hard-coded markup. Render the list from data first.</p>
+                        </li>
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm">
+                                <span class="text-fg">Responsive Layout</span>
+                                <span class="badge badge-warning">Partial</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-5 text-fg-muted">The page overflows horizontally at 360px. A long unbroken skill name is likely the cause.</p>
+                        </li>
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm">
+                                <span class="text-fg">HTML Structure</span>
+                                <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Demonstrated</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-5 text-fg-subtle">Landmarks and selectors are fine. Leave this part alone.</p>
+                        </li>
+                    </ul>
+                    <p class="mt-3 text-[13px] leading-6 text-fg-subtle">No XP is deducted and no attempt is counted. The prototype does not define attempt limits.</p>
+
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-primary" data-reopen-workspace>Keep working<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></button>
+                        <a href="missions.html" class="btn btn-secondary">Review Missions</a>
+                    </div>
+                </section>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype note</span>The default state of this page is the student's real position: locked. Every other state is a preview for inspection. No code is executed, no submission is sent, and no attempt, score, or XP is recorded.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="boss-challenge.html" class="btn btn-quiet btn-sm" data-state-link="locked">Locked</a></li>
+                    <li><a href="boss-challenge.html?state=available" class="btn btn-quiet btn-sm" data-state-link="available">Available</a></li>
+                    <li><a href="boss-challenge.html?state=in-progress" class="btn btn-quiet btn-sm" data-state-link="in-progress">In Progress</a></li>
+                    <li><a href="boss-challenge.html?state=submitted" class="btn btn-quiet btn-sm" data-state-link="submitted">Submitted</a></li>
+                    <li><a href="boss-challenge.html?state=passed" class="btn btn-quiet btn-sm" data-state-link="passed">Passed</a></li>
+                    <li><a href="boss-challenge.html?state=failed" class="btn btn-quiet btn-sm" data-state-link="failed">Needs attempt</a></li>
+                    <li><a href="boss-challenge.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="boss-challenge.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                </ul>
+            </section>
+        </main>
+
+        <dialog class="panel m-auto w-[min(26rem,calc(100vw-2rem))] bg-surface p-0 text-fg [&_.btn]:min-h-11 shadow-2xl shadow-black/60 backdrop:bg-black/60" aria-labelledby="submit-title" aria-describedby="submit-description" data-submit-dialog>
+            <form method="dialog">
+                <div class="px-5 pt-5">
+                    <p class="eyebrow flex items-center gap-1.5 text-accent"><svg class="size-3.5" aria-hidden="true"><use href="#i-shield" /></svg>Boss Challenge</p>
+                    <h2 id="submit-title" class="mt-2 text-lg font-semibold">Submit Boss Challenge?</h2>
+                    <p id="submit-description" class="mt-2 text-sm leading-6 text-fg-muted">Your current work will be submitted for evaluation. In this prototype nothing is sent or graded.</p>
+                </div>
+                <div class="mt-5 flex flex-wrap justify-end gap-2 border-t border-line px-5 py-3">
+                    <button value="cancel" class="btn btn-ghost" autofocus>Keep editing</button>
+                    <button value="confirm" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </dialog>
+
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./boss-challenge.js"></script>
+    </body>
+</html>

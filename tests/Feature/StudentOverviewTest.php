@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Activity;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -10,12 +9,16 @@ use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
+use App\Models\XpTransaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class StudentOverviewTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_student_overview_requires_teacher_authorization(): void
     {
@@ -39,11 +42,14 @@ class StudentOverviewTest extends TestCase
 
     public function test_student_overview_lists_students_only(): void
     {
-        User::factory()->create(['username' => 'pilot_one']);
-        User::factory()->create(['username' => 'pilot_two']);
+        $pilotOne = User::factory()->create(['username' => 'pilot_one']);
+        $pilotTwo = User::factory()->create(['username' => 'pilot_two']);
         User::factory()->create(['role' => 'admin', 'username' => 'admin_roster']);
         User::factory()->create(['role' => 'operator', 'username' => 'operator_roster']);
         $teacher = User::factory()->teacher()->create();
+        $course = Course::factory()->create();
+
+        $this->classroomFor($teacher, [$pilotOne, $pilotTwo], [$course]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -62,12 +68,16 @@ class StudentOverviewTest extends TestCase
 
         $student = User::factory()->create(['username' => 'cadet_inkling']);
         $this->complete($student, $missions[0]);
-        Activity::query()->create([
+        $hint = new XpTransaction([
             'user_id' => $student->id,
-            'type' => 'mission_completed',
-            'message' => 'Completed mission alpha',
-            'pts' => 10,
+            'mission_id' => $missions[0]->id,
+            'type' => 'hint_used',
+            'description' => 'Hint used on mission: alpha',
+            'amount' => -5,
         ]);
+        $hint->forceFill(['created_at' => now()])->save();
+
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -77,15 +87,17 @@ class StudentOverviewTest extends TestCase
             ->assertSee('IN PROGRESS 1/2 · 50%')
             ->assertSee('LOCKED')
             ->assertSee('PRACTICING 1')
-            ->assertSee('Completed mission alpha')
+            ->assertSee('Hint used on mission: alpha')
             ->assertSee('ATTN');
     }
 
     public function test_student_overview_search_is_server_side_by_username_and_name(): void
     {
         $teacher = User::factory()->teacher()->create();
-        User::factory()->create(['username' => 'captain_alpha', 'name' => 'Aaron Waters']);
-        User::factory()->create(['username' => 'lieutenant_bravo', 'name' => 'Bella Stone']);
+        $captain = User::factory()->create(['username' => 'captain_alpha', 'name' => 'Aaron Waters']);
+        $lieutenant = User::factory()->create(['username' => 'lieutenant_bravo', 'name' => 'Bella Stone']);
+
+        $this->classroomFor($teacher, [$captain, $lieutenant], [Course::factory()->create()]);
 
         $this->actingAs($teacher)
             ->get(route('students', ['q' => 'alpha']))
@@ -122,6 +134,8 @@ class StudentOverviewTest extends TestCase
         $this->complete($learnerB, $firstMissions[1]);
         $this->attempt($learnerB, $firstAssessment, 'passed');
 
+        $this->classroomFor($teacher, [$learnerA, $learnerB], [$first, $second]);
+
         // The dashboard strips above the roster echo usernames system-wide, so
         // scope the roster-filter assertions to the roster region (feature.md).
         $rosterA = $this->rosterBody($this->actingAs($teacher)
@@ -133,6 +147,23 @@ class StudentOverviewTest extends TestCase
             ->get(route('students', ['course' => $second->id]))->getContent());
         $this->assertStringContainsString('learner_b', $rosterB);
         $this->assertStringNotContainsString('learner_a', $rosterB);
+    }
+
+    public function test_course_filter_does_not_reveal_a_foreign_course(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $foreignCourse = Course::factory()->create();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        foreach ([$foreignCourse->id, $foreignCourse->id + 100000] as $courseId) {
+            $this->actingAs($teacher)
+                ->from(route('students'))
+                ->get(route('students', ['course' => $courseId]))
+                ->assertRedirect(route('students'))
+                ->assertSessionHasErrors('course');
+        }
     }
 
     public function test_student_overview_filters_by_progress_status(): void
@@ -152,6 +183,8 @@ class StudentOverviewTest extends TestCase
         $this->complete($cleared, $missions[0]);
         $this->complete($cleared, $missions[1]);
         $this->attempt($cleared, $assessment, 'passed');
+
+        $this->classroomFor($teacher, [$inProgress, $ready, $cleared], [$course]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -187,9 +220,12 @@ class StudentOverviewTest extends TestCase
     {
         $teacher = User::factory()->teacher()->create();
 
+        $cadets = [];
         foreach (range(1, 12) as $index) {
-            User::factory()->create(['username' => sprintf('cadet_%02d', $index)]);
+            $cadets[] = User::factory()->create(['username' => sprintf('cadet_%02d', $index)]);
         }
+
+        $this->classroomFor($teacher, $cadets, [Course::factory()->create()]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -208,6 +244,79 @@ class StudentOverviewTest extends TestCase
             ->assertDontSee('cadet_01')
             ->assertDontSee('cadet_02')
             ->assertSee('SHOWING PAGE 2 OF 2');
+    }
+
+    public function test_unfiltered_roster_query_count_stays_bounded_after_the_first_page(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        [$course] = $this->createCourseWithMissions(1);
+        $students = User::factory()->count(12)->create(['role' => 'student']);
+        $classroom = $this->classroomFor($teacher, $students->all(), [$course]);
+
+        $small = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(13)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        $large = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $this->assertLessThanOrEqual($small + 10, $large, "Roster queries grew from {$small} to {$large} for 12 versus 25 students.");
+    }
+
+    public function test_displayed_roster_rows_do_not_multiply_queries(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        [$course] = $this->createCourseWithMissions(1);
+        $students = User::factory()->count(1)->create(['role' => 'student']);
+        $classroom = $this->classroomFor($teacher, $students->all(), [$course]);
+
+        $one = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(4)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        $five = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(5)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        $ten = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $this->assertLessThanOrEqual($one + 10, $five, "Roster queries grew {$one} → {$five} for 1 → 5 displayed students.");
+        $this->assertLessThanOrEqual($one + 10, $ten, "Roster queries grew {$one} → {$ten} for 1 → 10 displayed students.");
+    }
+
+    public function test_roster_queries_stay_bounded_when_displayed_students_have_completed_sections(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        [$course, $missions] = $this->createCourseWithMissions(1);
+        $students = User::factory()->count(1)->create(['role' => 'student']);
+        $classroom = $this->classroomFor($teacher, $students->all(), [$course]);
+        $this->complete($students->first(), $missions[0]);
+
+        $one = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $more = User::factory()->count(9)->create(['role' => 'student']);
+        $classroom->students()->syncWithoutDetaching($more->pluck('id')->all());
+        foreach ($more as $student) {
+            $this->complete($student, $missions[0]);
+        }
+
+        $ten = $this->countQueries(fn (): mixed => $this->actingAs($teacher)->get(route('students'))->assertOk());
+
+        $this->assertLessThanOrEqual($one + 10, $ten, "Completed-section roster queries grew {$one} → {$ten} for 1 → 10 students.");
+    }
+
+    private function countQueries(callable $operation): int
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $operation();
+
+            return count(DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
     }
 
     public function test_student_overview_validates_query_parameters(): void

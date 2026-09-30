@@ -13,11 +13,13 @@ use App\Services\CourseAnalyticsService;
 use App\Services\DashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class CourseAnalyticsTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_course_analytics_requires_authentication(): void
     {
@@ -140,7 +142,15 @@ class CourseAnalyticsTest extends TestCase
     {
         $this->buildFleet();
 
-        $this->actingAs($this->teacher())
+        $alpha = Course::query()->where('name', 'Alpha Analytics')->firstOrFail();
+        $bravo = Course::query()->where('name', 'Bravo Analytics')->firstOrFail();
+        $delta = Course::query()->where('name', 'Delta Analytics')->firstOrFail();
+        $students = User::query()->where('role', 'student')->get()->all();
+
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, $students, [$alpha, $bravo, $delta]);
+
+        $this->actingAs($teacher)
             ->get(route('course-analytics'))
             ->assertOk()
             ->assertSee('ALPHA ANALYTICS')

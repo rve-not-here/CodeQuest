@@ -53,7 +53,9 @@ class SectionService
      * here as defense-in-depth over the FormRequest.
      *
      * An actual change records 'section.update'; a no-op round-trip records
-     * nothing, mirroring UserService and CourseService. A value outside the
+     * nothing, mirroring UserService and CourseService. A material change
+     * also bumps the section version by one and names the transition in the
+     * audit summary. A value outside the
      * allow list, or a cross-course section, records a 'failed' audit row
      * before InvalidArgumentException is thrown, so a rejected attempt is
      * never silent.
@@ -86,12 +88,19 @@ class SectionService
             'order_num' => $section->order_num,
         ];
 
+        $versionBefore = $section->version;
+
         $section->title = $title;
         $section->description = $description === '' ? null : $description;
         $section->order_num = $orderNum;
         $section->save();
 
         $summary = $this->fieldChangesSummary($before, $title, $description, $orderNum);
+
+        if ($section->wasChanged('version')) {
+            $transition = "version {$versionBefore} → {$section->version}";
+            $summary = $summary !== null ? $summary.', '.$transition : $transition;
+        }
 
         if ($summary !== null) {
             $this->audit->record(

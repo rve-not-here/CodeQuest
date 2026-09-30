@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Notifications · CodeQuest</title>
+        <meta name="description" content="Learning updates and items that may need your attention in Frontend Fundamentals." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- Notifications live in the profile menu, not the top nav, so no
+             destination is marked current. Same as design-system.html. -->
+        <!-- @include header -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 max-sm:[&_.btn]:min-h-11 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Notifications</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow">Notifications / Student updates</p>
+                <h1 id="notifications-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight md:text-3xl">Notifications</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Review learning updates and items that may need your attention.</p>
+            </header>
+
+            <!-- Standing reminders use the fixed student snapshot. -->
+            <div class="mt-5 border-b border-line pb-4">
+                <p class="flex max-w-[70ch] items-start gap-2.5 text-[13px] leading-6 text-fg-subtle">
+                    <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#i-route" /></svg>
+                    <span>Prototype preview of current reminders and progression context. Saved drafts and completed work appear on your <a href="activity.html" class="text-fg underline decoration-line-strong underline-offset-2 hover:decoration-fg">Activity</a> page.</span>
+                </p>
+            </div>
+
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading notifications">
+                <p role="status" class="text-sm text-fg-muted">Loading your updates…</p>
+                <div class="mt-4" aria-hidden="true">
+                    <div class="skeleton h-20 w-full"></div>
+                    <div class="skeleton mt-2 h-20 w-full"></div>
+                    <div class="skeleton mt-2 h-20 w-full"></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">Couldn't display this prototype's updates.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Your learning record is unchanged. Try loading this view again.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <section data-state-panel="empty" class="panel mt-6 px-5 py-12" hidden aria-labelledby="empty-title">
+                <span class="grid size-9 place-items-center border border-line-strong text-locked" aria-hidden="true">
+                    <svg class="size-4"><use href="#i-bell" /></svg>
+                </span>
+                <p class="eyebrow mt-3">Student updates</p>
+                <h2 id="empty-title" class="mt-1.5 text-lg font-semibold">You're all caught up</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">There are no learning updates to review right now.</p>
+                <a href="challenge.html" class="btn btn-primary mt-4">Continue learning<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">Caught-up state preview. Nothing here is synced to a server, so no update is marked as seen or unseen.</p>
+            </section>
+
+            <div data-state-panel="default" class="mt-6">
+                <!-- No read/unread model. Priority only says how soon the
+                     item matters, which is visible from the row itself. -->
+                <ul class="grid gap-3" aria-label="Learning updates, most relevant first">
+                    <li class="panel px-4 py-4 md:px-5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-accent-line text-accent" aria-hidden="true"><svg class="size-3.5"><use href="#i-save" /></svg></span>
+                            <p class="eyebrow">Progress</p>
+                            <span class="badge badge-accent">Current</span>
+                        </div>
+                        <p class="mt-2.5 text-[15px] font-medium">Draft ready to continue</p>
+                        <p class="mt-1 text-sm text-fg-muted"><span class="mr-2 font-mono text-xs text-fg-subtle">M2.4</span>Build a profile card with the box model</p>
+                        <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">In Progress · Draft saved. Continue your saved work when you return.</p>
+                        <p class="mt-3"><a href="challenge.html" class="btn btn-primary btn-sm">Continue mission<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a></p>
+                    </li>
+
+                    <li class="panel px-4 py-4 md:px-5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-quiz" /></svg></span>
+                            <p class="eyebrow">Assessment</p>
+                            <span class="badge badge-neutral">Upcoming</span>
+                        </div>
+                        <p class="mt-2.5 text-[15px] font-medium">Knowledge Check remains locked</p>
+                        <p class="mt-1 text-sm text-fg-muted"><span class="mr-2 font-mono text-xs text-fg-subtle">KC 02</span>Knowledge Check: Box Model</p>
+                        <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">Locked · Not attempted. Continue the current section and review its assessment requirements.</p>
+                        <p class="mt-3"><a href="assessments.html" class="btn btn-secondary btn-sm">View assessments<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                    </li>
+
+                    <li class="panel px-4 py-4 md:px-5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-bars" /></svg></span>
+                            <p class="eyebrow">Course</p>
+                            <span class="badge badge-neutral">Reference</span>
+                        </div>
+                        <p class="mt-2.5 text-[15px] font-medium">Frontend Fundamentals</p>
+                        <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted"><span class="font-mono text-fg">9 of 29</span> missions complete · <span class="font-mono text-fg">31%</span>. You are in Section 02, CSS Selectors and the Box Model.</p>
+                        <p class="mt-3"><a href="progress.html" class="btn btn-quiet btn-sm">View progress<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                    </li>
+
+                    <li class="panel px-4 py-4 md:px-5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-subtle" aria-hidden="true"><svg class="size-3.5"><use href="#i-shield" /></svg></span>
+                            <p class="eyebrow">Course</p>
+                            <span class="badge badge-neutral">Reference</span>
+                        </div>
+                        <p class="mt-2.5 text-[15px] font-medium">Boss Challenge not yet available</p>
+                        <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">Locked. This capstone combines course skills in an integrated coding task. You can review its format while continuing the required course missions. This is standing context, not a new lock event.</p>
+                        <p class="mt-3"><a href="boss-challenge.html" class="btn btn-quiet btn-sm">View Boss Challenge<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                    </li>
+                </ul>
+
+                <p class="mt-4 text-[13px] leading-6 text-fg-subtle">There is no read or unread state here, because this prototype does not store one. Each item is a standing condition, not a message waiting to be cleared.</p>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype note</span>Fixed mock student data. Nothing here is delivered by a notification service, and no item is marked as seen. This view does not change course state, unlock content, or award XP.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="notifications.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="notifications.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="notifications.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                    <li><a href="notifications.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                </ul>
+            </section>
+        </main>
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./notifications.js"></script>
+    </body>
+</html>

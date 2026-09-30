@@ -3,45 +3,39 @@
 @section('title', 'Sign in')
 
 @section('content')
-    {{-- Navy brand bar --}}
     <header class="cq-topnav">
-        <div class="max-w-[1360px] mx-auto flex h-16 items-center gap-4 px-4 md:px-6">
-            <a href="{{ route('login') }}" class="flex items-center gap-2.5" aria-label="CodeQuest home">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="#198eee" aria-hidden="true">
-                    <path d="M13 1 L4 14 h5 L9 23 L19 9 h-5 Z" />
-                </svg>
-                <span class="font-display text-xl font-bold tracking-tight text-white">CodeQuest</span>
+        <div class="mx-auto flex h-[68px] max-w-[1360px] items-center gap-4 px-4 md:px-6">
+            <a href="{{ route('login') }}" class="cq-brand" aria-label="CodeQuest home">
+                <span class="cq-brand-mark" aria-hidden="true">404</span>
+                <span>
+                    <span class="cq-brand-name">CodeQuest</span>
+                    <span class="cq-brand-subtitle">Learning terminal</span>
+                </span>
             </a>
             <a href="{{ route('login') }}" class="cq-navbar-link ml-auto">Sign in</a>
         </div>
     </header>
 
-    {{-- Hero split — freeCodeCamp grammar --}}
-    <section class="max-w-[1360px] mx-auto grid items-center gap-10 px-4 md:px-6 py-14 lg:grid-cols-2 lg:gap-16 lg:py-20">
+    <section class="mx-auto grid max-w-[1360px] grid-cols-1 items-center gap-10 px-4 py-14 md:px-6 lg:grid-cols-2 lg:gap-16 lg:py-20">
         <div class="max-w-xl">
-            <h1 class="text-4xl md:text-5xl font-display font-black tracking-tight text-[#0a0a23] leading-[1.08]">
-                Learn to code — for free.
+            <p class="terminal-kicker text-phosphor">SYSTEM 404 // ACADEMIC ACCESS TERMINAL</p>
+            <h1 class="mt-4 font-display text-4xl font-bold leading-[1.08] tracking-[-0.045em] text-ink md:text-5xl">
+                Restore the system.<br>Learn by building.
             </h1>
-            <p class="mt-5 text-lg md:text-xl text-[#2a2a40] leading-relaxed">
-                Practice by building projects in the terminal, earn XP, and beat the Boss to certify your course.
+            <p class="mt-5 text-lg leading-relaxed text-static md:text-xl">
+                Read concise lessons, solve real coding challenges, and advance through a server-validated learning path.
             </p>
-            <ul class="mt-8 space-y-3 text-[17px] text-[#3b3b4f]">
+            <ul class="mt-8 space-y-4 text-[15px] text-ink">
                 <li class="flex items-start gap-3">
-                    <svg class="mt-1 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#198eee" stroke-width="3" stroke-linecap="square" aria-hidden="true">
-                        <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                    <span class="text-cyan" aria-hidden="true">[01]</span>
                     Mission-based lessons graded by the server, never decorative guesses.
                 </li>
                 <li class="flex items-start gap-3">
-                    <svg class="mt-1 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#198eee" stroke-width="3" stroke-linecap="square" aria-hidden="true">
-                        <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                    <span class="text-cyan" aria-hidden="true">[02]</span>
                     A live preview as you type, with SUBMIT running the real checks.
                 </li>
                 <li class="flex items-start gap-3">
-                    <svg class="mt-1 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#198eee" stroke-width="3" stroke-linecap="square" aria-hidden="true">
-                        <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                    <span class="text-cyan" aria-hidden="true">[03]</span>
                     XP, competency, and a course certificate earned one challenge at a time.
                 </li>
             </ul>
@@ -50,8 +44,9 @@
 
         <div id="signin" class="w-full max-w-md mx-auto lg:mx-0">
             <div class="panel p-6 md:p-8 scroll-mt-6">
-                <h2 class="text-2xl font-display font-bold tracking-tight text-[#0a0a23]">Sign in</h2>
-                <p class="mt-1 text-sm text-[#6f6f79]">Operators sign in to continue their mission.</p>
+                <p class="terminal-kicker text-phosphor">IDENTITY CHECK</p>
+                <h2 class="mt-2 text-2xl font-bold tracking-tight text-ink">Sign in</h2>
+                <p class="mt-1 text-sm text-static">Operators sign in to continue their mission.</p>
 
                 @if ($errors->any())
                     <div class="mt-4">
@@ -67,7 +62,7 @@
                     @csrf
 
                     <div>
-                        <label for="username" class="block text-sm font-bold text-[#2a2a40] mb-1.5">
+                        <label for="username" class="mb-1.5 block text-sm font-bold text-ink">
                             Username
                         </label>
                         <input
@@ -83,7 +78,7 @@
                     </div>
 
                     <div>
-                        <label for="password" class="block text-sm font-bold text-[#2a2a40] mb-1.5">
+                        <label for="password" class="mb-1.5 block text-sm font-bold text-ink">
                             Password
                         </label>
                         <input
@@ -96,15 +91,10 @@
                         >
                     </div>
 
-                    <label class="flex items-center gap-2 text-sm text-[#2a2a40] cursor-pointer">
-                        <input type="checkbox" name="remember" class="accent-[#198eee] w-4 h-4" value="1">
-                        Remember me
-                    </label>
-
                     <button type="submit" class="btn-primary w-full">Sign in</button>
                 </form>
 
-                <p class="mt-5 text-xs text-[#8f8f9a] leading-relaxed">
+                <p class="mt-5 text-xs leading-relaxed text-static">
                     Authorized operators only. Sign-in activity is logged for the learning record.
                 </p>
             </div>

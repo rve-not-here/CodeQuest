@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Dashboard · CodeQuest</title>
+        <meta name="description" content="Continue your current mission and review your programming progress on CodeQuest." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- @include header active="dashboard" -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <div class="mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+                <div>
+                    <p class="eyebrow">Student dashboard</p>
+                    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance">Welcome back, Maya</h1>
+                </div>
+                <p class="font-mono text-xs text-fg-subtle">Last session · yesterday 21:14</p>
+            </div>
+
+            <!-- 1. What should I do next? -->
+            <section aria-labelledby="continue-heading" class="panel overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_22rem]">
+                    <div class="relative p-5 md:p-7">
+                        <span class="absolute inset-y-0 left-0 w-0.5 bg-accent" aria-hidden="true"></span>
+
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                            <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-play" /></svg>Current mission</span>
+                            <nav aria-label="Mission location" class="font-mono text-xs text-fg-subtle">
+                                <ol class="flex flex-wrap items-center gap-1.5">
+                                    <li><a href="learn.html" class="hover:text-fg">Frontend Fundamentals</a></li>
+                                    <li aria-hidden="true">/</li>
+                                    <li><a href="learn.html#section-02" class="hover:text-fg">02 CSS Box Model</a></li>
+                                    <li aria-hidden="true">/</li>
+                                    <li class="text-fg-muted">M2.4</li>
+                                </ol>
+                            </nav>
+                        </div>
+
+                        <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">Build a profile card with the box model</h2>
+                        <p class="mt-2 max-w-[62ch] text-fg-muted text-pretty">Apply padding, border and margin to turn an unstyled block into a centered, readable card. You left a draft with 3 of 5 requirements passing.</p>
+
+                        <dl class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                            <div class="flex items-center gap-2">
+                                <dt class="eyebrow">Type</dt>
+                                <dd class="flex items-center gap-1.5 text-fg"><svg class="size-3.5 text-fg-subtle" aria-hidden="true"><use href="#i-code" /></svg>Coding challenge</dd>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <dt class="eyebrow">Difficulty</dt>
+                                <dd class="flex items-center gap-1.5 text-fg">
+                                    <span class="flex gap-0.5" aria-hidden="true"><span class="h-2.5 w-1 bg-fg-muted"></span><span class="h-2.5 w-1 bg-fg-muted"></span><span class="h-2.5 w-1 bg-overlay"></span></span>
+                                    Intermediate
+                                </dd>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <dt class="eyebrow">Reward</dt>
+                                <dd class="font-mono text-accent">+40 XP</dd>
+                            </div>
+                        </dl>
+
+                        <div class="mt-6 max-w-md">
+                            <div class="mb-2 flex items-baseline justify-between text-sm">
+                                <span class="text-fg-muted">Section 02 progress</span>
+                                <span class="font-mono text-xs text-fg"><span class="text-accent">3</span> / 6 missions</span>
+                            </div>
+                            <div class="progress" role="progressbar" aria-label="Section 02 progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="3" aria-valuetext="3 of 6 missions complete"><span style="width: 50%"></span></div>
+                        </div>
+
+                        <div class="mt-7 flex flex-wrap gap-2.5">
+                            <a href="challenge.html" class="btn btn-primary btn-lg">Continue mission<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                            <a href="learn.html" class="btn btn-secondary btn-lg">View learning path</a>
+                        </div>
+                    </div>
+
+                    <aside aria-labelledby="upnext-heading" class="border-t border-line bg-raised/40 p-5 md:p-6 lg:border-t-0 lg:border-l">
+                        <h3 id="upnext-heading" class="eyebrow">Up next in section 02</h3>
+                        <ol class="mt-3 divide-y divide-line">
+                            <li class="flex items-start gap-3 py-3">
+                                <span class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border border-line-strong text-fg-muted" aria-hidden="true"><svg class="size-2.5"><use href="#i-circle" /></svg></span>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm text-fg">Margin collapse and spacing</p>
+                                    <p class="mt-0.5 font-mono text-2xs text-fg-subtle">M2.5 · AVAILABLE</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3 py-3">
+                                <span class="mt-0.5 grid size-5 shrink-0 place-items-center text-locked" aria-hidden="true"><svg class="size-3.5"><use href="#i-lock" /></svg></span>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm text-fg-muted">box-sizing and predictable widths</p>
+                                    <p class="mt-0.5 font-mono text-2xs text-fg-subtle">M2.6 · LOCKED</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3 py-3">
+                                <span class="mt-0.5 grid size-5 shrink-0 place-items-center text-locked" aria-hidden="true"><svg class="size-3.5"><use href="#i-quiz" /></svg></span>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm text-fg-muted">Knowledge Check: Box Model</p>
+                                    <p class="mt-0.5 font-mono text-2xs text-fg-subtle">LOCKED · 3 MISSIONS REMAINING</p>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="mt-2 border-t border-line pt-3 text-[13px] leading-5 text-fg-subtle">The course Boss Challenge unlocks after Section 04.</p>
+                    </aside>
+                </div>
+            </section>
+
+            <!-- 2. How am I progressing? (compact, ranked below the mission) -->
+            <section aria-labelledby="summary-heading" class="mt-4">
+                <h2 id="summary-heading" class="sr-only">Progress summary</h2>
+                <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line lg:grid-cols-4">
+                    <div class="bg-surface px-4 py-3.5 md:px-5">
+                        <dt class="eyebrow">Course completion</dt>
+                        <dd class="mt-1.5">
+                            <span class="font-mono text-lg font-medium text-fg">31%</span>
+                            <span class="ml-1 text-[13px] text-fg-subtle">9 of 29 missions</span>
+                            <span class="progress mt-2 block" aria-hidden="true"><span style="width: 31%"></span></span>
+                        </dd>
+                    </div>
+                    <div class="bg-surface px-4 py-3.5 md:px-5">
+                        <dt class="eyebrow">Competency</dt>
+                        <dd class="mt-1.5">
+                            <span class="text-[15px] font-medium text-fg">Box Model</span>
+                            <span class="ml-1 text-[13px] text-info">On Track · 72%</span>
+                            <span class="meter mt-2.5" aria-hidden="true"><span data-on></span><span data-on></span><span></span><span></span></span>
+                        </dd>
+                    </div>
+                    <div class="bg-surface px-4 py-3.5 md:px-5">
+                        <dt class="eyebrow">Assessments</dt>
+                        <dd class="mt-1.5">
+                            <span class="font-mono text-lg font-medium text-fg">1</span>
+                            <span class="ml-1 text-[13px] text-fg-subtle">passed · avg 90%</span>
+                            <span class="mt-1 block text-[13px] text-fg-subtle">Next: Knowledge Check 02</span>
+                        </dd>
+                    </div>
+                    <div class="bg-surface px-4 py-3.5 md:px-5">
+                        <dt class="eyebrow">Experience</dt>
+                        <dd class="mt-1.5">
+                            <a href="xp-ledger.html" class="text-sm text-fg underline decoration-line-strong underline-offset-2 hover:decoration-fg">View XP Ledger</a>
+                            <span class="mt-1 block text-[13px] text-fg-subtle">Balance unavailable in this prototype</span>
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+
+            <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="flex flex-col gap-6 lg:col-span-2">
+                    <!-- 3. What am I learning? -->
+                    <section aria-labelledby="course-heading" class="panel">
+                        <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                            <div>
+                                <h2 id="course-heading" class="text-[15px] font-semibold">Frontend Fundamentals</h2>
+                                <p class="font-mono text-2xs text-fg-subtle">COURSE · 4 SECTIONS · BOSS CHALLENGE</p>
+                            </div>
+                            <a href="learn.html" class="btn btn-ghost btn-sm">Open path<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                        </div>
+                        <ol class="divide-y divide-line">
+                            <li class="grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 px-5 py-3.5 sm:grid-cols-[2rem_minmax(0,1fr)_10rem_5.5rem]">
+                                <span class="font-mono text-xs text-fg-subtle">01</span>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm text-fg">HTML Document Structure</p>
+                                </div>
+                                <span class="progress col-start-2 sm:col-start-auto" aria-hidden="true"><span style="width: 100%"></span></span>
+                                <span class="col-start-2 flex items-center gap-1.5 font-mono text-xs text-accent sm:col-start-auto sm:justify-end"><svg class="size-3.5" aria-hidden="true"><use href="#i-check" /></svg>6 / 6</span>
+                            </li>
+                            <li class="grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 bg-accent-soft/60 px-5 py-3.5 sm:grid-cols-[2rem_minmax(0,1fr)_10rem_5.5rem]">
+                                <span class="font-mono text-xs text-accent">02</span>
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <p class="truncate text-sm font-medium text-fg">CSS Selectors and the Box Model</p>
+                                    <span class="badge badge-accent hidden sm:inline-flex">Current</span>
+                                </div>
+                                <span class="progress col-start-2 sm:col-start-auto" aria-hidden="true"><span style="width: 50%"></span></span>
+                                <span class="col-start-2 font-mono text-xs text-fg sm:col-start-auto sm:text-right">3 / 6</span>
+                            </li>
+                            <li class="grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 px-5 py-3.5 sm:grid-cols-[2rem_minmax(0,1fr)_10rem_5.5rem]">
+                                <span class="font-mono text-xs text-locked">03</span>
+                                <p class="truncate text-sm text-fg-muted">Layout with Flexbox</p>
+                                <span class="progress col-start-2 sm:col-start-auto" aria-hidden="true"></span>
+                                <span class="col-start-2 flex items-center gap-1.5 font-mono text-xs text-locked sm:col-start-auto sm:justify-end"><svg class="size-3.5" aria-hidden="true"><use href="#i-lock" /></svg>0 / 7</span>
+                            </li>
+                            <li class="grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 px-5 py-3.5 sm:grid-cols-[2rem_minmax(0,1fr)_10rem_5.5rem]">
+                                <span class="font-mono text-xs text-locked">04</span>
+                                <p class="truncate text-sm text-fg-muted">JavaScript Fundamentals</p>
+                                <span class="progress col-start-2 sm:col-start-auto" aria-hidden="true"></span>
+                                <span class="col-start-2 flex items-center gap-1.5 font-mono text-xs text-locked sm:col-start-auto sm:justify-end"><svg class="size-3.5" aria-hidden="true"><use href="#i-lock" /></svg>0 / 10</span>
+                            </li>
+                        </ol>
+                        <p class="sr-only">Section 01 complete, 6 of 6. Section 02 current, 3 of 6. Sections 03 and 04 locked.</p>
+                    </section>
+
+                    <section aria-labelledby="activity-heading" class="panel">
+                        <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                            <h2 id="activity-heading" class="text-[15px] font-semibold">Recent activity</h2>
+                            <a href="activity.html" class="btn btn-ghost btn-sm">View all<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                        </div>
+                        <ol class="divide-y divide-line">
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-fg-subtle" aria-hidden="true"><use href="#i-save" /></svg>
+                                <p class="min-w-0 flex-1 truncate text-sm text-fg-muted">Draft saved on <span class="text-fg">M2.4 Build a profile card</span></p>
+                                <time class="shrink-0 font-mono text-2xs text-fg-subtle" datetime="2026-09-26T21:14">1D AGO</time>
+                            </li>
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg>
+                                <p class="min-w-0 flex-1 truncate text-sm text-fg-muted">Completed <span class="text-fg">M2.3 Padding and borders</span></p>
+                                <span class="hidden shrink-0 font-mono text-xs text-accent sm:inline">+40 XP</span>
+                                <time class="shrink-0 font-mono text-2xs text-fg-subtle" datetime="2026-09-26T20:40">1D AGO</time>
+                            </li>
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-accent" aria-hidden="true"><use href="#i-quiz" /></svg>
+                                <p class="min-w-0 flex-1 truncate text-sm text-fg-muted">Passed <span class="text-fg">Knowledge Check 01: HTML</span> with 9 / 10</p>
+                                <time class="shrink-0 font-mono text-2xs text-fg-subtle" datetime="2026-09-24T18:02">3D AGO</time>
+                            </li>
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-fg-subtle" aria-hidden="true"><use href="#i-x" /></svg>
+                                <p class="min-w-0 flex-1 truncate text-sm text-fg-muted">Submission failed on <span class="text-fg">M2.2 Class and ID selectors</span>, then passed</p>
+                                <time class="shrink-0 font-mono text-2xs text-fg-subtle" datetime="2026-09-23T19:30">4D AGO</time>
+                            </li>
+                        </ol>
+                    </section>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <section aria-labelledby="competency-heading" class="panel">
+                        <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                            <h2 id="competency-heading" class="text-[15px] font-semibold">Competency</h2>
+                            <a href="competency.html" class="btn btn-ghost btn-sm">Details<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a>
+                        </div>
+                        <p class="px-5 pt-3 text-[13px] text-fg-subtle">Illustrative competency snapshot.</p>
+                        <ul class="space-y-4 px-5 py-4">
+                            <li>
+                                <div class="mb-1.5 flex items-baseline justify-between gap-2 text-sm"><span class="text-fg">HTML Structure</span><span class="font-mono text-2xs text-accent">PROFICIENT</span></div>
+                                <div class="meter" role="img" aria-label="HTML Structure: illustrative level 3 of 4, Proficient"><span data-on></span><span data-on></span><span data-on></span><span></span></div>
+                            </li>
+                            <li>
+                                <div class="mb-1.5 flex items-baseline justify-between gap-2 text-sm">
+                                    <span class="text-fg">CSS Selectors</span>
+                                    <span class="font-mono text-2xs text-info">ON TRACK</span>
+                                </div>
+                                <div class="meter" role="img" aria-label="CSS Selectors: illustrative level 3 of 4, On Track"><span data-on></span><span data-on></span><span data-on></span><span></span></div>
+                            </li>
+                            <li>
+                                <div class="mb-1.5 flex items-baseline justify-between gap-2 text-sm"><span class="text-fg">Problem Solving</span><span class="font-mono text-2xs text-fg-muted">DEVELOPING</span></div>
+                                <div class="meter" role="img" aria-label="Problem Solving: level 2 of 4, developing"><span data-on></span><span data-on></span><span></span><span></span></div>
+                            </li>
+                            <li>
+                                <div class="mb-1.5 flex items-baseline justify-between gap-2 text-sm"><span class="text-fg-muted">JavaScript Fundamentals</span><span class="font-mono text-2xs text-fg-subtle">NOT STARTED</span></div>
+                                <div class="meter" role="img" aria-label="JavaScript: not started"><span></span><span></span><span></span><span></span></div>
+                            </li>
+                        </ul>
+                        <div class="border-t border-line px-5 py-4">
+                            <p class="eyebrow flex items-center gap-1.5 text-info"><svg class="size-3.5" aria-hidden="true"><use href="#i-compass" /></svg>Recommended</p>
+                            <p class="mt-1.5 text-sm leading-6 text-fg-muted">Continue <span class="text-fg">M2.4</span> to finish the box-model work in your saved draft.</p>
+                            <a href="recommendations.html" class="mt-2 inline-flex items-center gap-1 text-sm font-medium text-info hover:underline">View recommendations<svg class="size-3.5" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        </div>
+                    </section>
+
+                    <section aria-labelledby="assess-heading" class="panel">
+                        <div class="border-b border-line px-5 py-3.5">
+                            <h2 id="assess-heading" class="text-[15px] font-semibold">Assessments</h2>
+                        </div>
+                        <ul class="divide-y divide-line">
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-accent" aria-hidden="true"><use href="#i-quiz" /></svg>
+                                <span class="min-w-0 flex-1 truncate text-sm text-fg">Knowledge Check 01</span>
+                                <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>90%</span>
+                            </li>
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-locked" aria-hidden="true"><use href="#i-quiz" /></svg>
+                                <span class="min-w-0 flex-1 truncate text-sm text-fg-muted">Knowledge Check 02</span>
+                                <span class="badge badge-locked"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                            </li>
+                            <li class="flex items-center gap-3 px-5 py-3">
+                                <svg class="size-4 shrink-0 text-locked" aria-hidden="true"><use href="#i-shield" /></svg>
+                                <span class="min-w-0 flex-1 truncate text-sm text-fg-muted">Boss Challenge</span>
+                                <span class="badge badge-locked"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+    </body>
+</html>

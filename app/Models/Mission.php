@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CurriculumVersioned;
+use App\Models\Concerns\HasCurriculumVersion;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -22,19 +25,54 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'validate_rule',
     'hints',
     'points',
+    'version',
 ])]
-class Mission extends Model
+class Mission extends Model implements CurriculumVersioned
 {
+    use HasCurriculumVersion;
     use HasFactory;
 
     protected $table = 'the404_missions';
+
+    /**
+     * Material mission fields (§12): task instructions (description),
+     * starter code and challenge content (broken_code, target_html),
+     * validation rules and reference solution (validate_rule,
+     * solution_code), hint content (hints), the completion reward (points),
+     * and progression structure (order_num, section_id). Title and
+     * difficulty are display labels consumed by no domain logic, so they
+     * stay version-silent.
+     *
+     * @return array<int, string>
+     */
+    public function curriculumVersionMaterialFields(): array
+    {
+        return [
+            'description',
+            'broken_code',
+            'target_html',
+            'validate_rule',
+            'solution_code',
+            'hints',
+            'points',
+            'order_num',
+            'section_id',
+        ];
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'version' => 'integer',
+        ];
+    }
 
     /**
      * Never serialize the reference solution or validation rules. A student
      * must not be able to read either through any JSON/array dump of a
      * mission, only ask for the solution through the XP-gated reveal flow.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = ['solution_code', 'validate_rule'];
 
@@ -54,13 +92,40 @@ class Mission extends Model
         return $this->belongsTo(Section::class, 'section_id');
     }
 
+    /** @return HasMany<Progress, $this> */
     public function progress(): HasMany
     {
         return $this->hasMany(Progress::class, 'mission_id');
     }
 
+    /** @return HasOne<MissionDraft, $this> */
     public function draft(): HasOne
     {
         return $this->hasOne(MissionDraft::class, 'mission_id');
+    }
+
+    /** @return HasMany<KnowledgeCheck, $this> */
+    public function knowledgeChecks(): HasMany
+    {
+        return $this->hasMany(KnowledgeCheck::class, 'mission_id')->orderBy('order_num');
+    }
+
+    /**
+     * Active hidden behavioral tests in run order. Loaded only server-side
+     * during grading; never eager-loaded for student views.
+     *
+     * @return HasMany<MissionBehaviorTest, $this>
+     */
+    public function behaviorTests(): HasMany
+    {
+        return $this->hasMany(MissionBehaviorTest::class, 'mission_id')
+            ->where('active', true)
+            ->orderBy('order_num');
+    }
+
+    /** @return BelongsToMany<Skill, $this> */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'the404_mission_skill', 'mission_id', 'skill_id');
     }
 }

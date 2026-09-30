@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Models\Progress;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Services\StudentReminderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -227,7 +228,8 @@ class StudentReminderTest extends TestCase
             ]);
 
             $this->travelTo($base);
-            $this->visit($user)->assertOk();
+            $this->visit($user)->assertForbidden();
+            $this->assertSame(0, app(StudentReminderService::class)->syncFor($user));
 
             $this->assertSame(
                 0,

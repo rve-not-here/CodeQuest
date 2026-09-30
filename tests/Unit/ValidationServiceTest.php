@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Mission;
 use App\Services\ValidationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use RuntimeException;
 use Tests\TestCase;
 
 class ValidationServiceTest extends TestCase
@@ -71,6 +72,16 @@ class ValidationServiceTest extends TestCase
         $this->assertCount(1, $result['failures']);
     }
 
+    public function test_default_failure_message_does_not_expose_rule_type_or_pattern(): void
+    {
+        $rule = json_encode([['type' => 'contains', 'value' => 'PRIVATE_VALIDATION_PATTERN']]);
+        $mission = Mission::factory()->create(['validate_rule' => $rule]);
+
+        $result = $this->service->validate($mission, 'student work');
+
+        $this->assertSame('Requirement 1 check failed.', $result['failures'][0]);
+    }
+
     public function test_contains_all_rule_passes_when_all_found(): void
     {
         $rule = json_encode([['type' => 'contains_all', 'values' => ['<h1>', '<p>']]]);
@@ -129,6 +140,15 @@ class ValidationServiceTest extends TestCase
         $result = $this->service->validate($mission, '<div>A</div>');
 
         $this->assertFalse($result['passed']);
+    }
+
+    public function test_malformed_count_tag_rule_throws_without_grading(): void
+    {
+        $rule = json_encode([['type' => 'count_tag', 'tag' => 'di/v', 'count' => 1]]);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->service->validateRules($rule, '<div>A</div>');
     }
 
     public function test_count_rule_passes_on_exact_match(): void
@@ -286,7 +306,7 @@ class ValidationServiceTest extends TestCase
         $result = $this->service->validate($mission, 'anything');
 
         $this->assertFalse($result['passed']);
-        $this->assertStringContainsString('Invalid validation rule', $result['failures'][0]);
+        $this->assertSame('Challenge validation is unavailable. Try again later.', $result['failures'][0]);
     }
 
     public function test_no_eval_is_respected(): void

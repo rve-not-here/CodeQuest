@@ -78,7 +78,8 @@ class XpLedgerTest extends TestCase
             ->assertSee('-5 XP')
             ->assertSee('+100 XP')
             ->assertSee('MISSION')
-            ->assertSee('CHALLENGE')
+            ->assertSee('BOSS')
+            ->assertSee('SPENT')
             ->assertSee('Aug 02, 11:30');
     }
 

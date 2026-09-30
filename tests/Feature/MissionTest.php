@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\MissionDraft;
@@ -9,6 +11,7 @@ use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
+use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -34,6 +37,36 @@ class MissionTest extends TestCase
         ], $missionAttrs));
 
         return compact('course', 'section', 'mission');
+    }
+
+    public function test_invalid_challenge_rule_does_not_expose_internal_validator_details(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'secret_rule_type', 'value' => 'private-rule-value']]),
+        ]);
+
+        $this->actingAs($student)
+            ->post(route('mission.submit', $mission), ['code' => 'student work'])
+            ->assertRedirect()
+            ->assertSessionHas('mission_error', function (array $error): bool {
+                return $error['message'] === 'Challenge validation is unavailable. Try again later.';
+            });
+    }
+
+    public function test_malformed_count_tag_rule_does_not_charge_a_wrong_submission(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'count_tag', 'tag' => 'di/v', 'count' => 1]]),
+        ]);
+
+        $this->actingAs($student)
+            ->post(route('mission.submit', $mission), ['code' => '<div>student work</div>'])
+            ->assertInternalServerError();
+
+        $this->assertDatabaseMissing('the404_progress', ['user_id' => $student->id, 'mission_id' => $mission->id]);
+        $this->assertDatabaseMissing('the404_xp_transactions', ['user_id' => $student->id, 'mission_id' => $mission->id]);
     }
 
     public function test_mission_show_requires_authentication(): void
@@ -67,7 +100,35 @@ class MissionTest extends TestCase
             ->assertSee('BACK TO LESSON')
             ->assertSee('SUBMIT')
             ->assertSee('RUN')
-            ->assertSee('SAVE DRAFT');
+            ->assertSee('SAVE DRAFT')
+            ->assertSee('Assistance')
+            ->assertSee('SHOW SOLUTION')
+            ->assertSee('Draft:')
+            ->assertDontSee('NEXT MISSION')
+            ->assertDontSee('NEW DRAFT')
+            ->assertDontSee('data-open', false);
+    }
+
+    public function test_challenge_preview_grants_scripts_only_for_javascript_courses(): void
+    {
+        $student = User::factory()->create();
+
+        foreach (['html', 'css'] as $type) {
+            ['mission' => $mission] = $this->createMissionWithCourse([], ['type' => $type, 'order_num' => 1]);
+
+            $this->actingAs($student)
+                ->get(route('mission.challenge', $mission))
+                ->assertOk()
+                ->assertSee('sandbox=""', false)
+                ->assertDontSee('sandbox="allow-scripts"', false);
+        }
+
+        ['mission' => $javascriptMission] = $this->createMissionWithCourse([], ['type' => 'js', 'order_num' => 1]);
+
+        $this->actingAs($student)
+            ->get(route('mission.challenge', $javascriptMission))
+            ->assertOk()
+            ->assertSee('sandbox="allow-scripts"', false);
     }
 
     public function test_mission_submit_requires_authentication(): void
@@ -111,6 +172,87 @@ class MissionTest extends TestCase
         ]);
     }
 
+    public function test_student_cannot_submit_a_later_course_mission_before_the_current_course_is_complete(): void
+    {
+        $student = User::factory()->create();
+        $this->createMissionWithCourse([], ['order_num' => 1]);
+        ['mission' => $laterMission] = $this->createMissionWithCourse([
+            'validate_rule' => null,
+            'points' => 50,
+        ], ['order_num' => 2]);
+
+        $this->actingAs($student)
+            ->post(route('mission.submit', $laterMission), [
+                'code' => 'valid code',
+                'completed' => true,
+                'xp' => 999999,
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('the404_progress', [
+            'user_id' => $student->id,
+            'mission_id' => $laterMission->id,
+        ]);
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    public function test_student_can_submit_a_later_course_mission_after_passing_the_earlier_boss_challenge(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $earlierCourse] = $this->createMissionWithCourse([], ['order_num' => 1]);
+        $earlierAssessment = Assessment::factory()->create(['course_id' => $earlierCourse->id]);
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $earlierAssessment->id,
+            'user_id' => $student->id,
+            'status' => 'passed',
+            'score' => 100,
+            'passed_at' => now(),
+        ]);
+        ['mission' => $laterMission] = $this->createMissionWithCourse([
+            'validate_rule' => null,
+            'points' => 50,
+        ], ['order_num' => 2]);
+
+        $this->actingAs($student)
+            ->post(route('mission.submit', $laterMission), ['code' => 'valid code'])
+            ->assertSessionHas('mission_success');
+
+        $this->assertDatabaseHas('the404_progress', [
+            'user_id' => $student->id,
+            'mission_id' => $laterMission->id,
+        ]);
+        $this->assertSame(50, app(XpService::class)->balance($student));
+    }
+
+    public function test_submission_ignores_client_supplied_ownership_and_reward_fields(): void
+    {
+        $student = User::factory()->create();
+        $otherStudent = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'contains', 'value' => '<h1>']]),
+            'points' => 50,
+        ]);
+
+        $this->actingAs($student)->post(route('mission.submit', $mission), [
+            'code' => '<h1>Title</h1>',
+            'user_id' => $otherStudent->id,
+            'student_id' => $otherStudent->id,
+            'xp' => 999999,
+            'points' => 999999,
+            'score' => 100,
+            'completed_at' => '2020-01-01 00:00:00',
+        ])->assertRedirect();
+
+        $progress = Progress::query()->sole();
+        $transaction = XpTransaction::query()->where('type', 'mission_completed')->sole();
+        $this->assertSame($student->id, $progress->user_id);
+        $this->assertSame(50, $progress->pts_earned);
+        $this->assertNotEquals('2020-01-01 00:00:00', $progress->completed_at->toDateTimeString());
+        $this->assertSame($student->id, $transaction->user_id);
+        $this->assertSame(50, $transaction->amount);
+        $this->assertDatabaseMissing('the404_progress', ['user_id' => $otherStudent->id]);
+    }
+
     public function test_mission_submit_correct_code_shows_success_message(): void
     {
         $user = User::factory()->create();
@@ -123,6 +265,56 @@ class MissionTest extends TestCase
             ->post(route('mission.submit', $mission), ['code' => 'anything'])
             ->assertRedirect()
             ->assertSessionHas('mission_success');
+    }
+
+    public function test_new_authoritative_pass_renders_completion_dialog_with_server_results(): void
+    {
+        $user = User::factory()->create();
+        ['course' => $course, 'mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => null,
+            'points' => 30,
+        ]);
+        Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $mission->section_id,
+            'order_num' => $mission->order_num + 1,
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('mission.challenge', $mission))
+            ->followingRedirects()
+            ->post(route('mission.submit', $mission), ['code' => 'anything'])
+            ->assertOk()
+            ->assertSee('class="completion-overlay"', false)
+            ->assertSee('Challenge complete')
+            ->assertSee('Validation')
+            ->assertSee('Passed')
+            ->assertSee('+30')
+            ->assertSee('0% → 50%')
+            ->assertSee('Achievement unlocked')
+            ->assertSee('First Challenge')
+            ->assertSee('CONTINUE TO LEARNING PATH')
+            ->assertSee('href="'.route('learning-path').'"', false)
+            ->assertDontSee('NEXT MISSION');
+    }
+
+    public function test_failed_submission_keeps_the_student_in_the_workspace_without_completion_controls(): void
+    {
+        $user = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'contains', 'value' => '<h1>']]),
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('mission.challenge', $mission))
+            ->followingRedirects()
+            ->post(route('mission.submit', $mission), ['code' => '<p>Not valid</p>'])
+            ->assertOk()
+            ->assertSee('Mission not restored')
+            ->assertSee('Code editor')
+            ->assertDontSee('class="completion-overlay"', false)
+            ->assertDontSee('CONTINUE TO LEARNING PATH')
+            ->assertDontSee('NEXT MISSION');
     }
 
     public function test_mission_submit_wrong_code_deducts_xp(): void
@@ -367,6 +559,31 @@ class MissionTest extends TestCase
             ->post(route('mission.reveal', $mission))
             ->assertRedirect()
             ->assertSessionHas('solution_revealed');
+    }
+
+    public function test_replaying_solution_reveal_does_not_charge_xp_twice(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'solution_code' => '<h1>Solution</h1>',
+        ]);
+
+        XpTransaction::query()->create([
+            'user_id' => $student->id,
+            'mission_id' => $mission->id,
+            'amount' => 100,
+            'type' => 'mission_completed',
+        ]);
+
+        $this->actingAs($student)->post(route('mission.reveal', $mission))->assertSessionHas('solution_revealed');
+        $this->actingAs($student)->post(route('mission.reveal', $mission))->assertSessionHas('solution_revealed');
+
+        $this->assertSame(1, XpTransaction::query()
+            ->where('user_id', $student->id)
+            ->where('mission_id', $mission->id)
+            ->where('type', 'solution_revealed')
+            ->count());
+        $this->assertSame(70, app(XpService::class)->balance($student));
     }
 
     public function test_mission_reveal_loads_solution_code_in_editor(): void

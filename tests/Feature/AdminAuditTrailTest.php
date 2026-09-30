@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\AdminAudit;
 use App\Models\User;
+use App\Services\AdminAuditService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AdminAuditTrailTest extends TestCase
@@ -153,6 +155,35 @@ class AdminAuditTrailTest extends TestCase
             ->assertSee('SHOWING PAGE 2 OF 2')
             ->assertSee("name → 'Paged 1'")
             ->assertDontSee("name → 'Paged 50'");
+    }
+
+    public function test_audit_feed_bounds_the_database_row_read(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        foreach (range(1, 125) as $index) {
+            $this->auditRow($admin, 'user.update', "Audit {$index}", now()->subMinutes($index));
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $page = app(AdminAuditService::class)->feed(null, null, null, null, null, []);
+            $queries = DB::getQueryLog();
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
+
+        $rowQuery = collect($queries)
+            ->pluck('query')
+            ->first(fn (string $sql): bool => str_contains($sql, 'the404_admin_audit') && str_contains($sql, 'order by'));
+
+        $this->assertNotNull($rowQuery);
+        $this->assertMatchesRegularExpression('/\blimit\b/i', $rowQuery);
+        $this->assertCount(AdminAuditService::FEED_PER_PAGE, $page->items());
+        $this->assertSame(125, $page->total());
     }
 
     public function test_audit_trail_shows_an_empty_state_when_no_events_match(): void

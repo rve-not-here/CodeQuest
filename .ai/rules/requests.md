@@ -5,6 +5,8 @@ paths:
   - app/Http/Requests/AdminMissionUpdateRequest.php
   - 'app/Http/Requests/Admin*Request.php'
   - 'app/Http/Requests/**'
+  - 'app/Http/Requests/{ActivityFeedRequest,StudentOverviewRequest}.php'
+  - 'app/Http/Requests/{AdminAssessmentUpdateRequest,AdminMissionUpdateRequest}.php'
 ---
 
 # Requests
@@ -23,3 +25,9 @@ AdminAssessmentUpdateRequest mirrors the mission update payload shape: rules() a
 
 ## AdminActivityFeedRequest: validated filters, no date anchoring
 AdminActivityFeedRequest (US-709) validates the /admin/activity filters server-side: actor (nullable integer Rule::exists the404_users.id), action (nullable Rule::in AdminAuditService::ACTIONS), result (nullable Rule::in success|failed), from/to (nullable dates). The to>=from ordering check lives in withValidator (like ActivityFeedRequest) so a missing bound never trips the comparison — an 'after_or_equal:from' rule misbehaves when 'from' is absent since safe()/merge keeps absent keys out. Unlike ActivityFeedRequest there is no prepareForValidation date anchoring (no computed span to bound), so from/to stay optional and the view must ?? default them.
+
+## Teacher filters validate against active classroom scope
+Teacher-facing student and course filters must validate against ClassroomAccessService's current authorized IDs. A foreign existing ID and a nonexistent ID should produce the same validation outcome, and neither may reach the feed or roster. Admin filters retain fleet-wide existence validation.
+
+## Normalize only valid integer strings before validation
+HTML number/select values may be converted to integers before service calls, but only when the input is a digit string accepted by FILTER_VALIDATE_INT. Leave arrays, decimal strings, nonnumeric strings, and overflowing values unchanged so Form Request integer rules reject them instead of silently changing passing_score or section_id.

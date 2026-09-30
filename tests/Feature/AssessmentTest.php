@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\AssessmentController;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -13,6 +14,8 @@ use App\Models\XpTransaction;
 use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class AssessmentTest extends TestCase
@@ -100,6 +103,16 @@ class AssessmentTest extends TestCase
         $this->get(route('assessment.show', $assessment))->assertRedirect(route('login'));
     }
 
+    public function test_assessment_with_missing_course_is_not_found(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $assessment = Assessment::factory()->make()->setRelation('course', null);
+
+        $this->expectException(NotFoundHttpException::class);
+
+        app(AssessmentController::class)->show($assessment);
+    }
+
     public function test_assessment_start_requires_authentication(): void
     {
         ['assessment' => $assessment] = $this->makeSealedChallenge();
@@ -132,6 +145,64 @@ class AssessmentTest extends TestCase
             ->assertOk()
             ->assertSee($alpha['course']->name)
             ->assertSee($beta['course']->name);
+    }
+
+    public function test_assessment_hub_queries_stay_bounded_as_courses_grow(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (range(1, 2) as $index) {
+            $this->hubCourse($index);
+        }
+
+        $small = $this->assessmentIndexQueries($user);
+
+        foreach (range(3, 8) as $index) {
+            $this->hubCourse($index);
+        }
+
+        $large = $this->assessmentIndexQueries($user);
+
+        $this->assertLessThanOrEqual($small + 5, $large, "Assessment hub queries grew from {$small} to {$large} for 2 versus 8 courses.");
+    }
+
+    private function hubCourse(int $index): void
+    {
+        $course = Course::query()->create([
+            'slug' => "hub-{$index}",
+            'name' => "Hub Course {$index}",
+            'type' => 'html',
+            'status' => 'active',
+            'order_num' => $index,
+        ]);
+        Mission::query()->create([
+            'course_id' => $course->id,
+            'order_num' => 1,
+            'title' => "Hub Mission {$index}",
+            'difficulty' => 'EASY',
+            'points' => 50,
+        ]);
+        Assessment::query()->create([
+            'course_id' => $course->id,
+            'title' => "Hub Boss {$index}",
+            'status' => 'active',
+            'passing_score' => 70,
+        ]);
+    }
+
+    private function assessmentIndexQueries(User $user): int
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $this->actingAs($user)->get(route('assessments'))->assertOk();
+
+            return count(DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
     }
 
     public function test_assessment_index_marks_a_progress_incomplete_challenge_as_sealed(): void
@@ -240,6 +311,32 @@ class AssessmentTest extends TestCase
             ->assertSee('A B');
     }
 
+    public function test_assessment_preview_grants_scripts_only_for_javascript_courses(): void
+    {
+        $student = User::factory()->create();
+
+        foreach (['html', 'css', 'js'] as $type) {
+            ['course' => $course, 'assessment' => $assessment] = $this->makeUnlockedChallenge($student);
+            $course->update(['type' => $type, 'order_num' => 1]);
+
+            AssessmentAttempt::factory()->started()->create([
+                'assessment_id' => $assessment->id,
+                'user_id' => $student->id,
+            ]);
+
+            $response = $this->actingAs($student)
+                ->get(route('assessment.show', $assessment))
+                ->assertOk();
+
+            if ($type === 'js') {
+                $response->assertSee('sandbox="allow-scripts"', false);
+            } else {
+                $response->assertSee('sandbox=""', false)
+                    ->assertDontSee('sandbox="allow-scripts"', false);
+            }
+        }
+    }
+
     public function test_assessment_show_restores_in_progress_code(): void
     {
         $user = User::factory()->create();
@@ -297,6 +394,64 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->post(route('assessment.submit', $assessment), [])
             ->assertSessionHasErrors('code');
+    }
+
+    public function test_started_attempt_cannot_be_submitted_after_its_course_is_sealed(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $course, 'assessment' => $assessment] = $this->makeUnlockedChallenge($student);
+
+        $this->actingAs($student)->post(route('assessment.start', $assessment));
+        $attempt = AssessmentAttempt::query()->sole();
+        $course->update(['status' => 'locked']);
+
+        $this->actingAs($student)
+            ->post(route('assessment.submit', $assessment), [
+                'code' => 'A B C',
+                'score' => 100,
+                'passed' => true,
+                'xp' => 999999,
+            ])
+            ->assertRedirect(route('assessments'))
+            ->assertSessionHas('assessment_error');
+
+        $this->assertSame('started', $attempt->fresh()->status);
+        $this->assertNull($attempt->fresh()->score);
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    public function test_started_attempt_cannot_be_submitted_after_its_assessment_is_sealed(): void
+    {
+        $student = User::factory()->create();
+        ['assessment' => $assessment] = $this->makeUnlockedChallenge($student);
+
+        $this->actingAs($student)->post(route('assessment.start', $assessment));
+        $attempt = AssessmentAttempt::query()->sole();
+        $assessment->update(['status' => 'locked']);
+
+        $this->actingAs($student)
+            ->post(route('assessment.submit', $assessment), ['code' => 'A B C'])
+            ->assertRedirect(route('assessments'))
+            ->assertSessionHas('assessment_error');
+
+        $this->assertSame('started', $attempt->fresh()->status);
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    public function test_later_course_boss_challenge_stays_sealed_until_earlier_course_passes(): void
+    {
+        $student = User::factory()->create();
+        ['course' => $earlierCourse] = $this->makeSealedChallenge();
+        $earlierCourse->update(['order_num' => 1]);
+        ['course' => $laterCourse, 'assessment' => $laterAssessment] = $this->makeUnlockedChallenge($student);
+        $laterCourse->update(['order_num' => 2]);
+
+        $this->actingAs($student)
+            ->post(route('assessment.start', $laterAssessment))
+            ->assertRedirect(route('assessments'))
+            ->assertSessionHas('assessment_error');
+
+        $this->assertDatabaseCount('the404_assessment_attempts', 0);
     }
 
     public function test_assessment_submit_correct_code_passes_and_awards_xp_once(): void
@@ -415,7 +570,7 @@ class AssessmentTest extends TestCase
 
         $this->assertStringContainsString('no additional XP', session('assessment_success')['message']);
 
-        $this->assertSame(100, XpTransaction::query()->where('user_id', $user->id)->sum('amount'));
+        $this->assertSame(100, (int) XpTransaction::query()->where('user_id', $user->id)->sum('amount'));
         $this->assertSame(1, XpTransaction::query()
             ->where('user_id', $user->id)
             ->where('type', XpService::TYPE_ASSESSMENT_COMPLETED)
@@ -499,7 +654,7 @@ class AssessmentTest extends TestCase
         $this->assertDatabaseMissing('the404_assessment_attempts', [
             'user_id' => $bob->id,
         ]);
-        $this->assertSame(100, XpTransaction::query()->where('user_id', $alice->id)->sum('amount'));
+        $this->assertSame(100, (int) XpTransaction::query()->where('user_id', $alice->id)->sum('amount'));
         $this->assertSame('A B C', AssessmentAttempt::query()->find($attemptId)->code);
     }
 

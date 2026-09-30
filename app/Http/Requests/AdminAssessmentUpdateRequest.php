@@ -33,8 +33,14 @@ class AdminAssessmentUpdateRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has('passing_score') && $this->input('passing_score') !== null) {
-            $this->merge(['passing_score' => (int) $this->input('passing_score')]);
+        $passingScore = $this->input('passing_score');
+
+        if (is_string($passingScore) && ctype_digit($passingScore)) {
+            $parsed = filter_var($passingScore, FILTER_VALIDATE_INT);
+
+            if ($parsed !== false) {
+                $this->merge(['passing_score' => $parsed]);
+            }
         }
     }
 

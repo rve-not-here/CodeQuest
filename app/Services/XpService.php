@@ -184,8 +184,22 @@ class XpService
     {
         $cost = $this->hintCost($hintNumber);
 
-        return $this->spend($user, $mission, $cost, self::TYPE_HINT_USED,
-            'Hint '.$hintNumber.' on mission: '.$mission->title);
+        return DB::transaction(function () use ($user, $mission, $hintNumber, $cost): bool {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            if ($this->revealedHintCount($user, $mission) >= $hintNumber) {
+                return true;
+            }
+
+            if ($cost <= 0 || $this->sumFor($user) < $cost) {
+                return false;
+            }
+
+            $this->spendFrom($user, $mission, $cost, self::TYPE_HINT_USED,
+                'Hint '.$hintNumber.' on mission: '.$mission->title);
+
+            return true;
+        }, attempts: 3);
     }
 
     /**
@@ -194,8 +208,22 @@ class XpService
      */
     public function spendSolutionReveal(User $user, Mission $mission): bool
     {
-        return $this->spend($user, $mission, self::REVEAL_COST, self::TYPE_SOLUTION_REVEALED,
-            'Solution reveal on mission: '.$mission->title);
+        return DB::transaction(function () use ($user, $mission): bool {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            if ($this->hasRevealedSolution($user, $mission)) {
+                return true;
+            }
+
+            if ($this->sumFor($user) < self::REVEAL_COST) {
+                return false;
+            }
+
+            $this->spendFrom($user, $mission, self::REVEAL_COST, self::TYPE_SOLUTION_REVEALED,
+                'Solution reveal on mission: '.$mission->title);
+
+            return true;
+        }, attempts: 3);
     }
 
     public function hintCost(int $hintNumber): int
@@ -375,22 +403,6 @@ class XpService
     }
 
     /**
-     * General spend: deducts cost if affordable, else returns false.
-     */
-    private function spend(User $user, Mission $mission, int $cost, string $type, string $description): bool
-    {
-        if ($cost <= 0 || $this->balance($user) < $cost) {
-            return false;
-        }
-
-        DB::transaction(function () use ($user, $mission, $cost, $type, $description): void {
-            $this->spendFrom($user, $mission, $cost, $type, $description);
-        });
-
-        return true;
-    }
-
-    /**
      * Records a negative transaction clamped against the current balance so
      * the running total never goes below zero.
      */
@@ -415,7 +427,10 @@ class XpService
      * Writes a ledger row. Exactly one of the two source references must be
      * set: the populated FK identifies the source (§25). There is no
      * source_type column; mission transactions carry mission_id (assessment_id
-     * null), assessment transactions the mirror image.
+     * null), assessment transactions the mirror image. The version reference
+     * rides alongside its FK: the curriculum revision in force when the
+     * transaction was recorded. Versions are evidence only — nothing here or
+     * downstream may recompute amounts from them.
      */
     private function record(User $user, ?Mission $mission, ?Assessment $assessment, int $amount, string $type, string $description): void
     {
@@ -426,7 +441,9 @@ class XpService
         XpTransaction::query()->create([
             'user_id' => $user->id,
             'mission_id' => $mission?->id,
+            'mission_version' => $mission?->version,
             'assessment_id' => $assessment?->id,
+            'assessment_version' => $assessment?->version,
             'amount' => $amount,
             'type' => $type,
             'description' => $description,

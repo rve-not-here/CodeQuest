@@ -6,7 +6,6 @@ use App\Models\AdminAudit;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -49,6 +48,16 @@ class AdminAuditService
 
     public const ACTION_ANNOUNCEMENT_ARCHIVE = 'announcement.archive';
 
+    public const ACTION_CLASSROOM_CREATE = 'classroom.create';
+
+    public const ACTION_CLASSROOM_UPDATE = 'classroom.update';
+
+    public const ACTION_CLASSROOM_TEACHERS = 'classroom.teachers';
+
+    public const ACTION_CLASSROOM_STUDENTS = 'classroom.students';
+
+    public const ACTION_CLASSROOM_COURSES = 'classroom.courses';
+
     /**
      * Every action the trail can produce, in display order, for the server-side
      * action filter.
@@ -68,6 +77,11 @@ class AdminAuditService
         self::ACTION_ANNOUNCEMENT_UPDATE,
         self::ACTION_ANNOUNCEMENT_PUBLISH,
         self::ACTION_ANNOUNCEMENT_ARCHIVE,
+        self::ACTION_CLASSROOM_CREATE,
+        self::ACTION_CLASSROOM_UPDATE,
+        self::ACTION_CLASSROOM_TEACHERS,
+        self::ACTION_CLASSROOM_STUDENTS,
+        self::ACTION_CLASSROOM_COURSES,
     ];
 
     public const FEED_PER_PAGE = 30;
@@ -104,7 +118,7 @@ class AdminAuditService
         ?Carbon $to,
         array $paginatorQuery,
     ): LengthAwarePaginator {
-        $rows = AdminAudit::query()
+        return AdminAudit::query()
             ->when(
                 $actorId !== null,
                 fn ($query) => $query->where('admin_user_id', $actorId),
@@ -127,20 +141,9 @@ class AdminAuditService
             )
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->get();
-
-        $page = Paginator::resolveCurrentPage();
-
-        return new LengthAwarePaginator(
-            $rows->forPage($page, self::FEED_PER_PAGE),
-            $rows->count(),
-            self::FEED_PER_PAGE,
-            $page,
-            [
-                'path' => route('admin.activity'),
-                'query' => $paginatorQuery,
-            ],
-        );
+            ->paginate(self::FEED_PER_PAGE)
+            ->withPath(route('admin.activity'))
+            ->appends($paginatorQuery);
     }
 
     /**

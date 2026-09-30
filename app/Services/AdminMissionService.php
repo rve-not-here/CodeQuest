@@ -71,7 +71,9 @@ class AdminMissionService
      * value is enforced here).
      *
      * An actual change records 'mission.update'; a no-op round-trip records
-     * nothing, mirroring CourseService and SectionService. A value outside the
+     * nothing, mirroring CourseService and SectionService. A material change
+     * also bumps the mission version by one and names the transition in the
+     * audit summary. A value outside the
      * allow lists records a 'failed' audit row before InvalidArgumentException
      * is thrown, so a rejected attempt is never silent.
      *
@@ -151,6 +153,8 @@ class AdminMissionService
             'target_html' => $mission->target_html ?? '',
         ];
 
+        $versionBefore = $mission->version;
+
         $mission->title = $title;
         $mission->description = $description === '' ? null : $description;
         $mission->difficulty = $difficulty;
@@ -174,6 +178,11 @@ class AdminMissionService
             $brokenCode,
             $targetHtml,
         );
+
+        if ($mission->wasChanged('version')) {
+            $transition = "version {$versionBefore} → {$mission->version}";
+            $summary = $summary !== null ? $summary.', '.$transition : $transition;
+        }
 
         if ($summary !== null) {
             $this->audit->record(

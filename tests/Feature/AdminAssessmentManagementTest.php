@@ -122,7 +122,7 @@ class AdminAssessmentManagementTest extends TestCase
             'target_type' => 'assessment',
             'target_id' => $assessment->id,
             'result' => 'success',
-            'summary' => "Assessment updated: title → 'New Title', description → 'New description', instructions → 'New instructions', passing_score → 80",
+            'summary' => "Assessment updated: title → 'New Title', description → 'New description', instructions → 'New instructions', passing_score → 80, version 1 → 2",
         ]);
 
         $this->assertDatabaseHas('the404_admin_audit', [
@@ -354,6 +354,26 @@ class AdminAssessmentManagementTest extends TestCase
         ])->assertSessionHasErrors('passing_score');
 
         $this->assertSame($originalPassingScore, $assessment->refresh()->passing_score);
+    }
+
+    public function test_malformed_passing_score_is_rejected_without_changing_configuration(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $assessment = Assessment::factory()->create(['course_id' => $course->id, 'passing_score' => 75]);
+
+        foreach (['not-a-number', [75], '999999999999999999999999999999'] as $malformedScore) {
+            $this->actingAs($admin)->put(route('admin.courses.assessment.update', [$course, $assessment]), [
+                'title' => $assessment->title,
+                'description' => $assessment->description,
+                'instructions' => $assessment->instructions,
+                'passing_score' => $malformedScore,
+                'status' => $assessment->status,
+            ])->assertSessionHasErrors('passing_score');
+        }
+
+        $this->assertSame(75, $assessment->refresh()->passing_score);
+        $this->assertSame(0, AdminAudit::count());
     }
 
     public function test_status_must_be_one_of_the_enum_values(): void

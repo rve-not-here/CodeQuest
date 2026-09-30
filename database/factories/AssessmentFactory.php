@@ -25,6 +25,7 @@ class AssessmentFactory extends Factory
             'instructions' => fake()->paragraph(),
             'passing_score' => fake()->numberBetween(50, 100),
             'status' => 'active',
+            'version' => 1,
         ];
     }
 }

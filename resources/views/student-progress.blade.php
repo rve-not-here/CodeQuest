@@ -34,6 +34,12 @@
         @endif
     </x-panel>
 
+    @if ($recommendations->isNotEmpty())
+        <x-panel title="RECOMMENDATIONS" class="mb-6">
+            <x-recommendation-cards :recommendations="$recommendations" :actionable="false" />
+        </x-panel>
+    @endif
+
     @if ($performance->isNotEmpty())
         <x-panel title="Assessment Performance" class="mb-6">
             <div class="overflow-x-auto">
@@ -213,6 +219,51 @@
                                  <td class="px-4 py-3" data-label="Boss Challenge">
                                      <x-badge tone="{{ $challenge['tone'] }}">{{ $challenge['label'] }}</x-badge>
                                  </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </x-panel>
+    @endif
+
+    @if ($skills->isNotEmpty())
+        <x-panel title="Skill Competency" class="mb-6">
+            <div class="overflow-x-auto">
+                <table class="table-stack w-full text-left">
+                    <thead>
+                        <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
+                            <th class="px-4 py-2">Skill</th>
+                            <th class="px-4 py-2">State</th>
+                            <th class="px-4 py-2">Evidence</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-body text-lg">
+                        @foreach ($skills as $skill)
+                            @php
+                                $skillTone = match ($skill['state']) {
+                                    'proficient' => 'phosphor',
+                                    'weak' => 'amber',
+                                    default => 'dim',
+                                };
+                                $skillLabel = match ($skill['state']) {
+                                    'proficient' => 'ON TRACK',
+                                    'weak' => 'NEEDS WORK',
+                                    default => 'NOT ASSESSED',
+                                };
+                            @endphp
+                            <tr class="border-b border-phosphor-dim/40 align-top">
+                                <td class="px-4 py-3 text-ink" data-label="Skill">{{ $skill['label'] }}</td>
+                                <td class="px-4 py-3" data-label="State">
+                                    <x-badge tone="{{ $skillTone }}">{{ $skillLabel }}</x-badge>
+                                </td>
+                                <td class="px-4 py-3 text-ink" data-label="Evidence">
+                                    @if ($skill['percentage'] === null)
+                                        No evidence recorded yet.
+                                    @else
+                                        {{ $skill['percentage'] }}%
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

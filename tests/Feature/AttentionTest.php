@@ -17,11 +17,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class AttentionTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_needs_attention_requires_authentication(): void
     {
@@ -394,7 +396,10 @@ class AttentionTest extends TestCase
         $gone = $this->student('mo_gone');
         $this->activity($gone, 'login', 'Signed in', 0, $this->daysAgo(30));
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$failed, $gone], [$page]);
+
+        $this->actingAs($teacher)
             ->get(route('needs-attention'))
             ->assertOk()
             ->assertSee('MO_FAILED')

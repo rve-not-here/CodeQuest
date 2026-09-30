@@ -24,8 +24,16 @@ The ordered sequence of all courses. Students progress through it linearly.
 _Avoid_: Curriculum, syllabus
 
 **Assessment**:
-A formal evaluation that gates course progression. One per course, placed after the required missions. The Boss Challenge is the final assessment for a course. Passing the assessment unlocks the next course.
-_Avoid_: Quiz (quizzes may exist within assessments but are not the same thing)
+A summative evaluation that gates course progression. One per course, placed after the required missions. The Boss Challenge is the final assessment for a course. Passing the assessment unlocks the next course.
+_Avoid_: Knowledge Check, quiz, exam
+
+**Knowledge Check**:
+A formative concept check attached to a mission's Lesson. It contains ordered selectable-answer questions and preserves every submitted attempt and response for review. A required check may gate that mission's Coding Challenge, but it never completes a mission or course, replaces the Boss Challenge, awards XP, or calculates competency.
+_Avoid_: Quiz, exam, test, assessment
+
+**Knowledge Check Attempt**:
+One student's immutable try at a Knowledge Check. It starts in progress, becomes submitted after atomic server scoring, and retains question-level answer snapshots. Retrying creates a new numbered attempt instead of overwriting history.
+_Avoid_: Mission attempt, Assessment Attempt
 
 **Boss Challenge**:
 The final assessment for a course. An integrated, real-world coding task that tests everything learned in that course.

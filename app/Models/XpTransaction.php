@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'mission_id', 'assessment_id', 'amount', 'type', 'description'])]
+#[Fillable(['user_id', 'mission_id', 'mission_version', 'assessment_id', 'assessment_version', 'amount', 'type', 'description'])]
 class XpTransaction extends Model
 {
     use HasFactory;
@@ -23,6 +23,8 @@ class XpTransaction extends Model
     {
         return [
             'amount' => 'integer',
+            'mission_version' => 'integer',
+            'assessment_version' => 'integer',
             'created_at' => 'datetime',
         ];
     }

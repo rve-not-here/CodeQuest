@@ -13,11 +13,13 @@ use App\Models\XpTransaction;
 use App\Services\XpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class StudentProgressTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_student_progress_requires_teacher_authorization(): void
     {
@@ -68,6 +70,8 @@ class StudentProgressTest extends TestCase
         $student = User::factory()->create(['username' => 'cadet_inkling', 'name' => 'Inks Cadet']);
         $this->complete($student, $missions[0]);
 
+        $this->classroomFor($teacher, [$student], [$course]);
+
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
@@ -92,6 +96,8 @@ class StudentProgressTest extends TestCase
         $student = User::factory()->create(['username' => 'cadet_inkling']);
         $this->complete($student, $missions[0]);
 
+        $this->classroomFor($teacher, [$student], [$course]);
+
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
@@ -113,6 +119,8 @@ class StudentProgressTest extends TestCase
         $this->complete($student, $missions[0]);
         $this->complete($student, $missions[1]);
 
+        $this->classroomFor($teacher, [$student], [$course]);
+
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
@@ -133,6 +141,8 @@ class StudentProgressTest extends TestCase
         $this->complete($student, $missions[0]);
         $this->attempt($student, $assessment, 'passed');
 
+        $this->classroomFor($teacher, [$student], [$course]);
+
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
@@ -146,6 +156,8 @@ class StudentProgressTest extends TestCase
         $teacher = User::factory()->teacher()->create(['username' => 'cpu_teacher']);
         $student = User::factory()->create();
 
+        $this->classroomFor($teacher, [$student]);
+
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
@@ -157,6 +169,8 @@ class StudentProgressTest extends TestCase
     {
         $teacher = User::factory()->teacher()->create();
         $student = User::factory()->create(['username' => 'cadet_inkling']);
+
+        $this->classroomFor($teacher, [$student], [Course::factory()->create()]);
 
         $this->actingAs($teacher)
             ->get(route('students'))
@@ -173,6 +187,8 @@ class StudentProgressTest extends TestCase
         $student = User::factory()->create(['username' => 'cadet_performance']);
         $this->complete($student, $missions[0]);
         $this->complete($student, $missions[1]);
+
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $failedAt = Carbon::create(2026, 9, 2, 10, 0);
         $passedAt = Carbon::create(2026, 9, 3, 14, 30);
@@ -200,6 +216,8 @@ class StudentProgressTest extends TestCase
         $student = User::factory()->create(['username' => 'cadet_logbook']);
         $this->complete($student, $missions[0]);
         $this->complete($student, $missions[1]);
+
+        $this->classroomFor($teacher, [$student], [$course]);
 
         // Three attempts in history; the newest (last created) decides the
         // summary's Last score + Verdict columns.
@@ -230,6 +248,8 @@ class StudentProgressTest extends TestCase
         $this->complete($student, $missions[0]);
         $this->attempt($student, $challenge, 'passed', score: 85, passedAt: Carbon::create(2026, 9, 2, 11, 0));
 
+        $this->classroomFor($teacher, [$student], [$assessed, $bare]);
+
         $response = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]));
 
@@ -246,6 +266,8 @@ class StudentProgressTest extends TestCase
     {
         $teacher = User::factory()->teacher()->create();
         $student = User::factory()->create();
+
+        $this->classroomFor($teacher, [$student]);
 
         $this->actingAs($teacher)
             ->post(route('student-progress', ['student' => $student->id]))
@@ -271,6 +293,8 @@ class StudentProgressTest extends TestCase
         $this->attempt($student, Assessment::where('course_id', $demonstrated->id)->firstOrFail(), 'passed', score: 85);
         $this->complete($student, $develMissions[0]);
         $this->wrongSubmission($student, $develMissions[0]);
+
+        $this->classroomFor($teacher, [$student], [$demonstrated, $developing]);
 
         $response = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]));

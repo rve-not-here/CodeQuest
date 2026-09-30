@@ -13,11 +13,13 @@ use App\Models\User;
 use App\Models\XpTransaction;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 class ActivityFeedTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_activity_requires_authentication(): void
     {
@@ -36,30 +38,43 @@ class ActivityFeedTest extends TestCase
         $oldest = $this->student();
         $newest = $this->student();
 
-        $this->activity($oldest, 'mission_completed', 'Mission completed: Alpha-606', 10, now()->subMinutes(10));
-        $this->xp($newest, 'hint_used', 'Hint 1 on mission: Gamma-606', -5, now()->subMinutes(5));
+        $course = $this->course('Protocol 606');
+        $mission = $this->missionOn($course);
 
-        $this->actingAs($this->teacher())
+        $this->xp($oldest, 'solution_revealed', 'Solution revealed on mission: Alpha-606', -15, now()->subMinutes(10), $mission);
+        $this->xp($newest, 'hint_used', 'Hint 1 on mission: Gamma-606', -5, now()->subMinutes(5), $mission);
+
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$oldest, $newest], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity'))
             ->assertOk()
-            ->assertSee('Mission completed: Alpha-606')
+            ->assertSee('Solution revealed on mission: Alpha-606')
             ->assertSee('Hint 1 on mission: Gamma-606')
             ->assertSee($oldest->username)
             ->assertSee($newest->username)
             ->assertSee('-5 XP')
-            ->assertSeeInOrder(['Hint 1 on mission: Gamma-606', 'Mission completed: Alpha-606']);
+            ->assertSeeInOrder(['Hint 1 on mission: Gamma-606', 'Solution revealed on mission: Alpha-606']);
     }
 
     public function test_trivial_boundary_events_are_not_displayed(): void
     {
         $student = $this->student();
+        $course = $this->course('Boundary 606');
+        $mission = $this->missionOn($course);
 
+        $this->xp($student, 'hint_used', 'Hint 1 on mission: Boundary-606', -5, now(), $mission);
         $this->activity($student, 'login', 'Operator logged in', 0, now());
         $this->activity($student, 'logout', 'Operator logged out', 0, now());
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity'))
             ->assertOk()
+            ->assertSee('Hint 1 on mission: Boundary-606')
             ->assertDontSee('logged in')
             ->assertDontSee('logged out');
     }
@@ -68,13 +83,17 @@ class ActivityFeedTest extends TestCase
     {
         $passed = $this->student();
         $failed = $this->student();
-        $assessment = $this->assessment('The Final Directive');
+        $course = $this->course('Final Directive 606');
+        $assessment = $this->assessment('The Final Directive', $course);
 
         $this->attempt($passed, $assessment, 'passed', 75, now()->subMinutes(5));
-        $this->xp($passed, 'assessment_completed', 'Boss Challenge award: The Final Directive', 100, now()->subMinutes(5));
+        $this->xp($passed, 'assessment_completed', 'Boss Challenge award: The Final Directive', 100, now()->subMinutes(5), null, $assessment);
         $this->attempt($failed, $assessment, 'failed', 30, now()->subMinutes(3));
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$passed, $failed], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity'))
             ->assertOk()
             ->assertSee('Boss Challenge passed: The Final Directive (score 75)')
@@ -89,7 +108,10 @@ class ActivityFeedTest extends TestCase
         $course = Course::factory()->create(['order_num' => 1]);
         $section = $this->completedSection($student, $course, 'Stellar Drift');
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity'))
             ->assertOk()
             ->assertSee('Section complete: Stellar Drift')
@@ -102,44 +124,82 @@ class ActivityFeedTest extends TestCase
     {
         $student = $this->student();
         $other = $this->student();
+        $course = $this->course('Narrowed 606');
+        $mission = $this->missionOn($course);
 
-        $this->activity($student, 'mission_completed', 'Mission completed: Narrowed-606', 10, now());
-        $this->activity($other, 'mission_completed', 'Mission completed: Hidden-606', 10, now());
+        $this->xp($student, 'hint_used', 'Hint 1 on mission: Narrowed-606', -5, now(), $mission);
+        $this->xp($other, 'hint_used', 'Hint 1 on mission: Hidden-606', -5, now(), $mission);
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student, $other], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('Mission completed: Narrowed-606')
-            ->assertDontSee('Mission completed: Hidden-606');
+            ->assertSee('Hint 1 on mission: Narrowed-606')
+            ->assertDontSee('Hint 1 on mission: Hidden-606');
+    }
+
+    public function test_teacher_filters_do_not_reveal_foreign_student_or_course_existence(): void
+    {
+        $teacher = $this->teacher();
+        $student = $this->student();
+        $course = $this->course('Visible classroom');
+        $foreignStudent = $this->student();
+        $foreignCourse = $this->course('Foreign classroom');
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        foreach (['student' => $foreignStudent->id, 'course' => $foreignCourse->id] as $filter => $id) {
+            $this->actingAs($teacher)
+                ->from(route('activity'))
+                ->get(route('activity', [$filter => $id]))
+                ->assertRedirect(route('activity'))
+                ->assertSessionHasErrors($filter);
+
+            $this->actingAs($teacher)
+                ->from(route('activity'))
+                ->get(route('activity', [$filter => $id + 100000]))
+                ->assertRedirect(route('activity'))
+                ->assertSessionHasErrors($filter);
+        }
     }
 
     public function test_the_event_type_filter_narrows_the_feed(): void
     {
         $student = $this->student();
+        $course = $this->course('Typed 606');
+        $mission = $this->missionOn($course);
 
-        $this->activity($student, 'mission_completed', 'Mission completed: Typed-606', 10, now());
-        $this->xp($student, 'solution_revealed', 'Solution revealed on mission: Hidden-606', -15, now());
+        $this->xp($student, 'hint_used', 'Hint 1 on mission: Typed-606', -5, now(), $mission);
+        $this->xp($student, 'solution_revealed', 'Solution revealed on mission: Hidden-606', -15, now(), $mission);
 
-        $this->actingAs($this->teacher())
-            ->get(route('activity', ['type' => 'mission_completed']))
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
+            ->get(route('activity', ['type' => 'hint_used']))
             ->assertOk()
-            ->assertSee('Mission completed: Typed-606')
+            ->assertSee('Hint 1 on mission: Typed-606')
             ->assertDontSee('Hidden-606');
     }
 
     public function test_the_event_type_filter_can_select_assessment_verdicts(): void
     {
         $student = $this->student();
-        $assessment = $this->assessment('Verdict Filter');
+        $course = $this->course('Verdict 606');
+        $assessment = $this->assessment('Verdict Filter', $course);
 
         $this->attempt($student, $assessment, 'passed', 80, now());
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity', ['type' => 'assessment_passed']))
             ->assertOk()
             ->assertSee('Boss Challenge passed: Verdict Filter (score 80)');
 
-        $this->actingAs($this->teacher())
+        $this->actingAs($teacher)
             ->get(route('activity', ['type' => 'assessment_failed']))
             ->assertOk()
             ->assertDontSee('Boss Challenge passed: Verdict Filter');
@@ -150,17 +210,20 @@ class ActivityFeedTest extends TestCase
         $student = $this->student();
         $course = Course::factory()->create(['order_num' => 1]);
 
-        $this->activity($student, 'mission_completed', 'Mission completed: Two Days-606', 10, now()->subDays(2)->setTime(10, 0));
-        $this->activity($student, 'mission_completed', 'Mission completed: Three Days-606', 10, now()->subDays(3)->setTime(10, 0));
+        $this->completedSection($student, $course, 'Two Days-606', now()->subDays(2)->setTime(10, 0));
+        $this->completedSection($student, $course, 'Three Days-606', now()->subDays(3)->setTime(10, 0));
         $this->completedSection($student, $course, 'Ancient Section', now()->subDays(20));
 
         $day = now()->subDays(2)->format('Y-m-d');
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity', ['from' => $day, 'to' => $day]))
             ->assertOk()
-            ->assertSee('Mission completed: Two Days-606')
-            ->assertDontSee('Mission completed: Three Days-606')
+            ->assertSee('Section complete: Two Days-606')
+            ->assertDontSee('Section complete: Three Days-606')
             ->assertDontSee('Section complete: Ancient Section');
     }
 
@@ -180,7 +243,10 @@ class ActivityFeedTest extends TestCase
         // attributable under a course filter.
         $this->activity($student, 'mission_completed', 'Mission completed: Unattributable-606', 10, now()->subMinutes(1));
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$courseA, $courseB]);
+
+        $this->actingAs($teacher)
             ->get(route('activity', ['course' => $courseA->id]))
             ->assertOk()
             ->assertSee('Boss Challenge passed: Alpha Final (score 75)')
@@ -189,7 +255,7 @@ class ActivityFeedTest extends TestCase
 
         $this->assertTrue($attemptA->exists);
 
-        $this->actingAs($this->teacher())
+        $this->actingAs($teacher)
             ->get(route('activity', ['course' => $courseB->id]))
             ->assertOk()
             ->assertSee('Boss Challenge failed: Bravo Final (score 30)')
@@ -199,12 +265,17 @@ class ActivityFeedTest extends TestCase
     public function test_the_feed_paginates_the_filtered_events(): void
     {
         $student = $this->student();
+        $course = $this->course('Paged 606');
+        $mission = $this->missionOn($course);
 
         for ($n = 1; $n <= 35; $n++) {
-            $this->activity($student, 'mission_completed', sprintf('EVENT %02d', $n), 10, now()->subMinutes($n));
+            $this->xp($student, 'hint_used', sprintf('EVENT %02d', $n), -5, now()->subMinutes($n), $mission);
         }
 
-        $this->actingAs($this->teacher())
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)
             ->get(route('activity'))
             ->assertOk()
             ->assertSee('EVENT 01')
@@ -212,7 +283,7 @@ class ActivityFeedTest extends TestCase
             ->assertDontSee('EVENT 31')
             ->assertSee('SHOWING PAGE 1 OF 2');
 
-        $this->actingAs($this->teacher())
+        $this->actingAs($teacher)
             ->get(route('activity', ['page' => 2]))
             ->assertOk()
             ->assertSee('EVENT 31')
@@ -263,14 +334,16 @@ class ActivityFeedTest extends TestCase
     public function test_user_scoping_probe_spellings_are_rejected_but_student_filter_is_allowed(): void
     {
         $student = $this->student();
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$this->course('Visible filter course')]);
 
         foreach (['user_id', 'userId', 'user', 'owner'] as $parameter) {
-            $this->actingAs($this->teacher())
+            $this->actingAs($teacher)
                 ->get(route('activity', [$parameter => $student->id]))
                 ->assertForbidden();
         }
 
-        $this->actingAs($this->teacher())
+        $this->actingAs($teacher)
             ->get(route('activity', ['student' => $student->id]))
             ->assertOk();
     }
@@ -306,13 +379,15 @@ class ActivityFeedTest extends TestCase
         return $activity->refresh();
     }
 
-    private function xp(User $user, string $type, string $description, int $amount, Carbon $at): XpTransaction
+    private function xp(User $user, string $type, string $description, int $amount, Carbon $at, ?Mission $mission = null, ?Assessment $assessment = null): XpTransaction
     {
         $txn = new XpTransaction([
             'user_id' => $user->id,
             'type' => $type,
             'description' => $description,
             'amount' => $amount,
+            'mission_id' => $mission?->id,
+            'assessment_id' => $assessment?->id,
         ]);
         $txn->forceFill(['created_at' => $at])->save();
 
@@ -322,6 +397,11 @@ class ActivityFeedTest extends TestCase
     private function course(string $name): Course
     {
         return Course::factory()->create(['name' => $name]);
+    }
+
+    private function missionOn(Course $course): Mission
+    {
+        return Mission::factory()->create(['course_id' => $course->id]);
     }
 
     private function assessment(string $title, ?Course $course = null): Assessment

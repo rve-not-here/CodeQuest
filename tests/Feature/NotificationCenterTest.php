@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -80,6 +81,32 @@ class NotificationCenterTest extends TestCase
             ->assertSee('SHOWING PAGE 2 OF 2');
     }
 
+    public function test_notification_feed_bounds_the_database_row_read(): void
+    {
+        $user = User::factory()->create();
+        Notification::factory()->count(125)->create(['user_id' => $user->id]);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        try {
+            $page = app(NotificationService::class)->forUser($user);
+            $queries = DB::getQueryLog();
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
+
+        $rowQuery = collect($queries)
+            ->pluck('query')
+            ->first(fn (string $sql): bool => str_contains($sql, 'the404_notifications') && str_contains($sql, 'order by'));
+
+        $this->assertNotNull($rowQuery);
+        $this->assertMatchesRegularExpression('/\blimit\b/i', $rowQuery);
+        $this->assertCount(NotificationService::FEED_PER_PAGE, $page->items());
+        $this->assertSame(125, $page->total());
+    }
+
     public function test_unread_count_query_uses_the_read_state_index(): void
     {
         $user = User::factory()->create();
@@ -87,14 +114,20 @@ class NotificationCenterTest extends TestCase
         Notification::factory()->count(20)->create(['user_id' => $user->id]);
         Notification::factory()->count(10)->create(['user_id' => $user->id, 'read_at' => now()]);
 
-        $plan = DB::select(
-            'EXPLAIN QUERY PLAN SELECT count(*) FROM the404_notifications WHERE user_id = ? AND read_at IS NULL',
-            [$user->id],
-        );
+        $query = 'SELECT count(*) FROM the404_notifications WHERE user_id = ? AND read_at IS NULL';
 
-        $details = collect($plan)->pluck('detail')->implode(' ');
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $plan = DB::select('EXPLAIN QUERY PLAN '.$query, [$user->id]);
+            $details = collect($plan)->pluck('detail')->implode(' ');
 
-        $this->assertStringContainsString('the404_notifications_user_id_read_at_index', $details);
+            $this->assertStringContainsString('the404_notifications_user_id_read_at_index', $details);
+
+            return;
+        }
+
+        $plan = DB::select('EXPLAIN '.$query, [$user->id]);
+
+        $this->assertSame('the404_notifications_user_id_read_at_index', $plan[0]->key);
     }
 
     public function test_notifications_nav_item_links_to_the_center(): void

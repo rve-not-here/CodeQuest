@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Announcement;
 use App\Models\Assessment;
+use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
@@ -18,8 +19,9 @@ class AdminAuthorizationTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Every admin-gated route added across Phase 7 (US-701..US-713). The gate
-     * is one middleware group in routes/web.php, but the regression test must
+     * Every admin-gated route added across Phase 7 (US-701..US-713 plus the
+     * Classroom / Enrollment Authorization surface). The gate is one
+     * middleware group in routes/web.php, but the regression test must
      * enumerate the routes explicitly, mirroring the US-611 teacher audit:
      * a later admin route registered outside the group, or without the 'admin'
      * middleware, is exactly the drift this file exists to catch. Extend this
@@ -27,7 +29,7 @@ class AdminAuthorizationTest extends TestCase
      * are enumerated here; the admin.courses.store/update write routes are
      * exercised in AdminCourseManagementTest.
      *
-     * @return array<int, array{name: string, needsUser?: bool, needsCourse?: bool, needsSection?: bool, needsMission?: bool, needsAnnouncement?: bool}>
+     * @return array<int, array{name: string, needsUser?: bool, needsCourse?: bool, needsSection?: bool, needsMission?: bool, needsAnnouncement?: bool, needsClassroom?: bool}>
      */
     private function adminRoutes(): array
     {
@@ -45,6 +47,9 @@ class AdminAuthorizationTest extends TestCase
             ['name' => 'admin.courses.missions.edit', 'needsCourse' => true, 'needsMission' => true],
             ['name' => 'admin.courses.assessment', 'needsCourse' => true],
             ['name' => 'admin.courses.assessment.edit', 'needsCourse' => true, 'needsAssessment' => true],
+            ['name' => 'admin.classrooms'],
+            ['name' => 'admin.classrooms.create'],
+            ['name' => 'admin.classrooms.edit', 'needsClassroom' => true],
             ['name' => 'admin.announcements'],
             ['name' => 'admin.announcements.create'],
             ['name' => 'admin.announcements.edit', 'needsAnnouncement' => true],
@@ -54,87 +59,64 @@ class AdminAuthorizationTest extends TestCase
         ];
     }
 
-    private function uriFor(array $route): string
+    /**
+     * Implicit route model binding resolves before the role gate, so the bound
+     * resources must really exist: a fabricated id 404s before the 403 under
+     * test. Every id here comes from the rows the caller actually created (the
+     * same discipline as test_admins_can_access_the_admin_routes).
+     *
+     * @param  array{user?: User, course?: Course, section?: Section, mission?: Mission, assessment?: Assessment, classroom?: Classroom, announcement?: Announcement}  $bound
+     */
+    private function uriFor(array $route, array $bound): string
     {
-        if ($route['name'] === 'admin.courses.sections.edit') {
-            return route($route['name'], ['course' => $this->resourceId(), 'section' => $this->resourceId()]);
-        }
-
-        if ($route['name'] === 'admin.courses.missions.edit') {
-            return route($route['name'], ['course' => $this->resourceId(), 'mission' => $this->resourceId()]);
-        }
-
-        if ($route['name'] === 'admin.courses.assessment.edit') {
-            return route($route['name'], ['course' => $this->resourceId(), 'assessment' => $this->resourceId()]);
-        }
-
-        if (isset($route['needsCourse'])) {
-            return route($route['name'], ['course' => $this->resourceId()]);
-        }
-
-        if (isset($route['needsUser'])) {
-            return route($route['name'], ['user' => $this->userId()]);
-        }
-
-        if (isset($route['needsAnnouncement'])) {
-            return route($route['name'], ['announcement' => $this->resourceId()]);
-        }
-
-        return route($route['name']);
+        return match (true) {
+            isset($route['needsAssessment']) => route($route['name'], ['course' => $bound['course']->id, 'assessment' => $bound['assessment']->id]),
+            isset($route['needsMission']) => route($route['name'], ['course' => $bound['course']->id, 'mission' => $bound['mission']->id]),
+            isset($route['needsSection']) => route($route['name'], ['course' => $bound['course']->id, 'section' => $bound['section']->id]),
+            isset($route['needsCourse']) => route($route['name'], ['course' => $bound['course']->id]),
+            isset($route['needsUser']) => route($route['name'], ['user' => $bound['user']->id]),
+            isset($route['needsAnnouncement']) => route($route['name'], ['announcement' => $bound['announcement']->id]),
+            isset($route['needsClassroom']) => route($route['name'], ['classroom' => $bound['classroom']->id]),
+            default => route($route['name']),
+        };
     }
 
     public function test_guests_are_redirected_to_login_when_requesting_admin_routes(): void
     {
-        $course = Course::factory()->create();
-        Section::factory()->create(['course_id' => $course->id]);
-        Mission::factory()->create(['course_id' => $course->id]);
-        Assessment::factory()->create(['course_id' => $course->id]);
-        Announcement::factory()->create();
+        $bound = $this->boundResources();
 
         foreach ($this->adminRoutes() as $route) {
-            $this->get($this->uriFor($route))->assertRedirect(route('login'));
+            $this->get($this->uriFor($route, $bound))->assertRedirect(route('login'));
         }
     }
 
     public function test_students_are_forbidden_from_admin_routes(): void
     {
         $student = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->create();
-        Section::factory()->create(['course_id' => $course->id]);
-        Mission::factory()->create(['course_id' => $course->id]);
-        Assessment::factory()->create(['course_id' => $course->id]);
-        Announcement::factory()->create();
+        $bound = $this->boundResources($student);
 
         foreach ($this->adminRoutes() as $route) {
-            $this->actingAs($student)->get($this->uriFor($route))->assertForbidden();
+            $this->actingAs($student)->get($this->uriFor($route, $bound))->assertForbidden();
         }
     }
 
     public function test_teachers_are_forbidden_from_admin_routes(): void
     {
         $teacher = User::factory()->teacher()->create();
-        $course = Course::factory()->create();
-        Section::factory()->create(['course_id' => $course->id]);
-        Mission::factory()->create(['course_id' => $course->id]);
-        Assessment::factory()->create(['course_id' => $course->id]);
-        Announcement::factory()->create();
+        $bound = $this->boundResources($teacher);
 
         foreach ($this->adminRoutes() as $route) {
-            $this->actingAs($teacher)->get($this->uriFor($route))->assertForbidden();
+            $this->actingAs($teacher)->get($this->uriFor($route, $bound))->assertForbidden();
         }
     }
 
     public function test_operator_role_is_forbidden_from_admin_routes(): void
     {
         $operator = User::factory()->create(['role' => 'operator']);
-        $course = Course::factory()->create();
-        Section::factory()->create(['course_id' => $course->id]);
-        Mission::factory()->create(['course_id' => $course->id]);
-        Assessment::factory()->create(['course_id' => $course->id]);
-        Announcement::factory()->create();
+        $bound = $this->boundResources($operator);
 
         foreach ($this->adminRoutes() as $route) {
-            $this->actingAs($operator)->get($this->uriFor($route))->assertForbidden();
+            $this->actingAs($operator)->get($this->uriFor($route, $bound))->assertForbidden();
         }
     }
 
@@ -146,6 +128,7 @@ class AdminAuthorizationTest extends TestCase
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+        $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create(['created_by' => $admin->id]);
 
         // Gate assertion only: content-level checks for the pages live in their
@@ -161,6 +144,7 @@ class AdminAuthorizationTest extends TestCase
                 isset($route['needsCourse']) => route($route['name'], ['course' => $course->id]),
                 isset($route['needsUser']) => route($route['name'], ['user' => $target->id]),
                 isset($route['needsAnnouncement']) => route($route['name'], ['announcement' => $announcement->id]),
+                isset($route['needsClassroom']) => route($route['name'], ['classroom' => $classroom->id]),
                 default => route($route['name']),
             };
 
@@ -225,6 +209,7 @@ class AdminAuthorizationTest extends TestCase
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+        $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create();
 
         $calls = [
@@ -234,6 +219,11 @@ class AdminAuthorizationTest extends TestCase
             ['method' => 'put', 'uri' => route('admin.courses.sections.update', [$course, $section]), 'data' => ['title' => 'Sneaky Section']],
             ['method' => 'put', 'uri' => route('admin.courses.missions.update', [$course, $mission]), 'data' => ['title' => 'Sneaky Mission']],
             ['method' => 'put', 'uri' => route('admin.courses.assessment.update', [$course, $assessment]), 'data' => ['title' => 'Sneaky Assessment', 'passing_score' => 70, 'status' => 'active']],
+            ['method' => 'post', 'uri' => route('admin.classrooms.store'), 'data' => ['name' => 'Sneaky Classroom', 'status' => 'active']],
+            ['method' => 'put', 'uri' => route('admin.classrooms.update', $classroom), 'data' => ['name' => 'Sneaky Classroom', 'status' => 'inactive']],
+            ['method' => 'post', 'uri' => route('admin.classrooms.teachers', $classroom), 'data' => ['teacher_ids' => [$teacher->id]]],
+            ['method' => 'post', 'uri' => route('admin.classrooms.students', $classroom), 'data' => ['student_ids' => [$student->id]]],
+            ['method' => 'post', 'uri' => route('admin.classrooms.courses', $classroom), 'data' => ['course_ids' => [$course->id]]],
             ['method' => 'post', 'uri' => route('admin.announcements.store'), 'data' => ['title' => 'Sneaky Announcement', 'message' => 'Sneaky', 'audience' => 'all']],
             ['method' => 'put', 'uri' => route('admin.announcements.update', $announcement), 'data' => ['title' => 'Sneaky Announcement', 'message' => 'Sneaky', 'audience' => 'all']],
             ['method' => 'post', 'uri' => route('admin.announcements.publish', $announcement), 'data' => []],
@@ -251,13 +241,26 @@ class AdminAuthorizationTest extends TestCase
         $this->assertSame('draft', $announcement->refresh()->status, 'a publish/archive attempt from a rejected role must never mutate the announcement');
     }
 
-    private function userId(): int
+    /**
+     * @return array{user: User, course: Course, section: Section, mission: Mission, assessment: Assessment, classroom: Classroom, announcement: Announcement}
+     */
+    private function boundResources(?User $user = null): array
     {
-        return 1;
-    }
+        $course = Course::factory()->create();
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create(['course_id' => $course->id]);
+        $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+        $classroom = Classroom::factory()->create();
+        $announcement = Announcement::factory()->create();
 
-    private function resourceId(): int
-    {
-        return 1;
+        return [
+            'user' => $user ?? User::factory()->create(),
+            'course' => $course,
+            'section' => $section,
+            'mission' => $mission,
+            'assessment' => $assessment,
+            'classroom' => $classroom,
+            'announcement' => $announcement,
+        ];
     }
 }

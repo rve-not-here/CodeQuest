@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Activity;
 use App\Models\AssessmentAttempt;
 use App\Models\Progress;
-use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
 use Carbon\Carbon;
@@ -44,11 +43,10 @@ use Illuminate\Support\Collection;
  * feed (feed()) share the four source builders. The feed parameterizes them
  * over a student set: each table source runs ONE query across the set
  * (whereIn on user_id) with the student, event-type, and date-window filters
- * pushed down, then the merged beats are sorted and paginated in memory. The
- * only per-user work is the section-completion derivation, which must reuse
- * LearningPathService::build() per student (the shared DONE definition);
- * feed() bounds that pass to students who have progress rows inside the
- * queried window instead of the whole roster.
+ * pushed down, then the merged beats are sorted and paginated in memory.
+ * Section-completion evidence is batched through LearningPathService's
+ * shared all-missions-complete rule; feed() limits that work to students
+ * with progress rows inside the queried window.
  *
  * Every query is keyed by user_id ids — a client never names a user through
  * these services; the student filter is resolved server-side from the
@@ -65,6 +63,7 @@ class TimelineService
     public const FILTERABLE_TYPES = [
         'mission_completed',
         'wrong_submission',
+        KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED,
         'hint_used',
         'solution_revealed',
         'assessment_completed',
@@ -112,11 +111,22 @@ class TimelineService
     ) {}
 
     /**
+     * The student's Unified Learning Timeline (US-505). When a monitorable
+     * course set is supplied it also serves scoped teacher surfaces (the
+     * roster's Last activity column): beats are confined to those courses and
+     * the un-attributable Activity source is dropped, exactly as feed() does
+     * for a classroom-scoped teacher. Null keeps the student's own full view.
+     *
+     * @param  Collection<int, int>|null  $allowedCourseIds
      * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int}>
      */
-    public function events(User $user, int $limit = 50): Collection
+    public function events(User $user, int $limit = 50, ?Collection $allowedCourseIds = null): Collection
     {
-        $events = $this->compose(collect([$user]), null, null, null, null, collect([$user]));
+        $studentCourseScopes = $allowedCourseIds !== null
+            ? [$user->id => $allowedCourseIds]
+            : null;
+
+        $events = $this->compose(collect([$user]), null, null, null, null, collect([$user]), $studentCourseScopes);
 
         return $events
             ->sortByDesc(fn (array $event): array => [$event['at']->getTimestamp(), $event['seq']])
@@ -134,6 +144,29 @@ class TimelineService
     }
 
     /**
+     * The newest beat for each supplied account. Uses the same source
+     * composition and ordering as events(), but reads shared sources once.
+     *
+     * @param  Collection<int, User>  $users
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}>
+     */
+    public function latestForUsers(Collection $users, ?array $studentCourseScopes = null): Collection
+    {
+        if ($users->isEmpty()) {
+            return collect();
+        }
+
+        $this->seq = 0;
+
+        return $this->compose($users, null, null, null, null, $users, $studentCourseScopes)
+            ->groupBy('user_id')
+            ->map(fn (Collection $events): array => $events
+                ->sortByDesc(fn (array $event): array => [$event['at']->getTimestamp(), $event['seq']])
+                ->first() ?? throw new \LogicException('A grouped timeline user has no events.'));
+    }
+
+    /**
      * The teacher-facing activity feed (US-606): the same composed beats as
      * events(), parameterized over a set of students and filtered server-side.
      *
@@ -141,6 +174,12 @@ class TimelineService
      *                                                 ids, or null for the whole roster
      * @param  array<string, string>  $paginatorQuery  active filters preserved
      *                                                 across pagination
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes  per-student allowed-course
+     *                                                                      ids delivered by ClassroomAccessService::scopesFor.
+     *                                                                      When provided the feed is confined to the exact
+     *                                                                      Student/Course pairs it encodes — a teacher sees a
+     *                                                                      student's beat only when that beat is attributable to
+     *                                                                      a course the teacher shares with the student.
      * @return LengthAwarePaginator<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user: array{id: int, username: string}}>
      */
     public function feed(
@@ -150,14 +189,27 @@ class TimelineService
         Carbon $from,
         Carbon $to,
         array $paginatorQuery,
+        ?array $studentCourseScopes = null,
     ): LengthAwarePaginator {
         $this->seq = 0;
+
+        if ($studentCourseScopes !== null && $studentCourseScopes === []) {
+            $empty = new LengthAwarePaginator(
+                [],
+                0,
+                self::FEED_PER_PAGE,
+                Paginator::resolveCurrentPage(),
+                ['path' => route('activity'), 'query' => $paginatorQuery],
+            );
+
+            return $empty;
+        }
 
         $students = $this->students($studentIds);
 
         $sectionCandidates = $this->sectionCandidates($students, $from, $to);
 
-        $events = $this->compose($students, $type, $from, $to, $courseId, $sectionCandidates)
+        $events = $this->compose($students, $type, $from, $to, $courseId, $sectionCandidates, $studentCourseScopes)
             ->filter(fn (array $event): bool => $event['at']->between($from, $to))
             ->sortByDesc(fn (array $event): array => [$event['at']->getTimestamp(), $event['seq']]);
 
@@ -236,6 +288,7 @@ class TimelineService
     /**
      * @param  Collection<int, User>  $users
      * @param  Collection<int, User>|null  $sectionCandidates
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}>
      */
     private function compose(
@@ -245,17 +298,18 @@ class TimelineService
         ?Carbon $to,
         ?int $courseId,
         ?Collection $sectionCandidates,
+        ?array $studentCourseScopes = null,
     ): Collection {
         $ids = $users->pluck('id');
 
         $events = new Collection;
 
-        foreach ($this->sourcesFor($type, $courseId) as $source) {
+        foreach ($this->sourcesFor($type, $courseId, $studentCourseScopes) as $source) {
             $events = $events->concat(match ($source) {
                 'activity' => $this->activityEvents($ids, $from, $to, $type),
-                'xp' => $this->xpEvents($ids, $from, $to, $type, $courseId),
-                'assessment' => $this->assessmentEvents($ids, $type, $courseId),
-                'section' => $this->sectionCompletionEvents($sectionCandidates ?? $users, $from, $to, $courseId),
+                'xp' => $this->xpEvents($ids, $from, $to, $type, $courseId, $studentCourseScopes),
+                'assessment' => $this->assessmentEvents($ids, $type, $courseId, $studentCourseScopes),
+                'section' => $this->sectionCompletionEvents($sectionCandidates ?? $users, $from, $to, $courseId, $studentCourseScopes),
                 default => new Collection,
             });
         }
@@ -267,22 +321,26 @@ class TimelineService
      * Which sources can emit beats, given the event-type filter. A course
      * filter drops the Activity source entirely: activity rows carry no course
      * link (no mission/course columns), so attributing them to a course would
-     * be guesswork — exclude rather than mis-attribute.
+     * be guesswork — exclude rather than mis-attribute. A per-student course
+     * scope (a classroom teacher) drops it for the same reason: the batched
+     * teacher feed can attribute a beat to a Student/Course pair only where
+     * the underlying record ties to a course.
      *
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return list<string>
      */
-    private function sourcesFor(?string $type, ?int $courseId = null): array
+    private function sourcesFor(?string $type, ?int $courseId = null, ?array $studentCourseScopes = null): array
     {
         $sources = match ($type) {
             null => ['activity', 'xp', 'assessment', 'section'],
-            'mission_completed', 'wrong_submission' => ['activity'],
+            'mission_completed', 'wrong_submission', KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED => ['activity'],
             'hint_used', 'solution_revealed', 'assessment_completed' => ['xp'],
             'assessment_passed', 'assessment_failed' => ['assessment'],
             'section_completed' => ['section'],
             default => [],
         };
 
-        if ($courseId !== null) {
+        if ($courseId !== null || $studentCourseScopes !== null) {
             $sources = array_values(array_filter(
                 $sources,
                 fn (string $source): bool => $source !== 'activity',
@@ -323,6 +381,7 @@ class TimelineService
 
     /**
      * @param  Collection<int, int>  $ids
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int, seq: int, user_id: int<0, max>}>
      */
     private function xpEvents(
@@ -331,8 +390,9 @@ class TimelineService
         ?Carbon $to = null,
         ?string $type = null,
         ?int $courseId = null,
+        ?array $studentCourseScopes = null,
     ): Collection {
-        return XpTransaction::query()
+        $query = XpTransaction::query()
             ->whereIn('user_id', $ids)
             ->whereIn('type', self::XP_BEAT_TYPES)
             ->when($from !== null && $to !== null, fn (Builder $query) => $query->whereBetween('created_at', [$from, $to]))
@@ -341,7 +401,23 @@ class TimelineService
                 fn (Builder $query) => $query
                     ->whereHas('mission', fn (Builder $query) => $query->where('course_id', $courseId))
                     ->orWhereHas('assessment', fn (Builder $query) => $query->where('course_id', $courseId)),
-            ))
+            ));
+
+        if ($studentCourseScopes !== null) {
+            $query = $this->whereScopedByCourseReference(
+                $query,
+                $studentCourseScopes,
+                function (Builder $query, Collection $courseIds): void {
+                    $query->where(
+                        fn (Builder $query) => $query
+                            ->whereHas('mission', fn (Builder $query) => $query->whereIn('course_id', $courseIds))
+                            ->orWhereHas('assessment', fn (Builder $query) => $query->whereIn('course_id', $courseIds)),
+                    );
+                },
+            );
+        }
+
+        return $query
             ->orderBy('created_at')
             ->get()
             ->map(function (XpTransaction $txn): array {
@@ -357,12 +433,38 @@ class TimelineService
     }
 
     /**
+     * Confine an Eloquent query to exact Student/Course pairs: each row must
+     * belong to a student in the scope map and satisfy that student's course
+     * constraint. The constraint callback receives the query and the student's
+     * allowed course ids, and narrows the row to one of them.
+     *
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
+     * @param  array<int, Collection<int, int>>  $studentCourseScopes
+     * @param  callable(Builder<TModel>, Collection<int, int>): void  $withAllowedCourses
+     * @return Builder<TModel>
+     */
+    private function whereScopedByCourseReference(Builder $query, array $studentCourseScopes, callable $withAllowedCourses): Builder
+    {
+        return $query->where(function (Builder $query) use ($studentCourseScopes, $withAllowedCourses): void {
+            foreach ($studentCourseScopes as $userId => $courseIds) {
+                $query->orWhere(function (Builder $query) use ($userId, $courseIds, $withAllowedCourses): void {
+                    $query->where('user_id', $userId);
+                    $withAllowedCourses($query, $courseIds);
+                });
+            }
+        });
+    }
+
+    /**
      * @param  Collection<int, int>  $ids
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return Collection<int, array{at: Carbon, label: non-falsy-string, type: 'assessment_failed'|'assessment_passed', pts: null, seq: int, user_id: int<0, max>}>
      */
-    private function assessmentEvents(Collection $ids, ?string $type = null, ?int $courseId = null): Collection
+    private function assessmentEvents(Collection $ids, ?string $type = null, ?int $courseId = null, ?array $studentCourseScopes = null): Collection
     {
-        return AssessmentAttempt::query()
+        $query = AssessmentAttempt::query()
             ->with('assessment')
             ->whereIn('user_id', $ids)
             ->when(
@@ -373,7 +475,22 @@ class TimelineService
             ->when($courseId !== null, fn (Builder $query) => $query->whereHas(
                 'assessment',
                 fn (Builder $query) => $query->where('course_id', $courseId),
-            ))
+            ));
+
+        if ($studentCourseScopes !== null) {
+            $query = $this->whereScopedByCourseReference(
+                $query,
+                $studentCourseScopes,
+                function (Builder $query, Collection $courseIds): void {
+                    $query->whereHas(
+                        'assessment',
+                        fn (Builder $query) => $query->whereIn('course_id', $courseIds),
+                    );
+                },
+            );
+        }
+
+        return $query
             ->orderBy('created_at')
             ->get()
             ->map(function (AssessmentAttempt $attempt): array {
@@ -396,12 +513,12 @@ class TimelineService
 
     /**
      * One beat per section that is fully complete today, timestamped when its
-     * last mission was finished. Section enumeration and the DONE state come
-     * from the shared build() traversal; only the missing timestamp is read
-     * from the completion rows. Runs the shared traversal once per candidate
-     * student (bounded in feed() to students with in-window progress).
+     * last mission was finished. LearningPathService batches section/mission
+     * membership and completion rows across the candidate students, using
+     * the same all-missions-complete rule as build().
      *
      * @param  Collection<int, User>  $users
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return Collection<int, array{at: Carbon, label: string, type: string, pts: null, seq: int, user_id: int}>
      */
     private function sectionCompletionEvents(
@@ -409,68 +526,18 @@ class TimelineService
         ?Carbon $from,
         ?Carbon $to,
         ?int $courseId = null,
+        ?array $studentCourseScopes = null,
     ): Collection {
-        $events = new Collection;
-
-        foreach ($users as $user) {
-            $doneSections = $this->doneSections($user, $courseId);
-
-            if ($doneSections->isEmpty()) {
-                continue;
-            }
-
-            $sectionIds = $doneSections->keys();
-
-            $completions = Progress::query()
-                ->where('user_id', $user->id)
-                ->whereHas('mission', function (Builder $query) use ($sectionIds): void {
-                    $query->whereIn('section_id', $sectionIds);
-                })
-                ->with('mission.section')
-                ->orderBy('completed_at')
-                ->get();
-
-            $completions
-                ->groupBy(fn (Progress $row): int => $row->mission?->section->id ?? -1)
-                ->each(function (Collection $rows) use ($events, $user): void {
-                    $latest = $rows->last();
-                    $section = $latest?->mission?->section;
-
-                    if ($latest === null || $section === null) {
-                        return;
-                    }
-
-                    $events->push([
-                        'at' => Carbon::parse($latest->completed_at),
-                        'label' => 'Section complete: '.$section->title,
-                        'type' => 'section_completed',
-                        'pts' => null,
-                        'seq' => ++$this->seq,
-                        'user_id' => $user->id,
-                    ]);
-                });
-        }
-
-        return $events;
-    }
-
-    /**
-     * Sections of a student's path that are fully complete today, optionally
-     * scoped to one course. Same DONE definition as the path traversal.
-     *
-     * @return Collection<int, Section>
-     */
-    private function doneSections(User $user, ?int $courseId): Collection
-    {
-        return $this->path->build($user)
-            ->flatMap(fn (array $courseRow): Collection => $courseRow['sections'])
-            ->filter(fn (array $sectionRow): bool => $sectionRow['progress']['total'] > 0 && $sectionRow['progress']['percent'] === 100)
-            ->map(fn (array $sectionRow): Section => $sectionRow['section'])
-            ->when(
-                $courseId !== null,
-                fn (Collection $sections): Collection => $sections->filter(fn (Section $section): bool => $section->course_id === $courseId),
-            )
-            ->keyBy(fn (Section $section): int => $section->id);
+        return $this->path->completedSectionBeatsForUsers($users, $studentCourseScopes)
+            ->filter(fn (array $beat): bool => $courseId === null || $beat['section']->course_id === $courseId)
+            ->map(fn (array $beat): array => [
+                'at' => $beat['at'],
+                'label' => 'Section complete: '.$beat['section']->title,
+                'type' => 'section_completed',
+                'pts' => null,
+                'seq' => ++$this->seq,
+                'user_id' => $beat['user_id'],
+            ]);
     }
 
     private function verb(bool $passed): string

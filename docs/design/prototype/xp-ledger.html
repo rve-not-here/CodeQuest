@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>XP Ledger · CodeQuest</title>
+        <meta name="description" content="Known XP events in Frontend Fundamentals and the rules behind them." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- XP Ledger lives in the profile menu, not the top nav, so no
+             destination is marked current. Same as design-system.html. -->
+        <!-- @include header -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 max-sm:[&_.btn]:min-h-11 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">XP Ledger</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow">XP Ledger / Transaction history</p>
+                <h1 id="ledger-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight md:text-3xl">XP Ledger</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Known mission credits and a failed submission, with the rules behind them.</p>
+            </header>
+
+            <!-- The single most important thing this screen has to get right.
+                 It says the server owns XP before showing a single number. -->
+            <div class="mt-5 border-b border-line pb-4">
+                <p class="flex max-w-[70ch] items-start gap-2.5 text-[13px] leading-6 text-fg-subtle">
+                    <svg class="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true"><use href="#i-shield" /></svg>
+                    <span>The server keeps your XP record. Viewing this page does not change it.</span>
+                </p>
+            </div>
+
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading XP ledger">
+                <p role="status" class="text-sm text-fg-muted">Loading your transactions…</p>
+                <div class="mt-4" aria-hidden="true">
+                    <div class="skeleton h-4 w-40"></div>
+                    <div class="skeleton mt-4 h-11 w-full"></div>
+                    <div class="skeleton mt-2 h-11 w-full"></div>
+                    <div class="skeleton mt-2 h-11 w-full"></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">Couldn't load your XP transactions.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Your XP record is unchanged. Try loading this view again.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <section data-state-panel="empty" class="panel mt-6 px-5 py-12" hidden aria-labelledby="empty-title">
+                <span class="grid size-9 place-items-center border border-line-strong text-locked" aria-hidden="true">
+                    <svg class="size-4"><use href="#i-ledger" /></svg>
+                </span>
+                <p class="eyebrow mt-3">Transaction history</p>
+                <h2 id="empty-title" class="mt-1.5 text-lg font-semibold">No XP transactions yet</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Complete XP-awarding course work to begin your ledger.</p>
+                <a href="missions.html" class="btn btn-primary mt-4">View Missions<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">New-student state preview. No credits, deductions, or balance are shown here.</p>
+            </section>
+
+            <div data-state-panel="default" class="mt-6">
+                <!-- No total. The balance is the server's sum of every row,
+                     and this demo has no complete history to total. -->
+                <section class="panel p-5 md:p-6" aria-labelledby="summary-title">
+                    <h2 id="summary-title" class="eyebrow">Ledger summary</h2>
+                    <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-fg-muted">
+                        <li><span class="mr-1 font-mono text-fg">9</span> mission credits</li>
+                        <li><span class="mr-1 font-mono text-danger">1</span> failed submission</li>
+                        <li><span class="mr-1 font-mono text-fg">0</span> knowledge check entries</li>
+                    </ul>
+                    <p class="mt-2.5 max-w-[65ch] text-[13px] leading-6 text-fg-subtle">
+                        Balance unavailable. This prototype has only part of your XP history. Past hint and solution usage is unknown. The failed submission has a known penalty rule, but no recorded debit amount.
+                    </p>
+                </section>
+
+                <section class="mt-8" aria-labelledby="tx-title">
+                    <h2 id="tx-title" class="text-lg font-semibold">Known XP events</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">Shown in course progression order, not transaction date order. Mission credits use each mission's configured points.</p>
+
+                    <div class="panel mt-4 overflow-x-auto">
+                        <table class="w-full border-collapse text-sm">
+                            <caption class="sr-only">Known XP events for Frontend Fundamentals, in course progression order</caption>
+                            <thead>
+                                <tr class="border-b border-line text-left">
+                                    <th scope="col" class="px-4 py-2.5 font-mono text-2xs font-medium tracking-[0.06em] text-fg-subtle uppercase">Type</th>
+                                    <th scope="col" class="px-4 py-2.5 font-mono text-2xs font-medium tracking-[0.06em] text-fg-subtle uppercase">Mission / event</th>
+                                    <th scope="col" class="px-4 py-2.5 text-right font-mono text-2xs font-medium tracking-[0.06em] text-fg-subtle uppercase">XP</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-line">
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M1.1</span>
+                                        <span class="text-fg">Anatomy of an HTML document</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+25</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M1.2</span>
+                                        <span class="text-fg">Headings and landmarks</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+25</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M1.3</span>
+                                        <span class="text-fg">Semantic Containers</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+30</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M1.4</span>
+                                        <span class="text-fg">Forms and Labels</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+35</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M1.5</span>
+                                        <span class="text-fg">Tables and Captions</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+30</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M1.6</span>
+                                        <span class="text-fg">Image and Media Basics</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+25</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M2.1</span>
+                                        <span class="text-fg">Selecting elements with CSS</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+30</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-danger">Penalty</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M2.2</span>
+                                        <span class="text-fg-muted">Wrong submission on Class and ID selectors</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-danger"><span class="block whitespace-nowrap">Up to -10</span><span class="block font-sans text-xs text-fg-muted">Exact debit unknown</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M2.2</span>
+                                        <span class="text-fg">Class and ID selectors</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+30</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="badge badge-accent">Mission</span>
+                                    </td>
+                                    <th scope="row" class="px-4 py-3 text-left align-top font-normal">
+                                        <span class="font-mono text-2xs text-fg-subtle">M2.3</span>
+                                        <span class="text-fg">Padding and borders</span>
+                                    </th>
+                                    <td class="px-4 py-3 text-right align-top font-mono text-fg">+40</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-3 text-[13px] leading-6 text-fg-subtle">Transaction timestamps are unavailable. Within M2.2, the failed submission came before completion. Its penalty is capped at the XP available then, so the exact debit is unknown.</p>
+                </section>
+
+                <!-- KC 01 belongs here as an explanation, not a row. -->
+                <section class="mt-8 border-y border-line py-5" aria-labelledby="non-tx-title">
+                    <h2 id="non-tx-title" class="text-lg font-semibold">What is not in the ledger</h2>
+                    <ul class="mt-4 divide-y divide-line border-y border-line">
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
+                                <span class="font-mono text-2xs text-fg-subtle">KC 01</span>Knowledge Check: HTML
+                                <span class="badge badge-neutral">9 / 10 · 0 XP</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-6 text-fg-muted">Knowledge Checks award no XP. They are recorded as assessment evidence and competency input instead, so a pass never produces a ledger row.</p>
+                        </li>
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
+                                <span class="font-mono text-2xs text-fg-subtle">M2.4</span>Draft saved
+                                <span class="badge badge-locked text-fg-muted">0 XP</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-6 text-fg-muted">Saving a draft changes nothing. The credit arrives only when the mission is completed, and then at that mission's configured value.</p>
+                        </li>
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
+                                Boss Challenge
+                                <span class="badge badge-locked text-fg-muted">Not earned</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-6 text-fg-muted">A qualifying first pass is worth <span class="font-mono text-fg">100 XP</span>, once per course. This student has not unlocked it, so there is nothing to record. No XP is pending.</p>
+                        </li>
+                        <li class="py-3">
+                            <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
+                                Achievements
+                                <span class="badge badge-locked text-fg-muted">0 XP</span>
+                            </p>
+                            <p class="mt-1 text-[13px] leading-6 text-fg-muted">Achievement definitions in this prototype are illustrative, and no achievement award path is defined. Nothing here awards XP.</p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mt-8" aria-labelledby="rules-title">
+                    <h2 id="rules-title" class="text-lg font-semibold">Rules behind these amounts</h2>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">How XP is earned and spent. These rules are not additional transactions.</p>
+                    <dl class="mt-4 divide-y divide-line border-y border-line">
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Mission completion</dt>
+                            <dd class="text-sm text-fg">Awards that mission's configured points, once. Re-submitting a finished mission cannot farm it again.</dd>
+                        </div>
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Knowledge Check</dt>
+                            <dd class="text-sm text-fg">Awards no XP. Results record your understanding.</dd>
+                        </div>
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Boss Challenge</dt>
+                            <dd class="text-sm text-fg">A qualifying first pass awards <span class="font-mono">100 XP</span>, once per course. Later retries never re-award or reverse it.</dd>
+                        </div>
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Wrong submission</dt>
+                            <dd class="text-sm text-fg">Deducts up to <span class="font-mono">10 XP</span> per failed submission, stopping at zero.</dd>
+                        </div>
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Hints</dt>
+                            <dd class="text-sm text-fg">Cost <span class="font-mono">5</span>, <span class="font-mono">10</span>, then <span class="font-mono">15 XP</span> for the first, second, and third hint.</dd>
+                        </div>
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Solution reveal</dt>
+                            <dd class="text-sm text-fg">Costs <span class="font-mono">30 XP</span>. It does not reduce the mission's reward, which is still awarded on completion.</dd>
+                        </div>
+                        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-sm text-fg-muted">Floor</dt>
+                            <dd class="text-sm text-fg">A balance never falls below zero. A deduction at the floor is recorded, clamped to zero.</dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype ledger</span>Only XP events supported by the current demo state are shown. The full history and balance are unavailable.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="xp-ledger.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="xp-ledger.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="xp-ledger.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                    <li><a href="xp-ledger.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                </ul>
+            </section>
+        </main>
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./xp-ledger.js"></script>
+    </body>
+</html>

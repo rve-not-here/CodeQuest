@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>M2.4 Build a profile card · CodeQuest</title>
+        <meta name="description" content="Coding challenge workspace: instructions, editor, preview and test results." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex h-dvh flex-col overflow-hidden">
+        <!-- @include header active="missions" -->
+
+        <main id="main" class="ws flex min-h-0 flex-1 flex-col" data-tab="code" data-collapsed="">
+            <!-- Workspace bar -->
+            <div class="flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface px-3 md:px-4">
+                <a href="learn.html#section-02" class="btn btn-ghost btn-sm btn-icon" aria-label="Back to learning path"><svg aria-hidden="true"><use href="#i-chevron-left" /></svg></a>
+                <nav aria-label="Breadcrumb" class="hidden min-w-0 font-mono text-xs text-fg-subtle md:block">
+                    <ol class="flex items-center gap-1.5 whitespace-nowrap">
+                        <li><a href="learn.html" class="hover:text-fg">Frontend Fundamentals</a></li>
+                        <li aria-hidden="true">/</li>
+                        <li><a href="learn.html#section-02" class="hover:text-fg">02 CSS</a></li>
+                        <li aria-hidden="true">/</li>
+                    </ol>
+                </nav>
+                <h1 class="min-w-0 truncate text-sm font-medium"><span class="mr-1.5 font-mono text-xs text-accent">M2.4</span>Build a profile card</h1>
+                <span class="badge badge-neutral hidden sm:inline-flex">+40 XP</span>
+
+                <div class="ml-auto flex items-center gap-1">
+                    <p class="mr-2 hidden items-center gap-1.5 font-mono text-2xs text-fg-subtle xl:flex" data-draft-status role="status"><svg class="size-3.5" aria-hidden="true"><use href="#i-save" /></svg>DRAFT SAVED</p>
+                    <button type="button" class="btn btn-ghost btn-sm btn-icon hidden lg:inline-flex" aria-pressed="true" aria-label="Show instructions pane" data-toggle-pane="instructions"><svg aria-hidden="true"><use href="#i-panel-left" /></svg></button>
+                    <button type="button" class="btn btn-ghost btn-sm btn-icon hidden lg:inline-flex" aria-pressed="true" aria-label="Show output pane" data-toggle-pane="results"><svg aria-hidden="true"><use href="#i-panel-right" /></svg></button>
+                </div>
+            </div>
+
+            <!-- Mobile / tablet: one pane at a time -->
+            <div role="tablist" aria-label="Workspace" class="flex shrink-0 border-b border-line bg-surface px-1 lg:hidden" data-tabs="mobile">
+                <button type="button" role="tab" id="mt-instructions" aria-controls="pane-instructions" aria-selected="false" tabindex="-1" class="tab flex-1 justify-center" data-tab-value="instructions">Instructions</button>
+                <button type="button" role="tab" id="mt-code" aria-controls="pane-code" aria-selected="true" class="tab flex-1 justify-center" data-tab-value="code">Code</button>
+                <button type="button" role="tab" id="mt-results" aria-controls="pane-results" aria-selected="false" tabindex="-1" class="tab flex-1 justify-center" data-tab-value="results">
+                    Results<span class="font-mono text-2xs text-danger" data-results-count>3/5</span>
+                </button>
+            </div>
+
+            <div class="flex min-h-0 flex-1">
+                <!-- Instructions -->
+                <section id="pane-instructions" aria-label="Instructions" class="ws-pane flex min-w-0 shrink-0 flex-col bg-surface" data-pane="instructions">
+                    <div class="scrollbar-thin flex-1 overflow-y-auto">
+                        <article class="mx-auto max-w-[62ch] px-4 py-5 md:px-6">
+                            <p class="eyebrow">Coding challenge · Intermediate</p>
+                            <h2 class="mt-1.5 text-xl font-semibold tracking-tight text-balance">Build a profile card with the box model</h2>
+
+                            <div class="mt-4 rounded-sm border border-line bg-raised/60 px-3.5 py-3">
+                                <p class="eyebrow text-accent">Objective</p>
+                                <p class="mt-1 text-sm leading-6 text-fg">Style <code class="code-inline">.card</code> so it renders exactly <strong>320px wide</strong>, centered, with 24px of inner space and a 1px border.</p>
+                            </div>
+
+                            <div class="prose-cq mt-5 space-y-4">
+                                <p>Every element is a box made of four layers: <strong>content</strong>, <strong>padding</strong>, <strong>border</strong> and <strong>margin</strong>. By default, <code class="code-inline">width</code> only sizes the content, so padding and border are added on top.</p>
+                                <p>That is why a 320px card with 24px padding and a 1px border actually renders 370px wide. Changing <code class="code-inline">box-sizing</code> tells the browser to include padding and border inside the width you set.</p>
+                            </div>
+
+                            <h3 class="mt-6 text-sm font-semibold">Syntax</h3>
+                            <pre class="code-block mt-2"><code><span class="tok-sel">.box</span> <span class="tok-pun">{</span>
+  <span class="tok-prop">box-sizing</span><span class="tok-pun">:</span> <span class="tok-val">border-box</span><span class="tok-pun">;</span>
+  <span class="tok-prop">width</span><span class="tok-pun">:</span> <span class="tok-num">200px</span><span class="tok-pun">;</span>   <span class="tok-com">/* includes padding + border */</span>
+  <span class="tok-prop">padding</span><span class="tok-pun">:</span> <span class="tok-num">16px</span><span class="tok-pun">;</span>
+<span class="tok-pun">}</span></code></pre>
+
+                            <h3 class="mt-6 text-sm font-semibold">Requirements</h3>
+                            <ol class="mt-2 divide-y divide-line rounded-sm border border-line text-sm">
+                                <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted"><code class="code-inline">.card</code> has 24px padding</span><span class="sr-only">Passing</span></li>
+                                <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted">A 1px solid border surrounds the card</span><span class="sr-only">Passing</span></li>
+                                <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-accent" aria-hidden="true"><use href="#i-check" /></svg><span class="flex-1 text-fg-muted">The card is horizontally centered</span><span class="sr-only">Passing</span></li>
+                                <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">Padding and border are included in the width</span><span class="sr-only">Failing</span></li>
+                                <li class="flex gap-3 px-3 py-2.5"><svg class="mt-1 size-3.5 shrink-0 text-danger" aria-hidden="true"><use href="#i-x" /></svg><span class="flex-1 text-fg">The rendered card is 320px wide</span><span class="sr-only">Failing</span></li>
+                            </ol>
+
+                            <details class="group mt-6 rounded-sm border border-line" data-hint>
+                                <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm font-medium text-fg-muted hover:text-fg [&::-webkit-details-marker]:hidden">
+                                    <svg class="size-4 text-warning" aria-hidden="true"><use href="#i-bulb" /></svg>
+                                    Hint 1 · 5 XP
+                                    <svg class="ml-auto size-4 transition-transform group-open:rotate-180" aria-hidden="true"><use href="#i-chevron-down" /></svg>
+                                </summary>
+                                <p class="border-t border-line px-3 py-3 text-sm leading-6 text-fg-muted">Your widths are measured from the content edge. Which property changes where <code class="code-inline">width</code> is measured from?</p>
+                            </details>
+                        </article>
+                    </div>
+                </section>
+
+                <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize instructions pane" aria-controls="pane-instructions" aria-valuemin="20" aria-valuemax="32" aria-valuenow="26" aria-valuetext="26 percent of workspace" tabindex="0" data-splitter="left"></div>
+
+                <!-- Editor: visual center of gravity -->
+                <section id="pane-code" aria-label="Code editor" class="ws-pane flex min-w-0 flex-1 flex-col bg-canvas" data-pane="code">
+                    <div class="flex h-12 shrink-0 items-end gap-px border-b border-line bg-surface px-2" role="tablist" aria-label="Files" data-tabs="files">
+                        <button type="button" role="tab" id="ft-html" aria-controls="file-html" aria-selected="false" tabindex="-1" class="flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-2 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
+                            <svg class="size-3.5" aria-hidden="true"><use href="#i-file" /></svg>index.html<span class="text-2xs text-locked hidden xl:inline">read-only</span>
+                        </button>
+                        <button type="button" role="tab" id="ft-css" aria-controls="file-css" aria-selected="true" class="-mb-px flex h-9 cursor-pointer items-center gap-2 rounded-t-xs border border-b-0 border-transparent px-2 font-mono text-xs text-fg-subtle hover:text-fg aria-selected:border-line aria-selected:bg-canvas aria-selected:text-fg">
+                            <svg class="size-3.5 text-info" aria-hidden="true"><use href="#i-file" /></svg>styles.css<span class="size-1.5 rounded-full bg-warning" aria-hidden="true"></span><span class="sr-only">(unsaved changes)</span>
+                        </button>
+                        <button type="button" class="btn btn-ghost btn-sm btn-icon mb-1 ml-auto" aria-label="Reset code to starter" data-reset><svg aria-hidden="true"><use href="#i-reset" /></svg></button>
+                    </div>
+
+                    <div id="file-css" role="tabpanel" aria-labelledby="ft-css" class="scrollbar-thin flex min-h-0 flex-1 overflow-auto font-mono text-[13px] leading-6 md:text-sm md:leading-6">
+                        <ol class="sticky left-0 shrink-0 bg-canvas py-3 pr-3 pl-4 text-right text-locked select-none" aria-hidden="true">
+                            <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li class="text-fg-muted">20</li><li>21</li><li>22</li>
+                        </ol>
+                        <div class="min-w-0 flex-1 py-3 pr-6 text-fg whitespace-pre focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-[-2px]" contenteditable="true" spellcheck="false" autocapitalize="off" role="textbox" aria-multiline="true" aria-label="styles.css" data-editor><div><span class="tok-com">/* Profile card: make it exactly 320px wide */</span></div><div><br /></div><div><span class="tok-sel">.card</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">width</span><span class="tok-pun">:</span> <span class="tok-num">320px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">40px</span> <span class="tok-val">auto</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">padding</span><span class="tok-pun">:</span> <span class="tok-num">24px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">border</span><span class="tok-pun">:</span> <span class="tok-num">1px</span> <span class="tok-val">solid</span> <span class="tok-val">#d0d7de</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">border-radius</span><span class="tok-pun">:</span> <span class="tok-num">6px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">font-family</span><span class="tok-pun">:</span> <span class="tok-val">system-ui</span><span class="tok-pun">,</span> <span class="tok-val">sans-serif</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.card h2</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">0</span> <span class="tok-num">0</span> <span class="tok-num">8px</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">font-size</span><span class="tok-pun">:</span> <span class="tok-num">20px</span><span class="tok-pun">;</span></div><div><span class="tok-pun">}</span></div><div><br /></div><div><span class="tok-sel">.card p</span> <span class="tok-pun">{</span></div><div>  <span class="tok-prop">margin</span><span class="tok-pun">:</span> <span class="tok-num">0</span><span class="tok-pun">;</span></div><div>  <span class="tok-prop">color</span><span class="tok-pun">:</span> <span class="tok-val">#57606a</span><span class="tok-pun">;</span></div><div class="-mr-6 bg-raised">  <span class="tok-com">/* TODO: fix the width without changing 320px */</span></div><div><span class="tok-pun">}</span></div><div><br /></div></div>
+                    </div>
+
+                    <pre id="file-html" role="tabpanel" aria-labelledby="ft-html" tabindex="0" class="scrollbar-thin min-h-0 flex-1 overflow-auto p-4 font-mono text-sm leading-6" hidden><code>&lt;article class="card"&gt;
+  &lt;h2&gt;Maya Reyes&lt;/h2&gt;
+  &lt;p&gt;Frontend learner&lt;/p&gt;
+&lt;/article&gt;</code></pre>
+
+                    <div class="flex h-7 shrink-0 items-center gap-4 border-t border-line bg-surface px-4 font-mono text-2xs text-fg-subtle">
+                        <span>CSS</span><span>STATIC EDITOR</span><span class="hidden sm:inline">SPACES: 2</span>
+                        <span class="ml-auto hidden md:inline"><span class="kbd">Ctrl</span> <span class="kbd">Enter</span> run</span>
+                    </div>
+                </section>
+
+                <div class="splitter hidden lg:block" role="separator" aria-orientation="vertical" aria-label="Resize output pane" aria-controls="pane-results" aria-valuemin="22" aria-valuemax="34" aria-valuenow="28" aria-valuetext="28 percent of workspace" tabindex="0" data-splitter="right"></div>
+
+                <!-- Output: Preview / Tests -->
+                <section id="pane-results" aria-label="Output" class="ws-pane flex min-w-0 shrink-0 flex-col bg-surface" data-pane="results">
+                    <div role="tablist" aria-label="Output" class="flex h-10 shrink-0 border-b border-line px-1" data-tabs="output">
+                        <button type="button" role="tab" id="ot-tests" aria-controls="op-tests" aria-selected="true" class="tab">Tests<span class="font-mono text-2xs text-danger" data-results-count>3/5</span></button>
+                        <button type="button" role="tab" id="ot-preview" aria-controls="op-preview" aria-selected="false" tabindex="-1" class="tab"><svg class="size-3.5" aria-hidden="true"><use href="#i-eye" /></svg>Preview</button>
+                    </div>
+
+                    <div id="op-tests" role="tabpanel" aria-labelledby="ot-tests" class="scrollbar-thin flex-1 overflow-y-auto" tabindex="0">
+                        <div aria-live="polite">
+                            <div class="flex items-center gap-3 px-4 py-6" hidden data-view="running">
+                                <svg class="size-4 animate-spin text-accent" aria-hidden="true"><use href="#i-loader" /></svg>
+                                <div>
+                                    <p class="text-sm font-medium" data-running-label>Running 5 tests</p>
+                                    <p class="font-mono text-2xs text-fg-subtle">STATIC RESULTS PREVIEW</p>
+                                </div>
+                            </div>
+
+                            <div data-view="results">
+                                <div class="hidden border-b border-danger/35 bg-danger-soft px-4 py-3" data-submit-banner>
+                                    <p class="flex items-center gap-2 text-sm font-semibold text-danger"><svg class="size-4" aria-hidden="true"><use href="#i-x" /></svg>Submission failed</p>
+                                    <p class="mt-1 text-[13px] leading-5 text-fg-muted">2 requirements still failing. This is an example result. No submission is sent or recorded.</p>
+                                </div>
+
+                                <div class="flex items-center justify-between gap-3 px-4 py-3">
+                                    <p class="text-sm"><span class="font-medium text-fg">3 of 5 passing</span> <span class="text-fg-subtle" data-last-run>· example result</span></p>
+                                    <div class="flex h-1.5 w-20 gap-0.5" aria-hidden="true"><span class="flex-1 rounded-l-full bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-accent"></span><span class="flex-1 bg-danger"></span><span class="flex-1 rounded-r-full bg-danger"></span></div>
+                                </div>
+
+                                <ul class="border-t border-line">
+                                    <li class="border-b border-line px-4 py-3">
+                                        <details open class="group">
+                                            <summary class="flex cursor-pointer list-none items-start gap-2.5 text-sm [&::-webkit-details-marker]:hidden">
+                                                <span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span>
+                                                <span class="flex-1 text-fg">Rendered card is 320px wide</span>
+                                                <svg class="mt-1 size-4 text-fg-subtle transition-transform group-open:rotate-180" aria-hidden="true"><use href="#i-chevron-down" /></svg>
+                                            </summary>
+                                            <dl class="mt-3 grid grid-cols-[5rem_minmax(0,1fr)] overflow-hidden rounded-sm border border-line font-mono text-xs">
+                                                <dt class="border-b border-line bg-raised px-2.5 py-2 text-fg-subtle">EXPECTED</dt>
+                                                <dd class="border-b border-line px-2.5 py-2 text-accent">320px</dd>
+                                                <dt class="bg-raised px-2.5 py-2 text-fg-subtle">ACTUAL</dt>
+                                                <dd class="px-2.5 py-2 text-danger">370px</dd>
+                                            </dl>
+                                            <p class="mt-2 text-[13px] leading-5 text-fg-muted">320 + 24 × 2 padding + 1 × 2 border = 370. See requirement 4.</p>
+                                        </details>
+                                    </li>
+                                    <li class="border-b border-line px-4 py-3">
+                                        <details class="group">
+                                            <summary class="flex cursor-pointer list-none items-start gap-2.5 text-sm [&::-webkit-details-marker]:hidden">
+                                                <span class="badge badge-danger mt-0.5"><svg aria-hidden="true"><use href="#i-x" /></svg>Fail</span>
+                                                <span class="flex-1 text-fg"><code class="code-inline">box-sizing</code> includes padding and border</span>
+                                                <svg class="mt-1 size-4 text-fg-subtle transition-transform group-open:rotate-180" aria-hidden="true"><use href="#i-chevron-down" /></svg>
+                                            </summary>
+                                            <dl class="mt-3 grid grid-cols-[5rem_minmax(0,1fr)] overflow-hidden rounded-sm border border-line font-mono text-xs">
+                                                <dt class="border-b border-line bg-raised px-2.5 py-2 text-fg-subtle">EXPECTED</dt>
+                                                <dd class="border-b border-line px-2.5 py-2 text-accent">border-box</dd>
+                                                <dt class="bg-raised px-2.5 py-2 text-fg-subtle">ACTUAL</dt>
+                                                <dd class="px-2.5 py-2 text-danger">content-box (default)</dd>
+                                            </dl>
+                                        </details>
+                                    </li>
+                                    <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted"><code class="code-inline">.card</code> has 24px padding</span></li>
+                                    <li class="flex items-start gap-2.5 border-b border-line px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted">1px solid border on all sides</span></li>
+                                    <li class="flex items-start gap-2.5 px-4 py-3 text-sm"><span class="badge badge-accent mt-0.5"><svg aria-hidden="true"><use href="#i-check" /></svg>Pass</span><span class="text-fg-muted">Card is horizontally centered</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="op-preview" role="tabpanel" aria-labelledby="ot-preview" class="flex flex-1 flex-col" hidden>
+                        <div class="flex h-8 shrink-0 items-center gap-2 border-b border-line px-3 font-mono text-2xs text-fg-subtle">
+                            <span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>PREVIEW · INDEX.HTML
+                        </div>
+                        <iframe class="w-full flex-1 bg-white" title="Rendered preview of your code" sandbox="" data-preview srcdoc="<!doctype html><style>body{margin:0;background:#f6f8fa;font:15px/1.5 system-ui,sans-serif;color:#1f2328}.card{width:320px;margin:40px auto;padding:24px;border:1px solid #d0d7de;border-radius:6px;background:#fff}.card h2{margin:0 0 8px;font-size:20px}.card p{margin:0;color:#57606a}.ruler{width:320px;margin:0 auto;border-top:2px dashed #cf222e;font:11px monospace;color:#cf222e;padding-top:4px;text-align:center}</style><div class='card'><h2>Maya Reyes</h2><p>BSIT student learning frontend development. Currently mastering the CSS box model.</p></div><div class='ruler'>target: 320px</div>"></iframe>
+                    </div>
+                </section>
+            </div>
+
+            <p class="shrink-0 border-t border-line bg-surface px-4 py-1 text-xs text-fg-subtle" role="status">Prototype workspace: results are examples; code, drafts, submissions and XP are not stored or updated.</p>
+
+            <!-- Persistent action footer -->
+            <div class="flex h-16 shrink-0 items-center gap-2 border-t border-line bg-surface px-3 md:px-4">
+                <button type="button" class="btn btn-ghost" data-action="hint"><svg aria-hidden="true"><use href="#i-bulb" /></svg><span class="max-sm:sr-only">Hint</span></button>
+                <button type="button" class="btn btn-ghost" data-action="solution"><svg aria-hidden="true"><use href="#i-eye" /></svg><span class="max-sm:sr-only">Show Solution</span></button>
+
+                <div class="ml-auto flex items-center gap-2">
+                    <button type="button" class="btn btn-ghost max-sm:btn-icon" data-action="save"><svg aria-hidden="true"><use href="#i-save" /></svg><span class="max-sm:sr-only">Save Draft</span></button>
+                    <button type="button" class="btn btn-secondary" data-action="run"><svg aria-hidden="true"><use href="#i-play" /></svg>Run</button>
+                    <button type="button" class="btn btn-primary px-5" data-action="submit">Submit</button>
+                </div>
+            </div>
+        </main>
+
+        <dialog class="panel m-auto w-[min(26rem,calc(100vw-2rem))] bg-surface p-0 text-fg shadow-2xl shadow-black/60 backdrop:bg-black/60" aria-labelledby="solution-title" aria-describedby="solution-description" data-solution-dialog>
+            <form method="dialog">
+                <div class="px-5 pt-5">
+                    <p class="eyebrow flex items-center gap-1.5 text-warning"><svg class="size-3.5" aria-hidden="true"><use href="#i-alert" /></svg>Before you continue</p>
+                    <h2 id="solution-title" class="mt-2 text-lg font-semibold">Show the solution?</h2>
+                    <p id="solution-description" class="mt-2 text-sm leading-6 text-fg-muted">Showing the solution costs <span class="font-mono text-fg">30 XP</span>, recorded as a separate deduction. The mission still awards <span class="font-mono text-fg">+40 XP</span> when you complete it. Try the hint first if you haven&apos;t.</p>
+                </div>
+                <div class="mt-5 flex justify-end gap-2 border-t border-line px-5 py-3">
+                    <button value="cancel" class="btn btn-ghost" autofocus>Keep trying</button>
+                    <button value="confirm" class="btn btn-secondary">Show Solution</button>
+                </div>
+            </form>
+        </dialog>
+
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./challenge.js"></script>
+    </body>
+</html>

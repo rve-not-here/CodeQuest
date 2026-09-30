@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'user_id',
     'mission_id',
+    'mission_version',
+    'skill_keys',
     'pts_earned',
     'completed_at',
 ])]
@@ -28,6 +30,8 @@ class Progress extends Model
     {
         return [
             'pts_earned' => 'integer',
+            'mission_version' => 'integer',
+            'skill_keys' => 'array',
             'completed_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

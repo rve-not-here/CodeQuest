@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0a0d0c" />
+        <title>Achievements · CodeQuest</title>
+        <meta name="description" content="Course milestones you have earned, milestones in progress, and what is still locked in Frontend Fundamentals." />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|jetbrains-mono:400,500,600&display=swap" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body class="flex min-h-dvh flex-col">
+        <!-- Achievements live in the profile menu, not the top nav, so no
+             destination is marked current. Same as design-system.html. -->
+        <!-- @include header -->
+
+        <main id="main" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8">
+            <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+                <ol class="flex flex-wrap items-center gap-1.5">
+                    <li><a href="index.html" class="hover:text-fg">Dashboard</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="activity.html" class="hover:text-fg">Activity</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-fg-muted">Achievements</li>
+                </ol>
+            </nav>
+            <header class="mt-3 border-b border-line pb-5">
+                <p class="eyebrow">Achievements / Frontend Fundamentals</p>
+                <h1 id="achievements-title" tabindex="-1" class="mt-1.5 text-2xl font-semibold tracking-tight md:text-3xl">Achievements</h1>
+                <p class="mt-2 max-w-[65ch] text-fg-muted">Illustrative course milestones based on the fixed student scenario.</p>
+            </header>
+
+            <section data-state-panel="loading" class="mt-6" hidden aria-busy="true" aria-label="Loading achievements">
+                <p role="status" class="text-sm text-fg-muted">Loading your achievements…</p>
+                <div class="mt-4" aria-hidden="true">
+                    <div class="skeleton h-4 w-40"></div>
+                    <div class="skeleton mt-5 h-16 w-full"></div>
+                    <div class="skeleton mt-2 h-16 w-full"></div>
+                    <div class="skeleton mt-2 h-16 w-full"></div>
+                </div>
+            </section>
+
+            <section data-state-panel="error" class="panel mt-6 px-5 py-12" hidden aria-labelledby="error-title">
+                <svg class="size-5 text-danger" aria-hidden="true"><use href="#i-alert" /></svg>
+                <h2 id="error-title" class="mt-3 text-lg font-semibold" role="alert">Couldn't load your achievements.</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Your milestone record is unchanged. Try loading this view again.</p>
+                <button type="button" class="btn btn-secondary mt-4" data-retry>Try again</button>
+            </section>
+
+            <section data-state-panel="empty" class="panel mt-6 px-5 py-12" hidden aria-labelledby="empty-title">
+                <span class="grid size-9 place-items-center border border-line-strong text-locked" aria-hidden="true">
+                    <svg class="size-4"><use href="#i-award" /></svg>
+                </span>
+                <p class="eyebrow mt-3">Course milestones</p>
+                <h2 id="empty-title" class="mt-1.5 text-lg font-semibold">No achievements yet</h2>
+                <p class="mt-2 max-w-[60ch] text-sm leading-6 text-fg-muted">Complete your first mission to earn your first course milestone.</p>
+                <a href="learn.html" class="btn btn-primary mt-4">Start Learning<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                <p class="mt-3 text-[13px] leading-6 text-fg-subtle">New-student state preview. No earned, in-progress, or locked milestones are shown here.</p>
+            </section>
+
+            <div data-state-panel="default" class="mt-6">
+                <p class="panel mb-5 border-accent/30 px-4 py-3 text-sm leading-6 text-fg-muted"><span class="font-semibold">Prototype preview</span> · These milestone definitions and earned states illustrate the interface. They are not recorded badge awards or the production achievement catalog.</p>
+                <section class="panel p-5 md:p-6" aria-labelledby="summary-title">
+                    <h2 id="summary-title" class="eyebrow">Summary</h2>
+                    <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-fg-muted">
+                        <li><span class="mr-1 font-mono text-fg">4</span> earned</li>
+                        <li><span class="mr-1 font-mono text-fg">1</span> in progress</li>
+                        <li><span class="mr-1 font-mono text-fg">3</span> locked</li>
+                    </ul>
+                    <p class="mt-2.5 text-[13px] leading-6 text-fg-subtle">Preview criteria reflect the mock progress: 9 of 29 missions complete, KC 01 passed. No award records are checked.</p>
+                </section>
+
+                <section class="mt-8" aria-labelledby="earned-title">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <h2 id="earned-title" class="text-lg font-semibold">Earned</h2>
+                        <span class="badge badge-accent">4</span>
+                    </div>
+                    <ul class="rail mt-3" aria-label="Earned achievements">
+                        <li data-state="completed" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium">
+                                    First Mission
+                                    <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Earned</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-muted">Completed your first mission. You have completed 9.</p>
+                            </div>
+                        </li>
+                        <li data-state="completed" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium">
+                                    HTML Foundations Complete
+                                    <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Earned</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-muted">Completed all 6 missions in the first course section.</p>
+                            </div>
+                        </li>
+                        <li data-state="completed" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium">
+                                    First Knowledge Check
+                                    <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Earned</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-muted">Passed Knowledge Check: HTML with <span class="font-mono text-fg">9 / 10</span>.</p>
+                            </div>
+                        </li>
+                        <li data-state="completed" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-check" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium">
+                                    9 Missions Complete
+                                    <span class="badge badge-accent"><svg aria-hidden="true"><use href="#i-check" /></svg>Earned</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-muted">Reached <span class="font-mono text-fg">9 of 29</span> missions in Frontend Fundamentals.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mt-8" aria-labelledby="progress-title">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <h2 id="progress-title" class="text-lg font-semibold">In progress</h2>
+                        <span class="badge badge-warning">1</span>
+                    </div>
+                    <ul class="rail mt-3" aria-label="Achievements in progress">
+                        <li data-state="current" class="py-3" aria-current="step">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-play" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium">
+                                    Box Model Section Complete
+                                    <span class="badge badge-warning"><svg aria-hidden="true"><use href="#i-play" /></svg>In Progress</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-muted">Complete all 6 missions in CSS Selectors and the Box Model. M2.4 is in progress with a saved draft.</p>
+                                <div class="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                                    <p class="font-mono text-xs text-fg-muted"><span class="text-fg">3 / 6</span> missions complete</p>
+                                    <p class="font-mono text-xs text-fg">50%</p>
+                                </div>
+                                <div class="progress mt-2" role="progressbar" aria-label="Box Model section missions complete" aria-valuemin="0" aria-valuemax="6" aria-valuenow="3" aria-valuetext="3 of 6 missions complete"><span style="width: 50%"></span></div>
+                                <p class="mt-2"><a href="missions.html" class="btn btn-quiet btn-sm">View Missions<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mt-8" aria-labelledby="locked-title">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <h2 id="locked-title" class="text-lg font-semibold">Locked</h2>
+                        <span class="badge badge-locked text-fg-muted!">3</span>
+                    </div>
+                    <p class="mt-1.5 max-w-[65ch] text-sm leading-6 text-fg-muted">These illustrative milestones show possible next goals based on the fixed course progress.</p>
+                    <ul class="rail mt-3" aria-label="Locked achievements">
+                        <li data-state="locked" class="py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium text-fg-muted">
+                                    Box Model Knowledge Check Cleared
+                                    <span class="badge badge-locked text-fg-muted!"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Pass Knowledge Check: Box Model. Needs M2.4, M2.5, and M2.6 complete.</p>
+                                <p class="mt-2"><a href="knowledge-check.html?state=locked" class="btn btn-quiet btn-sm">View Requirements<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                            </div>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium text-fg-muted">
+                                    Boss Challenge Ready
+                                    <span class="badge badge-locked text-fg-muted!"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Complete the required practical missions. Boss Challenge access is determined by the server.</p>
+                                <p class="mt-2"><a href="boss-challenge.html" class="btn btn-quiet btn-sm">View Boss Challenge<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                            </div>
+                        </li>
+                        <li data-state="locked" class="border-t border-line py-3">
+                            <span class="node" aria-hidden="true"><svg><use href="#i-lock" /></svg></span>
+                            <div class="min-w-0">
+                                <p class="flex flex-wrap items-center gap-2 text-[15px] font-medium text-fg-muted">
+                                    Frontend Fundamentals Complete
+                                    <span class="badge badge-locked text-fg-muted!"><svg aria-hidden="true"><use href="#i-lock" /></svg>Locked</span>
+                                </p>
+                                <p class="mt-1 text-[13px] leading-6 text-fg-subtle">Complete the required practical missions and pass the Boss Challenge to complete the course.</p>
+                                <p class="mt-2"><a href="learn.html" class="btn btn-quiet btn-sm">View Learning Path<svg aria-hidden="true"><use href="#i-chevron-right" /></svg></a></p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mt-8 border-t border-line pt-5" aria-labelledby="next-title">
+                    <h2 id="next-title" class="text-lg font-semibold">What to do now</h2>
+                    <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">
+                        Milestones follow the work, they are not the goal. M2.4 is the only mission in progress and your draft is saved, so that is the shortest step toward the Box Model section milestone.
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="challenge.html" class="btn btn-primary">Continue M2.4<svg aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+                        <a href="progress.html" class="btn btn-secondary">View Progress</a>
+                    </div>
+                </section>
+            </div>
+
+            <p class="mt-10 max-w-[74ch] border-t border-line pt-4 text-[13px] leading-6 text-fg-subtle"><span class="eyebrow mr-2">Prototype data</span>Achievement definitions shown here are illustrative. Nothing is stored or persisted, no badge is awarded, and no XP is granted by this view.</p>
+            <section aria-labelledby="states-title" class="mt-5 border-t border-line pt-4">
+                <h2 id="states-title" class="eyebrow">Prototype states</h2>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    <li><a href="achievements.html" class="btn btn-quiet btn-sm" data-state-link="default">Default</a></li>
+                    <li><a href="achievements.html?state=loading" class="btn btn-quiet btn-sm" data-state-link="loading">Loading</a></li>
+                    <li><a href="achievements.html?state=error" class="btn btn-quiet btn-sm" data-state-link="error">Error</a></li>
+                    <li><a href="achievements.html?state=empty" class="btn btn-quiet btn-sm" data-state-link="empty">Empty</a></li>
+                </ul>
+            </section>
+        </main>
+        <!-- @include footer -->
+        <script type="module" src="./shell.js"></script>
+        <script type="module" src="./achievements.js"></script>
+    </body>
+</html>

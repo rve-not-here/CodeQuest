@@ -13,6 +13,7 @@ use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
 /**
@@ -25,6 +26,7 @@ use Tests\TestCase;
 class TeacherAttentionNotificationTest extends TestCase
 {
     use RefreshDatabase;
+    use WithClassroomScope;
 
     public function test_a_second_dashboard_visit_with_no_attention_change_creates_no_new_rows(): void
     {
@@ -35,6 +37,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->attempt($student, $course->assessment, 'failed', 90, $this->daysAgo(1));
 
         $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->visitDashboard($teacher);
         $this->assertSame(1, $this->countTeacherRows($teacher));
@@ -52,6 +55,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->attempt($student, $course->assessment, 'failed', 90, $this->daysAgo(2));
 
         $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->visitDashboard($teacher);
         $this->assertSame(1, $this->countTeacherRows($teacher));
@@ -83,6 +87,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->attempt($student, $course->assessment, 'failed', 90, $this->daysAgo(1));
 
         $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->visitDashboard($teacher);
         $this->assertSame(1, $this->countTeacherRows($teacher));
@@ -102,6 +107,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->attempt($student, $course->assessment, 'failed', 90, $this->daysAgo(1));
 
         $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->actingAs($teacher)->get(route('needs-attention'))->assertOk();
 
@@ -118,6 +124,8 @@ class TeacherAttentionNotificationTest extends TestCase
 
         $first = $this->teacher();
         $second = $this->teacher();
+        $this->classroomFor($first, [$student], [$course]);
+        $this->classroomFor($second, [$student], [$course]);
 
         $this->visitDashboard($first);
 
@@ -139,6 +147,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->attempt($student, $course->assessment, 'failed', 40, $this->daysAgo(1));
 
         $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
 
         $this->visitDashboard($teacher);
 
@@ -178,6 +187,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->attempt($subject, $course->assessment, 'failed', 90, $this->daysAgo(1));
 
         $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$subject], [$course]);
 
         $this->visitDashboard($teacher);
         $this->assertSame(1, $this->countTeacherRows($teacher));

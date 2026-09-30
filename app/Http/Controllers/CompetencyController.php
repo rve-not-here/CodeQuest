@@ -31,6 +31,7 @@ class CompetencyController extends Controller
         return view('competency', [
             'role' => $user->role,
             'competencies' => $this->competencies->overview($user),
+            'skills' => $this->competencies->skills($user),
         ]);
     }
 }

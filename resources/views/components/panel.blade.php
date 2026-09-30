@@ -1,8 +1,8 @@
 @props(['title' => '', 'actions' => null])
 
-<section {{ $attributes->merge(['class' => 'panel p-4']) }}>
+<section {{ $attributes->merge(['class' => 'panel p-4 sm:p-5']) }}>
     @if ($title || $actions)
-        <header class="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-phosphor-dim/60">
+        <header class="mb-4 flex items-center justify-between gap-4 border-b border-phosphor/15 pb-3">
             @if ($title)
                 <h2 class="panel-title">{{ $title }}</h2>
             @endif

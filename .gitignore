@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# PHPStan / Larastan generated cache
+/storage/phpstan/cache/
+/storage/phpstan/resultCache.php
+/storage/phpstan/larastan_migrations_*.cache

@@ -16,6 +16,8 @@ paths:
   - app/Services/NotificationService.php
   - app/Services/AttentionNotificationService.php
   - app/Services/StudentReminderService.php
+  - app/Services/ReportAuthorizationService.php
+  - app/Services/ClassroomAccessService.php
 ---
 
 # Services
@@ -160,3 +162,24 @@ Announcement lifecycle: create always lands draft (status never client-supplied)
 
 ## StudentReminderService: change-driven reminder producer, lazy on GET /dashboard
 US-809: syncFor(User) (student-only no-op otherwise, one DB::transaction) emits DRAFT_REMINDER (3 then 7 untouched days, monotone per mission via data.stage — max 2 rows per draft) and one LEARNING_REMINDER whose snapshot {course, kind} is change-driven: stalled (using AttentionService::STALL_DAYS verbatim) before unlocked-but-unattempted challenge (AssessmentService::latestAttemptFor === null). Reuse DashboardService::currentCourse — never a parallel course derivation (acknowledged double traversal, like US-806). Exclusions: sealed/locked/draft courses, zero-mission courses, completed missions (draft guard), already-attempted challenges. EnsureUserIsActive keeps inactive accounts away before the controller.
+
+## ClassroomAccessService is the single visibility authority; ClassroomService the sole write path
+Classroom / Enrollment Authorization: ClassroomAccessService::scopesFor($user) returns {studentIds, courseIds, byStudent}, where byStudent maps each monitorable student to their teacher-shared course set — course-level scoping (a student with shared classrooms is visible only for exactly the courses shared with this teacher). A teacher's scope = students ∩ courses across their own ACTIVE classrooms only; an admin's = the whole fleet (null collections). Deactivating a classroom drops it from the teacher's scope instantly (pivots/history untouched); reactivation restores it. Consumers take these scopes as OPTIONAL parameters (?Collection $studentIds, ?Collection $courseIds, ?array $studentCourseScopes) — null stays fleet-wide; a scoped student with an empty shared-course set is filtered OUT, never half-shown (StudentService::index uses this exact drop). ClassroomService is the only admin write path for classroom base fields + the teacher/student/course assignment sets; a status change never rewrites pivots; reassignment REPLACES the pivot set; every applied change AND every refusal records an AdminAuditService row; non-teacher ids in teacher_ids are refused at the REQUEST layer (Rule::exists + where role=teacher) before any write. Never rebuild the teacher/student/course overlap outside ClassroomAccessService.
+
+## Report role checks precede retained classroom assignments
+US-1012: changing a teacher's role can leave classroom teaching pivots intact. ReportAuthorizationService must require teacher/admin before delegating non-self student/course access or returning shared course IDs; student-self remains student-only. Unsupported roles return false/empty scope even with retained assignments. Keep this report-specific guard here; classroom membership remains owned by ClassroomAccessService. ReportSecurityTest covers retained assignments and export role boundaries.
+
+## Classroom visibility requires current role and assigned scope
+US-1102: only a current teacher may derive active classroom visibility from teaching pivots; retained assignments after a role change to student/operator confer no academic authority. Current admins retain the established fleet-wide exception. UserPolicy self-view grants academic data only to current students (or admins), not former teachers/operators.
+
+## Academic writes use current server state
+A student may submit evidence, never XP, verdict, completion, or unlock state. Gate mission and Knowledge Check writes on historical passes of earlier active courses; recheck course status at Boss submission. Lock and reload assessment attempts before state transitions, and serialize one-time XP purchases or awards against the user's current ledger state.
+
+## Serialize student academic read-decide-write operations
+For per-student XP spends, one-time rewards, and attempt/completion transitions, lock the authoritative user row before reading mutable state, then perform the decision and all database writes in one transaction. Keep the user-first lock order across related services; retain domain-specific unique constraints as backstops. Verify races with independent disposable MariaDB connections because SQLite does not reproduce row locks.
+
+## Paginate owned collection rows before per-row enrichment
+For list pages with database-filterable membership and ordering, apply the authorized scope and filters in SQL, paginate before hydrating or calculating row summaries, and retain a SQL total count. Keep derived academic filters that require complete rows separate so their semantics do not change. Test bounded query growth after the first page and verify the rendered page order and totals.
+
+## US-1108 batched roster and directory projections
+US-1108 supersedes the earlier accepted roster fan-out risk. StudentService paginates authorized students before enrichment for SQL-filterable rosters and uses scoped batch competency, progression, and TimelineService::latestForUsers data for displayed rows; derived filters still operate before pagination. TimelineService shares its four-source vocabulary for latest beats and delegates section-completion batches to LearningPathService, using the same all-missions-complete rule. Do not restore per-displayed-row service calls or fetch academic evidence outside authorized Student/Course pairs.

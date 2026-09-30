@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\ClassroomAccessService;
 use App\Services\TimelineService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -63,9 +64,18 @@ class ActivityFeedRequest extends FormRequest
      */
     public function rules(): array
     {
+        $access = app(ClassroomAccessService::class);
+        $user = $this->user();
+        $studentRule = $user !== null && $user->role === 'teacher'
+            ? Rule::in($access->studentIdsFor($user)?->all() ?? [])
+            : Rule::exists('the404_users', 'id');
+        $courseRule = $user !== null && $user->role === 'teacher'
+            ? Rule::in($access->courseIdsFor($user)?->all() ?? [])
+            : Rule::exists('the404_courses', 'id');
+
         return [
-            'student' => ['nullable', 'integer', Rule::exists('the404_users', 'id')],
-            'course' => ['nullable', 'integer', Rule::exists('the404_courses', 'id')],
+            'student' => ['nullable', 'integer', $studentRule],
+            'course' => ['nullable', 'integer', $courseRule],
             'type' => ['nullable', Rule::in(TimelineService::FILTERABLE_TYPES)],
             'from' => ['required', 'date', 'before_or_equal:to'],
             'to' => ['required', 'date'],
