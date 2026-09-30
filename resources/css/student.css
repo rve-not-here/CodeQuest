@@ -13,6 +13,7 @@
 @source '../views/competency.blade.php';
 @source '../views/timeline.blade.php';
 @source '../views/xp-ledger.blade.php';
+@source '../views/recommendations.blade.php';
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';
