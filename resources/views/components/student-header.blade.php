@@ -51,7 +51,7 @@
                     <div class="grid grid-cols-1 gap-2 py-2 sm:grid-cols-2">
                         <nav aria-label="Learning record">
                             <p class="eyebrow px-2.5 py-1">Learning record</p>
-                            <a href="{{ route('progress') }}" class="menu-item">Course Progress</a>
+                            <a href="{{ route('progress') }}" class="menu-item {{ $studentActiveRoute === 'progress' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'progress') aria-current="page" @endif>Course Progress</a>
                             <a href="{{ route('competency') }}" class="menu-item">Competency</a>
                             <a href="{{ route('timeline') }}" class="menu-item">Timeline</a>
                             <a href="{{ route('xp-ledger') }}" class="menu-item">XP Ledger</a>
