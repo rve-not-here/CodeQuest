@@ -9,6 +9,7 @@
 @source '../views/assessments/index.blade.php';
 @source '../views/assessments/show.blade.php';
 @source '../views/course-progress.blade.php';
+@source '../views/section-progress.blade.php';
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';

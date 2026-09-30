@@ -52,6 +52,7 @@
                         <nav aria-label="Learning record">
                             <p class="eyebrow px-2.5 py-1">Learning record</p>
                             <a href="{{ route('progress') }}" class="menu-item {{ $studentActiveRoute === 'progress' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'progress') aria-current="page" @endif>Course Progress</a>
+                            <a href="{{ route('section-progress') }}" class="menu-item {{ $studentActiveRoute === 'section-progress' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'section-progress') aria-current="page" @endif>Section Progress</a>
                             <a href="{{ route('competency') }}" class="menu-item">Competency</a>
                             <a href="{{ route('timeline') }}" class="menu-item">Timeline</a>
                             <a href="{{ route('xp-ledger') }}" class="menu-item">XP Ledger</a>
