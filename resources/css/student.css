@@ -6,6 +6,7 @@
 @source '../views/lesson.blade.php';
 @source '../views/knowledge-check.blade.php';
 @source '../views/challenge.blade.php';
+@source '../views/assessments/index.blade.php';
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';
