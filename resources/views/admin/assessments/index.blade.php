@@ -6,7 +6,6 @@
     <x-page-header
         title="Boss Challenge Management"
         subtitle="{{ $course->name }} — the single Boss Challenge for this course. assessment.status is an access gate: locking or drafting seals the challenge but never rewrites recorded attempts. Grading rules are view-only in this story."
-        icon="◈"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>

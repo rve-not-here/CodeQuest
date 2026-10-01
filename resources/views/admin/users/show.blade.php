@@ -6,7 +6,6 @@
     <x-page-header
         title="{{ $user->username }}"
         subtitle="Account record. Role and status are server-assigned and guarded: no self-demotion, no self-deactivation, and the active-admin fleet never drops below two."
-        icon="☷"
     >
         <x-slot:actions>
             <a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>

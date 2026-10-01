@@ -29,7 +29,6 @@
     <x-page-header
         title="Boss Challenges"
         subtitle="Final assessment for each active course"
-        icon="◈"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>

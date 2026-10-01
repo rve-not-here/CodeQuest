@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM 404 // STUDENT TERMINAL — Roulette Editorial</title>
+<style>
+  :root{
+    --void:#060606;
+    --band:#0a0a0a;
+    --band2:#101010;
+    --ink:#f4f4f4;
+    --ink-dim:#c9c9c9;
+    --meta:#bdbdbd;
+    --rule:#2b2b2b;
+    --rule-hard:#f4f4f4;
+    --acc:#33ff00;
+    --amber:#d99a16;
+    --alert:#e06868;
+    --cyan:#7fc9d1;
+  }
+  *{box-sizing:border-box;border-radius:0 !important;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--void);color:var(--ink);
+    font-family:ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+    font-size:16px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;}
+  a:hover{color:var(--acc);}
+  :focus-visible{outline:3px solid var(--acc);outline-offset:3px;}
+  ::selection{background:var(--acc);color:#000;}
+
+  /* ---------- MASTHEAD ---------- */
+  .mast{
+    border-bottom:2px solid var(--rule-hard);
+    background:#000;color:var(--ink);
+    position:sticky;top:0;z-index:50;
+  }
+  .mast-top{
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;
+    padding:12px 24px;border-bottom:1px solid var(--rule);
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .mast-top .brand{font-weight:900;letter-spacing:.18em;}
+  .mast-top .brand b{background:var(--acc);color:#000;padding:1px 8px;margin-right:10px;font-weight:900;}
+  .mast-top .xpbox{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.08em;}
+  .mast-top .xpbox output{font-weight:900;font-size:15px;color:var(--acc);}
+  .tabs{display:flex;flex-wrap:wrap;border-top:1px solid var(--rule);}
+  .tabs button{
+    flex:1 1 140px;background:transparent;color:var(--ink-dim);
+    border:0;border-right:1px solid var(--rule);
+    font:inherit;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    padding:14px 10px;cursor:pointer;
+  }
+  .tabs button:last-child{border-right:0;}
+  .tabs button .n{display:block;font-size:12px;color:var(--meta);letter-spacing:.2em;}
+  .tabs button[aria-selected="true"]{background:var(--ink);color:#000;}
+  .tabs button[aria-selected="true"] .n{color:#333;}
+  .tabs button:hover{background:var(--acc);color:#000;}
+  .tabs button:hover .n{color:#000;}
+
+  /* ---------- BAND SYSTEM ---------- */
+  .band{border-bottom:1px solid var(--rule);width:100%;}
+  .band-inner{padding:40px 24px;max-width:1180px;margin:0 auto;}
+  .band-full .band-inner{max-width:none;padding-left:24px;padding-right:24px;}
+  .sec-tag{display:flex;align-items:baseline;gap:16px;border-bottom:2px solid var(--rule-hard);padding-bottom:12px;margin-bottom:28px;}
+  .sec-tag .num{font-size:14px;font-weight:900;letter-spacing:.2em;background:var(--ink);color:#000;padding:2px 10px;}
+  .sec-tag .lbl{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--meta);font-weight:700;}
+  .sec-tag .rule-note{margin-left:auto;font-size:12px;letter-spacing:.12em;color:var(--meta);text-transform:uppercase;}
+  .kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--meta);font-weight:700;margin:0 0 18px;}
+  .kicker .sq{color:var(--acc);}
+
+  /* ---------- POSTER HERO ---------- */
+  .hero{background:#000;border-bottom:2px solid var(--rule-hard);}
+  .hero-inner{max-width:none;padding:34px 24px 0;display:grid;grid-template-columns:1fr;gap:0;}
+  .hero-giant{
+    margin:0;font-weight:900;text-transform:uppercase;
+    font-size:clamp(3rem,11vw,6rem);
+    line-height:.88;letter-spacing:-0.045em;
+    font-stretch:condensed;
+    max-width:14ch;
+  }
+  .hero-giant .out{color:transparent;-webkit-text-stroke:2px var(--ink);}
+  .hero-giant .fill{background:var(--acc);color:#000;padding:0 .12em;display:inline-block;letter-spacing:-0.05em;}
+  .hero-sub{
+    display:grid;grid-template-columns:1fr;gap:0;
+    border-top:1px solid var(--rule);margin-top:30px;
+  }
+  @media(min-width:900px){.hero-sub{grid-template-columns:1.2fr 1fr 220px;}}
+  .hero-sub>div{padding:20px 24px 26px;border-right:1px solid var(--rule);font-size:14px;}
+  .hero-sub>div:last-child{border-right:0;}
+  .hero-sub h2{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--meta);margin:0 0 10px;}
+  .hero-sub p{margin:0 0 12px;color:var(--ink);}
+  .anchor07{
+    display:flex;flex-direction:column;justify-content:center;gap:6px;background:var(--acc);color:#000;
+    padding:20px !important;text-align:left;
+  }
+  .anchor07 .big{font-size:56px;font-weight:900;line-height:.9;letter-spacing:-0.05em;}
+  .anchor07 .cap{font-size:12px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;}
+  .cta-row{display:flex;flex-wrap:wrap;gap:0;border-top:2px solid var(--rule-hard);}
+  .cta-row a,.cta-row button{
+    flex:1 1 260px;text-align:center;font:inherit;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+    padding:20px 16px;font-size:15px;text-decoration:none;cursor:pointer;border:0;border-right:1px solid var(--rule);
+  }
+  .cta-row a:last-child,.cta-row button:last-child{border-right:0;}
+  .cta-primary{background:var(--acc);color:#000;}
+  .cta-primary:hover{background:#fff;color:#000;}
+  .cta-ghost{background:#000;color:var(--ink);}
+  .cta-ghost:hover{background:var(--ink);color:#000;}
+
+  /* ---------- STATUS STRIP ---------- */
+  .status-grid{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--rule);}
+  @media(min-width:860px){.status-grid{grid-template-columns:1fr 1fr 1fr;}}
+  .status-grid>div{padding:22px;border-bottom:1px solid var(--rule);}
+  @media(min-width:860px){.status-grid>div{border-bottom:0;border-right:1px solid var(--rule);}.status-grid>div:last-child{border-right:0;}}
+  .status-grid h3{margin:0 0 8px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--meta);}
+  .status-grid .v{font-size:20px;font-weight:900;}
+  .status-grid .v small{font-size:13px;color:var(--meta);font-weight:700;}
+  .status-grid p{margin:8px 0 0;font-size:14px;color:var(--ink-dim);}
+  .xp-link{font-size:12px;letter-spacing:.14em;}
+
+  /* ---------- ACTIVITY / LEDGER ---------- */
+  .ledger{border:1px solid var(--rule);margin-top:8px;}
+  .ledger-row{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--rule);font-size:14px;}
+  .ledger-row:last-child{border-bottom:0;}
+  .ledger-row .code{font-size:12px;letter-spacing:.1em;color:var(--meta);text-transform:uppercase;font-weight:700;}
+  .ledger-row .amt{font-weight:900;}
+  .pos{color:var(--acc);} .neg{color:var(--ink);}
+  .neg::before{content:"−";}
+
+  /* ---------- INDEX LIST (PATH) ---------- */
+  .path-head{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:6px;}
+  @media(min-width:860px){.path-head{grid-template-columns:1fr 320px;align-items:end;}}
+  .path-title{margin:0;font-weight:900;text-transform:uppercase;font-size:clamp(3rem,9vw,5.2rem);line-height:.9;letter-spacing:-0.04em;}
+  .meter{border:1px solid var(--rule);padding:16px;font-size:14px;}
+  .meter .bar{height:14px;background:#1c1c1c;border:1px solid var(--rule);margin:10px 0 6px;position:relative;}
+  .meter .bar i{position:absolute;inset:0;width:68%;background:var(--acc);display:block;}
+  .index{list-style:none;margin:26px 0 0;padding:0;border-top:2px solid var(--rule-hard);}
+  .index li{display:grid;grid-template-columns:110px 34px 1fr auto;gap:14px;align-items:center;padding:22px 8px;border-bottom:1px solid var(--rule);}
+  .index li .idx{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;letter-spacing:-0.05em;line-height:1;}
+  .index li .mk{font-size:20px;text-align:center;}
+  .index li h3{margin:0;font-size:16px;text-transform:uppercase;letter-spacing:.06em;}
+  .index li p{margin:4px 0 0;font-size:14px;color:var(--ink-dim);}
+  .index li .st{font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--rule);padding:6px 10px;white-space:nowrap;}
+  .is-done .idx{color:var(--ink);} .is-done .mk{color:var(--acc);}
+  .is-current{background:#0d0d0d;box-shadow:inset 6px 0 0 var(--acc);}
+  .is-current .idx{color:var(--ink);}
+  .is-current .mk{color:var(--amber);}
+  .is-locked{opacity:.85;} .is-locked .idx{color:#6f6f6f;} .is-locked .mk{color:#6f6f6f;}
+  .pulse{display:inline-block;width:10px;height:10px;background:var(--amber);margin-left:8px;vertical-align:middle;animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .boss-band{border:2px solid var(--amber);margin-top:26px;padding:26px;display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:center;background:#0c0a04;}
+  .boss-band .sigil{width:56px;height:56px;border:2px solid var(--amber);color:var(--amber);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;}
+  .boss-band h3{margin:0;font-size:18px;letter-spacing:.08em;text-transform:uppercase;}
+  .boss-band p{margin:6px 0 0;font-size:14px;color:var(--ink-dim);}
+  .boss-band .lock{font-size:12px;font-weight:900;letter-spacing:.2em;color:var(--amber);border:1px solid var(--amber);padding:10px 14px;text-transform:uppercase;white-space:nowrap;}
+
+  /* ---------- CHALLENGE ---------- */
+  .ctxbar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;background:var(--ink);color:#000;padding:14px 24px;font-size:13px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;}
+  .ctxbar .anchor{display:inline-block;background:#000;color:var(--acc);padding:2px 10px;}
+  .badge{display:inline-block;font-size:12px;font-weight:900;letter-spacing:.16em;padding:4px 10px;border:1px solid currentColor;text-transform:uppercase;}
+  .badge-med{color:#8a6408;background:#fff;border-color:#8a6408;}
+  .work{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--rule);}
+  @media(min-width:1020px){.work{grid-template-columns:1fr 1.2fr 1fr;}}
+  .pane{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:0;min-width:0;background:var(--band);}
+  .pane:last-child{border-right:0;}
+  .pane-head{padding:14px 18px;border-bottom:1px solid var(--rule);font-size:12px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:var(--meta);display:flex;justify-content:space-between;gap:10px;}
+  .pane-body{padding:18px;font-size:14px;}
+  .req{list-style:none;margin:14px 0;padding:0;border-top:1px solid var(--rule);}
+  .req li{padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px;}
+  .req li b{color:var(--acc);margin-right:8px;}
+  .note{border-left:4px solid var(--acc);padding:10px 12px;background:#0e0e0e;font-size:14px;color:var(--ink-dim);margin-top:14px;}
+  .editor{background:#000;border:1px solid var(--rule);display:grid;grid-template-columns:44px 1fr;}
+  .ln{padding:12px 0;text-align:right;color:#6d6d6d;font-size:13px;line-height:1.7;padding-right:10px;border-right:1px solid var(--rule);user-select:none;}
+  .editor textarea{background:#000;color:#e8e8e8;border:0;font:inherit;font-size:14px;line-height:1.7;padding:12px;min-height:300px;width:100%;resize:vertical;}
+  .draft{font-size:12px;letter-spacing:.14em;color:var(--meta);text-transform:uppercase;margin-top:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .preview-white{background:#fff;color:#111;padding:18px;min-height:300px;}
+  .preview-white .card{border:2px solid #111;max-width:320px;}
+  .preview-white .card .img{height:110px;background:repeating-linear-gradient(45deg,#ddd 0 10px,#fff 10px 20px);border-bottom:2px solid #111;display:flex;align-items:center;justify-content:center;font-size:12px;letter-spacing:.2em;color:#555;}
+  .preview-white .card .txt{padding:14px;}
+  .preview-white .card .txt h4{margin:0 0 6px;font-size:16px;}
+  .preview-white .card .txt p{margin:0 0 10px;font-size:14px;color:#333;}
+  .preview-white .card .txt span{display:inline-block;background:#111;color:#fff;font-size:12px;padding:6px 10px;letter-spacing:.1em;}
+  .toolbar{display:grid;grid-template-columns:1fr;gap:0;border-top:2px solid var(--rule-hard);border-bottom:1px solid var(--rule);}
+  @media(min-width:860px){.toolbar{grid-template-columns:1fr 1fr 1fr 1fr;}}
+  .toolbar button{background:#000;color:var(--ink);border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);font:inherit;font-size:13px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;padding:18px 12px;cursor:pointer;}
+  .toolbar button:last-child{border-right:0;}
+  .toolbar button:hover{background:var(--acc);color:#000;}
+  .toolbar button.primary{background:var(--acc);color:#000;}
+  .toolbar button.primary:hover{background:#fff;}
+  .verdict{padding:18px 24px;font-size:14px;border-bottom:1px solid var(--rule);display:none;}
+  .verdict.show{display:block;}
+  .verdict.fail{background:#160b0b;border-left:8px solid var(--alert);}
+  .verdict.pass{background:#0b160b;border-left:8px solid var(--acc);}
+  .drawer{padding:22px 24px;font-size:14px;background:var(--band2);}
+  .drawer h3{margin:0 0 10px;font-size:13px;letter-spacing:.24em;text-transform:uppercase;}
+  .drawer ul{margin:8px 0;padding-left:20px;}
+
+  /* ---------- CHECK ---------- */
+  .check-grid{display:grid;grid-template-columns:1fr;gap:24px;}
+  @media(min-width:900px){.check-grid{grid-template-columns:1.1fr .9fr;}}
+  .q{border:1px solid var(--rule);padding:20px;margin-bottom:16px;background:var(--band);}
+  .q h4{margin:0 0 12px;font-size:15px;}
+  .opt{display:block;width:100%;text-align:left;background:#000;color:var(--ink);border:1px solid var(--rule);font:inherit;font-size:14px;padding:12px;margin-bottom:8px;cursor:pointer;}
+  .opt:hover{border-color:var(--acc);}
+  .opt[aria-pressed="true"]{background:var(--ink);color:#000;border-color:var(--ink);}
+  .openmodal{background:var(--acc);color:#000;border:0;font:inherit;font-weight:900;letter-spacing:.14em;text-transform:uppercase;padding:18px 22px;font-size:15px;cursor:pointer;width:100%;}
+  .openmodal:hover{background:#fff;}
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:100;}
+  .modal-back.open{display:flex;}
+  .modal{background:#0b0b0b;border:2px solid var(--ink);max-width:640px;width:100%;max-height:88vh;overflow:auto;}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:2px solid var(--rule-hard);}
+  .modal-head h3{margin:0;font-size:14px;letter-spacing:.22em;text-transform:uppercase;}
+  .modal-head button{background:transparent;color:var(--ink);border:1px solid var(--rule);font:inherit;font-size:13px;font-weight:900;padding:8px 12px;cursor:pointer;}
+  .modal-body{padding:20px;}
+  .score{display:none;border:2px solid var(--acc);padding:16px;margin-top:14px;font-size:14px;}
+  .score.show{display:block;}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:2px solid var(--rule-hard);background:#000;}
+  .foot-grid{display:grid;grid-template-columns:1fr;gap:0;}
+  @media(min-width:860px){.foot-grid{grid-template-columns:1fr 1fr 1fr;}}
+  .foot-grid>div{padding:24px;border-bottom:1px solid var(--rule);}
+  @media(min-width:860px){.foot-grid>div{border-bottom:0;border-right:1px solid var(--rule);}.foot-grid>div:last-child{border-right:0;}}
+  .foot-grid h3{margin:0 0 10px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--meta);}
+  .foot-grid ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink-dim);}
+  .foot-base{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between;padding:16px 24px;border-top:1px solid var(--rule);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta);}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+    .pulse{display:inline-block;animation:none !important;opacity:1;}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-top">
+    <span class="brand"><b>404</b>SYSTEM 404 // STUDENT TERMINAL</span>
+    <span class="xpbox">XP BALANCE <output id="xpTop" data-xp>1,240</output> <a class="xp-link" href="#ledger">XP-LEDGER</a></span>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Prototype screens">
+    <button role="tab" data-tab="dashboard" aria-selected="true" aria-controls="screen-dashboard" id="tab-dashboard"><span class="n">01</span>DASHBOARD</button>
+    <button role="tab" data-tab="path" aria-selected="false" aria-controls="screen-path" id="tab-path"><span class="n">02</span>PATH</button>
+    <button role="tab" data-tab="challenge" aria-selected="false" aria-controls="screen-challenge" id="tab-challenge"><span class="n">03</span>CHALLENGE</button>
+    <button role="tab" data-tab="check" aria-selected="false" aria-controls="screen-check" id="tab-check"><span class="n">04</span>CHECK</button>
+  </nav>
+</header>
+
+<main>
+<!-- ============ 01 DASHBOARD ============ -->
+<section class="screen active" id="screen-dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
+  <div class="hero band-full">
+    <div class="hero-inner">
+      <p class="kicker"><span class="sq">■</span> SYSTEM 404 // STUDENT TERMINAL &nbsp;—&nbsp; 01 / COMMAND</p>
+      <h1 class="hero-giant">FIX THE<br><span class="out">BROKEN</span><br><span class="fill">CARD — 07</span></h1>
+      <div class="hero-sub">
+        <div>
+          <h2>Continue</h2>
+          <p><strong>Continue: HTML Fundamentals — Challenge 07: Fix the broken card.</strong></p>
+          <p>Server validates. Preview never counts.</p>
+        </div>
+        <div>
+          <h2>Signal</h2>
+          <p>Course HTML Fundamentals · Section 03 “Styling with CSS”. Two missions stand between you and the Boss Challenge gate.</p>
+          <p style="color:var(--meta);font-size:13px;">■ NEXT UP — RESUME CHALLENGE 07 · THEN 08 · THEN BOSS</p>
+        </div>
+        <div class="anchor07" aria-label="Visual anchor for first viewport">
+          <span class="big">07</span>
+          <span class="cap">■ Current mission anchor</span>
+          <span class="cap" style="font-weight:700;">+120 XP on pass</span>
+        </div>
+      </div>
+      <div class="cta-row">
+        <a class="cta-primary" href="#screen-challenge" data-goto="challenge">RESUME CHALLENGE 07 →</a>
+        <a class="cta-ghost" href="#screen-path" data-goto="path">VIEW LEARNING PATH</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="band"><div class="band-inner">
+    <div class="sec-tag"><span class="num">01-A</span><span class="lbl">Status strip</span><span class="rule-note">server-authoritative</span></div>
+    <div class="status-grid">
+      <div>
+        <h3>XP Balance</h3>
+        <div class="v"><output data-xp>1,240</output> <small>XP</small></div>
+        <p><a class="xp-link" href="#ledger">VIEW XP-LEDGER →</a> Every gain and cost is recorded. Floor 0 — balance never goes negative.</p>
+      </div>
+      <div>
+        <h3>Competency — HTML</h3>
+        <div class="v">DEVELOPING</div>
+        <p>Demonstrated Competency is permanent once earned. Knowledge Checks never complete anything — only Challenges move this.</p>
+      </div>
+      <div>
+        <h3>Boss Gate</h3>
+        <div class="v">2 MISSIONS <small>TO BOSS CHALLENGE</small></div>
+        <p>Finish required missions to unlock the summative Boss Challenge for this course.</p>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="band"><div class="band-inner" id="ledger">
+    <div class="sec-tag"><span class="num">01-B</span><span class="lbl">Activity — auditable ledger</span><span class="rule-note">latest first</span></div>
+    <div class="ledger" aria-label="Recent XP transactions">
+      <div class="ledger-row"><span class="code">mission_completed</span><span>Challenge 06 validated by server</span><span class="amt pos">+120 XP</span></div>
+      <div class="ledger-row"><span class="code">wrong_submission</span><span>Challenge 07 attempt failed validation</span><span class="amt neg">10 XP</span></div>
+      <div class="ledger-row"><span class="code">hint_used</span><span>Assistance drawer hint, Challenge 07</span><span class="amt neg">5 XP</span></div>
+    </div>
+    <p style="font-size:13px;color:var(--meta);">Demo: press HINT (−5) or SUBMIT in the Challenge band to move the live XP balance above. Wrong submit costs 10. Reveal costs 30.</p>
+  </div></div>
+</section>
+
+<!-- ============ 02 PATH ============ -->
+<section class="screen" id="screen-path" role="tabpanel" aria-labelledby="tab-path">
+  <div class="band band-full"><div class="band-inner">
+    <p class="kicker"><span class="sq">■</span> 02 / LEARNING PATH — INDEX, NOT CARDS</p>
+    <div class="path-head">
+      <h2 class="path-title">HTML<br>FUNDA-<br>MENTALS</h2>
+      <div class="meter">
+        <strong style="font-size:13px;letter-spacing:.2em;">COURSE · 68%</strong>
+        <div class="bar" role="img" aria-label="Course progress 68 percent"><i></i></div>
+        <div style="font-size:13px;color:var(--meta);">SECTION 03 — “STYLING WITH CSS”</div>
+        <div style="font-size:14px;margin-top:8px;">Rail reads top to bottom: completed → current → available → locked → Boss.</div>
+      </div>
+    </div>
+    <ol class="index" aria-label="Learning path nodes 05 to 09">
+      <li class="is-done"><span class="idx">05</span><span class="mk" aria-hidden="true">✓</span><div><h3>Selectors &amp; Specificity — Completed</h3><p>Challenge validated by server. +120 XP recorded.</p></div><span class="st">■ DONE</span></li>
+      <li class="is-done"><span class="idx">06</span><span class="mk" aria-hidden="true">✓</span><div><h3>The Box Model — Completed</h3><p>Challenge validated by server. +120 XP recorded.</p></div><span class="st">■ DONE</span></li>
+      <li class="is-current"><span class="idx">07</span><span class="mk" aria-hidden="true">●<span class="pulse" aria-hidden="true"></span></span><div><h3>Fix the Broken Card — Current <span style="font-size:12px;color:var(--amber);font-weight:900;">[YOU ARE HERE]</span></h3><p>Challenge 07 · MEDIUM · +120 XP. Server validates. Preview never counts.</p></div><span class="st">● CURRENT</span></li>
+      <li><span class="idx">08</span><span class="mk" aria-hidden="true" style="color:var(--cyan);">○</span><div><h3>Flexbox Drill — Available</h3><p>Unlocked. Challenge +120 XP when validated.</p></div><span class="st">○ OPEN</span></li>
+      <li class="is-locked"><span class="idx">09</span><span class="mk" aria-hidden="true">✕</span><div><h3>Responsive Card — Locked</h3><p>Finish 07 + 08 to unlock. Dashed state, no entry.</p></div><span class="st">✕ LOCKED</span></li>
+    </ol>
+    <div class="boss-band">
+      <div class="sigil" aria-hidden="true">◆</div>
+      <div><h3>Boss Challenge — HTML Fundamentals</h3><p>Summative gate for the course. LOCKED — finish required missions (07 + 08) to enter. Server validates all Boss submissions.</p></div>
+      <span class="lock">◆ LOCKED</span>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ 03 CHALLENGE ============ -->
+<section class="screen" id="screen-challenge" role="tabpanel" aria-labelledby="tab-challenge">
+  <div class="ctxbar"><span class="anchor">■ CONTEXT 03</span><span>CHALLENGE 07: FIX THE BROKEN CARD</span><span class="badge badge-med">MEDIUM</span><span>+120 XP</span><span style="margin-left:auto;">SERVER VALIDATES · PREVIEW NEVER COUNTS</span></div>
+
+  <div class="work">
+    <div class="pane">
+      <div class="pane-head"><span>A / BRIEF</span><span>+120 XP</span></div>
+      <div class="pane-body">
+        <h3 style="margin:0 0 8px;font-size:18px;text-transform:uppercase;">Fix the broken card</h3>
+        <p style="margin:0 0 10px;color:var(--ink-dim);">Broken-code note: the card below renders unstyled — image block collapsed, button unclickable, spacing broken. Repair HTML + CSS so all three requirements validate on the server.</p>
+        <ol class="req">
+          <li><b>R1 ■</b> Card shows image block, title, copy, and action in order.</li>
+          <li><b>R2 ■</b> Stylesheet links correctly and card border + spacing render.</li>
+          <li><b>R3 ■</b> Action element is a real link/button, keyboard reachable.</li>
+        </ol>
+        <div class="note">Preview never counts. Only <strong>SUBMIT FOR VALIDATION</strong> talks to the server. Wrong submit −10 XP. solution_code and validate_rule are never shown.</div>
+      </div>
+    </div>
+    <div class="pane">
+      <div class="pane-head"><span>B / EDITOR</span><span>HTML + CSS</span></div>
+      <div class="pane-body">
+        <div class="editor">
+          <div class="ln" aria-hidden="true">01<br>02<br>03<br>04<br>05<br>06<br>07<br>08<br>09<br>10<br>11<br>12</div>
+          <label class="visually-hidden" for="code">Challenge code editor</label>
+          <textarea id="code" spellcheck="false">&lt;!-- CHALLENGE 07 : FIX ME --&gt;
+&lt;div class="card-broken"&gt;
+  &lt;div class="img"&gt;[ image ]&lt;/div&gt;
+  &lt;h2&gt;Broken Card&lt;/h2&gt;
+  &lt;p&gt;Spacing collapsed. Fix me.&lt;/p&gt;
+  &lt;!-- R3: make this a real link --&gt;
+  &lt;span class="btn"&gt;REPAIR&lt;/span&gt;
+&lt;/div&gt;
+&lt;!-- stylesheet href is wrong --&gt;
+&lt;link rel="stylesheet" href="missing.css"&gt;</textarea>
+        </div>
+        <div class="draft"><span>■ DRAFT SAVED 12:04</span><span>LOCAL ONLY — NOT SUBMITTED</span></div>
+      </div>
+    </div>
+    <div class="pane">
+      <div class="pane-head"><span>C / PREVIEW</span><span>SANDBOX</span></div>
+      <div class="pane-body">
+        <div class="preview-white" id="previewBox" aria-label="Sandboxed card preview">
+          <div class="card">
+            <div class="img">IMAGE 640×360</div>
+            <div class="txt"><h4>Broken Card</h4><p>Spacing collapsed. Borders missing. This render proves nothing.</p><span>REPAIR →</span></div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--meta);margin:10px 0 0;" id="previewNote">■ SANDBOX RENDER — PREVIEW NEVER COUNTS. Last run: not yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar" role="toolbar" aria-label="Challenge actions">
+    <button type="button" id="btnPreview">RUN PREVIEW</button>
+    <button type="button" class="primary" id="btnSubmit">SUBMIT FOR VALIDATION</button>
+    <button type="button" id="btnHint">HINT −5 XP</button>
+    <button type="button" id="btnReveal">REVEAL −30 XP</button>
+  </div>
+  <div class="verdict" id="verdict" role="status" aria-live="polite"></div>
+
+  <div class="drawer band">
+    <h3>■ Assistance drawer — costs stated upfront</h3>
+    <ul>
+      <li>Hints cost <strong>−5 / −10 / −15 XP</strong> by depth. Reveal costs <strong>−30 XP</strong>. XP floor is 0.</li>
+      <li>Wrong submit costs <strong>−10 XP</strong> and writes a <em>wrong_submission</em> row to the ledger.</li>
+      <li>Demo script: first SUBMIT <strong>fails</strong> (−10 XP), second SUBMIT <strong>passes</strong> (+120 XP).</li>
+    </ul>
+    <p id="hintText" style="display:none;border-left:4px solid var(--acc);padding:10px 12px;background:#0e0e0e;margin:12px 0 0;"></p>
+  </div>
+</section>
+
+<!-- ============ 04 CHECK ============ -->
+<section class="screen" id="screen-check" role="tabpanel" aria-labelledby="tab-check">
+  <div class="band"><div class="band-inner">
+    <p class="kicker"><span class="sq">■</span> 04 / KNOWLEDGE CHECK — FORMATIVE, NEVER COMPLETES ANYTHING</p>
+    <h2 class="path-title" style="font-size:clamp(2.6rem,7vw,4.4rem);">CHECK<br>BEFORE<br>YOU SHIP</h2>
+    <p style="max-width:62ch;">Two formative questions on Section 03. A Knowledge Check practices recall — it never completes a mission, never pays XP, never unlocks the Boss. The Challenge server verdict is the only thing that counts.</p>
+    <div class="check-grid">
+      <div>
+        <div class="q" data-q="q1">
+          <h4>Q1 — Which link makes the card stylesheet apply?</h4>
+          <button class="opt" type="button" aria-pressed="false" data-correct="false">A ○ &lt;link href="missing.css"&gt; left as-is</button>
+          <button class="opt" type="button" aria-pressed="false" data-correct="true">B ○ &lt;link rel="stylesheet" href="card.css"&gt; with rel set</button>
+          <button class="opt" type="button" aria-pressed="false" data-correct="false">C ○ An @import inside the card &lt;div&gt;</button>
+        </div>
+        <div class="q" data-q="q2">
+          <h4>Q2 — Why must the card action be a real link or button?</h4>
+          <button class="opt" type="button" aria-pressed="false" data-correct="false">A ○ Spans render faster than links</button>
+          <button class="opt" type="button" aria-pressed="false" data-correct="true">B ○ Keyboard users can reach and activate it</button>
+          <button class="opt" type="button" aria-pressed="false" data-correct="false">C ○ Preview pane requires a span hook</button>
+        </div>
+      </div>
+      <div>
+        <button class="openmodal" type="button" id="btnOpenModal">OPEN CHECK MODAL ■</button>
+        <p style="font-size:13px;color:var(--meta);">Modal holds the same 2 questions with a submit bar and score block. Esc closes. Focus returns here.</p>
+        <div class="score" id="inlineScore" role="status"></div>
+        <button class="openmodal" type="button" id="btnGradeInline" style="background:var(--ink);color:#000;margin-top:12px;">GRADE INLINE →</button>
+      </div>
+    </div>
+  </div></div>
+</section>
+</main>
+
+<!-- MODAL -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head"><h3 id="modalTitle">■ KNOWLEDGE CHECK — 2 QUESTIONS</h3><button type="button" id="btnCloseModal">CLOSE ✕</button></div>
+    <div class="modal-body">
+      <div class="q" data-q="m1">
+        <h4>Q1 — Which link makes the card stylesheet apply?</h4>
+        <button class="opt" type="button" aria-pressed="false" data-correct="false">A ○ &lt;link href="missing.css"&gt; left as-is</button>
+        <button class="opt" type="button" aria-pressed="false" data-correct="true">B ○ &lt;link rel="stylesheet" href="card.css"&gt; with rel set</button>
+        <button class="opt" type="button" aria-pressed="false" data-correct="false">C ○ An @import inside the card &lt;div&gt;</button>
+      </div>
+      <div class="q" data-q="m2">
+        <h4>Q2 — Why must the card action be a real link or button?</h4>
+        <button class="opt" type="button" aria-pressed="false" data-correct="false">A ○ Spans render faster than links</button>
+        <button class="opt" type="button" aria-pressed="false" data-correct="true">B ○ Keyboard users can reach and activate it</button>
+        <button class="opt" type="button" aria-pressed="false" data-correct="false">C ○ Preview pane requires a span hook</button>
+      </div>
+      <button class="openmodal" type="button" id="btnGradeModal">SUBMIT CHECK →</button>
+      <div class="score" id="modalScore" role="status" aria-live="polite"></div>
+      <p style="font-size:12px;color:var(--meta);">Formative only — no XP, no unlocks. Preview never counts; server verdict on the Challenge is the only proof.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div><h3>■ Timeline</h3><ul><li>06 validated — Box Model (+120 XP)</li><li>07 attempted — wrong_submission (−10 XP)</li><li>07 hint used (−5 XP) — next: resubmit</li></ul></div>
+    <div><h3>■ Recommendations</h3><ul><li>Finish Challenge 07, then Flexbox Drill 08</li><li>Re-read Section 03 linking + semantics</li><li>Attempt Boss only after 07 + 08 validate</li></ul></div>
+    <div><h3>■ Achievements</h3><ul><li><a href="#">First Validation — earned</a></li><li><a href="#">Clean Resubmit — locked</a></li><li><a href="#">Boss Slayer: HTML — locked</a></li></ul></div>
+  </div>
+  <div class="foot-base"><span>SYSTEM 404 // ROULETTE EDITORIAL PROTOTYPE</span><span>FORM: POSTER INDEX OF THE PROGRESSION RAIL</span><span>FILE:// READY · NO EXTERNAL ASSETS</span></div>
+</footer>
+
+<script>
+(function(){
+  var xp = 1240;
+  function fmt(n){ return n.toLocaleString('en-US'); }
+  function render(){ document.querySelectorAll('[data-xp]').forEach(function(el){ el.textContent = fmt(xp); }); }
+  render();
+
+  /* tabs = mini state machines */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-tab]'));
+  var screens = { dashboard: document.getElementById('screen-dashboard'), path: document.getElementById('screen-path'), challenge: document.getElementById('screen-challenge'), check: document.getElementById('screen-check') };
+  function show(name, focus){
+    tabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-tab')===name ? 'true':'false'); });
+    Object.keys(screens).forEach(function(k){ screens[k].classList.toggle('active', k===name); });
+    if(focus){ var s = screens[name]; s.setAttribute('tabindex','-1'); s.focus({preventScroll:true}); window.scrollTo(0,0); }
+  }
+  tabs.forEach(function(t){ t.addEventListener('click', function(){ show(t.getAttribute('data-tab'), false); }); });
+  document.querySelectorAll('[data-goto]').forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); show(a.getAttribute('data-goto'), true); }); });
+
+  /* challenge machine */
+  var submits = 0, verdict = document.getElementById('verdict');
+  var hintText = document.getElementById('hintText');
+  document.getElementById('btnPreview').addEventListener('click', function(){
+    var n = document.getElementById('previewNote');
+    var t = new Date(); var hh = String(t.getHours()).padStart(2,'0'), mm = String(t.getMinutes()).padStart(2,'0');
+    n.textContent = '■ SANDBOX RENDER — PREVIEW NEVER COUNTS. Last run: ' + hh + ':' + mm + '. Only SUBMIT validates.';
+  });
+  document.getElementById('btnHint').addEventListener('click', function(){
+    xp = Math.max(0, xp - 5); render();
+    hintText.style.display = 'block';
+    hintText.innerHTML = '<strong>HINT (−5 XP applied, balance ' + fmt(xp) + '):</strong> check the &lt;link&gt; tag — a stylesheet needs rel="stylesheet" and a live href; and R3 wants a real &lt;a&gt; or &lt;button&gt;, not a span.';
+  });
+  document.getElementById('btnReveal').addEventListener('click', function(){
+    xp = Math.max(0, xp - 30); render();
+    hintText.style.display = 'block';
+    hintText.innerHTML = '<strong>REVEAL (−30 XP applied, balance ' + fmt(xp) + '):</strong> demo reveal — link card.css correctly, restore .card border + padding, swap span.btn for &lt;a href="#"&gt;. Server still must validate.';
+  });
+  document.getElementById('btnSubmit').addEventListener('click', function(){
+    verdict.classList.add('show');
+    if(submits === 0){
+      xp = Math.max(0, xp - 10); render(); submits++;
+      verdict.className = 'verdict show fail';
+      verdict.innerHTML = '<strong>✕ VALIDATION FAILED — R2 stylesheet + R3 action.</strong> −10 XP (wrong_submission). Balance ' + fmt(xp) + '. Fix and resubmit — demo passes on next click.';
+    } else {
+      xp = xp + 120; render(); submits++;
+      verdict.className = 'verdict show pass';
+      verdict.innerHTML = '<strong>✓ VALIDATED BY SERVER — +120 XP.</strong> Balance ' + fmt(xp) + '. Challenge 07 complete; 08 unlocks; 1 mission to Boss Challenge.';
+    }
+  });
+
+  /* option select (single per question) */
+  document.querySelectorAll('.q').forEach(function(q){
+    q.querySelectorAll('.opt').forEach(function(b){
+      b.addEventListener('click', function(){
+        q.querySelectorAll('.opt').forEach(function(o){ o.setAttribute('aria-pressed','false'); });
+        b.setAttribute('aria-pressed','true');
+      });
+    });
+  });
+  function grade(scope){
+    var qs = scope.querySelectorAll('.q'), score = 0;
+    qs.forEach(function(q){
+      var sel = q.querySelector('.opt[aria-pressed="true"]');
+      if(sel && sel.getAttribute('data-correct')==='true'){ score++; }
+    });
+    return {score: score, total: qs.length};
+  }
+  document.getElementById('btnGradeInline').addEventListener('click', function(){
+    var r = grade(document.getElementById('screen-check'));
+    var el = document.getElementById('inlineScore');
+    el.classList.add('show');
+    el.innerHTML = '<strong>SCORE ' + r.score + ' / ' + r.total + '.</strong> ' + (r.score===2 ? '✓ Formative pass — now prove it in Challenge 07.' : '○ Review Section 03, then retry. No XP lost — checks never complete anything.');
+  });
+
+  /* modal open/close */
+  var back = document.getElementById('modalBack'), lastFocus = null;
+  function openModal(){ lastFocus = document.activeElement; back.classList.add('open'); document.getElementById('btnCloseModal').focus(); document.body.style.overflow='hidden'; }
+  function closeModal(){ back.classList.remove('open'); document.body.style.overflow=''; if(lastFocus){ lastFocus.focus(); } }
+  document.getElementById('btnOpenModal').addEventListener('click', openModal);
+  document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+  back.addEventListener('click', function(e){ if(e.target===back){ closeModal(); } });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && back.classList.contains('open')){ closeModal(); } });
+  document.getElementById('btnGradeModal').addEventListener('click', function(){
+    var r = grade(back);
+    var el = document.getElementById('modalScore');
+    el.classList.add('show');
+    el.innerHTML = '<strong>SCORE ' + r.score + ' / ' + r.total + '.</strong> ' + (r.score===2 ? '✓ Formative pass — the Boss gate still needs Challenge 07 + 08.' : '○ One or more off — retry. Knowledge Check never unlocks anything.');
+  });
+})();
+</script>
+</body>
+</html>

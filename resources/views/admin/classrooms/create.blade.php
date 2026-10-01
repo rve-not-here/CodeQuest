@@ -6,7 +6,6 @@
     <x-page-header
         title="New Classroom"
         subtitle="Create the classroom row first; teachers, enrolled students, and assigned courses are added afterwards as separate, explicit membership operations."
-        icon="▣"
     >
         <x-slot:actions>
             <a href="{{ route('admin.classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a>

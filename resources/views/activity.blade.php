@@ -6,7 +6,6 @@
     <x-page-header
         title="Learning Activity"
         subtitle="Meaningful learning events across the fleet. Server-side filter, same event vocabulary as the student timeline."
-        icon="◷"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

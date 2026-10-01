@@ -6,7 +6,6 @@
     <x-page-header
         title="Section Progress"
         subtitle="Directive sections. Mission completion within each section."
-        icon="▦"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>

@@ -41,14 +41,14 @@
                 <header class="learning-path-course-header">
                     <div class="min-w-0">
                         <p class="terminal-kicker">
-                            COURSE {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}
+                            Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}
                             // {{ $courseLocked ? 'SEALED' : ($isCurrentCourse ? 'CURRENT SIGNAL' : 'AVAILABLE') }}
                         </p>
-                        <h2 id="course-{{ $course->id }}-title" class="mt-2 text-xl font-bold uppercase text-ink md:text-2xl">
+                        <h2 id="course-{{ $course->id }}-title">
                             {{ $course->name }}
                         </h2>
                         @if ($course->description)
-                            <p class="mt-2 max-w-3xl text-sm leading-relaxed text-static">{{ $course->description }}</p>
+                            <p>{{ $course->description }}</p>
                         @endif
                     </div>
                     <div class="learning-path-course-progress">
@@ -111,6 +111,7 @@
                                                     href="{{ route('mission.show', $mission) }}"
                                                     class="path-node-card"
                                                     aria-label="{{ $mission->title }}, {{ strtolower($state) }}"
+                                                    @if ($state === 'CURRENT') aria-current="true" @endif
                                                 >
                                                     <div class="path-node-copy">
                                                         <span class="path-state">{{ $state }}</span>

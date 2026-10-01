@@ -6,7 +6,6 @@
     <x-page-header
         title="Mission Management"
         subtitle="{{ $course->name }} — {{ $missions->count() }} {{ Str::plural('mission', $missions->count()) }} in order_num order. Missions carry no status of their own; course.status remains the access gate. Solution code and validation rules are view-only in this story."
-        icon="⚑"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>

@@ -6,7 +6,6 @@
     <x-page-header
         title="Learning Timeline"
         subtitle="Chronological record of learning activity. Login and logout are not logged."
-        icon="≡"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>

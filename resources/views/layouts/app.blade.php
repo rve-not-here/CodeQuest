@@ -54,11 +54,27 @@
     };
 
     $activeRoute = request()->route()?->getName();
-    $topItems = array_values(array_filter(
-        $items,
-        fn ($item) => ! isset($item['heading'])
-            && ($role !== 'student' || in_array($item['route'] ?? null, ['dashboard', 'learning-path', 'notifications'], true)),
-    ));
+    $primaryRoutes = match ($role) {
+        'student' => ['dashboard', 'learning-path', 'notifications'],
+        'admin' => ['admin.dashboard', 'admin.users', 'admin.courses'],
+        default => ['dashboard', 'students', 'classrooms'],
+    };
+    $topItems = array_values(array_filter($items, fn ($item) => in_array($item['route'] ?? null, $primaryRoutes, true)));
+    $accountGroups = [];
+    $pendingHeading = null;
+    foreach ($items as $item) {
+        if (isset($item['heading'])) {
+            $pendingHeading = $item;
+        } elseif (! in_array($item['route'] ?? null, $primaryRoutes, true)) {
+            if ($pendingHeading !== null) {
+                $accountGroups[] = $pendingHeading;
+                $pendingHeading = null;
+            }
+            $accountGroups[] = $item;
+        }
+    }
+    $accountHref = fn ($item) => ! empty($item['route']) ? route($item['route']) : ($item['url'] ?? '#');
+    $accountActive = fn ($item) => $activeRoute === ($item['route'] ?? null);
     $standalone = $standalone ?? false;
 @endphp
 
@@ -77,22 +93,6 @@
         @unless ($standalone)
         <header class="cq-topnav sticky top-0 z-40" data-role="{{ $role }}" data-drawer-content>
             <div class="cq-topnav-inner mx-auto flex max-w-[1536px] items-center gap-4 px-4 md:px-6">
-                @if ($role !== 'student' && ! ($workspace ?? false))
-                <button
-                    id="cq-menu-trigger"
-                    type="button"
-                    class="cq-icon-button cq-menu-trigger -ml-1"
-                    data-open
-                    aria-label="Open navigation menu"
-                    aria-controls="cq-sidebar"
-                    aria-expanded="false"
-                >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                        <path d="M3 6h18M3 12h18M3 18h18" />
-                    </svg>
-                </button>
-                @endif
-
                 <a href="{{ route('dashboard') }}" class="cq-brand shrink-0" aria-label="CodeQuest home">
                     <span class="cq-brand-mark" aria-hidden="true">404</span>
                     <span>
@@ -133,41 +133,41 @@
                     </a>
                     @endif
                     @auth
-                        @if ($role === 'student')
-                            <details class="cq-account-menu">
-                                <summary class="cq-account-trigger" aria-label="Open account menu">
+                            <details class="cq-account-menu" id="cq-account-menu">
+                                <summary class="cq-account-trigger" aria-label="Open account menu" data-account-trigger>
                                     <span class="cq-avatar" aria-hidden="true">
                                         {{ strtoupper(substr($displayName, 0, 1)) }}
                                     </span>
                                     <span class="cq-account-label">Account</span>
                                 </summary>
                                 <div class="cq-account-popover">
-                                    <p class="truncate font-semibold text-ink">{{ $displayName }}</p>
-                                    <p class="mt-1 text-xs uppercase tracking-[0.1em] text-static">Student account</p>
-                                    <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                                        @csrf
-                                        <button type="submit" class="cq-account-action">Sign out</button>
-                                    </form>
+                                    <div class="border-b border-phosphor/15 px-3 py-2.5">
+                                        <p class="truncate font-semibold text-ink">{{ $displayName }}</p>
+                                        <p class="mt-0.5 text-xs text-static">{{ ucfirst($role) }} account</p>
+                                    </div>
+
+                                    <div class="cq-account-scroll">
+                                        @foreach ($accountGroups as $item)
+                                            @if (isset($item['heading']))
+                                                <p class="cq-account-group">{{ $item['heading'] }}</p>
+                                            @else
+                                                <a
+                                                    href="{{ $accountHref($item) }}"
+                                                    class="cq-account-link"
+                                                    @if ($accountActive($item)) aria-current="page" @endif
+                                                >{{ $item['label'] }}</a>
+                                            @endif
+                                        @endforeach
+                                    </div>
+
+                                    <div class="cq-account-footer">
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="cq-account-action">Sign out</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </details>
-                        @else
-                            <div class="hidden sm:flex items-center gap-2 text-ink text-sm min-w-0">
-                                <span class="cq-avatar">
-                                    {{ strtoupper(substr($displayName, 0, 1)) }}
-                                </span>
-                                <span class="truncate">{{ $displayName }}</span>
-                            </div>
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
-                                @csrf
-                                <button type="submit" class="cq-navbar-link">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                        <path d="M16 17l5-5-5-5M21 12H9" />
-                                    </svg>
-                                    <span class="hidden md:inline">Sign out</span>
-                                </button>
-                            </form>
-                        @endif
                     @endauth
                 </div>
             </div>
@@ -175,50 +175,6 @@
         @endunless
 
         <div class="flex flex-1 min-w-0">
-            {{-- Mobile drawer --}}
-            @if (! $standalone && ! ($workspace ?? false) && $role !== 'student')
-            <div
-                id="cq-backdrop"
-                data-close
-                class="fixed inset-0 z-40 hidden bg-black/75 lg:hidden"
-                aria-hidden="true"
-            ></div>
-            <aside
-                id="cq-sidebar"
-                class="cq-sidebar fixed inset-y-0 left-0 z-50 flex w-[min(20rem,88vw)] -translate-x-full flex-col transition-transform duration-200 lg:hidden"
-                role="dialog"
-                aria-label="Navigation menu"
-                aria-modal="true"
-                aria-hidden="true"
-                tabindex="-1"
-                inert
-            >
-                <div class="flex items-center justify-between gap-2 border-b border-phosphor/20 px-5 py-5">
-                    <a href="{{ route('dashboard') }}" class="cq-brand" aria-label="CodeQuest home">
-                        <span class="cq-brand-mark" aria-hidden="true">404</span>
-                        <span class="cq-brand-name">CodeQuest</span>
-                    </a>
-                    <button type="button" data-close data-drawer-initial-focus class="cq-icon-button" aria-label="Close menu">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                            <path d="M5 5l14 14M19 5L5 19" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex-1 overflow-y-auto px-3 py-4">
-                    <x-navigation :items="$items" />
-                </div>
-                <div class="mt-auto flex items-center gap-3 border-t border-phosphor/20 px-6 py-4">
-                    <span class="cq-avatar">
-                        {{ strtoupper(substr($displayName, 0, 1)) }}
-                    </span>
-                    <div class="min-w-0">
-                        <p class="truncate text-sm text-ink">{{ $displayName }}</p>
-                        <p class="text-xs uppercase tracking-[0.12em] text-static">{{ $role }} access</p>
-                    </div>
-                </div>
-            </aside>
-            @endif
-
             <main class="min-w-0 flex-1 {{ $standalone ? 'w-full' : ($workspace ?? false ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7') }}" data-drawer-content>
                 <div class="{{ $standalone || ($workspace ?? false) ? '' : 'mx-auto w-full max-w-[1180px]' }}">
                     @yield('content')

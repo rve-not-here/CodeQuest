@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit Mission"
         subtitle="{{ $course->name }} → {{ $mission->title }} — mission fields. Missions carry no status; the access gate sits on course.status. Solution code and validation rules are view-only in this story."
-        icon="⚑"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses.missions', $course) }}" class="btn-ghost">◀ CANCEL</a>

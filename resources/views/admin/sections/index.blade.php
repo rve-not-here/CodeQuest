@@ -6,7 +6,6 @@
     <x-page-header
         title="Section Management"
         subtitle="{{ $course->name }} — {{ $sections->count() }} {{ Str::plural('section', $sections->count()) }} in order_num order. Sections group missions inside the course and carry no status of their own; course.status remains the access gate."
-        icon="▦"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>

@@ -6,7 +6,6 @@
     <x-page-header
         title="Needs Attention"
         subtitle="Students with at least one deterministic attention signal. Each signal is binary, has a named threshold, and shows its evidence. This is not a grade: there is no composite score, only reasons."
-        icon="⚑"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

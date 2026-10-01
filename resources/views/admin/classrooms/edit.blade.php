@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit — {{ $classroom->name }}"
         subtitle="Base fields and the three membership sets. Each membership form REPLACES its set — uncheck everything to clear it. Memberships stay separate from academic history, and a status change never rewrites them."
-        icon="▣"
     >
         <x-slot:actions>
             <x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">

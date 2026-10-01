@@ -6,7 +6,6 @@
     <x-page-header
         title="Create User"
         subtitle="Server assigns the role and the default active status; the password is submitted as plaintext and stored as a fresh hash."
-        icon="☷"
     >
         <x-slot:actions>
             <a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeQuest — Student Terminal · Reference Build</title>
+<style>
+:root{
+  --void:#030604; --surface:#060c08; --surface-alt:#0a140d; --panel:#0b1610;
+  --input:#08110b; --header:#040806;
+  --ink:#e1ece4; --static:#a9b8ad;
+  --phosphor:#33ff00; --bright:#75ff55; --dim:#559260;
+  --amber:#ffb000; --alert:#ff5c5c; --cyan:#49d8e8;
+  --mono:ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  background:var(--void); color:var(--ink); font-family:var(--mono);
+  font-size:15px; line-height:1.55; min-height:100vh;
+  background-image:radial-gradient(1100px 420px at 50% -120px, rgba(51,255,0,.07), transparent 70%);
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.014) 0 1px, transparent 1px 4px);
+}
+a{color:var(--cyan)}
+button{font-family:var(--mono)}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
+/* ===== top bar ===== */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--header); border-bottom:1px solid #1c3524;
+  display:flex; align-items:center; gap:16px;
+  padding:10px 20px; max-width:1536px; margin:0 auto;
+  flex-wrap:wrap;
+}
+.brand{font-size:13px; letter-spacing:.14em; color:var(--phosphor); font-weight:700; white-space:nowrap}
+.brand small{color:var(--dim); font-weight:400; letter-spacing:.1em}
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin-left:8px}
+.tab{
+  background:transparent; border:1px solid #23402d; color:var(--ink);
+  font-size:13px; letter-spacing:.08em; padding:8px 14px; border-radius:2px; cursor:pointer;
+}
+.tab .n{color:var(--dim); margin-right:6px}
+.tab[aria-selected="true"]{background:var(--phosphor); color:#041007; border-color:var(--phosphor); font-weight:700}
+.tab[aria-selected="true"] .n{color:#041007}
+.tab:hover{border-color:var(--bright)}
+.xpbox{margin-left:auto; display:flex; align-items:center; gap:12px; font-size:13px}
+.xpbox .bal{border:1px solid #23402d; border-radius:2px; padding:6px 12px; background:var(--panel)}
+.xpbox .bal b{color:var(--phosphor)}
+.xpbox a{font-size:12px}
+/* ===== shell ===== */
+.shell{max-width:1536px; margin:0 auto; display:grid; grid-template-columns:230px 1fr; position:relative; z-index:1}
+.rail{
+  border-right:1px solid #1c3524; background:var(--surface);
+  padding:20px 0; position:sticky; top:53px; align-self:start; min-height:calc(100vh - 53px);
+}
+.rail h2{font-size:12px; letter-spacing:.16em; color:var(--dim); padding:0 20px 10px; font-weight:400}
+.raillink{
+  display:flex; gap:12px; align-items:baseline; width:100%; text-align:left;
+  background:transparent; border:none; border-left:3px solid transparent;
+  color:var(--ink); padding:12px 20px; cursor:pointer; font-size:14px;
+}
+.raillink .num{color:var(--dim); font-size:12px}
+.raillink small{display:block; color:var(--static); font-size:12px}
+.raillink[aria-current="true"]{border-left-color:var(--phosphor); background:var(--panel)}
+.raillink[aria-current="true"] .num{color:var(--phosphor)}
+.rail .railnote{margin:20px; border:1px solid #3a2c00; border-radius:2px; background:#120d02; padding:12px; font-size:12px; color:#ffd77a}
+.rail .railnote b{color:var(--amber); display:block; font-size:12px; letter-spacing:.1em; margin-bottom:4px}
+main{padding:24px 28px 0; max-width:1180px; min-width:0}
+/* ===== screens ===== */
+.screen{display:none}
+.screen.active{display:block}
+/* ===== command band (first-viewport anchor) ===== */
+.kicker{font-size:12px; letter-spacing:.18em; color:var(--phosphor); margin-bottom:10px}
+.kicker .sep{color:var(--dim)}
+.command{
+  border:1px solid #2a4a33; border-left:4px solid var(--phosphor);
+  background:var(--panel); border-radius:2px; padding:22px 24px; margin-bottom:16px;
+}
+.command h1{font-size:26px; line-height:1.3; letter-spacing:-.01em; margin-bottom:10px}
+.command h1 .c07{color:var(--amber)}
+.command p.support{color:var(--static); font-size:14px; margin-bottom:16px}
+.command p.support b{color:var(--ink)}
+.cta-row{display:flex; gap:10px; flex-wrap:wrap}
+.btn{
+  border:1px solid var(--phosphor); background:var(--phosphor); color:#041007;
+  font-weight:700; font-size:14px; letter-spacing:.06em; padding:12px 20px; border-radius:2px; cursor:pointer;
+}
+.btn:hover{background:var(--bright); border-color:var(--bright)}
+.btn.ghost{background:transparent; color:var(--phosphor); border:1px solid var(--phosphor)}
+.btn.ghost:hover{background:rgba(51,255,0,.1)}
+.btn.warn{background:transparent; color:var(--amber); border:1px solid var(--amber)}
+.btn.info{background:transparent; color:var(--cyan); border:1px solid var(--cyan)}
+.btn.danger{background:transparent; color:var(--alert); border:1px solid var(--alert)}
+.btn.sm{padding:8px 12px; font-size:13px}
+/* ===== status strip ===== */
+.statusbar{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+  border:1px solid #1c3524; border-radius:2px; background:var(--surface);
+  margin-bottom:16px; overflow:hidden;
+}
+.stat{padding:14px 18px; border-right:1px solid #1c3524}
+.stat:last-child{border-right:none}
+.stat .k{font-size:12px; letter-spacing:.14em; color:var(--dim); margin-bottom:4px}
+.stat .v{font-size:15px}
+.stat .v b{color:var(--phosphor)}
+.stat .v .amb{color:var(--amber)}
+.stat a{font-size:12px}
+/* ===== panels & grids ===== */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px}
+.panel{border:1px solid #1c3524; border-radius:2px; background:var(--panel); padding:18px 20px}
+.panel h2, .panel h3{font-size:13px; letter-spacing:.14em; color:var(--dim); font-weight:400; margin-bottom:12px}
+.panel h2 .live{color:var(--phosphor)}
+table.ledger{width:100%; border-collapse:collapse; font-size:14px}
+table.ledger td, table.ledger th{border-bottom:1px solid #16301e; padding:8px 4px; text-align:left}
+table.ledger th{font-size:12px; letter-spacing:.12em; color:var(--dim); font-weight:400}
+.pos{color:var(--phosphor)} .neg{color:var(--alert)} .mut{color:var(--static)}
+.badge{display:inline-block; font-size:12px; letter-spacing:.1em; padding:2px 8px; border-radius:2px; border:1px solid}
+.badge.amb{color:var(--amber); border-color:var(--amber)}
+.badge.phos{color:var(--phosphor); border-color:var(--phosphor)}
+.badge.cy{color:var(--cyan); border-color:var(--cyan)}
+.badge.dim{color:var(--static); border-color:#2a3a2e}
+.compbar{height:10px; background:#041007; border:1px solid #23402d; border-radius:2px; margin:8px 0; position:relative}
+.compbar i{position:absolute; inset:1px auto 1px 1px; width:62%; background:var(--phosphor); display:block}
+/* ===== path rail ===== */
+.pathhead{border:1px solid #2a4a33; background:var(--panel); border-radius:2px; padding:18px 22px; margin-bottom:0}
+.pathhead h2{font-size:22px; margin:4px 0 6px; letter-spacing:0}
+.pathhead p{color:var(--static); font-size:14px}
+.pathhead .pct{color:var(--phosphor); font-weight:700}
+.sect{font-size:12px; letter-spacing:.16em; color:var(--cyan); margin:20px 0 0; padding:0 4px}
+.railwrap{position:relative; margin-left:14px; padding:6px 0 6px 34px; border-left:1px solid var(--dim)}
+.node{position:relative; border:1px solid #1c3524; background:var(--panel); border-radius:2px; padding:14px 18px; margin:14px 0; max-width:640px}
+.node .marker{
+  position:absolute; left:-47px; top:16px; width:26px; height:26px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; background:var(--void); border-radius:2px; border:1px solid;
+}
+.node.done .marker{color:#041007; background:var(--phosphor); border-color:var(--phosphor)}
+.node.current{border-color:var(--amber)}
+.node.current .marker{color:var(--amber); border-color:var(--amber)}
+.node.current .marker::after{
+  content:""; position:absolute; inset:-6px; border:1px solid var(--amber); border-radius:2px;
+  animation:pulse 2s infinite;
+}
+.node.avail .marker{color:var(--cyan); border-color:var(--cyan)}
+.node.locked{opacity:.85; border-style:dashed}
+.node.locked .marker{color:var(--static); border-color:var(--static); border-style:dashed}
+.node h3{font-size:15px; letter-spacing:0; color:var(--ink); margin-bottom:4px}
+.node .state{font-size:12px; letter-spacing:.12em; margin-bottom:4px; display:block}
+.node.done .state{color:var(--phosphor)} .node.current .state{color:var(--amber)}
+.node.avail .state{color:var(--cyan)} .node.locked .state{color:var(--static)}
+.node p{font-size:13px; color:var(--static)}
+.bosscard{
+  border:1px solid var(--amber); background:#120d02; border-radius:2px;
+  padding:18px 20px; margin:18px 0; max-width:640px; display:flex; gap:16px; align-items:flex-start;
+}
+.sigil{
+  width:40px; height:40px; flex:none; border:1px solid var(--amber); color:var(--amber);
+  display:flex; align-items:center; justify-content:center; font-size:20px; border-radius:2px;
+}
+.bosscard h3{color:var(--amber); font-size:15px; margin-bottom:4px}
+.bosscard p{font-size:13px; color:#ffd77a}
+/* ===== challenge workspace ===== */
+.ctxbar{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  border:1px solid #2a4a33; background:var(--panel); border-radius:2px 2px 0 0;
+  padding:12px 18px; border-bottom:none; font-size:13px;
+}
+.ctxbar .t{font-weight:700}
+.ctxbar .rule{color:var(--dim); font-size:12px}
+.toolbar{display:flex; gap:8px; flex-wrap:wrap; padding:12px 0}
+.ws{display:grid; grid-template-columns:300px 1fr 300px; border:1px solid #2a4a33; border-radius:0 0 2px 2px; overflow:hidden; margin-bottom:16px}
+.pane{border-right:1px solid #1c3524; background:var(--panel); min-width:0}
+.pane:last-child{border-right:none}
+.panehead{font-size:12px; letter-spacing:.14em; color:var(--dim); padding:10px 14px; border-bottom:1px solid #1c3524; background:var(--surface)}
+.panebody{padding:14px; font-size:14px}
+.panebody h3{font-size:16px; margin-bottom:8px}
+.reqlist{list-style:none; margin:10px 0}
+.reqlist li{border:1px solid #1c3524; border-radius:2px; padding:8px 10px; margin-bottom:8px; font-size:13px}
+.reqlist li b{color:var(--phosphor); margin-right:8px}
+.reqlist li.pending b{color:var(--amber)}
+.note{font-size:12px; color:var(--static); border-top:1px dashed #2a3a2e; padding-top:10px; margin-top:10px}
+.editorwrap{background:#020503; border:1px solid #1c3524; border-radius:0; display:flex; font-size:14px}
+.gutter{color:var(--dim); text-align:right; padding:12px 8px 12px 12px; user-select:none; line-height:1.7; font-size:13px; border-right:1px solid #1c3524}
+textarea#editor{
+  flex:1; background:transparent; border:none; color:var(--ink);
+  font-family:var(--mono); font-size:14px; line-height:1.7;
+  padding:12px; min-height:300px; resize:vertical; white-space:pre;
+}
+textarea#editor:focus-visible{outline-offset:-3px}
+.draftline{display:flex; justify-content:space-between; font-size:12px; color:var(--dim); margin-top:8px}
+.draftline .ok{color:var(--phosphor)}
+.previewwhite{background:#ffffff; color:#111; border-radius:0; padding:16px; min-height:300px}
+.previewwhite .card{border:2px solid #111; padding:16px; max-width:100%}
+.previewwhite .card h4{font-size:18px; margin-bottom:6px}
+.previewwhite .card p{font-size:14px; color:#333}
+.previewwhite .card .tag{display:inline-block; background:#111; color:#fff; font-size:12px; padding:2px 8px; margin-top:8px}
+.servertag{font-size:12px; color:var(--static); margin-top:10px; border:1px dashed #2a3a2e; border-radius:2px; padding:8px 10px}
+.servermsg{border:1px solid #1c3524; border-radius:2px; padding:10px 14px; font-size:14px; margin-bottom:16px; background:var(--surface)}
+.servermsg.fail{border-color:var(--alert)} .servermsg.fail b{color:var(--alert)}
+.servermsg.pass{border-color:var(--phosphor)} .servermsg.pass b{color:var(--phosphor)}
+.drawer{border:1px solid #1c3524; border-radius:2px; background:var(--surface); padding:16px 18px; margin-bottom:16px; font-size:14px}
+.drawer summary{cursor:pointer; font-size:13px; letter-spacing:.1em; color:var(--cyan)}
+.drawer .costs{margin-top:10px; font-size:13px; color:var(--static)}
+.drawer .costs b{color:var(--amber)}
+#hintText, #revealText{display:none; margin-top:10px; border:1px solid var(--amber); border-radius:2px; padding:10px 12px; font-size:13px; background:#120d02; color:#ffd77a}
+/* ===== check screen ===== */
+.q{border:1px solid #1c3524; border-radius:2px; background:var(--panel); padding:18px 20px; margin-bottom:14px}
+.q h3{font-size:15px; margin-bottom:12px}
+.opt{
+  display:block; width:100%; text-align:left; cursor:pointer;
+  border:1px solid var(--cyan); background:transparent; color:var(--ink);
+  border-radius:2px; padding:10px 14px; margin-bottom:8px; font-size:14px;
+}
+.opt:hover{background:rgba(73,216,232,.08)}
+.opt[aria-pressed="true"]{background:rgba(73,216,232,.16); border-width:2px; padding:9px 13px}
+.score{border:1px solid var(--phosphor); border-radius:2px; padding:12px 16px; font-size:14px; margin-top:12px; display:none}
+.score.show{display:block}
+/* ===== modal ===== */
+.modalback{position:fixed; inset:0; background:rgba(3,6,4,.8); display:none; z-index:100; align-items:center; justify-content:center; padding:20px}
+.modalback.open{display:flex}
+.modal{background:var(--panel); border:1px solid var(--cyan); border-radius:2px; max-width:560px; width:100%; max-height:90vh; overflow:auto; padding:22px 24px}
+.modal h2{font-size:18px; margin-bottom:4px}
+.modal .sub{font-size:12px; color:var(--dim); letter-spacing:.12em; margin-bottom:14px}
+/* ===== footer strip ===== */
+footer.strip{border-top:1px solid #1c3524; margin-top:28px; padding:18px 28px 26px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; font-size:13px; color:var(--static)}
+footer.strip h3{font-size:12px; letter-spacing:.14em; color:var(--dim); margin-bottom:8px; font-weight:400}
+footer.strip a{display:block; padding:2px 0}
+.timeline{display:flex; gap:6px; margin-top:6px}
+.timeline i{width:22px; height:10px; border:1px solid #23402d; display:block}
+.timeline i.f{background:var(--phosphor)} .timeline i.c{background:var(--amber)} .timeline i.e{background:transparent}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+@keyframes pulse{0%{opacity:1}50%{opacity:.25}100%{opacity:1}}
+@media (max-width:1100px){
+  .ws{grid-template-columns:1fr}
+  .pane{border-right:none; border-bottom:1px solid #1c3524}
+  .pane:last-child{border-bottom:none}
+  .previewwhite{min-height:200px}
+  .statusbar{grid-template-columns:1fr}
+  .stat{border-right:none; border-bottom:1px solid #1c3524}
+  .grid2{grid-template-columns:1fr}
+  footer.strip{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static; min-height:auto; border-right:none; border-bottom:1px solid #1c3524; display:flex; flex-wrap:wrap; gap:8px; padding:12px}
+  .rail h2{width:100%; flex:none}
+  .raillink{flex:1 1 150px; border:1px solid #23402d; border-radius:2px; padding:8px 12px; align-items:center}
+  .raillink small{font-size:11px}
+  .raillink[aria-current="true"]{border:1px solid var(--phosphor)}
+  .rail .railnote{margin:4px 0 0; flex:1 1 100%}
+  main{padding:16px; min-width:0}
+  .command{padding:18px}
+  .command h1{font-size:21px}
+  .railwrap{margin-left:8px; padding-left:28px}
+  .node .marker{left:-40px}
+  .ctxbar{flex-direction:column; align-items:flex-start; gap:8px}
+  .node p .btn{margin-top:8px}
+}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{animation:none !important; transition:none !important}
+  .node.current .marker::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">SYSTEM 404 <small>// STUDENT TERMINAL · REF-02</small></div>
+  <nav class="tabs" aria-label="Screens">
+    <button class="tab" data-screen="dashboard" aria-selected="true"><span class="n">01</span>DASHBOARD</button>
+    <button class="tab" data-screen="path" aria-selected="false"><span class="n">02</span>PATH</button>
+    <button class="tab" data-screen="challenge" aria-selected="false"><span class="n">03</span>CHALLENGE</button>
+    <button class="tab" data-screen="check" aria-selected="false"><span class="n">04</span>CHECK</button>
+  </nav>
+  <div class="xpbox">
+    <span class="bal">XP <b id="xpTop">1,240</b></span>
+    <a href="#ledger" id="ledgerLink">xp-ledger</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="rail" aria-label="Section nav">
+    <h2>NAV // SEQUENTIAL</h2>
+    <button class="raillink" data-screen="dashboard" aria-current="true"><span class="num">01</span><span>Dashboard<small>Next action + status</small></span></button>
+    <button class="raillink" data-screen="path" aria-current="false"><span class="num">02</span><span>Learning Path<small>Nodes 05–09 + Boss</small></span></button>
+    <button class="raillink" data-screen="challenge" aria-current="false"><span class="num">03</span><span>Challenge 07<small>Brief / editor / preview</small></span></button>
+    <button class="raillink" data-screen="check" aria-current="false"><span class="num">04</span><span>Knowledge Check<small>Formative, 2 questions</small></span></button>
+    <div class="railnote"><b>SERVER LAW</b>Preview never counts. Only validation writes XP.</div>
+  </aside>
+
+  <main>
+    <!-- ============ SCREEN 01 DASHBOARD ============ -->
+    <section class="screen active" id="screen-dashboard" aria-label="Dashboard">
+      <div class="kicker">SYSTEM 404 <span class="sep">//</span> STUDENT TERMINAL</div>
+      <div class="command">
+        <h1 id="commandTitle">Continue: HTML Fundamentals — <span class="c07">Challenge 07: Fix the broken card</span></h1>
+        <p class="support"><b>Server validates. Preview never counts.</b> Run all you want — only SUBMIT FOR VALIDATION moves the rail.</p>
+        <div class="cta-row">
+          <button class="btn" data-goto="challenge" id="resumeBtn">RESUME CHALLENGE 07</button>
+          <button class="btn ghost" data-goto="path">VIEW LEARNING PATH</button>
+        </div>
+      </div>
+
+      <div class="statusbar">
+        <div class="stat"><div class="k">XP BALANCE</div><div class="v"><b id="xpDash">1,240</b> XP · <a href="#ledger">xp-ledger</a></div></div>
+        <div class="stat"><div class="k">COMPETENCY · HTML</div><div class="v"><span class="amb">■</span> developing <span class="mut">· demonstrated is permanent</span></div><div class="compbar" aria-hidden="true"><i></i></div></div>
+        <div class="stat"><div class="k">BOSS GATE</div><div class="v"><span class="amb" id="bossGateDash">◆ 2 missions to Boss Challenge</span></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel" id="ledger">
+          <h2><span class="live">■</span> ACTIVITY // AUDITABLE LEDGER</h2>
+          <table class="ledger">
+            <thead><tr><th>TRANSACTION</th><th>DELTA</th><th>STATE</th></tr></thead>
+            <tbody>
+            <tr><td>mission_completed</td><td class="pos">+120</td><td class="mut">Challenge 06 settled</td></tr>
+            <tr><td>wrong_submission</td><td class="neg">-10</td><td class="mut">Challenge 07 attempt 1</td></tr>
+            <tr><td>hint_used</td><td class="neg">-5</td><td class="mut">Challenge 07 hint tier 1</td></tr>
+            </tbody>
+            <tbody id="liveLedger"></tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <h2>UP NEXT // RAIL STOPS</h2>
+          <p style="font-size:14px;margin-bottom:10px" id="upNext07"><span class="badge amb">07 · CURRENT</span> Fix the broken card <span class="mut">· MEDIUM · +120 XP</span></p>
+          <p style="font-size:14px;margin-bottom:10px" id="upNext08"><span class="badge cy">08 · AVAILABLE</span> Style the card <span class="mut">· unlocks on 07 pass</span></p>
+          <p style="font-size:14px"><span class="badge dim">09 · LOCKED ×</span> Boss gate mission <span class="mut">· sequential only</span></p>
+          <p class="note">Order is fixed. Nodes unlock strictly in sequence — no skipping, no branching.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 02 PATH ============ -->
+    <section class="screen" id="screen-path" aria-label="Learning Path">
+      <div class="pathhead">
+        <div class="kicker">LEARNING PATH <span class="sep">//</span> SEQUENTIAL RAIL</div>
+        <h2>Course: HTML Fundamentals <span class="pct">68%</span></h2>
+        <p>Section 03 — “Styling with CSS”. Complete nodes in order. State reads as marker + word, never color alone.</p>
+      </div>
+      <div class="sect">SECTION 03 // NODES 05–09</div>
+      <div class="railwrap">
+        <div class="node done"><span class="marker">✓</span><span class="state">✓ 05 · COMPLETED</span><h3>05 — Structure the document</h3><p>Settled · +120 XP · Competency evidence banked.</p></div>
+        <div class="node done"><span class="marker">✓</span><span class="state">✓ 06 · COMPLETED</span><h3>06 — Links and images</h3><p>Settled · +120 XP · Competency evidence banked.</p></div>
+        <div class="node current" id="node07"><span class="marker">●</span><span class="state">● 07 · CURRENT — YOU ARE HERE</span><h3>07 — Fix the broken card</h3><p>MEDIUM · +120 XP · <button class="btn warn sm" data-goto="challenge">OPEN WORKSPACE</button></p></div>
+        <div class="node avail" id="node08"><span class="marker">○</span><span class="state">○ 08 · AVAILABLE</span><h3>08 — Style the card</h3><p>Unlocks when 07 validates. Preview renders, server decides.</p></div>
+        <div class="node locked"><span class="marker">✕</span><span class="state">✕ 09 · LOCKED</span><h3>09 — Boss gate mission</h3><p>Dashed border + × marker. Finish required missions first.</p></div>
+      </div>
+      <div class="bosscard">
+        <div class="sigil">◆</div>
+        <div><h3>BOSS CHALLENGE — HTML FUNDAMENTALS</h3><p>LOCKED — finish required missions. Summative: the only assessment that completes the course. Knowledge Checks never complete anything.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 03 CHALLENGE ============ -->
+    <section class="screen" id="screen-challenge" aria-label="Challenge workspace">
+      <div class="ctxbar">
+        <span class="t">CHALLENGE 07 — Fix the broken card</span>
+        <span class="badge amb">MEDIUM</span><span class="badge phos">+120 XP</span>
+        <span class="rule">BRIEF · EDITOR · PREVIEW — preview never counts</span>
+      </div>
+      <div class="toolbar" role="toolbar" aria-label="Challenge actions">
+        <button class="btn info sm" id="btnRun">RUN PREVIEW</button>
+        <button class="btn sm" id="btnSubmit">SUBMIT FOR VALIDATION</button>
+        <button class="btn warn sm" id="btnHint">HINT −5</button>
+        <button class="btn danger sm" id="btnReveal">REVEAL −30</button>
+        <button class="btn ghost sm" id="btnCheck">OPEN KNOWLEDGE CHECK</button>
+      </div>
+      <div class="servermsg" id="serverMsg"><b>■ SERVER IDLE</b> — attempt counter armed for demo: first SUBMIT fails (−10 XP), second passes (+120 XP). Safe-fail: retry is free except the −10.</div>
+      <div class="ws">
+        <div class="pane">
+          <div class="panehead">01 // BRIEF</div>
+          <div class="panebody">
+            <h3>Fix the broken card</h3>
+            <p style="font-size:13px;color:var(--static)">Repair the markup so the card renders: heading, paragraph, and tag in order.</p>
+            <ul class="reqlist">
+              <li><b>R1</b> One &lt;h2&gt; card title exists</li>
+              <li class="pending"><b>R2</b> Paragraph closes correctly</li>
+              <li class="pending"><b>R3</b> Tag row renders last</li>
+            </ul>
+            <p class="note">BROKEN-CODE NOTE: the starter file ships with an unclosed &lt;p&gt; and a misplaced tag. solution_code and validate_rule stay server-side — never shown.</p>
+          </div>
+        </div>
+        <div class="pane">
+          <div class="panehead">02 // EDITOR — draft autosaves locally</div>
+          <div class="panebody">
+            <div class="editorwrap">
+              <div class="gutter" aria-hidden="true">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+              <textarea id="editor" spellcheck="false" aria-label="Code editor">&lt;div class="card"&gt;
+  &lt;h2&gt;Signal Restored&lt;/h2&gt;
+  &lt;p&gt;The relay is back online.
+  &lt;span class="tag"&gt;HTML&lt;/span&gt;
+&lt;/div&gt;</textarea>
+            </div>
+            <div class="draftline"><span class="ok">■ DRAFT SAVED 12:04</span><span id="runStamp">preview: stale</span></div>
+          </div>
+        </div>
+        <div class="pane">
+          <div class="panehead">03 // PREVIEW — sandbox, counts for nothing</div>
+          <div class="panebody">
+            <div class="previewwhite"><div class="card" id="previewCard"><h4>Signal Restored</h4><p>The relay is back online. &lt;span class="tag"&gt;HTML</p><span class="tag">HTML</span></div></div>
+            <div class="servermsg" style="margin:10px 0 0;font-size:12px"><b>■ PREVIEW ≠ PROOF.</b> Render is local. Only server validation writes XP.</div>
+          </div>
+        </div>
+      </div>
+      <details class="drawer" open>
+        <summary>ASSISTANCE DRAWER // COSTS STATED UPFRONT</summary>
+        <div class="costs">HINT <b>−5 XP</b> per tier · REVEAL <b>−30 XP</b> · wrong SUBMIT <b>−10 XP</b> · XP floor 0. Knowledge Checks are formative and never complete anything.</div>
+        <div id="hintText">HINT TIER 1 (−5 XP applied): close the &lt;p&gt; before the tag row. Block element, then inline — order is R2 → R3.</div>
+        <div id="revealText">REVEAL (−30 XP applied): demo reveal — a correct card nests &lt;h2&gt;, closed &lt;p&gt;, then the tag span, all inside .card.</div>
+      </details>
+    </section>
+
+    <!-- ============ SCREEN 04 CHECK ============ -->
+    <section class="screen" id="screen-check" aria-label="Knowledge Check">
+      <div class="kicker">KNOWLEDGE CHECK <span class="sep">//</span> FORMATIVE — NEVER COMPLETES ANYTHING</div>
+      <div class="command" style="border-left-color:var(--cyan)">
+        <h1>Check 07-A: two questions, zero stakes</h1>
+        <p class="support">Formative recall before you submit. <b>Score changes nothing on the rail</b> — only Challenge validation writes XP.</p>
+        <div class="cta-row"><button class="btn info" id="btnCheck2">OPEN AS MODAL</button></div>
+      </div>
+      <div class="q" data-q="1">
+        <h3>Q1 — The preview looks right. Are you done?</h3>
+        <button class="opt" aria-pressed="false">A · Yes — preview is proof</button>
+        <button class="opt" aria-pressed="false">B · No — only server validation counts</button>
+      </div>
+      <div class="q" data-q="2">
+        <h3>Q2 — A wrong submit costs…</h3>
+        <button class="opt" aria-pressed="false">A · −10 XP, retry stays open</button>
+        <button class="opt" aria-pressed="false">B · The whole mission locks</button>
+      </div>
+      <button class="btn" id="btnScore">SUBMIT CHECK</button>
+      <button class="btn ghost" id="btnResetCheck">RESET</button>
+      <div class="score" id="scoreBox"></div>
+    </section>
+  </main>
+</div>
+
+<!-- modal -->
+<div class="modalback" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h2 id="mTitle">Knowledge Check 07-A</h2>
+    <div class="sub">FORMATIVE // 2 QUESTIONS // SCORE CHANGES NOTHING</div>
+    <div class="q" data-q="1">
+      <h3>Q1 — The preview looks right. Are you done?</h3>
+      <button class="opt" aria-pressed="false">A · Yes — preview is proof</button>
+      <button class="opt" aria-pressed="false">B · No — only server validation counts</button>
+    </div>
+    <div class="q" data-q="2">
+      <h3>Q2 — A wrong submit costs…</h3>
+      <button class="opt" aria-pressed="false">A · −10 XP, retry stays open</button>
+      <button class="opt" aria-pressed="false">B · The whole mission locks</button>
+    </div>
+    <div class="cta-row">
+      <button class="btn info sm" id="btnScoreModal">SUBMIT CHECK</button>
+      <button class="btn ghost sm" id="btnCloseModal">CLOSE ✕</button>
+    </div>
+    <div class="score" id="scoreModal"></div>
+  </div>
+</div>
+
+<footer class="strip">
+  <div><h3>TIMELINE</h3><div class="timeline" aria-label="7-day activity"><i class="f"></i><i class="f"></i><i class="e"></i><i class="f"></i><i class="c"></i><i class="e"></i><i class="e"></i></div><a href="#">view full timeline</a></div>
+  <div><h3>RECOMMENDED NEXT</h3><a href="#">→ Challenge 08 — Style the card</a><a href="#">→ Review: closing tags (Section 02)</a></div>
+  <div><h3>ACHIEVEMENTS</h3><a href="#">■ First validation — unlocked</a><a href="#">○ Boss slayer — locked</a></div>
+</footer>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<script>
+(function(){
+  var xp = 1240, submits = 0;
+  function fmt(n){ return n.toLocaleString('en-US'); }
+  function setXP(n){
+    xp = Math.max(0, n);
+    document.getElementById('xpTop').textContent = fmt(xp);
+    document.getElementById('xpDash').textContent = fmt(xp);
+  }
+  function logLedger(tx, delta, state){
+    var tb = document.getElementById('liveLedger');
+    var tr = document.createElement('tr');
+    var cls = delta >= 0 ? 'pos' : 'neg';
+    var sign = delta >= 0 ? '+' : '';
+    tr.innerHTML = '<td>' + tx + '</td><td class="' + cls + '">' + sign + delta + '</td><td class="mut">' + state + '</td>';
+    tb.insertBefore(tr, tb.firstChild);
+    document.getElementById('live').textContent = tx + ' ' + sign + delta + ' XP. Balance ' + fmt(xp) + '.';
+  }
+  // tabs + rail (delegated so dynamically added [data-goto] buttons work)
+  var VALID = ['dashboard', 'path', 'challenge', 'check'];
+  function show(name, push){
+    if (VALID.indexOf(name) === -1) name = 'dashboard';
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-selected', t.dataset.screen === name ? 'true' : 'false'); });
+    document.querySelectorAll('.raillink').forEach(function(t){ t.setAttribute('aria-current', t.dataset.screen === name ? 'true' : 'false'); });
+    if (push !== false){
+      try { history.replaceState(null, '', '#/' + name); } catch (e) {}
+    }
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest ? e.target.closest('[data-screen], [data-goto]') : null;
+    if (!t) return;
+    show(t.dataset.screen || t.dataset.goto);
+  });
+  (function initFromHash(){
+    var h = (location.hash || '').replace('#/', '').replace('#', '');
+    show(h || 'dashboard', false);
+  })();
+  document.getElementById('ledgerLink').addEventListener('click', function(e){
+    e.preventDefault();
+    show('dashboard');
+    var el = document.getElementById('ledger');
+    var top = el.getBoundingClientRect().top + window.pageYOffset - 70;
+    window.scrollTo(0, top);
+    el.setAttribute('tabindex', '-1');
+    el.focus({preventScroll: true});
+  });
+  // run preview
+  document.getElementById('btnRun').addEventListener('click', function(){
+    var src = document.getElementById('editor').value;
+    document.getElementById('previewCard').innerHTML =
+      '<h4>Signal Restored (local render)</h4><div style="font-size:13px;border:1px dashed #999;padding:8px;margin-top:8px;white-space:pre-wrap">' +
+      src.replace(/&/g,'&amp;').replace(/</g,'&lt;').slice(0, 400) + '</div>';
+    document.getElementById('runStamp').textContent = 'preview: rendered just now (counts for nothing)';
+  });
+  // submit fake validation (first authoritative transition only — re-submit can't farm XP)
+  var passed07 = false;
+  function flipRail(){
+    var n7 = document.getElementById('node07'), n8 = document.getElementById('node08');
+    n7.classList.remove('current'); n7.classList.add('done');
+    n7.querySelector('.marker').textContent = '✓';
+    n7.querySelector('.state').textContent = '✓ 07 · COMPLETED';
+    n7.querySelector('p').textContent = 'Settled · +120 XP · Competency evidence banked.';
+    n8.classList.remove('avail'); n8.classList.add('current');
+    n8.querySelector('.marker').textContent = '●';
+    n8.querySelector('.state').textContent = '● 08 · CURRENT — YOU ARE HERE';
+    n8.querySelector('p').innerHTML = 'MEDIUM · +120 XP · <button class="btn warn sm" data-goto="challenge">OPEN WORKSPACE</button>';
+    document.getElementById('upNext07').innerHTML = '<span class="badge phos">07 · DONE ✓</span> Fix the broken card <span class="mut">· settled</span>';
+    document.getElementById('upNext08').innerHTML = '<span class="badge amb">08 · CURRENT</span> Style the card <span class="mut">· MEDIUM · +120 XP</span>';
+    document.getElementById('bossGateDash').textContent = '◆ 1 mission to Boss Challenge';
+    document.getElementById('commandTitle').innerHTML = 'Continue: HTML Fundamentals — <span class="c07">Challenge 08: Style the card</span>';
+    document.getElementById('resumeBtn').textContent = 'RESUME CHALLENGE 08';
+  }
+  document.getElementById('btnSubmit').addEventListener('click', function(){
+    submits++;
+    var box = document.getElementById('serverMsg');
+    if (submits === 1){
+      setXP(xp - 10);
+      logLedger('wrong_submission', -10, 'Challenge 07 attempt 1 · retry open');
+      box.className = 'servermsg fail';
+      box.innerHTML = '<b>✕ SERVER: FAIL — R2 unmet (paragraph unclosed).</b> −10 XP applied. Preview looked fine; validation decides. Fix R2 and resubmit.';
+    } else if (!passed07) {
+      passed07 = true;
+      setXP(xp + 120);
+      logLedger('mission_completed', 120, 'Challenge 07 validated · 08 unlocked');
+      flipRail();
+      box.className = 'servermsg pass';
+      box.innerHTML = '<b>✓ SERVER: PASS — R1 R2 R3 met.</b> +120 XP. Node 08 unlocked, Boss gate down to 1 mission. Rail flipped — check the PATH tab.';
+    } else {
+      box.className = 'servermsg pass';
+      box.innerHTML = '<b>■ SERVER: ALREADY SETTLED.</b> Re-submit writes no XP — first transition only. Continue on Challenge 08.';
+    }
+  });
+  // hint / reveal
+  document.getElementById('btnHint').addEventListener('click', function(){
+    setXP(xp - 5);
+    logLedger('hint_used', -5, 'Challenge 07 hint tier 1');
+    document.getElementById('hintText').style.display = 'block';
+  });
+  document.getElementById('btnReveal').addEventListener('click', function(){
+    setXP(xp - 30);
+    logLedger('reveal_used', -30, 'Challenge 07 solution revealed');
+    document.getElementById('revealText').style.display = 'block';
+  });
+  // check options (both inline + modal)
+  document.querySelectorAll('.q').forEach(function(q){
+    q.querySelectorAll('.opt').forEach(function(o){
+      o.addEventListener('click', function(){
+        q.querySelectorAll('.opt').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+        o.setAttribute('aria-pressed','true');
+      });
+    });
+  });
+  function scoreCheck(scope){
+    var correct = 0, total = 0;
+    scope.querySelectorAll('.q').forEach(function(q){
+      var opts = q.querySelectorAll('.opt');
+      total++;
+      if (opts[1] && opts[1].getAttribute('aria-pressed') === 'true') correct++;
+    });
+    return {correct: correct, total: total};
+  }
+  document.getElementById('btnScore').addEventListener('click', function(){
+    var r = scoreCheck(document.getElementById('screen-check'));
+    var box = document.getElementById('scoreBox');
+    box.classList.add('show');
+    box.innerHTML = '<b>■ SCORE ' + r.correct + '/' + r.total + ' — formative only.</b> Correct: Q1 = B, Q2 = A. Nothing unlocks; rail unchanged.';
+  });
+  document.getElementById('btnResetCheck').addEventListener('click', function(){
+    document.querySelectorAll('#screen-check .opt').forEach(function(o){ o.setAttribute('aria-pressed','false'); });
+    document.getElementById('scoreBox').classList.remove('show');
+  });
+  // modal
+  var back = document.getElementById('modalBack'), lastFocus = null;
+  function openModal(){
+    lastFocus = document.activeElement;
+    back.classList.add('open');
+    document.getElementById('btnCloseModal').focus();
+  }
+  function closeModal(){
+    back.classList.remove('open');
+    if (lastFocus) lastFocus.focus();
+  }
+  document.getElementById('btnCheck').addEventListener('click', openModal);
+  document.getElementById('btnCheck2').addEventListener('click', openModal);
+  document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+  back.addEventListener('click', function(e){ if (e.target === back) closeModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && back.classList.contains('open')) closeModal(); });
+  document.getElementById('btnScoreModal').addEventListener('click', function(){
+    var r = scoreCheck(document.querySelector('.modal'));
+    var box = document.getElementById('scoreModal');
+    box.classList.add('show');
+    box.innerHTML = '<b>■ SCORE ' + r.correct + '/' + r.total + ' — formative only.</b> Correct: Q1 = B, Q2 = A.';
+  });
+})();
+</script>
+</body>
+</html>

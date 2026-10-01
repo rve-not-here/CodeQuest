@@ -6,7 +6,6 @@
     <x-page-header
         title="Achievements"
         subtitle="Operators earn recognition for real learning progress. Every award is recorded server-side from actual progress and assessment data."
-        icon="◆"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">{{ $earnedCount }}/{{ $totalCount }} UNLOCKED</x-badge>

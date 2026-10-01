@@ -6,7 +6,6 @@
     <x-page-header
         title="My Classrooms"
         subtitle="The classrooms that authorize your monitoring scope. Teachers see only their own teaching classrooms while ACTIVE — an inactive classroom removes visibility immediately without touching its memberships or any learning history. Admins see every classroom."
-        icon="▣"
     >
         <x-slot:actions>
             @if ($role === 'admin')

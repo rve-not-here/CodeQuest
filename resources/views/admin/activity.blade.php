@@ -6,7 +6,6 @@
     <x-page-header
         title="Administrative Audit Trail"
         subtitle="Every mutation across the fleet, recorded by AdminAuditService::record — the only writer to the append-only ledger. Server-side filter on who acted, what action, result, and window."
-        icon="◷"
     >
         <x-slot:actions>
             <x-badge tone="cyan">APPEND-ONLY</x-badge>

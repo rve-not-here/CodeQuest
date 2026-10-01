@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit Account"
         subtitle="{{ $user->username }} — username, name, password, and role/status. Role and status changes are guarded: you cannot change your own role away from admin, deactivate yourself, or leave fewer than two active admins."
-        icon="☷"
     >
         <x-slot:actions>
             <a href="{{ route('admin.users.show', $user) }}" class="btn-ghost">◀ CANCEL</a>

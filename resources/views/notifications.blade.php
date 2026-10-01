@@ -6,7 +6,6 @@
     <x-page-header
         title="Notifications"
         subtitle="Your inbox. Mission completions, assessment results, and system announcements land here."
-        icon="✉"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">{{ $notifications->total() }} TOTAL</x-badge>

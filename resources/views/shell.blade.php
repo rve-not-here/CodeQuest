@@ -6,7 +6,6 @@
     <x-page-header
         :title="'Design System'"
         subtitle="Application shell v1 · System 404 visual identity"
-        icon="⌂"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">SHELL.ON</x-badge>

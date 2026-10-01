@@ -6,7 +6,6 @@
     <x-page-header
         :title="'Module: ' . ucfirst($slug)"
         subtitle="Shell ready. Feature module staged for a later phase."
-        icon="▣"
     >
         <x-slot:actions>
             <x-badge tone="amber">PENDING</x-badge>

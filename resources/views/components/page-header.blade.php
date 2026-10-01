@@ -1,15 +1,16 @@
-@props(['title' => '', 'subtitle' => '', 'icon' => null])
+@props(['title' => '', 'subtitle' => ''])
 
+{{-- One eyebrow, one title, one sentence of context. The decorative
+     glyph prop this used to accept was removed: it carried no
+     information and was passed inconsistently across 42 call sites. --}}
 <header class="page-header">
     <div class="min-w-0">
         @if ($title)
             <p class="terminal-kicker">SYSTEM 404 // LEARNING NETWORK</p>
-            <h1 class="mt-2 font-display text-2xl font-bold uppercase tracking-[-0.025em] text-ink md:text-3xl">
-                @if ($icon)<span aria-hidden="true">{{ $icon }} </span>@endif{{ $title }}
-            </h1>
+            <h1>{{ $title }}</h1>
         @endif
         @if ($subtitle)
-            <p class="mt-2 max-w-3xl text-sm leading-relaxed text-static md:text-base">{{ $subtitle }}</p>
+            <p class="page-header-subtitle">{{ $subtitle }}</p>
         @endif
     </div>
     @isset($actions)

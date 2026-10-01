@@ -6,7 +6,6 @@
     <x-page-header
         title="Student Progress"
         subtitle="{{ $student->username }} · {{ $student->name }}"
-        icon="◷"
     >
         <x-slot:actions>
             <a href="{{ route('students') }}" class="btn-ghost">◀ ALL STUDENTS</a>

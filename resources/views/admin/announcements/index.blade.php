@@ -6,7 +6,6 @@
     <x-page-header
         title="Announcements"
         subtitle="System announcements for maintenance, availability, and learning directives. Audience is server-determined; publish delivers the message once to every active matching user."
-        icon="◉"
     >
         <x-slot:actions>
             <a href="{{ route('admin.announcements.create') }}" class="btn-ghost">+ NEW ANNOUNCEMENT</a>

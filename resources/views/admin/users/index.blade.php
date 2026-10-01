@@ -6,7 +6,6 @@
     <x-page-header
         title="User Management"
         subtitle="Every account in the fleet, searched and filtered server-side. Role and status are assigned by the server, never by the client."
-        icon="☷"
     >
         <x-slot:actions>
             <a href="{{ route('admin.users.create') }}" class="btn-ghost">+ NEW USER</a>

@@ -6,7 +6,6 @@
     <x-page-header
         title="{{ $assessment->title }}"
         subtitle="{{ $course->name }} · Boss Challenge"
-        icon="◈"
     >
         <x-slot:actions>
             <x-badge tone="amber">PASS ≥ {{ $assessment->passing_score }}%</x-badge>

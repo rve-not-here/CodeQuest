@@ -6,7 +6,6 @@
     <x-page-header
         title="New Announcement"
         subtitle="Saved as a draft by the server — publishing is a separate step that delivers the message to the selected audience."
-        icon="◉"
     >
         <x-slot:actions>
             <a href="{{ route('admin.announcements') }}" class="btn-ghost">◀ ALL ANNOUNCEMENTS</a>

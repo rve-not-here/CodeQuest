@@ -26,7 +26,7 @@
         <div class="dashboard-command-grid">
             <div class="min-w-0">
                 <p class="terminal-kicker text-phosphor">
-                    CURRENT OPERATION // {{ $course === null ? 'ALL CLEAR' : 'ACTIVE' }}
+                    Current operation
                 </p>
 
                 @if ($course === null)
@@ -35,32 +35,32 @@
                         You have cleared every active course. Awaiting new directives from Command.
                     </p>
                 @elseif ($resume === null)
-                    <p class="mt-4 text-sm uppercase tracking-[0.12em] text-static">{{ $course->name }}</p>
+                    <p class="mt-3 text-sm text-static">{{ $course->name }}</p>
                     <h2 id="current-operation-title" class="dashboard-command-title">No pending challenge</h2>
                     <p class="dashboard-command-copy">Review the Learning Path for the next available operation.</p>
                 @elseif ($resume['type'] === 'mission')
-                    <p class="mt-4 text-sm uppercase tracking-[0.12em] text-static">{{ $course->name }}</p>
+                    <p class="mt-3 text-sm text-static">{{ $course->name }}</p>
                     <h2 id="current-operation-title" class="dashboard-command-title">{{ $resume['mission']->title }}</h2>
                     <p class="dashboard-command-copy">
                         @if (! empty($resume['section']))
-                            {{ $resume['section']->title }} //
+                            {{ $resume['section']->title }},
                         @endif
-                        {{ $resume['mission']->difficulty }} // +{{ $resume['mission']->points }} XP
+                        {{ $resume['mission']->difficulty }} difficulty, {{ $resume['mission']->points }} XP.
                     </p>
                 @else
-                    <p class="mt-4 text-sm uppercase tracking-[0.12em] text-amber">Boss Challenge ready</p>
+                    <p class="mt-3 text-sm text-amber">Boss Challenge ready</p>
                     <h2 id="current-operation-title" class="dashboard-command-title">All challenges complete</h2>
                     <p class="dashboard-command-copy">Return to the Learning Path to inspect the course milestone.</p>
                 @endif
 
                 @if ($course !== null && $courseProgress !== null)
-                    <div class="mt-6 max-w-2xl">
+                    <div class="dashboard-command-progress">
                         <x-progress-bar
                             label="{{ $course->name }}"
                             :total="$courseProgress['total']"
                             :current="$courseProgress['completed']"
                         />
-                        <p class="mt-2 text-xs uppercase tracking-[0.1em] text-static">
+                        <p class="mt-2 text-xs text-static">
                             {{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} challenges validated
                         </p>
                     </div>
@@ -70,7 +70,7 @@
             <div class="dashboard-command-action">
                 @if ($resume !== null && $resume['type'] === 'mission')
                     <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $resume['mission']) }}" class="btn-primary btn-command">
-                        {{ $resumeHasDraft ? 'Resume Challenge →' : 'Continue Learning →' }}
+                        {{ $resumeHasDraft ? 'Resume Challenge' : 'Continue Learning' }} →
                     </a>
                     <p>{{ $resumeHasDraft ? 'Saved work detected.' : 'Open the current lesson.' }}</p>
                 @elseif ($resume !== null && $resume['type'] === 'course')
@@ -84,23 +84,23 @@
         </div>
     </section>
 
-    <section class="dashboard-status-grid" aria-label="Learning status">
-        <a href="{{ route('xp-ledger') }}" class="dashboard-status-cell">
-            <span class="dashboard-status-label">XP BALANCE</span>
-            <strong>{{ $totalXp }}</strong>
-            <span>Open ledger →</span>
+    <section class="dashboard-signal-strip" aria-label="Learning signal">
+        <a href="{{ route('xp-ledger') }}" class="dashboard-signal">
+            <span class="dashboard-signal-label">XP BALANCE</span>
+            <strong class="dashboard-signal-value">{{ $totalXp }}</strong>
+            <span class="dashboard-signal-note">Open ledger</span>
         </a>
-        <a href="{{ route('competency') }}" class="dashboard-status-cell">
-            <span class="dashboard-status-label">COMPETENCY</span>
-            <strong class="text-base {{ $competencyTone === 'phosphor' ? 'text-phosphor' : ($competencyTone === 'amber' ? 'text-amber' : ($competencyTone === 'cyan' ? 'text-cyan' : 'text-static')) }}">
+        <a href="{{ route('competency') }}" class="dashboard-signal">
+            <span class="dashboard-signal-label">COMPETENCY</span>
+            <strong class="dashboard-signal-value {{ $competencyTone === 'phosphor' ? 'text-phosphor' : ($competencyTone === 'amber' ? 'text-amber' : ($competencyTone === 'cyan' ? 'text-cyan' : 'text-static')) }}">
                 {{ $competencyState }}
             </strong>
-            <span>{{ $competencySummary['name'] ?? 'No active skill area' }} →</span>
+            <span class="dashboard-signal-note">{{ $competencySummary['name'] ?? 'No active skill area' }}</span>
         </a>
-        <a href="{{ route('achievements') }}" class="dashboard-status-cell">
-            <span class="dashboard-status-label">ACHIEVEMENTS</span>
-            <strong>{{ $learnerStats['achievements'] }}</strong>
-            <span>{{ $learnerStats['achievements'] === 1 ? 'recognition unlocked' : 'recognitions unlocked' }} →</span>
+        <a href="{{ route('achievements') }}" class="dashboard-signal">
+            <span class="dashboard-signal-label">ACHIEVEMENTS</span>
+            <strong class="dashboard-signal-value">{{ $learnerStats['achievements'] }}</strong>
+            <span class="dashboard-signal-note">{{ $learnerStats['achievements'] === 1 ? 'recognition unlocked' : 'recognitions unlocked' }}</span>
         </a>
     </section>
 

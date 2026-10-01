@@ -6,7 +6,6 @@
     <x-page-header
         title="Classroom Management"
         subtitle="The enrollment containers behind teacher visibility. A teacher may monitor only the students and courses of their ACTIVE classrooms; deactivating a classroom removes that visibility immediately without touching the memberships or any academic history."
-        icon="▣"
     >
         <x-slot:actions>
             <a href="{{ route('admin.classrooms.create') }}" class="btn-ghost">+ NEW CLASSROOM</a>

@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit Boss Challenge"
         subtitle="{{ $course->name }} → {{ $assessment->title }} — assessment fields. assessment.status is an access gate: locking or drafting seals the challenge but never rewrites recorded attempts. Grading rules are view-only in this story."
-        icon="◈"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses.assessment', $course) }}" class="btn-ghost">◀ CANCEL</a>

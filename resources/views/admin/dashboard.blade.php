@@ -6,7 +6,6 @@
     <x-page-header
         title="Admin Console"
         subtitle="Fleet-wide administration. Every figure is computed server-side from the live learning, assessment, and audit records at request time."
-        icon="☰"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

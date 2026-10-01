@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit Section"
         subtitle="{{ $course->name }} → {{ $section->title }} — section fields. Sections carry no status; the access gate sits on course.status and never changes by editing a section row."
-        icon="▦"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses.sections', $course) }}" class="btn-ghost">◀ CANCEL</a>

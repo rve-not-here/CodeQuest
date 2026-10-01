@@ -6,7 +6,6 @@
     <x-page-header
         title="Course Analytics"
         subtitle="Per-course aggregate summaries across the fleet. Every value is derived server-side from real records."
-        icon="Σ"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

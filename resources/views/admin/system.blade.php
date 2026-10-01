@@ -6,7 +6,6 @@
     <x-page-header
         title="System Status"
         subtitle="Operational health of the deployment: application build, live database connectivity, applied migrations, and storage/log writability. Checks are performed at request time; the page is strictly read-only."
-        icon="⚙"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

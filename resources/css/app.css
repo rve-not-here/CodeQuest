@@ -11,10 +11,20 @@
    ============================================================ */
 
 @theme {
+    /* Chrome, code, and data stay monospace: that is the System 404 voice.
+       Prose gets a sans face. Reading a lesson or a four-option question in
+       16px monospace at 72ch is the hardest thing on the page to get through,
+       and it is the one thing a student has to do most. */
     --font-display: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-    --font-body: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
     --font-code: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-    --font-sans: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --font-body: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-sans: var(--font-body);
+
+    /* Prose scale. Four steps is enough; anything more and the views drift. */
+    --text-prose: 1.0625rem;
+    --text-prose--line-height: 1.7;
+    --text-meta: 0.8125rem;
+    --text-meta--line-height: 1.5;
 
     --color-void: #030604;
     --color-surface: #060c08;
@@ -171,9 +181,8 @@
         font-family: var(--font-code);
         font-size: 0.75rem;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
         text-decoration: none;
-        text-transform: uppercase;
     }
 
     .terminal-link:hover {
@@ -181,52 +190,88 @@
         text-decoration: underline;
     }
 
+    /* ── Buttons ──────────────────────────────────────────────
+       Two voices in this app: chrome is monospace and uppercase,
+       prose is sans and sentence case. Buttons are chrome, so they
+       keep the terminal voice — hierarchy comes from the three
+       tiers below, not from shouting louder. The old set gave Submit
+       and Save draft the same colour, so the primary action had
+       nothing to be primary over. */
     .btn-primary,
+    .btn-secondary,
     .btn-ghost {
         display: inline-flex;
         min-height: 2.75rem;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        border: 1px solid var(--color-phosphor);
+        border: 1px solid transparent;
         border-radius: 2px;
-        padding: 0.65rem 1rem;
+        padding: 0.6rem 1rem;
         font-family: var(--font-code);
-        font-size: 0.82rem;
+        font-size: 0.8125rem;
         font-weight: 700;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
         text-align: center;
         text-decoration: none;
         text-transform: uppercase;
-        transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+        transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
     }
 
     .btn-primary {
+        border-color: var(--color-phosphor);
         background: var(--color-phosphor);
         color: var(--color-void);
-        box-shadow: 0 0 20px rgba(51, 255, 0, 0.12);
     }
 
     .btn-primary:hover {
-        background: #75ff55;
         border-color: #75ff55;
+        background: #75ff55;
         color: var(--color-void);
-        box-shadow: 0 0 26px rgba(51, 255, 0, 0.22);
     }
 
-    .btn-ghost {
+    /* Secondary carries a visible edge so it reads as a control,
+       not as body text that happens to be clickable. */
+    .btn-secondary {
+        border-color: rgba(51, 255, 0, 0.42);
         background: transparent;
+        color: var(--color-ink);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--color-phosphor);
+        background: rgba(51, 255, 0, 0.1);
         color: var(--color-phosphor);
     }
 
+    /* Tertiary is for actions that cost the student something or
+       can be deferred, so it stays quiet until hovered. */
+    .btn-ghost {
+        border-color: rgba(145, 161, 152, 0.34);
+        background: transparent;
+        color: var(--color-static);
+        font-weight: 600;
+    }
+
     .btn-ghost:hover {
-        background: rgba(51, 255, 0, 0.1);
-        color: #75ff55;
+        border-color: rgba(51, 255, 0, 0.5);
+        background: rgba(51, 255, 0, 0.07);
+        color: var(--color-phosphor);
+    }
+
+    /* Busy state. Without this a Submit click on a slow grader
+       looks like a dead button. */
+    .btn-primary[aria-busy='true'],
+    .btn-secondary[aria-busy='true'],
+    .btn-ghost[aria-busy='true'] {
+        cursor: progress;
+        opacity: 0.72;
     }
 
     button:disabled,
     .btn-primary:disabled,
+    .btn-secondary:disabled,
     .btn-ghost:disabled {
         cursor: not-allowed;
         opacity: 0.5;
@@ -248,9 +293,22 @@
 
     .terminal-input:focus {
         border-color: var(--color-phosphor);
-        box-shadow: 0 0 0 3px rgba(51, 255, 0, 0.13);
+        box-shadow: 0 0 0 3px rgba(51, 255, 0, 0.16);
         outline: none;
     }
+
+    /* Form labels. Repeated as utility classes in a dozen views; one
+       class keeps the size and colour from drifting per screen. */
+    .cq-label {
+        display: block;
+        color: var(--color-static);
+        font-family: var(--font-code);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
 
     .terminal-checkbox {
         width: 1.1rem;
@@ -332,8 +390,7 @@
 }
 
 /* ── APPLICATION SHELL ───────────────────────────────────── */
-.cq-topnav,
-.cq-sidebar {
+.cq-topnav {
     background: rgba(4, 8, 6, 0.98);
     border-color: rgba(51, 255, 0, 0.2);
 }
@@ -347,10 +404,6 @@
     min-height: 4.25rem;
 }
 
-.cq-sidebar {
-    border-right: 1px solid rgba(51, 255, 0, 0.24);
-    box-shadow: 18px 0 40px rgba(0, 0, 0, 0.4);
-}
 
 .cq-brand {
     display: inline-flex;
@@ -412,12 +465,11 @@
     align-items: center;
     gap: 0.45rem;
     color: var(--color-static);
-    font-family: var(--font-code);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0;
     text-decoration: none;
-    text-transform: uppercase;
 }
 
 .cq-navlink {
@@ -427,16 +479,17 @@
 
 .cq-navlink:hover,
 .cq-navbar-link:hover {
-    color: var(--color-phosphor);
+    color: var(--color-ink);
 }
 
 .cq-navlink--active {
     border-bottom-color: var(--color-phosphor);
-    color: var(--color-phosphor);
+    color: var(--color-ink);
+    font-weight: 600;
 }
 
 .cq-primary-nav {
-    display: none;
+    display: flex;
     align-items: center;
     gap: 0.25rem;
 }
@@ -459,18 +512,9 @@
     color: var(--color-phosphor);
 }
 
-.cq-menu-trigger {
-    display: inline-flex;
-}
 
-.drawer-open {
-    overflow: hidden;
-}
 
 @media (min-width: 1024px) {
-    .cq-menu-trigger {
-        display: none;
-    }
 
     .cq-primary-nav {
         display: flex;
@@ -509,27 +553,86 @@
     cursor: pointer;
     align-items: center;
     gap: 0.55rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    padding: 0 0.6rem;
     color: var(--color-static);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0;
 }
 
 .cq-account-trigger:hover,
 .cq-account-menu[open] .cq-account-trigger {
-    color: var(--color-phosphor);
+    border-color: rgba(51, 255, 0, 0.35);
+    background: rgba(51, 255, 0, 0.07);
+    color: var(--color-ink);
 }
 
+/* The popover holds every destination the top row cannot fit, so it
+   needs a real stacking context and a scroll ceiling of its own. */
 .cq-account-popover {
     position: absolute;
-    top: calc(100% + 0.55rem);
+    z-index: 60;
+    top: calc(100% + 0.4rem);
     right: 0;
-    width: min(17rem, calc(100vw - 2rem));
+    display: flex;
+    width: min(19rem, calc(100vw - 1.5rem));
+    max-height: min(30rem, calc(100vh - 6rem));
+    flex-direction: column;
     border: 1px solid rgba(51, 255, 0, 0.3);
     background: var(--color-surface-alt);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.42);
-    padding: 1rem;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+.cq-account-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.cq-account-group {
+    padding: 0.85rem 0.6rem 0.3rem;
+    color: #74827a;
+    font-family: var(--font-code);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.cq-account-link {
+    display: flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-left: 2px solid transparent;
+    padding: 0.5rem 0.6rem;
+    color: var(--color-static);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.cq-account-link:hover {
+    border-left-color: rgba(51, 255, 0, 0.4);
+    background: rgba(51, 255, 0, 0.06);
+    color: var(--color-ink);
+}
+
+.cq-account-link[aria-current='page'] {
+    border-left-color: var(--color-phosphor);
+    background: rgba(51, 255, 0, 0.09);
+    color: var(--color-ink);
+    font-weight: 600;
+}
+
+
+.cq-account-footer {
+    flex: none;
+    border-top: 1px solid rgba(51, 255, 0, 0.18);
+    padding: 0.5rem;
 }
 
 .cq-account-action {
@@ -537,13 +640,18 @@
     width: 100%;
     min-height: 2.75rem;
     align-items: center;
-    border-top: 1px solid rgba(51, 255, 0, 0.16);
-    color: var(--color-phosphor);
-    padding-top: 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    border: 0;
+    background: transparent;
+    color: var(--color-static);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: left;
+}
+
+.cq-account-action:hover {
+    background: rgba(51, 255, 0, 0.06);
+    color: var(--color-alert);
 }
 
 .cq-nav-heading {
@@ -589,9 +697,27 @@
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(51, 255, 0, 0.2);
-    padding-bottom: 1rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid rgba(51, 255, 0, 0.18);
+    padding-bottom: 1.1rem;
+}
+
+.page-header h1 {
+    margin-top: 0.3rem;
+    color: var(--color-ink);
+    font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+.page-header p.page-header-subtitle {
+    max-width: 62ch;
+    margin-top: 0.5rem;
+    color: var(--color-static);
+    font-size: var(--text-prose);
+    line-height: 1.6;
+    text-wrap: pretty;
 }
 
 .manual-footer {
@@ -605,123 +731,135 @@
     background: var(--color-void);
     color: #718078;
     padding: 0.7rem 1.25rem;
+    font-family: var(--font-code);
     font-size: 0.68rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
 
 /* ── DASHBOARD ───────────────────────────────────────────── */
+
+/* One panel, one job: say what to do next. The diagonal hatch and
+   phosphor bloom this used to carry competed with the mission title
+   for attention without adding information. */
 .dashboard-command {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(51, 255, 0, 0.5);
-    background: linear-gradient(100deg, rgba(51, 255, 0, 0.075), transparent 56%), var(--color-panel);
-    box-shadow: inset 4px 0 0 var(--color-phosphor), 0 18px 48px rgba(0, 0, 0, 0.24);
-}
-
-.dashboard-command::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 11rem;
-    height: 11rem;
-    background: repeating-linear-gradient(135deg, transparent 0 10px, rgba(51, 255, 0, 0.035) 10px 11px);
-    content: '';
-    pointer-events: none;
+    border: 1px solid rgba(51, 255, 0, 0.4);
+    background: var(--color-panel);
+    box-shadow: inset 3px 0 0 var(--color-phosphor);
 }
 
 .dashboard-command-grid {
     position: relative;
-    z-index: 1;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 2rem;
     align-items: end;
-    padding: clamp(1.25rem, 3vw, 2.25rem);
+    padding: clamp(1.25rem, 3vw, 2rem);
 }
 
 .dashboard-command-title {
-    margin-top: 0.35rem;
+    max-width: 22ch;
+    margin-top: 0.4rem;
     color: var(--color-ink);
-    font-size: clamp(1.75rem, 4vw, 3.15rem);
+    font-size: clamp(1.6rem, 3.4vw, 2.5rem);
     font-weight: 700;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
     text-wrap: balance;
 }
 
 .dashboard-command-copy {
-    max-width: 46rem;
-    margin-top: 0.75rem;
+    max-width: 52ch;
+    margin-top: 0.6rem;
     color: var(--color-static);
-    font-size: 0.92rem;
-    line-height: 1.7;
+    font-size: var(--text-prose);
+    line-height: 1.6;
+    text-wrap: pretty;
+}
+
+.dashboard-command-progress {
+    max-width: 34rem;
+    margin-top: 1.5rem;
 }
 
 .dashboard-command-action {
     display: flex;
-    min-width: 13.5rem;
+    min-width: 14rem;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.6rem;
+    gap: 0.5rem;
 }
 
 .dashboard-command-action p {
     color: var(--color-static);
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
+    font-size: 0.8125rem;
+    line-height: 1.4;
     text-align: center;
-    text-transform: uppercase;
 }
 
 .btn-command {
     min-height: 3.25rem;
     padding-inline: 1.35rem;
+    font-size: 0.9375rem;
 }
 
-.dashboard-status-grid {
+/* Signal strip. Three facts, one rank each: progress first, then the
+   competency read, then the count. All at meta weight, so none of
+   them can outshout the mission title above. */
+.dashboard-signal-strip {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     margin-top: 1px;
     border: 1px solid rgba(51, 255, 0, 0.18);
-    background: rgba(51, 255, 0, 0.06);
+    background: var(--color-panel);
     gap: 1px;
 }
 
-.dashboard-status-cell {
+.dashboard-signal {
     display: flex;
     min-width: 0;
-    min-height: 7rem;
     flex-direction: column;
-    justify-content: center;
+    gap: 0.15rem;
     background: var(--color-surface-alt);
-    color: var(--color-static);
-    padding: 1rem 1.2rem;
+    padding: 0.85rem 1.1rem;
     text-decoration: none;
 }
 
-.dashboard-status-cell:hover {
+a.dashboard-signal:hover {
     background: #0d1b12;
-    color: var(--color-phosphor);
 }
 
-.dashboard-status-cell strong {
-    margin: 0.2rem 0;
-    color: var(--color-ink);
-    font-size: 1.55rem;
-    line-height: 1.25;
+.dashboard-signal-label {
+    color: var(--color-static);
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
 }
 
-.dashboard-status-cell > span:last-child {
+.dashboard-signal-value {
     overflow: hidden;
-    font-size: 0.72rem;
+    color: var(--color-ink);
+    font-size: 1.0625rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    line-height: 1.3;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.dashboard-status-label {
-    color: var(--color-phosphor-dim);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+a.dashboard-signal:hover .dashboard-signal-value {
+    color: var(--color-phosphor);
+}
+
+.dashboard-signal-note {
+    overflow: hidden;
+    color: #74827a;
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .dashboard-signal-row {
@@ -735,20 +873,22 @@
 
 .dashboard-signal-row dt {
     color: var(--color-static);
+    font-size: 0.875rem;
 }
 
 .dashboard-signal-row dd {
     color: var(--color-ink);
-    font-weight: 700;
+    font-weight: 600;
     text-align: right;
 }
 
 /* ── LEARNING PATH ───────────────────────────────────────── */
+
+/* Course is the section boundary, not another floating card: one
+   border, one header, the rail beneath it unboxed. */
 .learning-path-course {
-    overflow: hidden;
-    border: 1px solid rgba(51, 255, 0, 0.28);
+    border: 1px solid rgba(51, 255, 0, 0.26);
     background: rgba(7, 15, 10, 0.96);
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
 }
 
 .learning-path-course-header {
@@ -757,7 +897,25 @@
     gap: 1.5rem;
     align-items: center;
     padding: 1.25rem 1.5rem;
-    background: linear-gradient(90deg, rgba(51, 255, 0, 0.06), transparent 58%);
+    background: rgba(51, 255, 0, 0.04);
+}
+
+.learning-path-course-header h2 {
+    margin-top: 0.3rem;
+    color: var(--color-ink);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+.learning-path-course-header p:not(.terminal-kicker) {
+    max-width: 64ch;
+    margin-top: 0.4rem;
+    color: var(--color-static);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    text-wrap: pretty;
 }
 
 .learning-path-course-progress {
@@ -768,21 +926,23 @@
 }
 
 .learning-path-course-progress strong {
-    color: var(--color-phosphor);
-    font-size: 1.7rem;
+    color: var(--color-ink);
+    font-size: 1.6rem;
+    font-variant-numeric: tabular-nums;
     line-height: 1;
 }
 
 .learning-path-course-progress span {
     margin-top: 0.35rem;
     color: var(--color-static);
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
+    letter-spacing: 0.07em;
 }
 
 .learning-path-rail {
     width: 100%;
-    max-width: 50rem;
+    max-width: 52rem;
     margin: 2.25rem auto 0;
 }
 
@@ -802,15 +962,18 @@
 .path-section-header h3 {
     margin-top: 0.25rem;
     color: var(--color-ink);
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 .path-section-header > span {
     color: var(--color-static);
-    font-size: 0.72rem;
-    font-weight: 700;
+    font-family: var(--font-code);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .path-node-list {
@@ -834,13 +997,13 @@
 }
 
 .path-node + .path-node {
-    margin-top: 0.9rem;
+    margin-top: 0.6rem;
 }
 
 .path-marker {
     position: absolute;
     z-index: 1;
-    top: 1.05rem;
+    top: 0.95rem;
     left: 0;
     display: inline-flex;
     width: 2.4rem;
@@ -850,20 +1013,19 @@
     border: 1px solid var(--color-phosphor-dim);
     background: var(--color-void);
     color: var(--color-phosphor-dim);
-    font-size: 0.78rem;
-    font-weight: 700;
+    font-size: 0.8rem;
 }
 
 .path-node-card {
     display: flex;
-    min-height: 5.15rem;
+    min-height: 4.75rem;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     border: 1px solid rgba(51, 255, 0, 0.16);
     background: var(--color-surface-alt);
     color: var(--color-ink);
-    padding: 0.9rem 1rem;
+    padding: 0.85rem 1rem;
     text-decoration: none;
 }
 
@@ -879,24 +1041,30 @@ a.path-node-card:hover {
 
 .path-node-copy h4 {
     overflow-wrap: anywhere;
-    font-size: 0.94rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+/* State is always spelled out in text, never carried by the marker
+   colour or glyph alone. */
+.path-state {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--color-static);
+    font-family: var(--font-code);
+    font-size: 0.625rem;
     font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
 }
 
 .path-node-copy p {
-    margin-top: 0.28rem;
+    margin-top: 0.25rem;
     color: var(--color-static);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     line-height: 1.45;
-}
-
-.path-state {
-    display: block;
-    margin-bottom: 0.2rem;
-    color: var(--color-phosphor-dim);
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.11em;
 }
 
 .path-node-arrow {
@@ -963,15 +1131,15 @@ a.path-node-card:hover {
     align-items: center;
     gap: 1rem;
     margin-top: 3rem;
-    border: 1px solid rgba(255, 176, 0, 0.55);
+    border: 1px solid rgba(255, 176, 0, 0.5);
     background: #0d130c;
-    padding: 1.25rem;
+    padding: 1.15rem;
 }
 
 .boss-node-sigil {
     display: inline-flex;
-    width: 3.25rem;
-    height: 3.25rem;
+    width: 3rem;
+    height: 3rem;
     flex: none;
     align-items: center;
     justify-content: center;
@@ -981,17 +1149,21 @@ a.path-node-card:hover {
 }
 
 .boss-node h3 {
-    margin-top: 0.28rem;
+    margin-top: 0.25rem;
     color: var(--color-ink);
-    font-size: 1.05rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 .boss-node p:not(.terminal-kicker) {
-    margin-top: 0.35rem;
+    max-width: 58ch;
+    margin-top: 0.3rem;
     color: var(--color-static);
-    font-size: 0.78rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
 }
 
 .boss-node--passed {
@@ -1048,10 +1220,12 @@ a.path-node-card:hover {
 }
 
 .lesson-copy {
-    max-width: 72ch;
+    max-width: 68ch;
     color: var(--color-ink);
-    font-size: 0.95rem;
-    line-height: 1.8;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+    white-space: pre-line;
 }
 
 .lesson-code-block {
@@ -1124,14 +1298,18 @@ a.path-node-card:hover {
 
 .knowledge-check-lesson-item h3 {
     color: var(--color-ink);
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0;
 }
 
 .knowledge-check-lesson-item p {
-    margin-top: 0.35rem;
+    max-width: 52ch;
+    margin-top: 0.3rem;
     color: var(--color-static);
-    font-size: 0.78rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
 }
 
 .knowledge-check-shell {
@@ -1150,16 +1328,50 @@ a.path-node-card:hover {
 }
 
 .knowledge-check-header h1 {
+    max-width: 30ch;
     margin-top: 0.3rem;
-    font-size: clamp(1.55rem, 4vw, 2.25rem);
+    font-family: var(--font-body);
+    font-size: clamp(1.5rem, 3.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: none;
     text-wrap: balance;
 }
 
 .knowledge-check-header > div:first-child > p:last-child {
-    max-width: 68ch;
-    margin-top: 0.6rem;
+    max-width: 62ch;
+    margin-top: 0.5rem;
     color: var(--color-static);
-    line-height: 1.65;
+    line-height: 1.6;
+    text-wrap: pretty;
+}
+
+/* Where the student is in the check, as a rail plus a count. */
+.knowledge-check-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.knowledge-check-progress-track {
+    width: min(14rem, 40vw);
+    height: 0.25rem;
+    background: rgba(51, 255, 0, 0.16);
+}
+
+.knowledge-check-progress-fill {
+    height: 100%;
+    background: var(--color-cyan);
+    transition: width 200ms ease;
+}
+
+.knowledge-check-progress-label {
+    color: var(--color-static);
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
 }
 
 .knowledge-check-form,
@@ -1172,22 +1384,25 @@ a.path-node-card:hover {
     min-width: 0;
     border: 1px solid rgba(51, 255, 0, 0.2);
     background: var(--color-panel);
-    padding: 1rem;
+    padding: 1.1rem;
 }
 
 .knowledge-check-question legend {
     width: 100%;
     color: var(--color-ink);
     font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.6;
+    font-weight: 600;
+    line-height: 1.55;
+    text-wrap: pretty;
 }
 
 .knowledge-check-question legend span {
     display: block;
     margin-bottom: 0.35rem;
     color: var(--color-cyan);
-    font-size: 0.75rem;
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
+    font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
@@ -1198,13 +1413,16 @@ a.path-node-card:hover {
 
 .knowledge-check-options {
     display: grid;
-    gap: 0.55rem;
+    gap: 0.5rem;
     margin-top: 0.9rem;
 }
 
+/* Selection has to read without colour, so the checked option gains a
+   filled marker and a heavier edge, not just a tinted background. */
 .knowledge-check-option {
+    position: relative;
     display: grid;
-    min-height: 2.9rem;
+    min-height: 2.75rem;
     grid-template-columns: 1.15rem minmax(0, 1fr);
     align-items: center;
     gap: 0.75rem;
@@ -1213,12 +1431,19 @@ a.path-node-card:hover {
     color: var(--color-ink);
     padding: 0.7rem 0.8rem;
     cursor: pointer;
+    font-size: 0.9375rem;
+    line-height: 1.5;
 }
 
-.knowledge-check-option:hover,
+.knowledge-check-option:hover {
+    border-color: rgba(51, 255, 0, 0.45);
+}
+
 .knowledge-check-option:has(input:checked) {
     border-color: var(--color-cyan);
-    background: rgba(73, 216, 232, 0.08);
+    background: rgba(73, 216, 232, 0.09);
+    box-shadow: inset 3px 0 0 var(--color-cyan);
+    font-weight: 600;
 }
 
 .knowledge-check-option:has(input:focus-visible) {
@@ -1227,13 +1452,13 @@ a.path-node-card:hover {
 }
 
 .knowledge-check-option input {
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--color-phosphor);
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: var(--color-cyan);
 }
 
 .knowledge-check-submit-bar {
-    align-items: flex-start;
+    align-items: center;
     border-top: 1px solid rgba(51, 255, 0, 0.2);
     padding-top: 1rem;
 }
@@ -1241,7 +1466,7 @@ a.path-node-card:hover {
 .knowledge-check-submit-bar p {
     max-width: 56ch;
     color: var(--color-static);
-    font-size: 0.78rem;
+    font-size: 0.875rem;
     line-height: 1.55;
 }
 
@@ -1253,18 +1478,23 @@ a.path-node-card:hover {
 
 .knowledge-check-score h2 {
     margin-top: 0.25rem;
-    font-size: 1.35rem;
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 .knowledge-check-score p:last-child {
-    margin-top: 0.35rem;
+    max-width: 46ch;
+    margin-top: 0.3rem;
     color: var(--color-static);
-    font-size: 0.78rem;
+    font-size: 0.875rem;
 }
 
 .knowledge-check-score strong {
     color: var(--color-phosphor);
-    font-size: clamp(2rem, 8vw, 3.25rem);
+    font-size: clamp(1.9rem, 6vw, 2.75rem);
     font-variant-numeric: tabular-nums;
     line-height: 1;
 }
@@ -1281,20 +1511,26 @@ a.path-node-card:hover {
 
 .knowledge-check-feedback--correct {
     border-color: rgba(51, 255, 0, 0.32);
+    box-shadow: inset 3px 0 0 var(--color-phosphor);
 }
 
 .knowledge-check-feedback--incorrect {
     border-color: rgba(255, 92, 92, 0.42);
+    box-shadow: inset 3px 0 0 var(--color-alert);
 }
 
 .knowledge-check-feedback-heading h3 {
     color: var(--color-ink);
-    font-weight: 700;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0;
 }
 
 .knowledge-check-feedback-heading span {
     color: var(--color-phosphor);
-    font-size: 0.75rem;
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.08em;
 }
@@ -1304,9 +1540,11 @@ a.path-node-card:hover {
 }
 
 .knowledge-check-feedback-prompt {
-    margin-top: 0.65rem;
+    max-width: 62ch;
+    margin-top: 0.6rem;
     color: var(--color-ink);
-    line-height: 1.65;
+    line-height: 1.6;
+    text-wrap: pretty;
 }
 
 .knowledge-check-feedback dl {
@@ -1325,7 +1563,8 @@ a.path-node-card:hover {
 
 .knowledge-check-feedback dt {
     color: var(--color-static);
-    font-size: 0.75rem;
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1333,14 +1572,18 @@ a.path-node-card:hover {
 
 .knowledge-check-feedback dd {
     color: var(--color-ink);
+    font-size: 0.9375rem;
+    line-height: 1.55;
 }
 
 .knowledge-check-explanation {
+    max-width: 62ch;
     margin-top: 0.85rem;
     border-top: 1px solid rgba(73, 216, 232, 0.2);
     color: var(--color-cyan);
     padding-top: 0.75rem;
     line-height: 1.65;
+    text-wrap: pretty;
 }
 
 .knowledge-check-result-actions {
@@ -1349,22 +1592,32 @@ a.path-node-card:hover {
     padding-top: 1rem;
 }
 
-/* ── CHALLENGE WORKSPACE ────────────────────────────────── */
+/* ── CHALLENGE WORKSPACE ──────────────────────────────────── */
 main:has(.challenge-workspace) {
+    height: calc(100dvh - 4.25rem);
+    min-height: 0;
     width: 100%;
     max-width: none;
     margin: 0;
     padding: 0 !important;
 }
 
-.challenge-context-bar {
+main:has(.challenge-workspace) > div {
     display: flex;
-    min-height: 4rem;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.challenge-context-bar {
+    flex: none;
+    display: flex;
+    min-height: 3.75rem;
     align-items: center;
     gap: 1.25rem;
     border-bottom: 1px solid rgba(51, 255, 0, 0.2);
     background: var(--color-surface-alt);
-    padding: 0.8rem 1.1rem;
+    padding: 0.7rem 1.1rem;
 }
 
 .challenge-context-meta {
@@ -1373,25 +1626,25 @@ main:has(.challenge-workspace) {
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.65rem;
+    gap: 0.6rem;
     color: var(--color-static);
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
 }
 
 .challenge-context-bar h1 {
     overflow: hidden;
     margin-top: 0.2rem;
     color: var(--color-ink);
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
     text-overflow: ellipsis;
-    text-transform: uppercase;
+    text-transform: none;
     white-space: nowrap;
 }
 
 .challenge-alert-stack {
+    flex: none;
     display: grid;
     gap: 0.5rem;
     padding: 0.5rem 1rem 0;
@@ -1401,13 +1654,42 @@ main:has(.challenge-workspace) {
     display: none;
 }
 
+/* Grid columns are driven by two custom properties so the splitters
+   can resize the side panes without touching the editor. The editor
+   is the only column without a track variable: it keeps whatever is
+   left, which is what "editor always visible" has to mean in
+   practice. */
 .challenge-workspace {
+    --brief-width: 21rem;
+    --results-width: 24rem;
     display: grid;
-    grid-template-columns: minmax(14rem, 0.78fr) minmax(22rem, 1.28fr) minmax(18rem, 1fr);
+    grid-template-columns: var(--brief-width) auto minmax(22rem, 1fr) auto var(--results-width);
     width: 100%;
-    height: calc(100vh - 8.25rem);
-    height: calc(100dvh - 8.25rem);
-    min-height: 34rem;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+}
+
+.challenge-workspace[data-brief='collapsed'] {
+    grid-template-columns: auto minmax(22rem, 1fr) auto var(--results-width);
+}
+
+.challenge-workspace[data-brief='collapsed'] .challenge-pane--brief,
+.challenge-workspace[data-brief='collapsed'] .challenge-splitter--brief {
+    display: none;
+}
+
+.challenge-workspace[data-results='collapsed'] {
+    grid-template-columns: var(--brief-width) auto minmax(22rem, 1fr);
+}
+
+.challenge-workspace[data-results='collapsed'] .challenge-pane--results,
+.challenge-workspace[data-results='collapsed'] .challenge-splitter--results {
+    display: none;
+}
+
+.challenge-workspace[data-brief='collapsed'][data-results='collapsed'] {
+    grid-template-columns: minmax(22rem, 1fr);
 }
 
 .challenge-pane {
@@ -1415,43 +1697,186 @@ main:has(.challenge-workspace) {
     min-width: 0;
     min-height: 0;
     flex-direction: column;
-    border: 0;
-    border-radius: 0;
     background: var(--color-panel);
-    box-shadow: none;
 }
 
-.challenge-pane + .challenge-pane {
-    border-left: 1px solid rgba(51, 255, 0, 0.18);
+.challenge-pane--editor {
+    background: #0b0e14;
+}
+
+.challenge-splitter {
+    width: 0.5rem;
+    flex: none;
+    cursor: col-resize;
+    border: 0;
+    border-left: 1px solid rgba(51, 255, 0, 0.16);
+    border-right: 1px solid rgba(51, 255, 0, 0.16);
+    background: transparent;
+    padding: 0;
+    transition: background-color 120ms ease;
+}
+
+.challenge-splitter:hover,
+.challenge-splitter:focus-visible,
+.challenge-splitter[data-dragging='true'] {
+    background: rgba(51, 255, 0, 0.2);
 }
 
 .challenge-pane-header {
     display: flex;
-    min-height: 2.65rem;
+    min-height: 2.5rem;
     flex: none;
     align-items: center;
-    gap: 0.9rem;
+    gap: 0.75rem;
     justify-content: space-between;
     border-bottom: 1px solid rgba(51, 255, 0, 0.2);
     background: #040806;
-    color: var(--color-phosphor-dim);
-    padding: 0 1rem;
+    color: var(--color-static);
+    padding: 0 0.5rem 0 0.9rem;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.challenge-pane-toggle {
+    display: inline-flex;
+    min-height: 2rem;
+    min-width: 2rem;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: var(--color-static);
     font-family: var(--font-code);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+.challenge-pane-toggle:hover {
+    border-color: rgba(51, 255, 0, 0.35);
+    background: rgba(51, 255, 0, 0.08);
+    color: var(--color-phosphor);
 }
 
 .challenge-draft-status {
     color: var(--color-static);
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 400;
-    letter-spacing: 0.06em;
 }
 
 .challenge-draft-status span {
     color: var(--color-cyan);
+}
+
+/* Preview and test output share one pane, split by tabs. */
+.challenge-output {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.challenge-output-tabs {
+    display: flex;
+    flex: none;
+    gap: 0.15rem;
+    border-bottom: 1px solid rgba(51, 255, 0, 0.2);
+    background: #040806;
+    padding: 0 0.35rem;
+}
+
+.challenge-output-tab {
+    min-height: 2.25rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-static);
+    padding: 0 0.7rem;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+.challenge-output-tab:hover {
+    color: var(--color-ink);
+}
+
+.challenge-output-tab[aria-selected='true'] {
+    border-bottom-color: var(--color-phosphor);
+    color: var(--color-ink);
+    font-weight: 600;
+}
+
+.challenge-output-panel[hidden] {
+    display: none;
+}
+
+.challenge-output-panel {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.challenge-console {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    background: #050907;
+    padding: 0.9rem 1rem;
+    font-family: var(--font-code);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.challenge-console-line {
+    display: flex;
+    gap: 0.6rem;
+    border-bottom: 1px solid rgba(51, 255, 0, 0.08);
+    padding: 0.2rem 0;
+}
+
+.challenge-console-line span:first-child {
+    flex: none;
+    color: #74827a;
+    font-variant-numeric: tabular-nums;
+}
+
+.challenge-console-line--error span:first-child,
+.challenge-console-line--error strong {
+    color: var(--color-alert);
+}
+
+.challenge-console-line--warn span:first-child,
+.challenge-console-line--warn strong {
+    color: var(--color-amber);
+}
+
+.challenge-console-line strong {
+    flex: none;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.challenge-console-line code {
+    min-width: 0;
+    color: var(--color-ink);
+    white-space: pre-wrap;
+}
+
+.challenge-console-empty {
+    margin: auto;
+    max-width: 30ch;
+    color: #74827a;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    text-align: center;
+    text-wrap: pretty;
 }
 
 .challenge-pane-body {
@@ -1462,24 +1887,42 @@ main:has(.challenge-workspace) {
     padding: 1.15rem;
 }
 
+.challenge-brief-block + .challenge-brief-block {
+    margin-top: 1.15rem;
+    border-top: 1px solid rgba(51, 255, 0, 0.13);
+    padding-top: 1.15rem;
+}
+
+.challenge-brief-block p:not(.terminal-kicker) {
+    max-width: 46ch;
+    margin-top: 0.5rem;
+    color: var(--color-ink);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    text-wrap: pretty;
+}
+
 .challenge-requirements {
     display: grid;
-    gap: 0.55rem;
-    border-block: 1px solid rgba(51, 255, 0, 0.13);
-    padding-block: 0.85rem;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .challenge-requirements p {
     display: flex;
     gap: 0.7rem;
     color: var(--color-static);
-    font-size: 0.82rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
 }
 
 .challenge-requirements span {
+    flex: none;
     color: var(--color-cyan);
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.15rem;
 }
 
 .challenge-pane-body.is-frame {
@@ -1512,7 +1955,7 @@ main:has(.challenge-workspace) {
 
 .challenge-pane-editor .cm-editor {
     height: 100%;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
 }
 
 .challenge-pane-editor .cm-focused {
@@ -1520,22 +1963,36 @@ main:has(.challenge-workspace) {
     outline-offset: -2px;
 }
 
-.challenge-toolbar {
-    display: flex;
+/* Persistent action footer. Spans the whole workspace so Run and
+   Submit sit in the same place no matter which pane is collapsed. */
+.challenge-footer {
     flex: none;
-    flex-wrap: wrap;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    min-height: 3.5rem;
     align-items: center;
-    gap: 0.65rem;
-    border-top: 1px solid rgba(51, 255, 0, 0.2);
-    background: #050907;
-    padding: 0.55rem 0.75rem;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid rgba(51, 255, 0, 0.24);
+    background: var(--color-surface-alt);
+    padding: 0.5rem 1.1rem;
 }
 
-.challenge-toolbar .btn-primary,
-.challenge-toolbar .btn-ghost {
-    min-height: 2.4rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.7rem;
+.challenge-footer-group {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.challenge-footer-note {
+    color: var(--color-static);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-wrap: pretty;
 }
 
 .challenge-assistance {
@@ -1556,36 +2013,52 @@ main:has(.challenge-workspace) {
 
 .challenge-assistance h3 {
     color: var(--color-ink);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0;
 }
 
 .challenge-assistance-heading p {
+    max-width: 44ch;
     margin-top: 0.2rem;
     color: var(--color-static);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
 }
 
-.challenge-assistance-actions {
-    display: flex;
-    flex: none;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
-.challenge-assistance .btn-ghost {
-    min-height: 2.25rem;
-    padding: 0.45rem 0.65rem;
-    font-size: 0.66rem;
-}
 
 .challenge-hints {
     display: grid;
     gap: 0.5rem;
     margin-top: 0.65rem;
+}
+
+/* Mobile: tabbed, editor first. Below this width three columns
+   cannot all be legible, so the panes take turns instead of
+   stacking, and the footer stays pinned. */
+.challenge-tabbar {
+    flex: none;
+    display: none;
+}
+
+.challenge-tab {
+    min-height: 2.75rem;
+    flex: 1 1 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-static);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.challenge-tab[aria-selected='true'] {
+    border-bottom-color: var(--color-phosphor);
+    background: rgba(51, 255, 0, 0.07);
+    color: var(--color-ink);
+    font-weight: 600;
 }
 
 .completion-overlay {
@@ -1606,19 +2079,19 @@ main:has(.challenge-workspace) {
 
 .completion-dialog {
     width: min(35rem, 100%);
-    border: 1px solid rgba(51, 255, 0, 0.7);
+    border: 1px solid rgba(51, 255, 0, 0.6);
     background: var(--color-panel);
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 32px rgba(51, 255, 0, 0.09);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
     padding: clamp(1.25rem, 4vw, 2rem);
 }
 
 .completion-dialog h2 {
-    margin-top: 0.45rem;
+    margin-top: 0.4rem;
     color: var(--color-ink);
-    font-size: clamp(1.6rem, 5vw, 2.35rem);
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
     font-weight: 700;
-    letter-spacing: -0.035em;
-    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    text-transform: none;
 }
 
 .completion-summary {
@@ -1689,43 +2162,69 @@ main:has(.challenge-workspace) {
 }
 
 @media (max-width: 1100px) {
+    /* Three columns stop working here. Panes take turns rather than
+       stacking, so the editor is what you land on and the actions
+       never scroll out of reach. */
+    .challenge-tabbar {
+        display: flex;
+        border-bottom: 1px solid rgba(51, 255, 0, 0.2);
+        background: #040806;
+    }
+
     .challenge-workspace {
-        grid-template-columns: minmax(0, 1fr);
+        display: block;
         height: auto;
         min-height: 0;
-        gap: 0.9rem;
-        padding: 0.9rem;
+        padding-bottom: 0;
     }
 
-    .challenge-pane {
-        min-height: 23rem;
-        border: 1px solid rgba(51, 255, 0, 0.2);
+    .challenge-workspace .challenge-pane,
+    .challenge-workspace .challenge-splitter {
+        display: none;
     }
 
-    .challenge-pane + .challenge-pane {
-        border-left: 1px solid rgba(51, 255, 0, 0.2);
+    .challenge-workspace[data-mobile-tab='editor'] .challenge-pane--editor,
+    .challenge-workspace[data-mobile-tab='brief'] .challenge-pane--brief,
+    .challenge-workspace[data-mobile-tab='results'] .challenge-pane--results {
+        display: flex;
+        height: 100%;
+        min-height: 0;
     }
 
-    .challenge-pane:first-child {
-        min-height: 18rem;
+    .challenge-splitter {
+        display: none;
     }
 
-    .challenge-pane-body.is-frame {
-        min-height: 20rem;
+    .challenge-pane-header {
+        border-radius: 0;
+    }
+
+    .challenge-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
     }
 }
 
 @media (max-width: 767.9px) {
     .cq-topnav-inner {
-        flex-wrap: wrap;
-        gap: 0;
-        padding-top: 0.45rem;
+        flex-wrap: nowrap;
+        gap: 0.35rem;
     }
 
-    .cq-topnav[data-role="student"] .cq-primary-nav {
-        order: 3;
-        width: 100%;
-        border-top: 1px solid rgba(51, 255, 0, 0.12);
+    .cq-primary-nav {
+        display: flex;
+        min-width: 0;
+        overflow-x: auto;
+    }
+
+    .cq-brand-name,
+    .cq-brand-subtitle {
+        display: none;
+    }
+
+    .cq-account-area {
+        flex: none;
     }
 
     .cq-topnav[data-role="student"] .cq-navlink {
@@ -1759,12 +2258,8 @@ main:has(.challenge-workspace) {
         align-items: stretch;
     }
 
-    .dashboard-status-grid {
+    .dashboard-signal-strip {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .dashboard-status-cell {
-        min-height: 5.5rem;
     }
 
     .learning-path-course-header {
@@ -1783,7 +2278,7 @@ main:has(.challenge-workspace) {
     .boss-node > :last-child {
         width: 100%;
         align-items: flex-start;
-        padding-left: 4.25rem;
+        padding-left: 3.75rem;
     }
 
     .lesson-actions {
@@ -1807,7 +2302,18 @@ main:has(.challenge-workspace) {
     }
 
     .knowledge-check-header > :last-child {
-        justify-content: flex-start;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .knowledge-check-progress {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.4rem;
+    }
+
+    .knowledge-check-progress-track {
+        width: 100%;
     }
 
     .knowledge-check-lesson-item form,
@@ -1835,13 +2341,11 @@ main:has(.challenge-workspace) {
         flex-direction: column;
     }
 
-    .challenge-assistance-actions {
-        justify-content: flex-start;
-    }
 
-    .challenge-toolbar .btn-primary,
-    .challenge-toolbar .btn-ghost,
-    .challenge-assistance .btn-ghost {
+    .challenge-footer,
+    .challenge-footer .btn-primary,
+    .challenge-footer .btn-secondary,
+    .challenge-footer .btn-ghost {
         min-height: 2.75rem;
     }
 }
@@ -1878,24 +2382,34 @@ main:has(.challenge-workspace) {
         padding-left: 0;
     }
 
-    .challenge-workspace {
-        padding: 0.6rem;
+    .challenge-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
     }
 
-    .challenge-toolbar,
-    .challenge-toolbar form,
-    .challenge-toolbar .btn-primary,
-    .challenge-toolbar .btn-ghost {
+    .challenge-footer-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .challenge-footer-group > :only-child {
+        grid-column: 1 / -1;
+    }
+
+    .challenge-footer-group .btn-primary,
+    .challenge-footer-group .btn-secondary,
+    .challenge-footer-group .btn-ghost,
+    .challenge-footer-group form {
         width: 100%;
     }
 
-    .challenge-toolbar .ml-auto {
-        margin-left: 0;
+    .challenge-footer-group .btn-primary,
+    .challenge-footer-group .btn-secondary,
+    .challenge-footer-group .btn-ghost {
+        padding-inline: 0.5rem;
     }
 
-    .challenge-assistance-actions,
-    .challenge-assistance-actions form,
-    .challenge-assistance-actions .btn-ghost,
     .completion-actions,
     .completion-actions .btn-primary,
     .completion-actions .btn-ghost {
@@ -1941,4 +2455,22 @@ main:has(.challenge-workspace) {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+.challenge-pane-restore-bar:empty { display: none; }
+.challenge-pane-restore-bar { flex: none; display: flex; gap: 0.5rem; padding: 0.25rem 1rem; }
+.challenge-pane-restore-bar .challenge-pane-toggle { padding-inline: 0.65rem; }
+.challenge-splitter { touch-action: none; }
+.challenge-workspace[data-resizing] { user-select: none; }
+.challenge-workspace[data-resizing] iframe { pointer-events: none; }
+.challenge-test-feedback { overflow: auto; padding: 1rem; }
+.challenge-footer-note[data-footer-status] { max-width: 22ch; }
+@media (max-width: 1100px) {
+    .challenge-pane-toggle, .challenge-pane-restore-bar { display: none; }
+    .challenge-workspace .challenge-pane-body.editor-pane { height: auto; min-height: 0; }
+    .challenge-workspace .challenge-pane--results { height: 100%; min-height: 0; }
+}
+@media (max-width: 479.9px) {
+    .challenge-footer-note[data-footer-status] { grid-column: 1 / -1; max-width: none; }
+    .challenge-footer-group:last-child { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

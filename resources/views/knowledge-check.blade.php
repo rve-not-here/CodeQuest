@@ -22,12 +22,29 @@
                 <h1>{{ $knowledgeCheck->title }}</h1>
                 <p>{{ $knowledgeCheck->instructions ?: 'Answer each question, then submit the complete check for server scoring.' }}</p>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <x-badge tone="cyan">{{ $questions->count() }} {{ Str::plural('QUESTION', $questions->count()) }}</x-badge>
-                <x-badge tone="{{ $knowledgeCheck->is_required ? 'amber' : 'dim' }}">
-                    {{ $knowledgeCheck->is_required ? 'REQUIRED' : 'OPTIONAL' }}
-                </x-badge>
-                <x-badge tone="dim">ATTEMPT {{ $attempt->attempt_number }}</x-badge>
+            <div class="flex flex-col items-end gap-2">
+                <div class="knowledge-check-progress">
+                    <div
+                        class="knowledge-check-progress-track"
+                        role="progressbar"
+                        aria-label="Questions answered"
+                        aria-valuemin="0"
+                        aria-valuemax="{{ $questions->count() }}"
+                        aria-valuenow="0"
+                        data-check-progress
+                    >
+                        <div class="knowledge-check-progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="knowledge-check-progress-label" data-check-progress-label>
+                        0 of {{ $questions->count() }} answered
+                    </span>
+                </div>
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <x-badge tone="{{ $knowledgeCheck->is_required ? 'amber' : 'dim' }}">
+                        {{ $knowledgeCheck->is_required ? 'REQUIRED' : 'OPTIONAL' }}
+                    </x-badge>
+                    <x-badge tone="dim">ATTEMPT {{ $attempt->attempt_number }}</x-badge>
+                </div>
             </div>
         </header>
 

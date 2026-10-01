@@ -8,126 +8,102 @@ if (editorHost) {
     });
 }
 
-const sidebar = document.getElementById('cq-sidebar');
-const backdrop = document.getElementById('cq-backdrop');
-const sidebarTrigger = document.querySelector('[data-open]');
-let sidebarReturnFocus = null;
-
-function sidebarFocusableElements() {
-    return [...(sidebar?.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ) ?? [])];
-}
-
-function setDrawerBackgroundInert(isInert) {
-    document.querySelectorAll('[data-drawer-content]').forEach((element) => {
-        if (isInert) {
-            element.setAttribute('inert', '');
-        } else {
-            element.removeAttribute('inert');
-        }
-    });
-}
-
-function openSidebar(opener) {
-    if (!sidebar || !backdrop || !sidebarTrigger) {
-        return;
-    }
-
-    sidebarReturnFocus = opener;
-    sidebar.removeAttribute('inert');
-    sidebar.setAttribute('aria-hidden', 'false');
-    sidebar.classList.remove('-translate-x-full');
-    backdrop.classList.remove('hidden');
-    sidebarTrigger.setAttribute('aria-expanded', 'true');
-    setDrawerBackgroundInert(true);
-    document.documentElement.classList.add('drawer-open');
-
-    window.requestAnimationFrame(() => {
-        (sidebar.querySelector('[data-drawer-initial-focus]') ?? sidebar).focus();
-    });
-}
-
-function closeSidebar(restoreFocus = true) {
-    if (!sidebar || !backdrop || !sidebarTrigger) {
-        return;
-    }
-
-    sidebar.classList.add('-translate-x-full');
-    sidebar.setAttribute('aria-hidden', 'true');
-    sidebar.setAttribute('inert', '');
-    backdrop.classList.add('hidden');
-    sidebarTrigger.setAttribute('aria-expanded', 'false');
-    setDrawerBackgroundInert(false);
-    document.documentElement.classList.remove('drawer-open');
-
-    if (restoreFocus && sidebarReturnFocus instanceof HTMLElement) {
-        sidebarReturnFocus.focus();
-    }
-}
-
-sidebarTrigger?.addEventListener('click', () => openSidebar(sidebarTrigger));
-
-document.querySelectorAll('[data-close]').forEach((el) => {
-    el.addEventListener('click', closeSidebar);
-});
-
-document.addEventListener('keydown', (e) => {
-    if (sidebar?.getAttribute('aria-hidden') !== 'false') {
-        return;
-    }
-
-    if (e.key === 'Escape') {
-        e.preventDefault();
-        closeSidebar();
-        return;
-    }
-
-    if (e.key !== 'Tab') {
-        return;
-    }
-
-    const focusable = sidebarFocusableElements();
-
-    if (focusable.length === 0) {
-        e.preventDefault();
-        sidebar.focus();
-        return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-    }
-});
-
-window.matchMedia('(min-width: 1024px)').addEventListener('change', (event) => {
-    if (event.matches) {
-        closeSidebar(false);
-    }
-});
-
 document.querySelectorAll('[data-dismiss]').forEach((btn) => {
     btn.addEventListener('click', () => btn.closest('[role="status"]')?.remove());
 });
 
-const accountMenu = document.querySelector('.cq-account-menu');
+// Knowledge checks: the progress rail counts real answers, so a student
+// can see how much is left before committing to a submit.
+const checkProgress = document.querySelector('[data-check-progress]');
+const checkProgressLabel = document.querySelector('[data-check-progress-label]');
+
+if (checkProgress && checkProgressLabel) {
+    const total = Number.parseInt(checkProgress.getAttribute('aria-valuemax'), 10) || 0;
+    const fill = checkProgress.querySelector('.knowledge-check-progress-fill');
+
+    const syncCheckProgress = () => {
+        const answered = document.querySelectorAll('.knowledge-check-option input:checked').length;
+        checkProgress.setAttribute('aria-valuenow', String(answered));
+        if (fill) {
+            fill.style.width = `${total > 0 ? (answered / total) * 100 : 0}%`;
+        }
+        checkProgressLabel.textContent = `${answered} of ${total} answered`;
+    };
+
+    document.querySelectorAll('.knowledge-check-option input').forEach((input) => {
+        input.addEventListener('change', syncCheckProgress);
+    });
+
+    syncCheckProgress();
+}
+
+const accountMenu = document.getElementById('cq-account-menu');
+
+function accountMenuItems() {
+    return [...(accountMenu?.querySelectorAll('.cq-account-link, .cq-account-action') ?? [])];
+}
+
+function closeAccountMenu({ restoreFocus = false } = {}) {
+    if (!accountMenu?.open) {
+        return;
+    }
+
+    accountMenu.removeAttribute('open');
+    if (restoreFocus) {
+        accountMenu.querySelector('[data-account-trigger]')?.focus();
+    }
+}
 
 document.addEventListener('click', (event) => {
     if (accountMenu?.open && !accountMenu.contains(event.target)) {
-        accountMenu.removeAttribute('open');
+        closeAccountMenu();
     }
 });
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && accountMenu?.open) {
-        accountMenu.removeAttribute('open');
-        accountMenu.querySelector('summary')?.focus();
+        event.preventDefault();
+        closeAccountMenu({ restoreFocus: true });
     }
+});
+
+// Arrow-key traversal across the account menu. <details> opens on Enter
+// and Space already, but without this the nine destinations in it are
+// only reachable by tabbing, and the popover scrolls.
+accountMenu?.addEventListener('keydown', (event) => {
+    const items = accountMenuItems();
+    if (items.length === 0) {
+        return;
+    }
+
+    const current = items.indexOf(document.activeElement);
+    const last = items.length - 1;
+    let next = null;
+
+    switch (event.key) {
+        case 'ArrowDown':
+            next = current < 0 ? 0 : Math.min(current + 1, last);
+            break;
+        case 'ArrowUp':
+            next = current < 0 ? last : Math.max(current - 1, 0);
+            break;
+        case 'Home':
+            next = 0;
+            break;
+        case 'End':
+            next = last;
+            break;
+        default:
+            return;
+    }
+
+    event.preventDefault();
+    accountMenu.open = true;
+    items[next].focus();
+});
+
+accountMenu?.addEventListener('focusout', () => {
+    window.setTimeout(() => {
+        if (!accountMenu.contains(document.activeElement)) closeAccountMenu();
+    }, 0);
 });

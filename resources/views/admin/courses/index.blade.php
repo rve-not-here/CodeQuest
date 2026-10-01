@@ -6,7 +6,6 @@
     <x-page-header
         title="Course Management"
         subtitle="The course catalog, ordered by order_num. Status is an access gate: locking or drafting a course seals its missions and challenge but never rewrites recorded progress."
-        icon="▤"
     >
         <x-slot:actions>
             <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge>

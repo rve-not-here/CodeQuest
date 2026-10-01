@@ -6,7 +6,6 @@
     <x-page-header
         title="System Analytics"
         subtitle="Fleet-wide statistics across accounts, curriculum, learning, and the XP ledger. Every figure is computed server-side at request time; the page is strictly read-only."
-        icon="Σ"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

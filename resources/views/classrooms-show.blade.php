@@ -6,7 +6,6 @@
     <x-page-header
         title="{{ $classroom->name }}"
         subtitle="The enrollment container behind your monitoring scope. The students enrolled and courses assigned here are exactly what the teacher-area pages can surface while this classroom is ACTIVE."
-        icon="▣"
     >
         <x-slot:actions>
             <x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">

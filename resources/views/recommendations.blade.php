@@ -6,7 +6,6 @@
     <x-page-header
         title="Recommendations"
         subtitle="Deterministic next actions derived from your own progress. No fortune-telling."
-        icon="✴"
     />
 
     @if ($recommendations->isEmpty())

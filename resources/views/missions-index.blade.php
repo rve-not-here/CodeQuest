@@ -6,7 +6,6 @@
     <x-page-header
         title="Challenge Index"
         subtitle="Every active challenge in course order, tagged with your server-verified state. Open one to begin writing code from scratch."
-        icon="⚡"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>
@@ -16,7 +15,7 @@
     <form method="GET" action="{{ route('missions') }}" class="panel p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-                <label for="cq-q" class="text-xs font-bold text-phosphor-dim">Search</label>
+                <label for="cq-q" class="cq-label">Search</label>
                 <input
                     id="cq-q"
                     name="q"
@@ -27,7 +26,7 @@
                 >
             </div>
             <div>
-                <label for="cq-course" class="text-xs font-bold text-phosphor-dim">Course</label>
+                <label for="cq-course" class="cq-label">Course</label>
                 <select id="cq-course" name="course" class="terminal-input w-full mt-1">
                     <option value="">ALL COURSES</option>
                     @foreach ($courses as $course)
@@ -38,7 +37,7 @@
                 </select>
             </div>
             <div>
-                <label for="cq-status" class="text-xs font-bold text-phosphor-dim">State</label>
+                <label for="cq-status" class="cq-label">State</label>
                 <select id="cq-status" name="status" class="terminal-input w-full mt-1">
                     <option value="">ALL STATES</option>
                     @foreach (['COMPLETED', 'IN PROGRESS', 'NOT STARTED'] as $state)
@@ -48,7 +47,7 @@
             </div>
         </div>
         <div class="mt-3 flex items-center gap-2">
-            <button type="submit" class="btn-ghost">FILTER →</button>
+            <button type="submit" class="btn-secondary">FILTER →</button>
             @if ($filters['q'] !== '' || $filters['status'] !== null || $filters['course'] !== null)
                 <a href="{{ route('missions') }}" class="btn-ghost">CLEAR</a>
             @endif
@@ -61,7 +60,7 @@
         </x-status-message>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <ul class="grid grid-cols-1 lg:grid-cols-2 gap-3" role="list">
         @foreach ($rows as $row)
             @php
                 $state = $row['state'];
@@ -71,29 +70,30 @@
                 $stateIcon = $state === 'COMPLETED' ? '●' : ($state === 'IN PROGRESS' ? '▶' : '○');
                 $stateTone = $state === 'COMPLETED' ? 'phosphor' : ($state === 'IN PROGRESS' ? 'amber' : 'dim');
             @endphp
+            <li>
             @if ($courseSealed)
             <article
-                class="panel p-4 opacity-80"
+                class="panel h-full p-4 opacity-80"
                 aria-label="{{ $mission->title }}, locked"
             >
                 <div class="flex items-start justify-between gap-3 mb-2">
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-amber truncate">{{ $course->name }}</p>
-                        <h2 class="font-body text-[16px] text-ink truncate mt-1">{{ $mission->title }}</h2>
+                        <p class="cq-label truncate">{{ $course->name }}</p>
+                        <h2 class="font-body text-[1rem] font-semibold text-ink truncate mt-1">{{ $mission->title }}</h2>
                     </div>
                     <x-badge tone="dim">× LOCKED</x-badge>
                 </div>
-                <p class="text-xs leading-relaxed text-static">Course access is sealed. Return when Command restores this course.</p>
+                <p class="text-[0.875rem] leading-relaxed text-static">Course access is sealed. Return when Command restores this course.</p>
             </article>
             @else
             <a
                 href="{{ route('mission.show', $mission) }}"
-                class="panel p-4 hover:border-phosphor transition-colors {{ $state === 'COMPLETED' ? 'opacity-80' : '' }}"
+                class="panel h-full p-4 block hover:border-phosphor transition-colors {{ $state === 'COMPLETED' ? 'opacity-80' : '' }}"
             >
                 <div class="flex items-start justify-between gap-3 mb-2">
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-amber truncate">{{ $course->name }}</p>
-                        <h2 class="font-body text-[16px] text-ink truncate mt-1">{{ $mission->title }}</h2>
+                        <p class="cq-label truncate">{{ $course->name }}</p>
+                        <h2 class="font-body text-[1rem] font-semibold text-ink truncate mt-1">{{ $mission->title }}</h2>
                     </div>
                     <x-badge tone="{{ $stateTone }}">{{ $stateIcon }} {{ $state }}</x-badge>
                 </div>
@@ -102,12 +102,13 @@
                     <x-badge tone="{{ $mission->difficulty === 'HARD' ? 'alert' : ($mission->difficulty === 'MEDIUM' ? 'amber' : 'cyan') }}">
                         {{ $mission->difficulty }}
                     </x-badge>
-                    <span class="text-xs font-bold text-phosphor-dim">
+                    <span class="text-xs text-static">
                         {{ $mission->points }} XP · CH {{ $mission->order_num }}
                     </span>
                 </div>
             </a>
             @endif
+            </li>
         @endforeach
-    </div>
+    </ul>
 @endsection

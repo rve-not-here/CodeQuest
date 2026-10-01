@@ -15,6 +15,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class KnowledgeCheckService
@@ -37,6 +38,10 @@ class KnowledgeCheckService
      */
     public function lessonSummaries(User $user, Mission $mission): Collection
     {
+        if (! $this->knowledgeCheckTablesExist()) {
+            return collect();
+        }
+
         $checks = $mission->knowledgeChecks()
             ->where('status', KnowledgeCheck::STATUS_PUBLISHED)
             ->withCount('questions')
@@ -63,6 +68,10 @@ class KnowledgeCheckService
 
     public function firstOutstandingRequired(User $user, Mission $mission): ?KnowledgeCheck
     {
+        if (! $this->knowledgeCheckTablesExist()) {
+            return null;
+        }
+
         return $mission->knowledgeChecks()
             ->where('status', KnowledgeCheck::STATUS_PUBLISHED)
             ->where('is_required', true)
@@ -72,6 +81,21 @@ class KnowledgeCheckService
                     ->where('status', KnowledgeCheckAttempt::STATUS_SUBMITTED);
             })
             ->first();
+    }
+
+    private function knowledgeCheckTablesExist(): bool
+    {
+        foreach ([
+            'the404_knowledge_checks',
+            'the404_knowledge_check_questions',
+            'the404_knowledge_check_attempts',
+        ] as $table) {
+            if (! Schema::hasTable($table)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

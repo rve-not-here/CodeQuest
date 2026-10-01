@@ -6,7 +6,6 @@
     <x-page-header
         title="Course Progress"
         subtitle="Fleet status. Mission and challenge state per course directive."
-        icon="▤"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">XP {{ $totalXp }}</x-badge>

@@ -6,7 +6,6 @@
     <x-page-header
         title="XP Ledger"
         subtitle="Point balance and recent transactions. Complete missions and Boss Challenges to earn XP."
-        icon="✦"
     >
         <x-slot:actions>
             <x-badge tone="phosphor">XP {{ $balance }}</x-badge>

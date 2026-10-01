@@ -6,7 +6,6 @@
     <x-page-header
         title="Teacher Dashboard"
         subtitle="System-wide summary, composed server-side from real learning and assessment data, with the student roster below."
-        icon="⌂"
     >
         <x-slot:actions>
             <x-badge tone="cyan">SYSTEM-WIDE</x-badge>

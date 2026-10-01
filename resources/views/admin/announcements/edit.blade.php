@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit Announcement"
         subtitle="{{ $announcement->title }} — editing a published announcement never re-delivers it; already-notified users keep the version they were sent."
-        icon="◉"
     >
         <x-slot:actions>
             <a href="{{ route('admin.announcements') }}" class="btn-ghost">◀ ALL ANNOUNCEMENTS</a>

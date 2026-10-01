@@ -6,7 +6,6 @@
     <x-page-header
         title="Competency"
         subtitle="Skill areas derived from real learning and assessment data. Points are not competency."
-        icon="◎"
     >
     </x-page-header>
 

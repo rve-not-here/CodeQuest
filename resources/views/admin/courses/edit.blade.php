@@ -6,7 +6,6 @@
     <x-page-header
         title="Edit Course"
         subtitle="{{ $course->name }} — catalog fields and status. Status is an access gate: locking or drafting a course seals its missions and challenge, blocks new progress and XP, but never rewrites recorded progress."
-        icon="▤"
     >
         <x-slot:actions>
             <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ CANCEL</a>
