@@ -220,7 +220,7 @@
                 @endif
 
                 <div class="completion-actions">
-                    <a href="{{ route('learning-path') }}" class="btn btn-primary" data-completion-primary>CONTINUE TO LEARNING PATH →</a>
+                    <a href="{{ $completion['next_url'] }}" class="btn btn-primary" data-completion-primary>{{ $completion['next_label'] }} →</a>
                     <button type="button" class="btn btn-ghost" data-completion-close>REVIEW CODE</button>
                 </div>
             </section>

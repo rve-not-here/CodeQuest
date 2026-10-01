@@ -26,14 +26,17 @@
                 <span class="absolute inset-y-0 left-0 w-0.5 bg-accent" aria-hidden="true"></span>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="badge {{ $course === null ? 'badge-neutral' : 'badge-accent' }}">
-                        {{ $course === null ? 'Course complete' : ($mission !== null ? 'Current mission' : 'Course milestone') }}
+                        {{ ! $hasLearnableCourses ? 'No lessons available' : ($course === null ? 'Course complete' : ($mission !== null ? 'Current mission' : 'Course milestone')) }}
                     </span>
                     @if ($course !== null)
                         <span class="font-mono text-xs text-fg-subtle">{{ $course->name }}@if ($section !== null) / {{ $section->title }}@endif</span>
                     @endif
                 </div>
 
-                @if ($course === null)
+                @if (! $hasLearnableCourses)
+                    <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">No lessons available yet</h2>
+                    <p class="mt-2 max-w-[62ch] text-fg-muted">There are no active courses with missions. Your learning path will appear here when lessons are available.</p>
+                @elseif ($course === null)
                     <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">Course complete</h2>
                     <p class="mt-2 max-w-[62ch] text-fg-muted">You have cleared every active course. Review your learning record.</p>
                 @elseif ($mission !== null)
@@ -73,12 +76,14 @@
 
             <aside aria-labelledby="next-heading" class="border-t border-line bg-raised/40 p-5 md:p-6 lg:border-t-0 lg:border-l">
                 <h3 id="next-heading" class="eyebrow">Your learning path</h3>
-                <p class="mt-3 text-sm font-medium text-fg">{{ $course?->name ?? 'All active courses complete' }}</p>
+                <p class="mt-3 text-sm font-medium text-fg">{{ $course?->name ?? ($hasLearnableCourses ? 'All active courses complete' : 'No active lessons') }}</p>
                 <p class="mt-1 text-sm leading-6 text-fg-muted">
                     @if ($mission !== null)
                         {{ $section?->title ?? 'Next available mission' }}
                     @elseif ($course !== null)
                         The course assessment is the next milestone.
+                    @elseif (! $hasLearnableCourses)
+                        Check back when your courses are ready.
                     @else
                         Review your completed work and learning record.
                     @endif
@@ -95,8 +100,8 @@
         <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line lg:grid-cols-4">
             <div class="min-w-0 bg-surface px-4 py-3.5 md:px-5">
                 <dt class="eyebrow">Course progress</dt>
-                <dd class="mt-1.5 font-mono text-lg font-medium text-fg">{{ $courseProgress === null ? 'Complete' : $courseProgress['percent'].'%' }}</dd>
-                <dd class="text-[13px] text-fg-subtle">{{ $courseProgress === null ? 'All active courses' : $courseProgress['completed'].' of '.$courseProgress['total'].' missions' }}</dd>
+                <dd class="mt-1.5 font-mono text-lg font-medium text-fg">{{ ! $hasLearnableCourses ? 'Not started' : ($courseProgress === null ? 'Complete' : $courseProgress['percent'].'%') }}</dd>
+                <dd class="text-[13px] text-fg-subtle">{{ ! $hasLearnableCourses ? 'No active lessons' : ($courseProgress === null ? 'All active courses' : $courseProgress['completed'].' of '.$courseProgress['total'].' missions') }}</dd>
             </div>
             <div class="min-w-0 bg-surface px-4 py-3.5 md:px-5">
                 <dt class="eyebrow">Competency</dt>
@@ -130,6 +135,8 @@
                     @if ($courseProgress !== null)
                         <p>{{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} required missions complete.</p>
                         <p class="mt-1">{{ $mission !== null ? 'Continue the next mission to advance.' : 'Review the Boss Challenge milestone in the learning path.' }}</p>
+                    @elseif (! $hasLearnableCourses)
+                        <p>No active lessons are available yet.</p>
                     @else
                         <p>Review the courses and challenges you completed.</p>
                     @endif

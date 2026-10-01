@@ -94,6 +94,9 @@ class MissionController extends Controller
             $progressAfter = $course !== null
                 ? $this->dashboard->courseProgress($user, $course)['percent']
                 : null;
+            $nextMission = $course !== null
+                ? $this->dashboard->nextMission($user, $course)
+                : null;
 
             return back()
                 ->withInput(['code' => $request->input('code')])
@@ -105,6 +108,12 @@ class MissionController extends Controller
                     'progress_before' => $progressBefore,
                     'progress_after' => $progressAfter,
                     'achievement' => $this->newAchievementName($user, $achievementsBefore),
+                    'next_url' => $nextMission !== null
+                        ? route('mission.show', $nextMission)
+                        : route('learning-path'),
+                    'next_label' => $nextMission !== null
+                        ? 'NEXT MISSION'
+                        : 'REVIEW LEARNING PATH',
                 ]);
         }
 
