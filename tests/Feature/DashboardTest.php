@@ -123,6 +123,30 @@ class DashboardTest extends TestCase
             ->assertSee('Course complete');
     }
 
+    public function test_empty_catalog_does_not_claim_course_completion(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('No lessons available yet')
+            ->assertSee('Not started')
+            ->assertDontSee('All active courses complete');
+    }
+
+    public function test_active_course_without_missions_does_not_claim_course_completion(): void
+    {
+        $user = User::factory()->create();
+        Course::factory()->create(['status' => 'active']);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('No lessons available yet')
+            ->assertDontSee('Course complete');
+    }
+
     public function test_continue_learning_links_to_the_resolved_mission_not_the_standby_shell(): void
     {
         $user = User::factory()->create();

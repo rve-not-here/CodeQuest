@@ -274,7 +274,7 @@ class MissionTest extends TestCase
             'validate_rule' => null,
             'points' => 30,
         ]);
-        Mission::factory()->create([
+        $nextMission = Mission::factory()->create([
             'course_id' => $course->id,
             'section_id' => $mission->section_id,
             'order_num' => $mission->order_num + 1,
@@ -293,7 +293,24 @@ class MissionTest extends TestCase
             ->assertSee('0% → 50%')
             ->assertSee('Achievement unlocked')
             ->assertSee('First Challenge')
-            ->assertSee('CONTINUE TO LEARNING PATH')
+            ->assertSee('NEXT MISSION')
+            ->assertSee('href="'.route('mission.show', $nextMission).'"', false)
+            ->assertDontSee('REVIEW LEARNING PATH');
+    }
+
+    public function test_completing_the_last_mission_returns_to_the_learning_path_for_the_boss_gate(): void
+    {
+        $user = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('mission.challenge', $mission))
+            ->followingRedirects()
+            ->post(route('mission.submit', $mission), ['code' => 'anything'])
+            ->assertOk()
+            ->assertSee('REVIEW LEARNING PATH')
             ->assertSee('href="'.route('learning-path').'"', false)
             ->assertDontSee('NEXT MISSION');
     }

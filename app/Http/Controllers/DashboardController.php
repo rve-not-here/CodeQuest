@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
+use App\Models\Course;
 use App\Models\Mission;
 use App\Models\User;
 use App\Services\CompetencyService;
@@ -32,6 +33,10 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         $course = $this->dashboard->currentCourse($user);
+        $hasLearnableCourses = $course !== null || Course::query()
+            ->where('status', 'active')
+            ->whereHas('missions')
+            ->exists();
         $progress = $course !== null ? $this->dashboard->courseProgress($user, $course) : null;
         $resume = $this->resume->resolve($user);
         $competencies = $this->competencies->overview($user);
@@ -50,6 +55,7 @@ class DashboardController extends Controller
             'user' => $user,
             'role' => $user->role,
             'course' => $course,
+            'hasLearnableCourses' => $hasLearnableCourses,
             'courseProgress' => $progress,
             'totalXp' => $this->dashboard->totalXp($user),
             'learnerStats' => $this->dashboard->learnerStats($user),
