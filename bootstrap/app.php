@@ -10,6 +10,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         foreach ([EnsureUserIsStudent::class, EnsureUserIsTeacherOrAdmin::class, EnsureUserIsAdmin::class] as $roleMiddleware) {
             $middleware->prependToPriorityList(before: SubstituteBindings::class, prepend: $roleMiddleware);
+            $middleware->prependToPriorityList(before: ThrottleRequests::class, prepend: $roleMiddleware);
         }
 
         // Every response (including /up) is server-hardened with transport

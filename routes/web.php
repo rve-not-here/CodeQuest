@@ -61,34 +61,34 @@ Route::middleware('auth')->group(function (): void {
 
     // Report exports (US-1010, CSV only): the student's own progress as a
     // download. Authorization and filters match the on-screen report.
-    Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->middleware('student')->name('export.progress');
+    Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->middleware('student')->middleware('throttle:report-export')->name('export.progress');
 
     // Mission / challenge
     Route::get('/missions', MissionIndexController::class)->middleware('student')->name('missions');
     Route::get('/missions/{mission}', [MissionController::class, 'show'])->middleware('student')->name('mission.show');
     Route::get('/missions/{mission}/challenge', [MissionController::class, 'challenge'])->middleware('student')->name('mission.challenge');
-    Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->middleware('student')->name('mission.submit');
-    Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->middleware('student')->name('mission.draft');
-    Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->middleware('student')->name('mission.hint');
-    Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->middleware('student')->name('mission.reveal');
+    Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->middleware(['student', 'throttle:academic-submit'])->name('mission.submit');
+    Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->middleware(['student', 'throttle:academic-draft'])->name('mission.draft');
+    Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->middleware(['student', 'throttle:academic-assistance'])->name('mission.hint');
+    Route::post('/missions/{mission}/reveal', [MissionController::class, 'reveal'])->middleware(['student', 'throttle:academic-assistance'])->name('mission.reveal');
 
     Route::scopeBindings()->group(function (): void {
         Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/start', [KnowledgeCheckController::class, 'start'])
-            ->middleware('student')->name('knowledge-check.start');
+            ->middleware(['student', 'throttle:academic-submit'])->name('knowledge-check.start');
         Route::get('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}', [KnowledgeCheckController::class, 'show'])
             ->middleware('student')->name('knowledge-check.show');
         Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/attempts/{attempt}/submit', [KnowledgeCheckController::class, 'submit'])
-            ->middleware('student')->name('knowledge-check.submit');
+            ->middleware(['student', 'throttle:academic-submit'])->name('knowledge-check.submit');
         Route::post('/missions/{mission}/knowledge-checks/{knowledgeCheck}/retry', [KnowledgeCheckController::class, 'retry'])
-            ->middleware('student')->name('knowledge-check.retry');
+            ->middleware(['student', 'throttle:academic-submit'])->name('knowledge-check.retry');
     });
 
     // Boss Challenge (assessments)
     Route::get('/assessments', [AssessmentController::class, 'index'])->middleware('student')->name('assessments');
     Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->middleware('student')->name('assessment.show');
-    Route::post('/assessments/{assessment}/start', [AssessmentController::class, 'start'])->middleware('student')->name('assessment.start');
-    Route::post('/assessments/{assessment}/submit', [AssessmentController::class, 'submit'])->middleware('student')->name('assessment.submit');
-    Route::post('/assessments/{assessment}/retry', [AssessmentController::class, 'retry'])->middleware('student')->name('assessment.retry');
+    Route::post('/assessments/{assessment}/start', [AssessmentController::class, 'start'])->middleware(['student', 'throttle:academic-submit'])->name('assessment.start');
+    Route::post('/assessments/{assessment}/submit', [AssessmentController::class, 'submit'])->middleware(['student', 'throttle:academic-submit'])->name('assessment.submit');
+    Route::post('/assessments/{assessment}/retry', [AssessmentController::class, 'retry'])->middleware(['student', 'throttle:academic-submit'])->name('assessment.retry');
 
     // Unified learning timeline (US-505)
     Route::get('/timeline', TimelineController::class)->middleware('student')->name('timeline');
@@ -146,8 +146,8 @@ Route::middleware(['auth', 'teacher'])->group(function (): void {
 
     // Report exports (US-1010, CSV only): teacher-scoped student and course
     // downloads. Same authorization, scope, and filters as the reports.
-    Route::get('/export/teacher/students/{student}', [ReportExportController::class, 'teacherStudent'])->name('export.teacher-student');
-    Route::get('/export/teacher/courses/{course}', [ReportExportController::class, 'teacherCourse'])->name('export.teacher-course');
+    Route::get('/export/teacher/students/{student}', [ReportExportController::class, 'teacherStudent'])->middleware('throttle:report-export')->name('export.teacher-student');
+    Route::get('/export/teacher/courses/{course}', [ReportExportController::class, 'teacherCourse'])->middleware('throttle:report-export')->name('export.teacher-course');
 });
 
 // Admin area (US-701): authenticated, admin-only. The 'admin' middleware is
@@ -160,7 +160,7 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
 
     // Report exports (US-1010, CSV only): fleet system download under the
     // same admin authorization, scope, and filters as the system report.
-    Route::get('/export/admin/system', [ReportExportController::class, 'adminSystem'])->name('export.admin-system');
+    Route::get('/export/admin/system', [ReportExportController::class, 'adminSystem'])->middleware('throttle:report-export')->name('export.admin-system');
 
     // User management (US-703, §9.0–§12.0): directory + create/edit. Since
     // US-704 update also accepts optional role (UserService::ROLES, operator

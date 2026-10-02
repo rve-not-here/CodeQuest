@@ -17,6 +17,9 @@ const RUNNER_IMAGE = process.env.GRADER_RUNNER_IMAGE ?? 'codequest-js-runner:1.0
 const EXEC_TIMEOUT_MS = Number.parseInt(process.env.GRADER_EXEC_TIMEOUT_MS ?? '10000', 10);
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_STDOUT_BYTES = 256 * 1024;
+const MAX_SOURCE_BYTES = 65536;
+const configuredConcurrency = Number(process.env.GRADER_MAX_CONCURRENT ?? '4');
+const MAX_CONCURRENT = Number.isInteger(configuredConcurrency) && configuredConcurrency > 0 && configuredConcurrency <= 64 ? configuredConcurrency : 4;
 
 function authorized(request) {
     if (TOKEN === '') {
@@ -30,7 +33,7 @@ function authorized(request) {
 }
 
 function validPayload(body) {
-    if (!body || typeof body.source !== 'string' || body.source === '' || Buffer.byteLength(body.source) > MAX_BODY_BYTES) {
+    if (!body || typeof body.source !== 'string' || body.source === '' || Buffer.byteLength(body.source) > MAX_SOURCE_BYTES) {
         return false;
     }
     if (!Array.isArray(body.tests) || body.tests.length === 0 || body.tests.length > 50) {
@@ -67,16 +70,24 @@ function runtimeArgs() {
 export function gradeInSandbox(payload, spawnSandbox = () => spawn(RUNTIME, runtimeArgs(), { stdio: ['pipe', 'pipe', 'ignore'] })) {
     const started = Date.now();
     return new Promise((resolve) => {
-        const child = spawnSandbox();
+        let child;
+        try {
+            child = spawnSandbox();
+        } catch {
+            resolve(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
+            return;
+        }
         let stdout = '';
         let settled = false;
+        let timer;
         const finish = (result) => {
             if (!settled) {
                 settled = true;
+                clearTimeout(timer);
                 resolve(result);
             }
         };
-        const timer = setTimeout(() => {
+        timer = setTimeout(() => {
             child.kill('SIGKILL');
             finish(result('error', 0, 0, 'timeout', Date.now() - started));
         }, EXEC_TIMEOUT_MS);
@@ -118,21 +129,32 @@ function readBody(request) {
     return new Promise((resolve, reject) => {
         let size = 0;
         const chunks = [];
+        const timer = setTimeout(() => {
+            reject(new Error('body timeout'));
+            request.destroy();
+        }, 5000);
+        timer.unref?.();
         request.on('data', (chunk) => {
             size += chunk.length;
             if (size > MAX_BODY_BYTES) {
+                clearTimeout(timer);
                 reject(new Error('body too large'));
                 request.destroy();
                 return;
             }
             chunks.push(chunk);
         });
-        request.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-        request.on('error', reject);
+        request.on('end', () => {
+            clearTimeout(timer);
+            resolve(Buffer.concat(chunks).toString('utf8'));
+        });
+        request.on('error', error => { clearTimeout(timer); reject(error); });
+        request.on('aborted', () => { clearTimeout(timer); reject(new Error('request aborted')); });
     });
 }
 
 export function createApp(spawnSandbox) {
+    let active = 0;
     return createServer(async (request, response) => {
         const json = (code, body) => {
             response.writeHead(code, { 'content-type': 'application/json' });
@@ -154,20 +176,31 @@ export function createApp(spawnSandbox) {
             return;
         }
 
-        let body;
+        if (active >= MAX_CONCURRENT) {
+            response.setHeader('retry-after', '1');
+            json(503, { error: 'grader_unavailable' });
+            return;
+        }
+
+        active++;
         try {
-            body = JSON.parse(await readBody(request));
-        } catch {
-            json(400, { error: 'invalid payload' });
-            return;
-        }
+            let body;
+            try {
+                body = JSON.parse(await readBody(request));
+            } catch {
+                json(400, { error: 'invalid payload' });
+                return;
+            }
 
-        if (!validPayload(body)) {
-            json(400, { error: 'invalid payload' });
-            return;
-        }
+            if (!validPayload(body)) {
+                json(400, { error: 'invalid payload' });
+                return;
+            }
 
-        json(200, await gradeInSandbox({ source: body.source, tests: body.tests }, spawnSandbox));
+            json(200, await gradeInSandbox({ source: body.source, tests: body.tests }, spawnSandbox));
+        } finally {
+            active--;
+        }
     });
 }
 

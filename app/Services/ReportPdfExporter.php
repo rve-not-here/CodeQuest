@@ -113,11 +113,24 @@ class ReportPdfExporter
      */
     public function render(array $document): string
     {
+        $rows = 0;
+        foreach ($document['sections'] as $section) {
+            $rows += count($section['rows']);
+        }
+
+        if ($rows > 1000) {
+            abort(422, 'This report is too large for PDF. Narrow the filters or use CSV.');
+        }
+
         return View::make('exports.pdf.report', ['document' => $document])->render();
     }
 
     public function pdf(string $html): string
     {
+        if (strlen($html) > 1048576) {
+            abort(422, 'This report is too large for PDF. Narrow the filters or use CSV.');
+        }
+
         return Pdf::loadHTML($html)->setOptions($this->options(), true)->output();
     }
 

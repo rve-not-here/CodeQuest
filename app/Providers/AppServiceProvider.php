@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach (['academic-submit' => 12, 'academic-draft' => 60, 'academic-assistance' => 20, 'report-export' => 30] as $name => $attempts) {
+            RateLimiter::for($name, fn (Request $request): Limit => Limit::perMinute($attempts)->by((string) $request->user()?->getAuthIdentifier()));
+        }
+
         RateLimiter::for('login', function (Request $request): Limit {
             $username = $request->input('username');
             $identity = is_string($username) ? Str::lower(trim($username)) : '';

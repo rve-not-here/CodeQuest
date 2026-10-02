@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\DashboardService;
 use App\Services\XpService;
+use App\Support\SourceCodeInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -114,9 +115,7 @@ class AssessmentController extends Controller
                 ]);
         }
 
-        $validated = $request->validate([
-            'code' => ['required', 'string'],
-        ]);
+        $validated = SourceCodeInput::validate($request);
 
         $attempt = $this->assessments->latestAttemptFor($user, $course);
 
@@ -135,7 +134,7 @@ class AssessmentController extends Controller
         $hadPassedBefore = $this->assessments->hasPassed($user, $course);
 
         try {
-            $attempt = $this->assessments->submitAndEvaluateAttempt($user, $attempt, $validated['code']);
+            $attempt = $this->assessments->submitAndEvaluateAttempt($user, $attempt, $validated['code'] ?? '');
         } catch (AssessmentAttemptAccessDeniedException) {
             abort(403);
         } catch (AssessmentAttemptStateException) {

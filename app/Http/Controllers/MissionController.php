@@ -11,6 +11,7 @@ use App\Services\DraftService;
 use App\Services\KnowledgeCheckService;
 use App\Services\MissionService;
 use App\Services\XpService;
+use App\Support\SourceCodeInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -78,9 +79,7 @@ class MissionController extends Controller
             return $redirect;
         }
 
-        $validated = $request->validate([
-            'code' => ['required', 'string'],
-        ]);
+        $validated = SourceCodeInput::validate($request);
 
         $course = $mission->course;
         $progressBefore = $course !== null
@@ -88,7 +87,7 @@ class MissionController extends Controller
             : null;
         $achievementsBefore = $this->achievementNames($user);
 
-        $outcome = $this->missions->submit($user, $mission, $validated['code']);
+        $outcome = $this->missions->submit($user, $mission, $validated['code'] ?? '');
 
         if ($outcome['passed'] && ! $outcome['alreadyCompleted']) {
             $progressAfter = $course !== null
@@ -147,11 +146,9 @@ class MissionController extends Controller
             return $redirect;
         }
 
-        $validated = $request->validate([
-            'code' => ['required', 'string'],
-        ]);
+        $validated = SourceCodeInput::validate($request);
 
-        $this->drafts->save($user, $mission, $validated['code']);
+        $this->drafts->save($user, $mission, $validated['code'] ?? '');
 
         return back()->with('draft_saved', true);
     }
@@ -171,6 +168,8 @@ class MissionController extends Controller
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
         }
+
+        SourceCodeInput::validate($request, required: false);
 
         if ($this->missions->isCompleted($user, $mission)) {
             return back()
@@ -212,6 +211,8 @@ class MissionController extends Controller
         if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
             return $redirect;
         }
+
+        SourceCodeInput::validate($request, required: false);
 
         if ($this->missions->isCompleted($user, $mission)) {
             return back()
