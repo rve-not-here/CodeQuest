@@ -16,11 +16,15 @@
         </div>
     </header>
 
+    @if ($errors->any())
+        <x-status-message type="error" title="Invalid mission filters" class="mt-5">{{ $errors->first() }}</x-status-message>
+    @endif
+
     <form method="GET" action="{{ route('missions') }}" class="panel mt-5 p-4" role="search">
         <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
                 <label for="mission-search" class="eyebrow">Search missions</label>
-                <input id="mission-search" name="q" type="search" value="{{ $filters['q'] }}" class="field mt-1.5 w-full" placeholder="Mission or course" autocomplete="off">
+                <input id="mission-search" name="q" type="search" maxlength="200" value="{{ $filters['q'] }}" class="field mt-1.5 w-full" placeholder="Mission or course" autocomplete="off">
             </div>
             <div>
                 <label for="mission-course" class="eyebrow">Course</label>

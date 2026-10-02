@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MissionIndexRequest;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
 use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\LearningPathService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -29,7 +29,7 @@ class MissionIndexController extends Controller
         private readonly AssessmentService $assessments,
     ) {}
 
-    public function __invoke(Request $request): View
+    public function __invoke(MissionIndexRequest $request): View
     {
         if ($request->hasAny(['user_id', 'userId', 'user', 'student', 'owner'])) {
             abort(403, 'The challenge index is scoped to your own progress.');
@@ -64,9 +64,10 @@ class MissionIndexController extends Controller
             }
         }
 
-        $search = trim((string) $request->query('q', ''));
-        $status = $request->query('status');
-        $courseId = $request->query('course');
+        $filters = $request->safe(['q', 'status', 'course']);
+        $search = trim((string) ($filters['q'] ?? ''));
+        $status = $filters['status'] ?? null;
+        $courseId = $filters['course'] ?? null;
 
         if ($search !== '') {
             $rows = $rows->filter(
