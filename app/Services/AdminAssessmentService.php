@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
@@ -109,53 +110,58 @@ class AdminAssessmentService
             $this->refuse($actor, $assessment, "Unknown assessment status '{$status}'.");
         }
 
-        $before = [
-            'title' => $assessment->title,
-            'description' => $assessment->description ?? '',
-            'instructions' => $assessment->instructions ?? '',
-            'passing_score' => $assessment->passing_score,
-        ];
+        return DB::transaction(function () use ($actor, $assessment, $title, $description, $instructions, $passingScore, $status): Assessment {
+            Assessment::query()->whereKey($assessment->id)->lockForUpdate()->firstOrFail();
+            $assessment->refresh();
 
-        $versionBefore = $assessment->version;
+            $before = [
+                'title' => $assessment->title,
+                'description' => $assessment->description ?? '',
+                'instructions' => $assessment->instructions ?? '',
+                'passing_score' => $assessment->passing_score,
+            ];
 
-        $assessment->title = $title;
-        $assessment->description = $description === '' ? null : $description;
-        $assessment->instructions = $instructions === '' ? null : $instructions;
-        $assessment->passing_score = $passingScore;
-        $assessment->save();
+            $versionBefore = $assessment->version;
 
-        $summary = $this->fieldChangesSummary($before, $title, $description, $instructions, $passingScore);
-
-        if ($assessment->wasChanged('version')) {
-            $transition = "version {$versionBefore} → {$assessment->version}";
-            $summary = $summary !== null ? $summary.', '.$transition : $transition;
-        }
-
-        if ($summary !== null) {
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_ASSESSMENT_UPDATE,
-                'Assessment updated: '.$summary,
-                targetType: 'assessment',
-                targetId: $assessment->id,
-            );
-        }
-
-        if ($status !== $assessment->status) {
-            $from = $assessment->status;
-            $assessment->status = $status;
+            $assessment->title = $title;
+            $assessment->description = $description === '' ? null : $description;
+            $assessment->instructions = $instructions === '' ? null : $instructions;
+            $assessment->passing_score = $passingScore;
             $assessment->save();
 
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_ASSESSMENT_STATUS_CHANGE,
-                "Assessment status changed: {$from} → {$status}",
-                targetType: 'assessment',
-                targetId: $assessment->id,
-            );
-        }
+            $summary = $this->fieldChangesSummary($before, $title, $description, $instructions, $passingScore);
 
-        return $assessment;
+            if ($assessment->wasChanged('version')) {
+                $transition = "version {$versionBefore} → {$assessment->version}";
+                $summary = $summary !== null ? $summary.', '.$transition : $transition;
+            }
+
+            if ($summary !== null) {
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_ASSESSMENT_UPDATE,
+                    'Assessment updated: '.$summary,
+                    targetType: 'assessment',
+                    targetId: $assessment->id,
+                );
+            }
+
+            if ($status !== $assessment->status) {
+                $from = $assessment->status;
+                $assessment->status = $status;
+                $assessment->save();
+
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_ASSESSMENT_STATUS_CHANGE,
+                    "Assessment status changed: {$from} → {$status}",
+                    targetType: 'assessment',
+                    targetId: $assessment->id,
+                );
+            }
+
+            return $assessment;
+        }, attempts: 3);
     }
 
     /**

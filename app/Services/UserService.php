@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use InvalidArgumentException;
 
@@ -143,22 +144,24 @@ class UserService
      */
     public function create(User $actor, array $attributes): User
     {
-        $user = User::query()->create([
-            'username' => $attributes['username'],
-            'name' => $attributes['name'],
-            'role' => $attributes['role'],
-            'password' => $attributes['password'],
-        ]);
+        return DB::transaction(function () use ($actor, $attributes): User {
+            $user = User::query()->create([
+                'username' => $attributes['username'],
+                'name' => $attributes['name'],
+                'role' => $attributes['role'],
+                'password' => $attributes['password'],
+            ]);
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_USER_CREATE,
-            "User created: username → '{$user->username}', name → '{$user->name}', role → '{$user->role}'",
-            targetType: 'user',
-            targetId: $user->id,
-        );
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_USER_CREATE,
+                "User created: username → '{$user->username}', name → '{$user->name}', role → '{$user->role}'",
+                targetType: 'user',
+                targetId: $user->id,
+            );
 
-        return $user;
+            return $user;
+        }, attempts: 3);
     }
 
     /**
@@ -184,29 +187,6 @@ class UserService
      */
     public function update(User $actor, User $target, array $attributes): User
     {
-        $baseChanges = [];
-        $fieldSummary = [];
-
-        if ($attributes['username'] !== $target->username) {
-            $baseChanges['username'] = $attributes['username'];
-            $fieldSummary[] = "username → '{$attributes['username']}'";
-        }
-
-        if ($attributes['name'] !== $target->name) {
-            $baseChanges['name'] = $attributes['name'];
-            $fieldSummary[] = "name → '{$attributes['name']}'";
-        }
-
-        if (! empty($attributes['password']) && ! Hash::check($attributes['password'], $target->password)) {
-            $baseChanges['password'] = $attributes['password'];
-            $fieldSummary[] = 'password → (changed)';
-        }
-
-        $changes = array_merge([
-            'username' => $attributes['username'],
-            'name' => $attributes['name'],
-        ], $baseChanges);
-
         $role = $attributes['role'] ?? null;
         $status = $attributes['status'] ?? null;
 
@@ -218,56 +198,97 @@ class UserService
             $this->refuse($actor, $target, "Unknown status '{$status}'.", AdminAuditService::ACTION_STATUS_CHANGE);
         }
 
-        // Refusals are decided against the unchanged record, before anything
-        // is written, so a blocked request leaves the target untouched.
-        if ($this->roleChangeRemovesActiveAdmin($target, $role)) {
-            $this->assertRoleChangeAllowed($actor, $target);
+        try {
+            return DB::transaction(function () use ($actor, $target, $attributes, $role, $status): User {
+                if ($role !== null || $status !== null) {
+                    User::query()->where('role', 'admin')->orderBy('id')->lockForUpdate()->get();
+                }
+
+                User::query()->whereKey($target->id)->lockForUpdate()->firstOrFail();
+                $target->refresh();
+
+                $baseChanges = [];
+                $fieldSummary = [];
+
+                if ($attributes['username'] !== $target->username) {
+                    $baseChanges['username'] = $attributes['username'];
+                    $fieldSummary[] = "username → '{$attributes['username']}'";
+                }
+
+                if ($attributes['name'] !== $target->name) {
+                    $baseChanges['name'] = $attributes['name'];
+                    $fieldSummary[] = "name → '{$attributes['name']}'";
+                }
+
+                if (! empty($attributes['password']) && ! Hash::check($attributes['password'], $target->password)) {
+                    $baseChanges['password'] = $attributes['password'];
+                    $fieldSummary[] = 'password → (changed)';
+                }
+
+                $changes = array_merge([
+                    'username' => $attributes['username'],
+                    'name' => $attributes['name'],
+                ], $baseChanges);
+
+                // Refusals are decided against the unchanged record, before anything
+                // is written, so a blocked request leaves the target untouched.
+                if ($this->roleChangeRemovesActiveAdmin($target, $role)) {
+                    $this->assertRoleChangeAllowed($actor, $target);
+                }
+
+                if ($this->statusChangeRemovesActiveAdmin($target, $status)) {
+                    $this->assertStatusChangeAllowed($actor, $target);
+                }
+
+                $target->update($changes);
+                $target->refresh();
+
+                if ($fieldSummary !== []) {
+                    $this->audit->record(
+                        $actor,
+                        AdminAuditService::ACTION_USER_UPDATE,
+                        'User updated: '.implode(', ', $fieldSummary),
+                        targetType: 'user',
+                        targetId: $target->id,
+                    );
+                }
+
+                if ($role !== null && $role !== $target->role) {
+                    $from = $target->role;
+                    $target->role = $role;
+                    $target->save();
+                    $this->audit->record(
+                        $actor,
+                        AdminAuditService::ACTION_ROLE_CHANGE,
+                        "Role changed: {$from} → {$role}",
+                        targetType: 'user',
+                        targetId: $target->id,
+                    );
+                }
+
+                if ($status !== null && $status !== $target->status) {
+                    $from = $target->status;
+                    $target->status = $status;
+                    $target->save();
+                    $this->audit->record(
+                        $actor,
+                        AdminAuditService::ACTION_STATUS_CHANGE,
+                        "Status changed: {$from} → {$status}",
+                        targetType: 'user',
+                        targetId: $target->id,
+                    );
+                }
+
+                return $target;
+            }, attempts: 3);
+        } catch (UserProtectionException $exception) {
+            $action = $role !== null && $role !== 'admin'
+                ? AdminAuditService::ACTION_ROLE_CHANGE
+                : AdminAuditService::ACTION_STATUS_CHANGE;
+            $this->audit->record($actor, $action, 'Refused: '.$exception->getMessage(), 'failed', 'user', $target->id);
+
+            throw $exception;
         }
-
-        if ($this->statusChangeRemovesActiveAdmin($target, $status)) {
-            $this->assertStatusChangeAllowed($actor, $target);
-        }
-
-        $target->update($changes);
-        $target->refresh();
-
-        if ($fieldSummary !== []) {
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_USER_UPDATE,
-                'User updated: '.implode(', ', $fieldSummary),
-                targetType: 'user',
-                targetId: $target->id,
-            );
-        }
-
-        if ($role !== null && $role !== $target->role) {
-            $from = $target->role;
-            $target->role = $role;
-            $target->save();
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_ROLE_CHANGE,
-                "Role changed: {$from} → {$role}",
-                targetType: 'user',
-                targetId: $target->id,
-            );
-        }
-
-        if ($status !== null && $status !== $target->status) {
-            $from = $target->status;
-            $target->status = $status;
-            $target->save();
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_STATUS_CHANGE,
-                "Status changed: {$from} → {$status}",
-                targetType: 'user',
-                targetId: $target->id,
-            );
-        }
-
-        return $target;
     }
 
     /**
@@ -329,15 +350,6 @@ class UserService
             return;
         }
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_ROLE_CHANGE,
-            'Refused: '.$exception->getMessage(),
-            'failed',
-            'user',
-            $target->id,
-        );
-
         throw $exception;
     }
 
@@ -352,15 +364,6 @@ class UserService
         if ($exception === null) {
             return;
         }
-
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_STATUS_CHANGE,
-            'Refused: '.$exception->getMessage(),
-            'failed',
-            'user',
-            $target->id,
-        );
 
         throw $exception;
     }

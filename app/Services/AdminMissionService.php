@@ -7,6 +7,7 @@ use App\Models\Mission;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
@@ -141,60 +142,65 @@ class AdminMissionService
             }
         }
 
-        $before = [
-            'title' => $mission->title,
-            'description' => $mission->description ?? '',
-            'difficulty' => $mission->difficulty,
-            'points' => $mission->points,
-            'order_num' => $mission->order_num,
-            'section_id' => $mission->section_id,
-            'hints' => $mission->hints ?? '',
-            'broken_code' => $mission->broken_code ?? '',
-            'target_html' => $mission->target_html ?? '',
-        ];
+        return DB::transaction(function () use ($actor, $mission, $title, $description, $difficulty, $points, $orderNum, $sectionId, $hints, $brokenCode, $targetHtml): Mission {
+            Mission::query()->whereKey($mission->id)->lockForUpdate()->firstOrFail();
+            $mission->refresh();
 
-        $versionBefore = $mission->version;
+            $before = [
+                'title' => $mission->title,
+                'description' => $mission->description ?? '',
+                'difficulty' => $mission->difficulty,
+                'points' => $mission->points,
+                'order_num' => $mission->order_num,
+                'section_id' => $mission->section_id,
+                'hints' => $mission->hints ?? '',
+                'broken_code' => $mission->broken_code ?? '',
+                'target_html' => $mission->target_html ?? '',
+            ];
 
-        $mission->title = $title;
-        $mission->description = $description === '' ? null : $description;
-        $mission->difficulty = $difficulty;
-        $mission->points = $points;
-        $mission->order_num = $orderNum;
-        $mission->section_id = $sectionId;
-        $mission->hints = $hints === '' ? null : $hints;
-        $mission->broken_code = $brokenCode === '' ? null : $brokenCode;
-        $mission->target_html = $targetHtml === '' ? null : $targetHtml;
-        $mission->save();
+            $versionBefore = $mission->version;
 
-        $summary = $this->fieldChangesSummary(
-            $before,
-            $title,
-            $description,
-            $difficulty,
-            $points,
-            $orderNum,
-            $sectionId,
-            $hints,
-            $brokenCode,
-            $targetHtml,
-        );
+            $mission->title = $title;
+            $mission->description = $description === '' ? null : $description;
+            $mission->difficulty = $difficulty;
+            $mission->points = $points;
+            $mission->order_num = $orderNum;
+            $mission->section_id = $sectionId;
+            $mission->hints = $hints === '' ? null : $hints;
+            $mission->broken_code = $brokenCode === '' ? null : $brokenCode;
+            $mission->target_html = $targetHtml === '' ? null : $targetHtml;
+            $mission->save();
 
-        if ($mission->wasChanged('version')) {
-            $transition = "version {$versionBefore} → {$mission->version}";
-            $summary = $summary !== null ? $summary.', '.$transition : $transition;
-        }
-
-        if ($summary !== null) {
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_MISSION_UPDATE,
-                'Mission updated: '.$summary,
-                targetType: 'mission',
-                targetId: $mission->id,
+            $summary = $this->fieldChangesSummary(
+                $before,
+                $title,
+                $description,
+                $difficulty,
+                $points,
+                $orderNum,
+                $sectionId,
+                $hints,
+                $brokenCode,
+                $targetHtml,
             );
-        }
 
-        return $mission;
+            if ($mission->wasChanged('version')) {
+                $transition = "version {$versionBefore} → {$mission->version}";
+                $summary = $summary !== null ? $summary.', '.$transition : $transition;
+            }
+
+            if ($summary !== null) {
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_MISSION_UPDATE,
+                    'Mission updated: '.$summary,
+                    targetType: 'mission',
+                    targetId: $mission->id,
+                );
+            }
+
+            return $mission;
+        }, attempts: 3);
     }
 
     /**

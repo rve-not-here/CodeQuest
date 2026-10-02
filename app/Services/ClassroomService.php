@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
@@ -117,21 +118,23 @@ class ClassroomService
 
         $status = $this->refineStatus($actor, (string) $attributes['status'], AdminAuditService::ACTION_CLASSROOM_CREATE);
 
-        $classroom = Classroom::create([
-            'name' => $name,
-            'code' => $code,
-            'status' => $status,
-        ]);
+        return DB::transaction(function () use ($actor, $name, $code, $status): Classroom {
+            $classroom = Classroom::create([
+                'name' => $name,
+                'code' => $code,
+                'status' => $status,
+            ]);
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_CLASSROOM_CREATE,
-            "Created classroom '{$classroom->name}'.".$this->codeSuffix($code),
-            targetType: 'classroom',
-            targetId: $classroom->id,
-        );
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_CLASSROOM_CREATE,
+                "Created classroom '{$classroom->name}'.".$this->codeSuffix($code),
+                targetType: 'classroom',
+                targetId: $classroom->id,
+            );
 
-        return $classroom;
+            return $classroom;
+        }, attempts: 3);
     }
 
     /**
@@ -161,38 +164,43 @@ class ClassroomService
 
         $status = $this->refineStatus($actor, (string) $attributes['status']);
 
-        $changes = [];
+        return DB::transaction(function () use ($actor, $classroom, $name, $code, $status): Classroom {
+            Classroom::query()->whereKey($classroom->id)->lockForUpdate()->firstOrFail();
+            $classroom->refresh();
 
-        if ($name !== $classroom->name) {
-            $changes[] = "name → '{$name}'";
-        }
+            $changes = [];
 
-        if ((string) ($code ?? '') !== (string) ($classroom->code ?? '')) {
-            $changes[] = $code === null ? 'code → (cleared)' : "code → '{$code}'";
-        }
+            if ($name !== $classroom->name) {
+                $changes[] = "name → '{$name}'";
+            }
 
-        if ($status !== $classroom->status) {
-            $changes[] = "status → {$status}";
-        }
+            if ((string) ($code ?? '') !== (string) ($classroom->code ?? '')) {
+                $changes[] = $code === null ? 'code → (cleared)' : "code → '{$code}'";
+            }
 
-        if ($changes === []) {
+            if ($status !== $classroom->status) {
+                $changes[] = "status → {$status}";
+            }
+
+            if ($changes === []) {
+                return $classroom;
+            }
+
+            $classroom->name = $name;
+            $classroom->code = $code;
+            $classroom->status = $status;
+            $classroom->save();
+
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_CLASSROOM_UPDATE,
+                'Classroom updated: '.implode(', ', $changes),
+                targetType: 'classroom',
+                targetId: $classroom->id,
+            );
+
             return $classroom;
-        }
-
-        $classroom->name = $name;
-        $classroom->code = $code;
-        $classroom->status = $status;
-        $classroom->save();
-
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_CLASSROOM_UPDATE,
-            'Classroom updated: '.implode(', ', $changes),
-            targetType: 'classroom',
-            targetId: $classroom->id,
-        );
-
-        return $classroom;
+        }, attempts: 3);
     }
 
     /**
@@ -217,15 +225,19 @@ class ClassroomService
             $this->refuse($actor, $classroom, 'Every teacher id must reference an existing teacher account.', AdminAuditService::ACTION_CLASSROOM_TEACHERS);
         }
 
-        $classroom->teachers()->sync($valid);
+        DB::transaction(function () use ($actor, $classroom, $valid): void {
+            Classroom::query()->whereKey($classroom->id)->lockForUpdate()->firstOrFail();
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_CLASSROOM_TEACHERS,
-            'Teachers assigned: '.count($valid),
-            targetType: 'classroom',
-            targetId: $classroom->id,
-        );
+            $classroom->teachers()->sync($valid);
+
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_CLASSROOM_TEACHERS,
+                'Teachers assigned: '.count($valid),
+                targetType: 'classroom',
+                targetId: $classroom->id,
+            );
+        }, attempts: 3);
     }
 
     /**
@@ -249,15 +261,19 @@ class ClassroomService
             $this->refuse($actor, $classroom, 'Every student id must reference an existing student account.', AdminAuditService::ACTION_CLASSROOM_STUDENTS);
         }
 
-        $classroom->students()->sync($valid);
+        DB::transaction(function () use ($actor, $classroom, $valid): void {
+            Classroom::query()->whereKey($classroom->id)->lockForUpdate()->firstOrFail();
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_CLASSROOM_STUDENTS,
-            'Students enrolled: '.count($valid),
-            targetType: 'classroom',
-            targetId: $classroom->id,
-        );
+            $classroom->students()->sync($valid);
+
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_CLASSROOM_STUDENTS,
+                'Students enrolled: '.count($valid),
+                targetType: 'classroom',
+                targetId: $classroom->id,
+            );
+        }, attempts: 3);
     }
 
     /**
@@ -280,15 +296,19 @@ class ClassroomService
             $this->refuse($actor, $classroom, 'Every course id must reference an existing course.', AdminAuditService::ACTION_CLASSROOM_COURSES);
         }
 
-        $classroom->courses()->sync($valid);
+        DB::transaction(function () use ($actor, $classroom, $valid): void {
+            Classroom::query()->whereKey($classroom->id)->lockForUpdate()->firstOrFail();
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_CLASSROOM_COURSES,
-            'Courses assigned: '.count($valid),
-            targetType: 'classroom',
-            targetId: $classroom->id,
-        );
+            $classroom->courses()->sync($valid);
+
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_CLASSROOM_COURSES,
+                'Courses assigned: '.count($valid),
+                targetType: 'classroom',
+                targetId: $classroom->id,
+            );
+        }, attempts: 3);
     }
 
     /**

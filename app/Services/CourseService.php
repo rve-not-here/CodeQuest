@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
@@ -105,55 +106,60 @@ class CourseService
             $this->refuse($actor, $course, 'Course order must be a non-negative integer.');
         }
 
-        $before = [
-            'name' => $course->name,
-            'slug' => $course->slug,
-            'type' => $course->type,
-            'description' => $course->description ?? '',
-            'order_num' => $course->order_num,
-        ];
+        return DB::transaction(function () use ($actor, $course, $name, $slug, $type, $description, $orderNum, $status): Course {
+            Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
+            $course->refresh();
 
-        $versionBefore = $course->version;
+            $before = [
+                'name' => $course->name,
+                'slug' => $course->slug,
+                'type' => $course->type,
+                'description' => $course->description ?? '',
+                'order_num' => $course->order_num,
+            ];
 
-        $course->name = $name;
-        $course->slug = $slug;
-        $course->type = $type;
-        $course->description = $description === '' ? null : $description;
-        $course->order_num = $orderNum;
-        $course->save();
+            $versionBefore = $course->version;
 
-        $summary = $this->fieldChangesSummary($before, $name, $slug, $type, $description, $orderNum);
-
-        if ($course->wasChanged('version')) {
-            $transition = "version {$versionBefore} → {$course->version}";
-            $summary = $summary !== null ? $summary.', '.$transition : $transition;
-        }
-
-        if ($summary !== null) {
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_COURSE_UPDATE,
-                'Course updated: '.$summary,
-                targetType: 'course',
-                targetId: $course->id,
-            );
-        }
-
-        if ($status !== $course->status) {
-            $from = $course->status;
-            $course->status = $status;
+            $course->name = $name;
+            $course->slug = $slug;
+            $course->type = $type;
+            $course->description = $description === '' ? null : $description;
+            $course->order_num = $orderNum;
             $course->save();
 
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_COURSE_STATUS_CHANGE,
-                "Status changed: {$from} → {$status}",
-                targetType: 'course',
-                targetId: $course->id,
-            );
-        }
+            $summary = $this->fieldChangesSummary($before, $name, $slug, $type, $description, $orderNum);
 
-        return $course;
+            if ($course->wasChanged('version')) {
+                $transition = "version {$versionBefore} → {$course->version}";
+                $summary = $summary !== null ? $summary.', '.$transition : $transition;
+            }
+
+            if ($summary !== null) {
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_COURSE_UPDATE,
+                    'Course updated: '.$summary,
+                    targetType: 'course',
+                    targetId: $course->id,
+                );
+            }
+
+            if ($status !== $course->status) {
+                $from = $course->status;
+                $course->status = $status;
+                $course->save();
+
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_COURSE_STATUS_CHANGE,
+                    "Status changed: {$from} → {$status}",
+                    targetType: 'course',
+                    targetId: $course->id,
+                );
+            }
+
+            return $course;
+        }, attempts: 3);
     }
 
     /**

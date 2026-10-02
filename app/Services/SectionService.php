@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
@@ -82,37 +83,42 @@ class SectionService
             $this->refuse($actor, $section, 'Section order must be a non-negative integer.');
         }
 
-        $before = [
-            'title' => $section->title,
-            'description' => $section->description ?? '',
-            'order_num' => $section->order_num,
-        ];
+        return DB::transaction(function () use ($actor, $section, $title, $description, $orderNum): Section {
+            Section::query()->whereKey($section->id)->lockForUpdate()->firstOrFail();
+            $section->refresh();
 
-        $versionBefore = $section->version;
+            $before = [
+                'title' => $section->title,
+                'description' => $section->description ?? '',
+                'order_num' => $section->order_num,
+            ];
 
-        $section->title = $title;
-        $section->description = $description === '' ? null : $description;
-        $section->order_num = $orderNum;
-        $section->save();
+            $versionBefore = $section->version;
 
-        $summary = $this->fieldChangesSummary($before, $title, $description, $orderNum);
+            $section->title = $title;
+            $section->description = $description === '' ? null : $description;
+            $section->order_num = $orderNum;
+            $section->save();
 
-        if ($section->wasChanged('version')) {
-            $transition = "version {$versionBefore} → {$section->version}";
-            $summary = $summary !== null ? $summary.', '.$transition : $transition;
-        }
+            $summary = $this->fieldChangesSummary($before, $title, $description, $orderNum);
 
-        if ($summary !== null) {
-            $this->audit->record(
-                $actor,
-                AdminAuditService::ACTION_SECTION_UPDATE,
-                'Section updated: '.$summary,
-                targetType: 'section',
-                targetId: $section->id,
-            );
-        }
+            if ($section->wasChanged('version')) {
+                $transition = "version {$versionBefore} → {$section->version}";
+                $summary = $summary !== null ? $summary.', '.$transition : $transition;
+            }
 
-        return $section;
+            if ($summary !== null) {
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_SECTION_UPDATE,
+                    'Section updated: '.$summary,
+                    targetType: 'section',
+                    targetId: $section->id,
+                );
+            }
+
+            return $section;
+        }, attempts: 3);
     }
 
     /**

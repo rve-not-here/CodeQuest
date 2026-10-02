@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Exceptions\AssessmentAttemptStateException;
+use App\Exceptions\UserProtectionException;
 use App\Models\Achievement;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
@@ -19,11 +20,13 @@ use App\Services\AchievementService;
 use App\Services\AssessmentService;
 use App\Services\KnowledgeCheckService;
 use App\Services\MissionService;
+use App\Services\UserService;
 use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
 use Throwable;
@@ -232,7 +235,7 @@ class AcademicConcurrencyTest extends TestCase
     {
         $this->seed(AchievementSeeder::class);
         $student = User::factory()->create();
-        $mission = Mission::factory()->create(['validate_rule' => null, 'points' => 50]);
+        $mission = Mission::factory()->create(['validate_rule' => '[{"type":"contains","value":"valid code"}]', 'points' => 50]);
 
         $results = $this->runPair(
             fn (int $worker): bool => app(MissionService::class)->submit(
@@ -296,6 +299,38 @@ class AcademicConcurrencyTest extends TestCase
         Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $mission->id]);
 
         return [$student, $course, $assessment];
+    }
+
+    #[DataProvider('adminFleetMutations')]
+    public function test_concurrent_admin_removals_preserve_two_active_admins(array $mutations): void
+    {
+        $actor = User::factory()->admin()->create();
+        $targets = User::factory()->admin()->count(2)->create();
+        $results = $this->runPair(function (int $worker) use ($actor, $targets, $mutations): bool {
+            $target = User::query()->findOrFail($targets[$worker]->id);
+            try {
+                app(UserService::class)->update($actor, $target, array_merge(['username' => $target->username, 'name' => $target->name], $mutations[$worker]));
+
+                return true;
+            } catch (UserProtectionException) {
+                return false;
+            }
+        }, 'admin-fleet');
+        sort($results);
+        $this->assertSame([false, true], $results);
+        $this->assertSame(2, User::query()->where('role', 'admin')->where('status', 'active')->count());
+        $this->assertDatabaseCount('the404_admin_audit', 2);
+        $this->assertDatabaseHas('the404_admin_audit', ['result' => 'failed']);
+    }
+
+    /** @return array<string, array{array{array<string, string>, array<string, string>}}> */
+    public static function adminFleetMutations(): array
+    {
+        return [
+            'demotions' => [[['role' => 'teacher'], ['role' => 'teacher']]],
+            'deactivations' => [[['status' => 'inactive'], ['status' => 'inactive']]],
+            'mixed' => [[['role' => 'teacher'], ['status' => 'inactive']]],
+        ];
     }
 
     /**
@@ -428,7 +463,11 @@ class AcademicConcurrencyTest extends TestCase
                     return;
                 }
 
-                if (! $sawUserLock && ! $paused && str_contains($sql, $readTable) && str_starts_with($sql, 'select')) {
+                $matchesRead = $readTable === 'admin-fleet'
+                    ? str_contains($sql, 'count(') && str_contains($sql, 'the404_users')
+                    : str_contains($sql, $readTable);
+
+                if (! $sawUserLock && ! $paused && $matchesRead && str_starts_with($sql, 'select')) {
                     $paused = true;
                     fwrite($stream, $releaseLockedRead && str_contains($sql, 'for update') ? "LOCK\n" : "READ\n");
                     fgets($stream);
