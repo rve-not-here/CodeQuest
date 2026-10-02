@@ -50,7 +50,7 @@ class MissionTest extends TestCase
             ->post(route('mission.submit', $mission), ['code' => 'student work'])
             ->assertRedirect()
             ->assertSessionHas('mission_error', function (array $error): bool {
-                return $error['message'] === 'Challenge validation is unavailable. Try again later.';
+                return str_contains($error['message'], 'unavailable') && ! str_contains($error['message'], 'secret_rule_type');
             });
     }
 
@@ -63,7 +63,8 @@ class MissionTest extends TestCase
 
         $this->actingAs($student)
             ->post(route('mission.submit', $mission), ['code' => '<div>student work</div>'])
-            ->assertInternalServerError();
+            ->assertRedirect()
+            ->assertSessionHas('mission_error');
 
         $this->assertDatabaseMissing('the404_progress', ['user_id' => $student->id, 'mission_id' => $mission->id]);
         $this->assertDatabaseMissing('the404_xp_transactions', ['user_id' => $student->id, 'mission_id' => $mission->id]);
@@ -177,7 +178,7 @@ class MissionTest extends TestCase
         $student = User::factory()->create();
         $this->createMissionWithCourse([], ['order_num' => 1]);
         ['mission' => $laterMission] = $this->createMissionWithCourse([
-            'validate_rule' => null,
+            'validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]),
             'points' => 50,
         ], ['order_num' => 2]);
 
@@ -209,7 +210,7 @@ class MissionTest extends TestCase
             'passed_at' => now(),
         ]);
         ['mission' => $laterMission] = $this->createMissionWithCourse([
-            'validate_rule' => null,
+            'validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]),
             'points' => 50,
         ], ['order_num' => 2]);
 
@@ -257,7 +258,7 @@ class MissionTest extends TestCase
     {
         $user = User::factory()->create();
         ['mission' => $mission] = $this->createMissionWithCourse([
-            'validate_rule' => null,
+            'validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]),
             'points' => 30,
         ]);
 
@@ -271,7 +272,7 @@ class MissionTest extends TestCase
     {
         $user = User::factory()->create();
         ['course' => $course, 'mission' => $mission] = $this->createMissionWithCourse([
-            'validate_rule' => null,
+            'validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]),
             'points' => 30,
         ]);
         $nextMission = Mission::factory()->create([
@@ -302,7 +303,7 @@ class MissionTest extends TestCase
     {
         $user = User::factory()->create();
         ['mission' => $mission] = $this->createMissionWithCourse([
-            'validate_rule' => null,
+            'validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]),
         ]);
 
         $this->actingAs($user)
@@ -373,7 +374,7 @@ class MissionTest extends TestCase
     public function test_mission_submit_already_completed_returns_info(): void
     {
         $user = User::factory()->create();
-        ['mission' => $mission] = $this->createMissionWithCourse(['validate_rule' => null, 'points' => 30]);
+        ['mission' => $mission] = $this->createMissionWithCourse(['validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]), 'points' => 30]);
 
         Progress::query()->create([
             'user_id' => $user->id,
@@ -655,7 +656,7 @@ class MissionTest extends TestCase
     public function test_mission_submit_correct_clears_draft(): void
     {
         $user = User::factory()->create();
-        ['mission' => $mission] = $this->createMissionWithCourse(['validate_rule' => null, 'points' => 30]);
+        ['mission' => $mission] = $this->createMissionWithCourse(['validate_rule' => json_encode([['type' => 'regex', 'pattern' => '.+']]), 'points' => 30]);
 
         MissionDraft::query()->create([
             'user_id' => $user->id,

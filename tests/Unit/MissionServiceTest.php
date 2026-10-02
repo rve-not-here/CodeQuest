@@ -59,7 +59,7 @@ class MissionServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $mission = Mission::factory()->create([
-            'validate_rule' => null,
+            'validate_rule' => json_encode([['type' => 'contains', 'value' => 'anything']]),
             'points' => 30,
         ]);
 
@@ -80,7 +80,7 @@ class MissionServiceTest extends TestCase
     public function test_submit_passes_logs_activity(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['validate_rule' => null, 'points' => 30]);
+        $mission = Mission::factory()->create(['validate_rule' => json_encode([['type' => 'contains', 'value' => 'code']]), 'points' => 30]);
 
         $this->service->submit($user, $mission, 'code');
 
@@ -174,14 +174,16 @@ class MissionServiceTest extends TestCase
         $this->assertFalse($this->service->isCompleted($user, $mission));
     }
 
-    public function test_blank_validate_rule_passes(): void
+    public function test_blank_validate_rule_is_unavailable_without_award(): void
     {
         $user = User::factory()->create();
         $mission = Mission::factory()->create(['validate_rule' => null, 'points' => 10]);
 
         $result = $this->service->submit($user, $mission, '');
 
-        $this->assertTrue($result['passed']);
-        $this->assertSame(10, $result['xpAwarded']);
+        $this->assertFalse($result['passed']);
+        $this->assertSame(0, $result['xpAwarded']);
+        $this->assertDatabaseCount('the404_progress', 0);
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
     }
 }

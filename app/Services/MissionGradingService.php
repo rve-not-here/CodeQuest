@@ -6,6 +6,7 @@ use App\Models\Mission;
 use App\Models\MissionBehaviorTest;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 /**
  * Structural plus hidden behavioral grading for mission submissions.
@@ -29,34 +30,18 @@ class MissionGradingService
      */
     public function grade(User $user, Mission $mission, string $code): array
     {
-        $structural = $this->validator->validate($mission, $code);
-
-        if (! $structural['passed']) {
-            return [
-                'passed' => false,
-                'failures' => $structural['failures'],
-                'unavailable' => false,
-                'tests_total' => 0,
-                'tests_passed' => 0,
-            ];
-        }
-
         $tests = $mission->behaviorTests()->get();
 
-        if ($tests->isEmpty()) {
-            return [
-                'passed' => true,
-                'failures' => [],
-                'unavailable' => false,
-                'tests_total' => 0,
-                'tests_passed' => 0,
-            ];
+        if (! $this->validator->isValidDefinition($mission->validate_rule ?? '', allowEmpty: $tests->isNotEmpty())) {
+            $this->observe($user, $mission, 'malformed-rules', 0, 'invalid_response');
+
+            return $this->unavailable();
         }
 
         $maxSource = max(1024, (int) config('grader.max_source_bytes', 65536));
         $maxTests = max(1, (int) config('grader.max_tests_per_mission', 20));
 
-        if (strlen($code) > $maxSource || $tests->count() > $maxTests) {
+        if ($tests->isNotEmpty() && (strlen($code) > $maxSource || $tests->count() > $maxTests)) {
             $this->observe($user, $mission, 'bounds', 0, 'invalid_response');
 
             return $this->unavailable();
@@ -74,6 +59,34 @@ class MissionGradingService
             }
 
             $payload[] = $shaped;
+        }
+
+        try {
+            $structural = $this->validator->validate($mission, $code);
+        } catch (RuntimeException) {
+            $this->observe($user, $mission, 'rule-evaluation-unavailable', 0, 'invalid_response');
+
+            return $this->unavailable();
+        }
+
+        if (! $structural['passed']) {
+            return [
+                'passed' => false,
+                'failures' => $structural['failures'],
+                'unavailable' => false,
+                'tests_total' => 0,
+                'tests_passed' => 0,
+            ];
+        }
+
+        if ($tests->isEmpty()) {
+            return [
+                'passed' => true,
+                'failures' => [],
+                'unavailable' => false,
+                'tests_total' => 0,
+                'tests_passed' => 0,
+            ];
         }
 
         $result = $this->grader->grade($code, $payload);

@@ -11,12 +11,95 @@ use RuntimeException;
  *
  * Rules are pure string/structural checks. The class never runs submitted
  * code and never invokes a code-execution builtin, and there is no server-side
- * JS interpreter. Submissions are matched against declared patterns only. A
- * mission without validate_rule passes trivially (nothing to check); this is a
- * seed-data concern, not a bypass.
+ * JS interpreter. Submissions are matched against declared patterns only.
+ * The pattern engine retains the legacy zero-check result for assessment
+ * scoring. MissionGradingService requires a valid definition before academic
+ * use, and the curriculum release validates definitions before writing.
  */
 class ValidationService
 {
+    /**
+     * Validate the protected definition before publication or academic use.
+     * Empty structural checks are permitted only when behavioral tests own
+     * the grading decision. Assessment zero-check scoring remains separate.
+     */
+    public function isValidDefinition(string $rulesJson, bool $allowEmpty = false): bool
+    {
+        if (trim($rulesJson) === '') {
+            return $allowEmpty;
+        }
+
+        if (! str_starts_with(ltrim($rulesJson), '[')) {
+            return false;
+        }
+
+        $rules = json_decode($rulesJson, true);
+
+        if (! is_array($rules) || ! array_is_list($rules)) {
+            return false;
+        }
+
+        if ($rules === []) {
+            return $allowEmpty;
+        }
+
+        foreach ($rules as $rule) {
+            if (! is_array($rule) || ! is_string($rule['type'] ?? null)) {
+                return false;
+            }
+
+            foreach (['label', 'message'] as $field) {
+                if (array_key_exists($field, $rule) && ! is_string($rule[$field])) {
+                    return false;
+                }
+            }
+
+            if (array_key_exists('negate', $rule) && ! is_bool($rule['negate'])) {
+                return false;
+            }
+
+            $stringField = match ($rule['type']) {
+                'contains', 'count', 'exact_normalized' => 'value',
+                'count_tag' => 'tag',
+                'regex' => 'pattern',
+                default => null,
+            };
+
+            if ($stringField !== null && (! is_string($rule[$stringField] ?? null) || $rule[$stringField] === '')) {
+                return false;
+            }
+
+            if (in_array($rule['type'], ['contains_all', 'contains_any'], true)) {
+                if (! is_array($rule['values'] ?? null) || ! array_is_list($rule['values']) || $rule['values'] === []) {
+                    return false;
+                }
+
+                foreach ($rule['values'] as $value) {
+                    if (! is_string($value) || $value === '') {
+                        return false;
+                    }
+                }
+            }
+
+            if (in_array($rule['type'], ['count', 'count_tag'], true)
+                && (! is_int($rule['count'] ?? null) || $rule['count'] < 0 || ! in_array($rule['operator'] ?? 'eq', ['eq', 'gte', 'lte', 'gt', 'lt'], true))) {
+                return false;
+            }
+
+            if ($rule['type'] === 'count_tag' && preg_match('/^[a-zA-Z][a-zA-Z0-9:-]*$/', $rule['tag']) !== 1) {
+                return false;
+            }
+
+            try {
+                $this->evaluate($rule, '');
+            } catch (InvalidArgumentException|RuntimeException) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Validate a submission against a mission's rules.
      *
@@ -176,13 +259,15 @@ class ValidationService
     {
         $pattern = $this->needString($rule, 'pattern');
 
-        $pattern = '/'.$pattern.'/';
+        $pattern = '/(*LIMIT_MATCH=100000)(*LIMIT_DEPTH=1000)'.$pattern.'/';
 
-        if (@preg_match($pattern, $code) === 1) {
-            return true;
+        $matched = @preg_match($pattern, $code);
+
+        if ($matched === false) {
+            throw new RuntimeException('Invalid or exhausted validation pattern.');
         }
 
-        return false;
+        return $matched === 1;
     }
 
     /**

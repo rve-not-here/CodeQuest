@@ -9,8 +9,10 @@ use App\Models\KnowledgeCheckQuestion;
 use App\Models\Mission;
 use App\Models\MissionBehaviorTest;
 use App\Models\Section;
+use App\Services\ValidationService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use InvalidArgumentException;
 
 /**
  * System-managed curriculum content (§3 ordering, §12 taught overview).
@@ -34,7 +36,25 @@ class CurriculumContentSeeder extends Seeder
 
     public function run(): void
     {
-        foreach ($this->curriculum() as $courseData) {
+        $curriculum = $this->curriculum();
+        $validator = app(ValidationService::class);
+
+        foreach ($curriculum as $courseData) {
+            foreach ($this->sectionsFor($courseData) as $sectionData) {
+                foreach ($sectionData['missions'] as $mission) {
+                    $definition = $courseData['type'] === 'js' ? $this->javaScriptBehavior($mission['title']) : null;
+                    $rules = $definition !== null
+                        ? json_encode($definition['rules'], JSON_THROW_ON_ERROR)
+                        : (string) ($mission['validate_rule'] ?? '');
+
+                    if (! $validator->isValidDefinition($rules, allowEmpty: ! empty($definition['tests']))) {
+                        throw new InvalidArgumentException('Invalid mission rule definition: '.$mission['title']);
+                    }
+                }
+            }
+        }
+
+        foreach ($curriculum as $courseData) {
             $course = Course::query()->updateOrCreate(
                 ['order_num' => $courseData['order_num']],
                 [
