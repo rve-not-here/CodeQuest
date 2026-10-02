@@ -131,9 +131,3 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/XpTransaction.php
-
-		-
-			message: '#^Method\ App\\Services\\LearningPathService::build\(\)\ should\ return\ Illuminate\\Support\\Collection<int,\ array\{course:\ App\\Models\\Course,\ progress:\ array\{completed:\ int,\ total:\ int,\ percent:\ int\},\ sections:\ Illuminate\\Support\\Collection<int,\ array\{section:\ App\\Models\\Section,\ progress:\ array\{completed:\ int,\ total:\ int,\ percent:\ int\},\ missions:\ Illuminate\\Support\\Collection<int,\ array\{mission:\ App\\Models\\Mission,\ state:\ string\}>\}>\}>\ but\ returns\ Illuminate\\Support\\Collection<int,\ array\{course:\ App\\Models\\Course,\ progress:\ array\{completed:\ int,\ total:\ int,\ percent:\ int\},\ sections:\ Illuminate\\Support\\Collection<int,\ array\{section:\ App\\Models\\Section,\ progress:\ array\{completed:\ int,\ total:\ int,\ percent:\ int\},\ missions:\ Illuminate\\Support\\Collection<int,\ mixed>\}>\}>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/LearningPathService.php

@@ -31,7 +31,7 @@ class LearningPathService
      * @return Collection<int, array{
      *     course: Course,
      *     progress: array{completed: int, total: int, percent: int},
-     *     sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>
+     *     sections: Collection<int, array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>
      * }>
      */
     public function build(User $user): Collection
@@ -72,20 +72,25 @@ class LearningPathService
                 ->values()
                 ->all();
 
-            $sections = $course->sections->map(function (Section $section) use ($completedIds, $draftIds) {
+            $sections = $course->sections->map(function (Section $section) use ($course, $completedIds, $draftIds) {
                 $missions = $section->missions
-                    ->sortBy('order_num')
-                    ->map(function (Mission $mission) use ($completedIds, $draftIds) {
-                        return $this->missionView($mission, $completedIds, $draftIds);
-                    })
+                    ->filter(fn (Mission $mission): bool => $mission->course_id === $course->id)
+                    ->sortBy([['order_num', 'asc'], ['id', 'asc']])
+                    ->map(fn (Mission $mission): array => $this->missionView($mission, $completedIds, $draftIds))
                     ->values();
 
-                return [
-                    'section' => $section,
-                    'progress' => $this->sectionProgress($missions),
-                    'missions' => $missions,
-                ];
+                return $this->sectionView($section, $missions);
             });
+
+            $unsectioned = $course->missions
+                ->reject(fn (Mission $mission): bool => $course->sections->contains('id', $mission->section_id))
+                ->sortBy([['order_num', 'asc'], ['id', 'asc']])
+                ->map(fn (Mission $mission): array => $this->missionView($mission, $completedIds, $draftIds))
+                ->values();
+
+            if ($unsectioned->isNotEmpty()) {
+                $sections->push($this->sectionView(null, $unsectioned));
+            }
 
             return [
                 'course' => $course,
@@ -233,6 +238,19 @@ class LearningPathService
         return [
             'mission' => $mission,
             'state' => $state,
+        ];
+    }
+
+    /**
+     * @param  Collection<int, array{mission: Mission, state: string}>  $missions
+     * @return array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}
+     */
+    private function sectionView(?Section $section, Collection $missions): array
+    {
+        return [
+            'section' => $section,
+            'progress' => $this->sectionProgress($missions),
+            'missions' => $missions,
         ];
     }
 

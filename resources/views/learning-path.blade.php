@@ -78,15 +78,17 @@
                         @foreach ($courseNode['sections'] as $sectionNode)
                             @php
                                 $pathSection = $sectionNode['section'];
+                                $sectionTitle = $pathSection?->title ?? 'Additional missions';
+                                $sectionKey = $pathSection?->id ?? 'additional-'.$pathCourse->id;
                                 $sectionCurrent = ! $courseLocked && $nextMission !== null && $sectionNode['missions']->contains(fn ($row) => $row['mission']->id === $nextMission->id);
                                 $sectionComplete = $sectionNode['progress']['total'] > 0 && $sectionNode['progress']['completed'] === $sectionNode['progress']['total'];
                             @endphp
-                            <details id="section-{{ $pathSection->id }}" class="panel group {{ $sectionCurrent ? 'border-accent-line' : '' }}" @if ($sectionCurrent) open @endif>
+                            <details id="section-{{ $sectionKey }}" class="panel group {{ $sectionCurrent ? 'border-accent-line' : '' }}" @if ($sectionCurrent) open @endif>
                                 <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 md:px-5 [&::-webkit-details-marker]:hidden">
                                     <span class="grid size-6 shrink-0 place-items-center rounded-full border {{ $sectionComplete ? 'border-accent-line bg-accent-soft text-accent' : ($sectionCurrent ? 'border-accent text-accent' : 'border-line text-locked') }} font-mono text-xs" aria-hidden="true">{{ $sectionComplete ? '✓' : ($sectionCurrent ? '●' : '○') }}</span>
                                     <span class="min-w-0 flex-1">
                                         <span class="eyebrow block">Section {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}@if ($sectionCurrent) · In Progress @elseif ($courseLocked) · Locked @endif</span>
-                                        <span class="block truncate text-[15px] font-medium">{{ $pathSection->title }}</span>
+                                        <span class="block truncate text-[15px] font-medium">{{ $sectionTitle }}</span>
                                     </span>
                                     @if ($sectionComplete)
                                         <span class="badge badge-accent hidden sm:inline-flex">Completed</span>
@@ -94,7 +96,7 @@
                                     <span class="shrink-0 font-mono text-xs text-fg-subtle">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }}</span>
                                     <span class="text-fg-subtle transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
                                 </summary>
-                                <ol class="rail border-t border-line px-4 pb-2 md:px-5" aria-label="{{ $pathSection->title }} missions">
+                                <ol class="rail border-t border-line px-4 pb-2 md:px-5" aria-label="{{ $sectionTitle }} missions">
                                     @foreach ($sectionNode['missions'] as $row)
                                         @php
                                             $mission = $row['mission'];
@@ -153,7 +155,7 @@
                                     @php
                                         $overviewSection = $sectionNode['section'];
                                     @endphp
-                                    <li><a href="#section-{{ $overviewSection->id }}" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }} {{ $overviewSection->title }}</span><span class="shrink-0 font-mono text-2xs">{{ $sectionNode['progress']['completed'] }}/{{ $sectionNode['progress']['total'] }}</span></a></li>
+                                    <li><a href="#section-{{ $overviewSection?->id ?? 'additional-'.$pathCourse->id }}" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }} {{ $overviewSection?->title ?? 'Additional missions' }}</span><span class="shrink-0 font-mono text-2xs">{{ $sectionNode['progress']['completed'] }}/{{ $sectionNode['progress']['total'] }}</span></a></li>
                                 @endforeach
                             </ul>
                         </nav>

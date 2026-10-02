@@ -35,7 +35,7 @@ class SectionProgressService
      *     course: Course,
      *     progress: array{completed: int, total: int, percent: int},
      *     sections: Collection<int, array{
-     *         section: Section,
+     *         section: Section|null,
      *         progress: array{completed: int, total: int, percent: int},
      *         state: string,
      *     }>,

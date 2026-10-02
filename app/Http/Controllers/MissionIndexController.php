@@ -38,13 +38,13 @@ class MissionIndexController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        /** @var Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>}> $tree */
+        /** @var Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>}> $tree */
         $tree = $this->paths->build($user);
 
         // Use the same course-reach verdict as MissionController::show.
         $reachedCourses = $this->assessments->courseReachForCourses($user, $tree->pluck('course'));
 
-        /** @var Collection<int, array{course: Course, section: Section, mission: Mission, state: string, accessible: bool}> $rows */
+        /** @var Collection<int, array{course: Course, section: Section|null, mission: Mission, state: string, accessible: bool}> $rows */
         $rows = collect();
 
         foreach ($tree as $courseNode) {

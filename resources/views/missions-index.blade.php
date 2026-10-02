@@ -71,7 +71,7 @@
                     @php
                         $listedCourse = $courseRows->first()['course'];
                         $courseAccessible = $courseRows->first()['accessible'];
-                        $sectionGroups = $courseRows->groupBy(fn (array $row): int => $row['section']->id);
+                        $sectionGroups = $courseRows->groupBy(fn (array $row): int|string => $row['section']?->id ?? 'additional-'.$courseId);
                     @endphp
                     <section aria-labelledby="course-{{ $courseId }}-missions">
                         <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -91,7 +91,7 @@
                                         <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-muted" aria-hidden="true">{{ $courseAccessible ? '○' : '×' }}</span>
                                         <div class="min-w-0 flex-1">
                                             <p class="eyebrow">Section {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
-                                            <h3 id="mission-section-{{ $sectionId }}-title" class="text-[15px] font-medium">{{ $listedSection->title }}</h3>
+                                            <h3 id="mission-section-{{ $sectionId }}-title" class="text-[15px] font-medium">{{ $listedSection?->title ?? 'Additional missions' }}</h3>
                                         </div>
                                         <span class="font-mono text-xs text-fg-subtle">{{ $sectionRows->count() }} shown</span>
                                     </div>
