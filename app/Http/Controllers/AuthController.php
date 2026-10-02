@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Services\ActivityService;
+use App\Support\RoleHome;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -49,7 +50,7 @@ class AuthController extends Controller
             'message' => 'Operator '.$user->username.' logged in',
         ]);
 
-        return redirect()->intended($this->homeFor($user->role));
+        return redirect()->intended(route(RoleHome::routeName($user->role)));
     }
 
     public function logout(): RedirectResponse
@@ -69,15 +70,5 @@ class AuthController extends Controller
         request()->session()->regenerateToken();
 
         return redirect()->route('login');
-    }
-
-    private function homeFor(string $role): string
-    {
-        return match ($role) {
-            'admin' => route('admin.dashboard'),
-            'teacher' => route('students'),
-            'operator' => route('notifications'),
-            default => route('dashboard'),
-        };
     }
 }

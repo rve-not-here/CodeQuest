@@ -5,7 +5,7 @@
 
 <header class="sticky top-0 z-40 shrink-0 border-b border-line bg-canvas" data-role="student">
     <div class="mx-auto flex h-14 w-full max-w-[1440px] items-center gap-2 px-4 md:px-6 lg:px-8">
-        <a href="{{ route('dashboard') }}" class="mr-3 flex items-center gap-2.5 lg:mr-6" aria-label="CodeQuest dashboard">
+        <a href="{{ route($homeRoute) }}" class="mr-3 flex items-center gap-2.5 lg:mr-6" aria-label="CodeQuest home">
             <span class="grid size-7 place-items-center rounded-sm border border-accent-line bg-accent-soft font-mono text-[11px] font-semibold text-accent" aria-hidden="true">&gt;_</span>
             <span class="text-[15px] font-semibold tracking-tight text-fg">CodeQuest</span>
         </a>

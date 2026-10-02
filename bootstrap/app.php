@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsStudent;
 use App\Http\Middleware\EnsureUserIsTeacherOrAdmin;
 use App\Http\Middleware\SecurityHeaders;
+use App\Support\RoleHome;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectUsersTo(fn (Request $request): string => route(RoleHome::routeName($request->user()?->role ?? 'student')));
+
         $middleware->alias([
             'teacher' => EnsureUserIsTeacherOrAdmin::class,
             'admin' => EnsureUserIsAdmin::class,

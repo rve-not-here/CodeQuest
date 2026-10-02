@@ -1,6 +1,7 @@
 @php
     $authUser = auth()->user();
-    $role = $role ?? ($authUser?->role ?? 'student');
+    $role = $authUser?->role ?? $role ?? 'student';
+    $homeRoute = \App\Support\RoleHome::routeName($role);
     $displayName = $authUser?->username ?? $profileName ?? 'OPERATOR';
 
     $studentItems = [
@@ -23,12 +24,9 @@
     ];
 
     $instructorItems = [
-        ['route' => 'dashboard', 'label' => 'Dashboard'],
         ['route' => 'students', 'label' => 'Students'],
         ['route' => 'classrooms', 'label' => 'My Classrooms'],
         ['heading' => 'System'],
-        ['route' => 'assessments', 'label' => 'Assessments'],
-        ['route' => 'competency', 'label' => 'Competency'],
         ['route' => 'activity', 'label' => 'Learning Activity'],
         ['route' => 'course-analytics', 'label' => 'Course Analytics'],
         ['route' => 'needs-attention', 'label' => 'Needs Attention'],
@@ -50,7 +48,8 @@
     $items = match ($role) {
         'student' => $studentItems,
         'admin' => $adminItems,
-        default => $instructorItems,
+        'teacher', 'instructor' => $instructorItems,
+        default => [['route' => 'notifications', 'label' => 'Notifications']],
     };
 
     $activeRoute = request()->route()?->getName();
@@ -104,7 +103,7 @@
                 </button>
                 @endif
 
-                <a href="{{ route('dashboard') }}" class="cq-brand shrink-0" aria-label="CodeQuest home">
+                <a href="{{ route($homeRoute) }}" class="cq-brand shrink-0" aria-label="CodeQuest home">
                     <span class="cq-brand-mark" aria-hidden="true">404</span>
                     <span>
                         <span class="cq-brand-name">CodeQuest</span>
@@ -206,7 +205,7 @@
                 inert
             >
                 <div class="flex items-center justify-between gap-2 border-b border-phosphor/20 px-5 py-5">
-                    <a href="{{ route('dashboard') }}" class="cq-brand" aria-label="CodeQuest home">
+                    <a href="{{ route($homeRoute) }}" class="cq-brand" aria-label="CodeQuest home">
                         <span class="cq-brand-mark" aria-hidden="true">404</span>
                         <span class="cq-brand-name">CodeQuest</span>
                     </a>
