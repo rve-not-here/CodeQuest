@@ -1,5 +1,7 @@
 # CodeQuest Full System Audit and Recommendations
 
+Remediation is in progress. The original audit below is preserved as historical evidence; current status and verification are recorded in the Remediation Results section.
+
 Audit date: 2026-10-02. Repository: `/home/vmc/Projects/CodeQuest`. This is a fresh inspection of the current working tree. The implementation was not edited. Only this requested report was added; verification artifacts were disposable or ignored.
 
 ## 1. Executive Summary
@@ -723,3 +725,175 @@ The highest-risk remaining areas are hostile-grader verdict trust, unsafe bootst
 Recommended order: F01/F02; then serialization/input/configuration F03/F04/F05/F06; then atomicity/idempotency/ordering F11/F13/F19/F28; then consistent availability/hierarchy/navigation/resume F07/F08/F10/F15; then recovery, monitoring, reports, Experiment and workspace F12/F20/F21/F23/F24/F33. Run required CI/MariaDB/container/browser checks F30/F31 throughout. Finish versioning/retention, capacity/lifecycle, advisory and documentation work before deployment; optional baseline/bundle work follows.
 
 All discovered material observations, findings, recommendations, verification results and limits are in this file, rather than only in temporary output. No implementation changes were made. The system is **not ready for full-system E2E/UAT acceptance** until P0/P1 gates close with evidence.
+
+
+# Remediation Results
+
+Remediation date: 2026-10-02. This section is an ongoing record, not final acceptance. No deployment, push, production migration, seeding, credential change, or academic write has been performed. The configured MariaDB database on port 3307 is explicitly read-only for this work. Destructive verification must use the separate disposable container/database.
+
+## Baseline and authority
+
+- Branch: `main`.
+- Starting HEAD: `95df844ae165997ee59eb739276e38a4da8d3a38`.
+- Starting worktree: only the requested, untracked audit report; implementation clean.
+- Fresh baseline: `php artisan test --compact` discovered 1,190 tests, with 1,180 passed, 10 skipped, and 6,685 assertions. The ten skips require MariaDB, not SQLite.
+- Specifications consulted: the entire original audit, updated master specification, CONTEXT, ADRs 0001/0002/0003, relevant repository rules, and Laravel/testing skills. Installed Laravel 13.30.1 and PHPUnit 12.5.34 APIs were inspected where needed; Boost tools were unavailable.
+- The original report was preserved in commit `7d2d2f9`. Package/API assumptions and findings were rechecked against actual implementation.
+
+## P0 Results
+
+### F01: FIXED, trusted grader authority restored
+
+**Root cause.** Student execution shared the process and stdout channel that constructed a verdict. The service accepted that verdict, and Laravel did not bind its total to the protected test definitions. Truncated equality also accepted different long values.
+
+**Attack path and state map.** `POST mission.submit` accepts source through CSRF/auth/student middleware, course reach/status and required-KC guards. MissionController whitelists source; MissionService locks the user and owns its transaction. MissionGradingService loads protected structural and behavioral definitions, calls GraderClient with an internal token, and applies its decision. A passing decision writes `the404_progress`, XP ledger, achievements and notifications, clears the draft, and affects competency, Boss eligibility and course reach. The frontend renders this server result. No new frontend score, completion, reward or unlock input was added. Assessment outcomes remain owned by AssessmentService and passed-attempt history.
+
+**Implementation.** The HTTP service now retains expectations and computes the final version-2 verdict outside the adversarial container. Execution receives source and invocation arguments only. The worker returns bounded, tagged observations; the trusted evaluator compares complete supported values and rejects malformed/old verdict envelopes. Oversized or unsupported values are rejected instead of truncated. Laravel requires protocol version 2 and exact server-owned test totals for academic outcomes. Fixed argv, loopback/token authentication, rootless non-root execution, no network, read-only root, dropped capabilities and PID/CPU/memory limits remain.
+
+**Compatibility reassessment.** The first correction restricted function definitions to identifiers. Reinspection found trusted curriculum arrow-function probes. That regression was corrected in `21ff4d2` and covered by real-container and subprocess cases. Only protected server definitions supply these expressions; they execute inside the container and receive no expectations.
+
+**Files changed.** `app/Services/GraderClient.php`; `grader/src/{server,runner,evaluator,values}.js`; `grader/test/{runner.test,server.test,grade-container}.js`; `grader/test/integration-container.sh`; `grader/{Dockerfile,package.json,README.md}`; `tests/Feature/MissionBehavioralGradingTest.php`.
+
+**Regression evidence.** The original 22 grader tests plus new cases cover stdout forgery/early exit, request verdict fields, old protocols, wrong totals, service credentials, malformed definitions, full long-string/array/deep-object equality, sentinel collisions, UTF-8 streams and trusted curriculum probes. PHP adversarial requests cannot create progress, mission XP, achievements, assessment results, demonstrated competency, Boss eligibility or later-course access. Valid implementations still complete and earn the protected reward.
+
+**Executed verification.** `node --test grader/test/*.test.js`: 37 passed, zero failed/skipped. Strict `CODEQUEST_REQUIRE_SANDBOX_TESTS=1 sh grader/test/integration-container.sh`: 20 checks passed, zero failed, real rootless Podman and Node 22.23.3. The actual evaluator-to-container path passed valid, invalid and forged submissions plus network/filesystem/resource/cleanup checks. PHP target and broad-suite results appear below. Syntax/shell checks and `git diff --check` passed.
+
+**Environment evidence.** System sudo installation required a password. With approved tooling setup, signed distribution packages were verified and extracted under `/tmp`; no application dependency changed. The first image download stalled, and a public mirror supplied the same Node image. An initial strict run failed due to the temporary crun library path; this was corrected and the entire suite rerun successfully. Failed attempts are not passing verification.
+
+**Remaining risk.** F29's service restart/disconnect and explicit container cancellation scenarios still need broader lifecycle coverage; the timeout test alone does not close F29. Live Laravel-to-container and interactive UI acceptance remain part of F30. Protocol mismatch deliberately fails unavailable; any future infrastructure change must preserve that behavior. No host escape or deployment certification is claimed.
+
+**Commits.** `9ead394`, `21ff4d2`.
+
+### F02: FIXED, setup no longer mutates the configured schema
+
+**Root cause.** Composer setup/create-project hooks invoked migrations against whichever database was configured, contrary to the existing-schema safety contract.
+
+**Files changed.** `composer.json`, `tests/Feature/SetupSafetyTest.php`.
+
+**Implementation.** Removed automatic migration calls and the create-project SQLite-file hook. Key generation and ordinary asset/dependency setup remain. Fixture migrations continue to run only through explicit test database setup. No migration was run against the configured database.
+
+**Tests and commands.** SetupSafetyTest reproduced the unsafe hook before the change, then passed one test with ten assertions. It examines installation/setup hooks for schema migration, seed and wipe commands. `composer validate --strict` passed. The complete SQLite suite demonstrated fixture schema bootstrap and existing functionality. Diff checks passed.
+
+**Remaining risk/follow-up.** Production DDL still requires explicit reviewed approval; F31 must establish schema parity. Do not restore automatic migration hooks as a workaround.
+
+**Commit.** `9d175fc`.
+
+## P1 Results
+
+| Finding | Current status | Evidence / remaining action |
+| --- | --- | --- |
+| F03 | NOT FIXED | Editor serialization remains the original double-parsed expression; repair both workspaces and verify restoration. |
+| F04 | FIXED | Browser-string course/section/mission updates now normalize valid bounded digit strings; strict domain guards remain. |
+| F05 | FIXED | Protected mission definitions now preflight before evaluation; malformed content returns unavailable without progress, reward or penalty. |
+| F06 | FIXED | HTTP and domain boundaries reject thresholds outside 0–100. |
+| F07 | NOT FIXED | Shared access/read-model verdicts still required. |
+| F08 | NOT FIXED | Required unsectioned missions still need consistent discovery. |
+| F09 | NOT FIXED | Mission query-shape validation still required. |
+| F10 | NOT FIXED | Role-specific valid navigation still required. |
+| F11 | FIXED | Accepted mutations, version/status saves, assignments and audit now commit together; failure injection passes on SQLite and MariaDB. |
+| F12 | NOT FIXED | Submitted-attempt recovery remains unimplemented. |
+| F13 | NOT FIXED | Failed submission operation identity/replay protection remains missing. |
+| F19 | NOT FIXED | Canonical total-order prerequisite enforcement remains required. |
+| F20 | NOT FIXED | Ungraded Experiment workflow remains missing. |
+| F21 | NOT FIXED | Accessible resizing/pane controls remain missing. |
+| F23 | NOT FIXED | Privacy-scoped authoritative event/KC evidence remains required. |
+| F24 | NOT FIXED | Discoverable role report UI remains required. |
+| F26 | NOT FIXED | Source/admission/export/concurrency limits remain required. |
+| F28 | FIXED | Ordered admin-fleet locks protect the minimum; all three independent-connection MariaDB race cases now refuse one competing removal. |
+| F30 | NOT FIXED | Mandatory integration CI and browser evidence remain required. |
+| F31 | REQUIRES RUNTIME VERIFICATION | Read-only configured MariaDB inventory succeeded, 38 tables including framework and expanded domain tables; full column/index/FK parity and staging behavior still need comparison. |
+
+### F04: numeric request-to-domain boundary
+
+- Root cause: validated HTML numeric strings reached services that require native integers; course, section and mission fields were affected. Assessment passing-score coercion already existed and was preserved.
+- Files: `AdminCourseUpdateRequest`, `AdminSectionUpdateRequest`, `AdminMissionUpdateRequest`; `tests/Feature/AdminNumericInputTest.php`.
+- Approach: convert only digit strings accepted by FILTER_VALIDATE_INT, retaining malformed, fractional, negative, array and overflowing values for validation rejection. Never coerce an invalid value into zero.
+- Tests: browser-string persistence for course/section/mission/assessment; malformed numeric matrix and unchanged stored values; existing role, ownership and history suites retained.
+- Verification: two defects reproduced in the initial numeric regression group; subsequent five admin suites passed 74 tests / 349 assertions. Formatting and baseline-relative static analysis passed.
+- Remaining risk: interactive browser form smoke remains to be performed; server HTTP representation is verified.
+- Commit: `88da55c`.
+
+### F06: valid percentage thresholds
+
+- Root cause: request and service only required a nonnegative integer.
+- Files: `AdminAssessmentUpdateRequest`, `AdminAssessmentService`, `AdminNumericInputTest`, `CurriculumVersioningTest`.
+- Approach: max:100 in the request and 0–100 enforcement in the domain. Existing historical verdict and threshold snapshots are unchanged.
+- Tests: native/string 0 and 100 accepted; 101 and -1 rejected; direct-service 101 refused without configuration changes or attempts. Historical-pass test now uses threshold 100 and genuinely failing retry source, preserving its original history purpose without invalid content.
+- Verification: numeric/admin group 74 / 349 passed; subsequent versioning regression group passed; no academic results were rewritten.
+- Remaining risk: current configured content needs read-only threshold inventory; any correction must use an audited authorized write, not an ad hoc database update.
+- Commits: `88da55c`, `7475d15`.
+
+### F05: fail-closed mission definitions
+
+- Root cause: blank/bad/empty definitions were interpreted as no checks, member shapes could throw TypeError, and content errors could be charged as student failures.
+- Files: `ValidationService`, `MissionGradingService`, `CurriculumContentSeeder`, `MissionDefinitionIntegrityTest`, `MissionTest`, `MissionServiceTest`.
+- Approach: validate list/member/type/required-value/count/operator/tag/negation/message shapes before academic evaluation. Validate regex syntax and bound matching/depth; exhausted evaluation returns unavailable. Validate behavioral fixtures before structural source failures can be charged. Valid behavioral-only definitions may omit structural checks because protected behavior tests remain mandatory for success. Boss zero-check/percentage scoring is preserved.
+- Publication: the reviewed curriculum release preflights all structural definitions before any curriculum write using the same validator. The seed command was executed only inside PHPUnit's disposable SQLite connection, never against the configured database. Existing version-event suppression is F18 and is not claimed resolved.
+- Tests: null, blank, bad JSON, empty list, object/scalar/unknown members, missing/empty needles, wrong member types, malformed regex/tag/operator/negation, invalid behavior configuration with failing source, valid completion, every seeded definition and publication refusal before writes. Existing blank-pass and expected-500 tests were updated to the intended unavailable behavior; legitimate completion fixtures now supply explicit valid rules.
+- Verification: 141 relevant tests / 562 assertions passed. Full suite before the last additional refusal test passed 1,209, skipped 10, with 6,952 assertions. The final definition/versioning target including that extra test passed 39 / 274. Formatting, analysis and diff checks passed.
+- Remaining risk: read-only live curriculum inventory still needed; malformed existing content will become unavailable until repaired through approved content changes. The full conceptual versioned DSL is not introduced by this narrow fix.
+- Commit: `a1d6a11`.
+
+### F11: atomic accepted admin changes
+
+- Root cause: domain saves and assignment syncs preceded audit insertion without a shared transaction, allowing partial accepted changes.
+- Files changed: `CourseService`, `SectionService`, `AdminMissionService`, `AdminAssessmentService`, `ClassroomService`, `UserService`; new `AdminMutationAtomicityTest`.
+- Implementation: each accepted logical mutation and its success audits share a retryable database transaction. Existing records are locked and refreshed before computing changes/version summaries. Refusal audit records remain durable outside rolled-back refusal transactions. Existing role, ownership, no-op, historical-score and XP contracts are preserved.
+- Tests added: audit-storage failure across six update services, user/classroom creation rollback, assignment audit rollback, second course-save rollback including version/audit, and pivot failure after detach. Existing management tests verify legitimate changes and refusal boundaries.
+- Commands/results: `php artisan test --compact` passed 1,220 tests, skipped 13 MariaDB-only cases, 6,993 assertions. Disposable MariaDB run of `AcademicConcurrencyTest`, `ReportIndexAuditTest`, `AdminMutationAtomicityTest` passed all 23 tests / 95 assertions without skips. `composer run analyse`, Pint and both unstaged/staged `git diff --check` passed.
+- Remaining risk: published curriculum version conflicts, F17/F18, remain separate findings. No configured-database writes occurred.
+- Commit: `daa179f`.
+
+### F28: serialize active-admin removals
+
+- Root cause confirmed at runtime: two independent MariaDB transactions each counted three active admins before removing different targets. Demotion, deactivation and mixed cases all failed the new regression before the fix.
+- Files changed: `UserService`, `AcademicConcurrencyTest`.
+- Implementation: role/status mutations lock the admin fleet in ascending ID order, then lock and refresh the target, check current self/fleet guards, and commit updates plus audit together. A protection refusal rolls back and records the failed attempt afterward. Base-field-only updates lock the target alone.
+- Tests added: three independent-connection concurrent-removal cases, each asserting exactly one success, two remaining active admins and both success/refusal audit evidence. Existing role-management/security tests retain legitimate promotion, no-op and self-protection behavior.
+- Commands/results: disposable MariaDB `AcademicConcurrencyTest --filter=admin_removals` reproduced three failures before the fix and passed three tests / 12 assertions afterward. The subsequent MariaDB 23-test group and full SQLite suite above passed. Static analysis, Pint and diff checks passed.
+- Remaining risk: lock contention scales with the admin fleet; this preserves the existing small-fleet model. No new lock table or production DDL is required.
+- Commit: `daa179f`.
+
+### Destructive-test database protection
+
+`tests/TestCase.php` now refuses fixture initialization unless the target is in-memory SQLite or an explicitly opted-in disposable MariaDB/MySQL database ending in `_test` with its inherited Unix socket cleared. The missing-opt-in invocation failed before fixtures with zero assertions, an expected safety refusal. This guards against environment overrides accidentally directing resets to the configured database. Commit `b34097d`. The configured port 3307 database remains read-only; tests use the separate rootless container on port 33308 without host volumes. F30 remains open for mandatory CI integration jobs.
+
+## Remaining P2/P3 Work
+
+The original 14 P2 and two P3 findings remain open. F29 gained stdin-error handling and successful ordinary timeout/cleanup evidence during F01, but is only PARTIALLY FIXED and requires lifecycle verification. No broader lifecycle claim is made.
+
+F32 is now conclusive but NOT FIXED: `composer audit --format=json` retrieved two advisories for installed `league/commonmark`, one Medium raw-HTML filtering bypass, PKSA-m2dq-1fhr-29b1 / GHSA-97jj-33gv-5xf9, and one High quadratic table-parsing denial of service, PKSA-m4t9-vsgq-8khn / GHSA-3q6v-r5mr-hxv8. See [raw HTML advisory](https://github.com/advisories/GHSA-97jj-33gv-5xf9) and [table parsing advisory](https://github.com/advisories/GHSA-3q6v-r5mr-hxv8). No dependencies were updated. Approval, patched-version verification, usage assessment and regression/build checks remain required. This replaces the original inconclusive retrieval status, not the historical audit finding.
+
+## Regression Verification
+
+| Executed check | Latest completed evidence |
+| --- | --- |
+| Fresh baseline PHP | 1,180 passed / 10 skipped / 6,685 assertions. |
+| PHP after P0 | 1,183 passed / 10 skipped / 6,711 assertions. |
+| PHP after F04/F05/F06 | 1,209 passed / 10 skipped / 6,952 assertions; final extra publication-refusal test passed in its target group. Further full verification remains required after subsequent fixes. |
+| PHP after F11/F28 | 1,220 passed / 13 skipped / 6,993 assertions; all skips require MariaDB and were separately executed successfully. |
+| Grader subprocess/HTTP suite | 37 passed, zero skipped/failed. |
+| Strict real sandbox | 20 checks passed, zero failed, rootless Podman and Node 22.23.3. |
+| Static analysis | Passed, zero new errors against frozen baseline, after approved execution outside worker-socket sandbox restriction. |
+| Pint | Passed after modified PHP files. |
+| Production frontend build | Passed after P0; existing editor-size advisory remains F38. No interactive frontend acceptance claimed. |
+| Composer metadata | `composer validate --strict` passed. |
+| npm advisories | Completed, zero vulnerabilities across 165 dependencies. |
+| Composer advisories | Completed, two Commonmark advisories; vulnerable result, not pass. |
+| Git diff whitespace | `git diff --check` and staged diff checks passed for committed groups. |
+| MariaDB skips | All 13 currently skipped SQLite cases were executed successfully in the separate disposable MariaDB target; the combined concurrency/index/rollback group passed 23 / 95, zero skips. Port 3307 stays read-only. |
+| Browser/front-end tests | Not yet executed; no readiness claim. |
+
+## Security Reassessment
+
+Preserved CSRF/student/role gates, source-only submission authority, required Knowledge Check guards, server-owned XP, historical Boss-pass completion, exact classroom student-course scope and report protections. Grader observations are untrusted; only the trusted service compares them to protected expectations. Forged client authority fields do not affect academic outcomes. Legacy verdicts and wrong academic totals fail unavailable without XP changes.
+
+Remaining security/integrity risks include malformed existing content requiring repair, F13 replay penalties, F19 tied prerequisites, F26 admission limits, F12 recovery and the newly retrieved dependency advisories. These have not been concealed by passing tests.
+
+## E2E/UAT Readiness Reassessment
+
+**NOT READY.** Both original P0 findings are fixed and verified at the documented boundaries. Fifteen P1 findings remain open, including integrity, recovery, admission, authorization-invariant and integration-confidence blockers. Passing the SQLite suite and sandbox tests is insufficient for full-system acceptance.
+
+Current unresolved original-register counts: Critical 0, High 9, Medium 17, Low 5; P0 0, P1 15, P2 14, P3 2, total 31. Counts retain original finding severity/priority rather than counting two advisories as new top-level entries. F32 now has a known High dependency advisory within its original Medium verification finding and must be treated accordingly during remediation planning.
+
+Continue security/integrity P1 groups, then progression/read-model integration, then UI/accessibility and required integration CI. Re-run the broad suite and reassess every finding before issuing a final readiness decision. This phase is ongoing; the report does not authorize deployment or the next development phase.
