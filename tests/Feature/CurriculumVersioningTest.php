@@ -229,7 +229,7 @@ class CurriculumVersioningTest extends TestCase
             'title' => $assessment->title,
             'description' => $assessment->description,
             'instructions' => $assessment->instructions,
-            'passing_score' => 101,
+            'passing_score' => 100,
             'status' => 'active',
         ]);
 
@@ -242,13 +242,13 @@ class CurriculumVersioningTest extends TestCase
 
         $assessments = app(AssessmentService::class);
         $retry = $assessments->retryAttempt($user, $course);
-        $assessments->submitAttempt($user, $retry, '<h1>Boss</h1>');
+        $assessments->submitAttempt($user, $retry, '<p>Wrong</p>');
         $assessments->evaluateAttempt($user, $retry);
 
         $retry->refresh();
         $this->assertSame('failed', $retry->status);
         $this->assertSame(2, $retry->assessment_version);
-        $this->assertSame(101, $retry->passing_score_snapshot);
+        $this->assertSame(100, $retry->passing_score_snapshot);
         $this->assertTrue($assessments->hasPassed($user, $course));
     }
 
