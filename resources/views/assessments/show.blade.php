@@ -80,7 +80,12 @@
                 @elseif ($attempt?->status === 'submitted')
                     <section class="panel px-5 py-5" aria-labelledby="boss-pending-title" role="status">
                         <h2 id="boss-pending-title" class="text-lg font-semibold">Verification in progress</h2>
-                        <p class="mt-2 text-sm text-fg-muted">Your submission is recorded. Return shortly for the result.</p>
+                        <p class="mt-2 text-sm text-fg-muted">Your submission is recorded. Resume verification of the saved code to obtain its result.</p>
+                        <form method="POST" action="{{ route('assessment.submit', $assessment) }}" class="mt-5">
+                            @csrf
+                            <input type="hidden" name="code" value="{{ $code }}">
+                            <button type="submit" class="btn btn-primary">RESUME VERIFICATION</button>
+                        </form>
                     </section>
                 @else
                     <section class="panel overflow-hidden" aria-labelledby="boss-editor-title">

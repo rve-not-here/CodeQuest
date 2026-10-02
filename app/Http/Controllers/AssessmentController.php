@@ -135,8 +135,7 @@ class AssessmentController extends Controller
         $hadPassedBefore = $this->assessments->hasPassed($user, $course);
 
         try {
-            $this->assessments->submitAttempt($user, $attempt, $validated['code']);
-            $attempt = $this->assessments->evaluateAttempt($user, $attempt);
+            $attempt = $this->assessments->submitAndEvaluateAttempt($user, $attempt, $validated['code']);
         } catch (AssessmentAttemptAccessDeniedException) {
             abort(403);
         } catch (AssessmentAttemptStateException) {
@@ -144,6 +143,12 @@ class AssessmentController extends Controller
                 ->with('assessment_error', [
                     'title' => 'Attempt not submittable',
                     'message' => 'This attempt cannot be submitted in its current state.',
+                ]);
+        } catch (AssessmentNotUnlockedException) {
+            return redirect()->route('assessments')
+                ->with('assessment_error', [
+                    'title' => 'Challenge sealed',
+                    'message' => 'This challenge is no longer available for submission.',
                 ]);
         }
 

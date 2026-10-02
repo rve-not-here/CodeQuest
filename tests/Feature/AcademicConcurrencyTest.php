@@ -289,6 +289,43 @@ class AcademicConcurrencyTest extends TestCase
         $this->assertSame(1, UserAchievement::query()->where('user_id', $student->id)->where('achievement_id', $firstCourse->id)->count());
     }
 
+    #[DataProvider('bossSubmissionStates')]
+    public function test_concurrent_boss_submission_or_recovery_commits_one_verdict(string $state): void
+    {
+        $this->seed(AchievementSeeder::class);
+        [$student, $course, $assessment] = $this->unlockedAssessment();
+        $assessment->grading_rule = '[{"type":"contains","value":"hello"}]';
+        $assessment->save();
+        $attempt = AssessmentAttempt::factory()->create([
+            'user_id' => $student->id, 'assessment_id' => $assessment->id,
+            'status' => $state, 'code' => $state === 'submitted' ? 'hello' : null,
+            'submitted_at' => $state === 'submitted' ? now() : null,
+        ]);
+        $results = $this->runPair(function (int $worker) use ($student, $attempt): bool {
+            try {
+                return app(AssessmentService::class)->submitAndEvaluateAttempt(
+                    User::query()->findOrFail($student->id),
+                    AssessmentAttempt::query()->findOrFail($attempt->id),
+                    'hello',
+                )->status === 'passed';
+            } catch (AssessmentAttemptStateException) {
+                return false;
+            }
+        }, 'the404_assessment_attempts');
+        sort($results);
+        $this->assertSame([false, true], $results);
+        $this->assertSame('passed', $attempt->fresh()->status);
+        $this->assertDatabaseCount('the404_assessment_attempts', 1);
+        $this->assertSame(1, XpTransaction::query()->where('assessment_id', $assessment->id)->count());
+        $this->assertSame(1, Notification::query()->where('dedupe_key', 'assessment_passed:'.$attempt->id)->count());
+    }
+
+    /** @return array<string, array{string}> */
+    public static function bossSubmissionStates(): array
+    {
+        return ['new submission' => ['started'], 'saved submission recovery' => ['submitted']];
+    }
+
     /** @return array{User, Course, Assessment} */
     private function unlockedAssessment(): array
     {

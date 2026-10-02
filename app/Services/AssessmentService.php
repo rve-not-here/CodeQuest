@@ -500,6 +500,39 @@ class AssessmentService
     }
 
     /**
+     * Commit the synchronous submission and verdict together. A recorded
+     * submission is recoverable using its stored source, never replacement
+     * source from a retry request.
+     */
+    public function submitAndEvaluateAttempt(User $user, AssessmentAttempt $attempt, string $code): AssessmentAttempt
+    {
+        if (! $this->hasAccessToAttempt($user, $attempt)) {
+            throw AssessmentAttemptAccessDeniedException::forAttempt($attempt->id);
+        }
+
+        return DB::transaction(function () use ($user, $attempt, $code): AssessmentAttempt {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $current = AssessmentAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
+
+            if (! $this->hasAccessToAttempt($user, $current)) {
+                throw AssessmentAttemptAccessDeniedException::forAttempt($current->id);
+            }
+
+            $course = $current->assessment?->course;
+
+            if ($course === null || ! $this->isUnlocked($user, $course)) {
+                throw AssessmentNotUnlockedException::forCourse($course->id ?? 0);
+            }
+
+            if ($current->status !== 'submitted') {
+                $this->submitAttempt($user, $current, $code);
+            }
+
+            return $this->evaluateAttempt($user, $current);
+        }, attempts: 3);
+    }
+
+    /**
      * Record a student's submission for an assessment attempt (§US-406).
      *
      * Accepts only the student's submission code, against an attempt they own
