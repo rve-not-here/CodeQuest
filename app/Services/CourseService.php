@@ -41,9 +41,8 @@ class CourseService
     ) {}
 
     /**
-     * The whole catalog in progression order. The listing's only ordering
-     * key is order_num (preserved from the existing data model — no second
-     * ordering mechanism is introduced).
+     * The whole catalog in progression order, with ID breaking ordinal ties
+     * consistently with the server's predecessor gate.
      *
      * @return Collection<int, Course>
      */
@@ -54,6 +53,7 @@ class CourseService
             ->withCount('missions')
             ->withCount('assessment')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->get();
     }
 

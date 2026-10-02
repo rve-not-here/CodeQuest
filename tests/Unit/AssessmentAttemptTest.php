@@ -162,12 +162,15 @@ class AssessmentAttemptTest extends TestCase
         $first = User::factory()->create();
         $second = User::factory()->create();
         ['course' => $course] = $this->makeUnlockedCourse($first);
-        ['course' => $secondCourse] = $this->makeUnlockedCourse($second);
-        $course->update(['order_num' => 1]);
-        $secondCourse->update(['order_num' => 1]);
+        Progress::query()->create([
+            'user_id' => $second->id,
+            'mission_id' => $course->missions()->firstOrFail()->id,
+            'pts_earned' => 0,
+            'completed_at' => now(),
+        ]);
 
         $firstAttempt = $this->service->beginAttempt($first, $course);
-        $secondAttempt = $this->service->beginAttempt($second, $secondCourse);
+        $secondAttempt = $this->service->beginAttempt($second, $course);
 
         $this->assertSame($first->id, $firstAttempt->user_id);
         $this->assertSame($second->id, $secondAttempt->user_id);

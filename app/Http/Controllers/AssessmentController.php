@@ -210,6 +210,7 @@ class AssessmentController extends Controller
         $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->get();
 
         $states = $this->assessments->assessmentStatesForCourses($user, $courses);

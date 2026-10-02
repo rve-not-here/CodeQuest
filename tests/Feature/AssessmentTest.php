@@ -334,6 +334,8 @@ class AssessmentTest extends TestCase
                 $response->assertSee('sandbox=""', false)
                     ->assertDontSee('sandbox="allow-scripts"', false);
             }
+
+            $course->update(['status' => 'locked']);
         }
     }
 

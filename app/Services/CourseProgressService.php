@@ -52,6 +52,7 @@ class CourseProgressService
 
         $courses = Course::query()
             ->orderBy('order_num')
+            ->orderBy('id')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get();
 

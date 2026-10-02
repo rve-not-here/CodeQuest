@@ -123,6 +123,7 @@ class CourseAnalyticsService
         $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get()
             ->filter(fn (Course $course): bool => ((int) ($missionCounts->get($course->id) ?? 0)) > 0);

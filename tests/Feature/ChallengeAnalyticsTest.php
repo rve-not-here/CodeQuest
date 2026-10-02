@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
@@ -55,6 +57,15 @@ class ChallengeAnalyticsTest extends TestCase
 
     private function submit(User $user, Mission $mission, string $code): void
     {
+        $otherCourses = Course::query()->where('status', 'active')->whereHas('missions')
+            ->where('id', '!=', $mission->course_id)->get();
+        foreach ($otherCourses as $otherCourse) {
+            $boss = $otherCourse->assessment ?? Assessment::factory()->create(['course_id' => $otherCourse->id]);
+            if (! $boss->attempts()->where('user_id', $user->id)->where('status', 'passed')->exists()) {
+                AssessmentAttempt::factory()->create(['assessment_id' => $boss->id, 'user_id' => $user->id, 'status' => 'passed', 'score' => 100]);
+            }
+        }
+
         $this->actingAs($user)
             ->post(route('mission.submit', $mission), ['code' => $code])
             ->assertRedirect();

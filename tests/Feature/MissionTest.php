@@ -115,13 +115,15 @@ class MissionTest extends TestCase
         $student = User::factory()->create();
 
         foreach (['html', 'css'] as $type) {
-            ['mission' => $mission] = $this->createMissionWithCourse([], ['type' => $type, 'order_num' => 1]);
+            ['mission' => $mission, 'course' => $course] = $this->createMissionWithCourse([], ['type' => $type, 'order_num' => 1]);
 
             $this->actingAs($student)
                 ->get(route('mission.challenge', $mission))
                 ->assertOk()
                 ->assertSee('sandbox=""', false)
                 ->assertDontSee('sandbox="allow-scripts"', false);
+
+            $course->update(['status' => 'locked']);
         }
 
         ['mission' => $javascriptMission] = $this->createMissionWithCourse([], ['type' => 'js', 'order_num' => 1]);

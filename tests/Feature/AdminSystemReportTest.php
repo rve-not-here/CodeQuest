@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
@@ -116,7 +117,10 @@ class AdminSystemReportTest extends TestCase
     private function attemptAssessment(User $user, Course $course, string $code): void
     {
         $service = app(AssessmentService::class);
-        $attempt = $service->beginAttempt($user, $course);
+        $attempt = AssessmentAttempt::factory()->started()->create([
+            'user_id' => $user->id,
+            'assessment_id' => $course->assessment->id,
+        ]);
         $service->submitAttempt($user, $attempt, $code);
         $service->evaluateAttempt($user, $attempt);
     }

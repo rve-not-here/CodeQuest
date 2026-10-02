@@ -42,6 +42,7 @@ class DashboardService
         $courses = Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->withCount('missions')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get();

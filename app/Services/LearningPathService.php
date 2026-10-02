@@ -38,6 +38,7 @@ class LearningPathService
     {
         $courses = Course::query()
             ->orderBy('order_num')
+            ->orderBy('id')
             ->with(['sections.missions', 'missions'])
             ->get();
 

@@ -131,7 +131,7 @@ class AttentionService
             ->orderBy('username')
             ->get();
 
-        $courses = Course::query()->where('status', 'active')->orderBy('order_num')->get();
+        $courses = Course::query()->where('status', 'active')->orderBy('order_num')->orderBy('id')->get();
 
         $missionCounts = Mission::query()
             ->toBase()

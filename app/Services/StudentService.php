@@ -46,6 +46,7 @@ class StudentService
         return Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->when($courseIds !== null, fn ($query) => $query->whereIn('id', $courseIds))
             ->get();
     }
@@ -173,6 +174,7 @@ class StudentService
             ->where('status', 'active')
             ->whereHas('missions')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->get(['id', 'order_num']);
         $assessments = Assessment::query()
             ->whereIn('course_id', $activeCourses->pluck('id'))

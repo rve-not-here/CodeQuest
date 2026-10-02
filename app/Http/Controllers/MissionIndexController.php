@@ -86,7 +86,7 @@ class MissionIndexController extends Controller
         return view('missions-index', [
             'role' => $user->role,
             'rows' => $rows->values(),
-            'courses' => Course::query()->orderBy('order_num')->get(),
+            'courses' => Course::query()->orderBy('order_num')->orderBy('id')->get(),
             'filters' => [
                 'q' => $search,
                 'status' => in_array($status, ['COMPLETED', 'IN PROGRESS', 'NOT STARTED'], true) ? $status : null,

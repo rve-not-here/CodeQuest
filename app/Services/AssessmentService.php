@@ -181,7 +181,12 @@ class AssessmentService
     {
         $earlierCourses = Course::query()
             ->where('status', 'active')
-            ->where('order_num', '<', $course->order_num)
+            ->where(function ($query) use ($course): void {
+                $query->where('order_num', '<', $course->order_num)
+                    ->orWhere(function ($tied) use ($course): void {
+                        $tied->where('order_num', $course->order_num)->where('id', '<', $course->id);
+                    });
+            })
             ->whereHas('missions')
             ->get();
 
@@ -743,6 +748,7 @@ class AssessmentService
         return Course::query()
             ->where('status', 'active')
             ->orderBy('order_num')
+            ->orderBy('id')
             ->withCount('missions')
             ->get()
             ->first(function (Course $course) use ($user): bool {
