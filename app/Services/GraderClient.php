@@ -60,7 +60,7 @@ class GraderClient
             return $this->errorResult(self::ERROR_GRADER_UNAVAILABLE);
         }
 
-        $validated = $this->validateContract($response->json());
+        $validated = $this->validateContract($response->json(), count($tests));
 
         if ($validated === null) {
             $this->observe(null, null, 'malformed', $this->elapsed($started), self::ERROR_INVALID_RESPONSE);
@@ -95,9 +95,9 @@ class GraderClient
      *
      * @return array{status: string, tests_total: int, tests_passed: int, duration_ms: int, error_type: string|null}|null
      */
-    private function validateContract(mixed $payload): ?array
+    private function validateContract(mixed $payload, int $expectedTests): ?array
     {
-        if (! is_array($payload)) {
+        if (! is_array($payload) || ($payload['protocol_version'] ?? null) !== 2) {
             return null;
         }
 
@@ -112,6 +112,10 @@ class GraderClient
             || $payload['tests_passed'] > $payload['tests_total']
             || (array_key_exists('error_type', $payload) && ! is_string($payload['error_type']) && $payload['error_type'] !== null)
         ) {
+            return null;
+        }
+
+        if ($payload['status'] !== 'error' && $payload['tests_total'] !== $expectedTests) {
             return null;
         }
 

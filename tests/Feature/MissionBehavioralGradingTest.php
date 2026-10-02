@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\MissionBehaviorTest;
 use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
+use App\Services\AssessmentService;
+use App\Services\CompetencyService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
@@ -37,7 +40,7 @@ class MissionBehavioralGradingTest extends TestCase
     }
 
     /** @return array{course: Course, section: Section, mission: Mission} */
-    private function behavioralMission(?string $validateRule = null): array
+    private function behavioralMission(?string $validateRule = null, int $testCount = 1): array
     {
         $course = Course::factory()->create(['status' => 'active']);
         $section = Section::factory()->create(['course_id' => $course->id]);
@@ -47,18 +50,21 @@ class MissionBehavioralGradingTest extends TestCase
             'validate_rule' => $validateRule,
             'points' => 50,
         ]);
-        MissionBehaviorTest::factory()->create([
-            'mission_id' => $mission->id,
-            'order_num' => 1,
-        ]);
+        for ($index = 1; $index <= $testCount; $index++) {
+            MissionBehaviorTest::factory()->create([
+                'mission_id' => $mission->id,
+                'order_num' => $index,
+            ]);
+        }
 
         return compact('course', 'section', 'mission');
     }
 
     /** @return array<string, mixed> */
-    private function passedResult(int $total = 2): array
+    private function passedResult(int $total = 1): array
     {
         return [
+            'protocol_version' => 2,
             'status' => 'passed',
             'tests_total' => $total,
             'tests_passed' => $total,
@@ -117,6 +123,53 @@ class MissionBehavioralGradingTest extends TestCase
         $this->assertSame(50, (int) XpTransaction::query()->where('user_id', $student->id)->sum('amount'));
     }
 
+    public function test_forged_client_verdict_cannot_turn_a_failure_into_academic_progress(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['http://grader.internal/grade' => Http::response([
+            'protocol_version' => 2, 'status' => 'failed', 'tests_total' => 1,
+            'tests_passed' => 0, 'duration_ms' => 1, 'error_type' => 'assertion',
+        ])]);
+        $student = User::factory()->create();
+        ['mission' => $mission, 'course' => $course] = $this->behavioralMission();
+        Assessment::factory()->create(['course_id' => $course->id]);
+        $nextCourse = Course::factory()->create(['status' => 'active', 'order_num' => $course->order_num + 1]);
+        $nextMission = Mission::factory()->create(['course_id' => $nextCourse->id]);
+
+        $this->actingAs($student)->post(route('mission.submit', $mission), [
+            'code' => 'function add(){return -1}', 'status' => 'passed', 'passed' => true,
+            'score' => 100, 'xp' => 999999, 'tests_total' => 1, 'tests_passed' => 1,
+            'gradingResult' => ['status' => 'passed'], 'completion' => true,
+            'assessment_outcome' => 'passed', 'competency' => 'demonstrated',
+        ])->assertSessionHas('mission_error');
+
+        $this->assertDatabaseMissing('the404_progress', ['user_id' => $student->id]);
+        $this->assertDatabaseMissing('the404_xp_transactions', ['user_id' => $student->id, 'type' => 'mission_completed']);
+        $this->assertDatabaseMissing('the404_user_achievements', ['user_id' => $student->id]);
+        $this->assertDatabaseMissing('the404_assessment_attempts', ['user_id' => $student->id]);
+        $this->assertFalse(app(AssessmentService::class)->isUnlocked($student, $course));
+        $competency = app(CompetencyService::class)->overview($student)->first();
+        $this->assertSame(0, $competency['percent']);
+        $this->assertFalse($competency['challengePassed']);
+        $this->assertNotSame('demonstrated', $competency['state']);
+        $this->assertFalse(app(AssessmentService::class)->isCourseReached($student, $nextCourse));
+        $this->get(route('mission.challenge', $nextMission))->assertForbidden();
+        Http::assertSentCount(1);
+    }
+
+    public function test_unexpected_test_count_and_old_service_protocol_fail_closed(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->behavioralMission();
+        foreach ([$this->passedResult(99), array_diff_key($this->passedResult(), ['protocol_version' => true])] as $response) {
+            Http::fake(['http://grader.internal/grade' => Http::response($response)]);
+            $this->actingAs($student)->post(route('mission.submit', $mission), ['code' => 'function add(){return 0}'])
+                ->assertSessionHas('mission_error');
+        }
+        $this->assertDatabaseMissing('the404_progress', ['user_id' => $student->id]);
+        $this->assertDatabaseMissing('the404_xp_transactions', ['user_id' => $student->id]);
+    }
+
     /** @return list<array{0: string}> */
     public static function validImplementations(): array
     {
@@ -130,6 +183,7 @@ class MissionBehavioralGradingTest extends TestCase
     public function test_failed_behavioral_grading_deducts_and_reports_counts(): void
     {
         Http::fake(['*' => Http::response([
+            'protocol_version' => 2,
             'status' => 'failed',
             'tests_total' => 4,
             'tests_passed' => 3,
@@ -137,7 +191,7 @@ class MissionBehavioralGradingTest extends TestCase
             'error_type' => 'assertion',
         ], 200)]);
         $student = User::factory()->create();
-        ['mission' => $mission] = $this->behavioralMission();
+        ['mission' => $mission] = $this->behavioralMission(testCount: 4);
 
         $this->actingAs($student)
             ->post(route('mission.submit', $mission), ['code' => 'function add() { return 8; }'])
@@ -225,6 +279,7 @@ class MissionBehavioralGradingTest extends TestCase
     public function test_syntax_error_is_an_academic_failure(): void
     {
         Http::fake(['*' => Http::response([
+            'protocol_version' => 2,
             'status' => 'failed',
             'tests_total' => 2,
             'tests_passed' => 0,
@@ -232,7 +287,7 @@ class MissionBehavioralGradingTest extends TestCase
             'error_type' => 'syntax',
         ], 200)]);
         $student = User::factory()->create();
-        ['mission' => $mission] = $this->behavioralMission();
+        ['mission' => $mission] = $this->behavioralMission(testCount: 2);
 
         $this->actingAs($student)
             ->post(route('mission.submit', $mission), ['code' => 'function add(a, b) { return '])
@@ -291,7 +346,7 @@ class MissionBehavioralGradingTest extends TestCase
     /** @return array<string, array{0: array<string, mixed>}> */
     public static function malformedGraderResponses(): array
     {
-        $base = ['duration_ms' => 10, 'error_type' => null];
+        $base = ['protocol_version' => 2, 'duration_ms' => 10, 'error_type' => null];
 
         return [
             'missing keys' => [['nonsense' => true]],

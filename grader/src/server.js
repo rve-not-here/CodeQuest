@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { evaluate, executionPayload, result } from './evaluator.js';
 
 // CodeQuest JS grader service. Internal infrastructure only: binds
 // loopback by default, requires a bearer token, and runs every submission
@@ -34,7 +36,12 @@ function validPayload(body) {
     if (!Array.isArray(body.tests) || body.tests.length === 0 || body.tests.length > 50) {
         return false;
     }
-    return body.tests.every((test) => test && (test.type === 'function' || test.type === 'console') && test.payload !== undefined);
+    try {
+        executionPayload(body);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 // Fixed argument vector. No user-controlled data ever reaches argv;
@@ -57,10 +64,10 @@ function runtimeArgs() {
     ];
 }
 
-function gradeInSandbox(payload) {
+export function gradeInSandbox(payload, spawnSandbox = () => spawn(RUNTIME, runtimeArgs(), { stdio: ['pipe', 'pipe', 'ignore'] })) {
     const started = Date.now();
     return new Promise((resolve) => {
-        const child = spawn(RUNTIME, runtimeArgs(), { stdio: ['pipe', 'pipe', 'ignore'] });
+        const child = spawnSandbox();
         let stdout = '';
         let settled = false;
         const finish = (result) => {
@@ -71,48 +78,38 @@ function gradeInSandbox(payload) {
         };
         const timer = setTimeout(() => {
             child.kill('SIGKILL');
-            finish({ status: 'error', tests_total: 0, tests_passed: 0, duration_ms: Date.now() - started, error_type: 'timeout' });
+            finish(result('error', 0, 0, 'timeout', Date.now() - started));
         }, EXEC_TIMEOUT_MS);
         timer.unref?.();
 
+        child.stdout.setEncoding('utf8');
         child.stdout.on('data', (chunk) => {
-            stdout += chunk.toString('utf8');
+            stdout += chunk;
             if (Buffer.byteLength(stdout) > MAX_STDOUT_BYTES) {
                 child.kill('SIGKILL');
-                finish({ status: 'error', tests_total: 0, tests_passed: 0, duration_ms: Date.now() - started, error_type: 'resource_limit' });
+                finish(result('error', 0, 0, 'resource_limit', Date.now() - started));
             }
+        });
+        child.stdin.on('error', () => {
+            clearTimeout(timer);
+            child.kill('SIGKILL');
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
         });
         child.on('error', () => {
             clearTimeout(timer);
-            finish({ status: 'error', tests_total: 0, tests_passed: 0, duration_ms: Date.now() - started, error_type: 'grader_unavailable' });
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
         });
         child.on('close', () => {
             clearTimeout(timer);
-            try {
-                const parsed = JSON.parse(stdout);
-                if (parsed && ['passed', 'failed', 'error'].includes(parsed.status)
-                    && Number.isInteger(parsed.tests_total) && Number.isInteger(parsed.tests_passed)) {
-                    finish({
-                        status: parsed.status,
-                        tests_total: parsed.tests_total,
-                        tests_passed: parsed.tests_passed,
-                        duration_ms: Date.now() - started,
-                        error_type: typeof parsed.error_type === 'string' ? parsed.error_type : null,
-                    });
-                    return;
-                }
-            } catch {
-                // Fall through to invalid response below.
-            }
-            finish({ status: 'error', tests_total: 0, tests_passed: 0, duration_ms: Date.now() - started, error_type: 'invalid_response' });
+            finish(evaluate(payload, stdout, Date.now() - started));
         });
 
         try {
-            child.stdin.write(JSON.stringify({ ...payload, exec_timeout_ms: EXEC_TIMEOUT_MS }));
+            child.stdin.write(JSON.stringify(executionPayload(payload, EXEC_TIMEOUT_MS)));
             child.stdin.end();
         } catch {
             child.kill('SIGKILL');
-            finish({ status: 'error', tests_total: 0, tests_passed: 0, duration_ms: Date.now() - started, error_type: 'grader_unavailable' });
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
         }
     });
 }
@@ -135,7 +132,7 @@ function readBody(request) {
     });
 }
 
-export function createApp() {
+export function createApp(spawnSandbox) {
     return createServer(async (request, response) => {
         const json = (code, body) => {
             response.writeHead(code, { 'content-type': 'application/json' });
@@ -170,11 +167,13 @@ export function createApp() {
             return;
         }
 
-        json(200, await gradeInSandbox({ source: body.source, tests: body.tests }));
+        json(200, await gradeInSandbox({ source: body.source, tests: body.tests }, spawnSandbox));
     });
 }
 
-const server = createApp();
-server.listen(PORT, HOST, () => {
-    process.stdout.write(`codequest-js-grader listening on ${HOST}:${PORT} (runtime: ${RUNTIME})\n`);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    const server = createApp();
+    server.listen(PORT, HOST, () => {
+        process.stdout.write(`codequest-js-grader listening on ${HOST}:${PORT} (runtime: ${RUNTIME})\n`);
+    });
+}

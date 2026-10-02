@@ -6,7 +6,7 @@
     "description": "Internal CodeQuest service: runs hidden behavioral JS tests in ephemeral sandboxes. No dependencies.",
     "scripts": {
         "start": "node src/server.js",
-        "test": "node --test test/"
+        "test": "node --test test/*.test.js"
     },
     "engines": {
         "node": ">=20"

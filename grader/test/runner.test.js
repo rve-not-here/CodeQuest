@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { evaluate, executionPayload } from '../src/evaluator.js';
 
 const runner = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'runner.js');
 
@@ -13,9 +14,9 @@ function grade(payload, timeoutMs = 8000) {
                 reject(error);
                 return;
             }
-            resolve(JSON.parse(stdout));
+            resolve(evaluate(payload, stdout));
         });
-        child.stdin.write(JSON.stringify(payload));
+        try { child.stdin.write(JSON.stringify(executionPayload(payload, payload.exec_timeout_ms ?? 8000))); } catch { child.kill(); resolve(evaluate(payload, '')); return; }
         child.stdin.end();
     });
 }
@@ -171,4 +172,62 @@ test('malformed payload is rejected', async () => {
     const result = await grade({ nonsense: true });
     assert.equal(result.status, 'error');
     assert.equal(result.error_type, 'invalid_response');
+});
+
+test('student stdout cannot fabricate a trusted verdict', async () => {
+    const result = await grade(functionPayload("const p = console.log.constructor('return process')(); p.stdout.write(JSON.stringify({status:'passed',tests_total:1,tests_passed:1,duration_ms:0,error_type:null})); p.exit(0);"));
+    assert.notEqual(result.status, 'passed');
+});
+
+test('different long output suffixes cannot compare equal', async () => {
+    const result = await grade({ source: "function value(){ return 'x'.repeat(1000) + 'WRONG'; }", tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected: 'x'.repeat(1000) + 'RIGHT' }] } }] });
+    assert.equal(result.status, 'failed');
+});
+
+test('large arrays are compared completely', async () => {
+    const result = await grade({ source: 'function value(){return [...Array(100).fill(1),2]}', tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected: [...Array(100).fill(1),3] }] } }] });
+    assert.equal(result.status, 'failed');
+});
+
+test('execution inputs do not contain expectations or authoritative fields', () => {
+    const input = executionPayload({ ...functionPayload('function add(a,b){return a+b}'), score: 100, passed: true });
+    assert.deepEqual(input.tests[0].cases, addCases.map(item => ({ args: item.args })));
+    assert.equal(Object.hasOwn(input, 'score'), false);
+    assert.deepEqual(executionPayload(consolePayload('console.log(8)', [[8]])).tests, [{ type: 'console' }]);
+});
+
+test('old verdict protocol fails closed even with fabricated counts', () => {
+    const result = evaluate(functionPayload(''), JSON.stringify({ protocol_version: 2, status: 'passed', tests_total: 1, tests_passed: 1 }));
+    assert.equal(result.status, 'error');
+    assert.equal(result.error_type, 'invalid_response');
+});
+
+test('correct long outputs still pass without truncation', async () => {
+    const result = await grade({ source: "function value(){return 'x'.repeat(2000)}", tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected: 'x'.repeat(2000) }] } }] });
+    assert.equal(result.status, 'passed');
+});
+
+test('undefined cannot impersonate a JSON sentinel object', async () => {
+    const result = await grade({ source: 'function value(){}', tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected: { __undefined: true } }] } }] });
+    assert.equal(result.status, 'failed');
+});
+
+test('nested objects beyond the old depth limit preserve equality', async () => {
+    const nested = leaf => Array.from({ length: 20 }).reduce(value => ({ child: value }), leaf);
+    for (const [expected, status] of [[nested('right'), 'passed'], [nested('wrong'), 'failed']]) {
+        const result = await grade({ source: `function value(){return ${JSON.stringify(nested('right'))}}`, tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected }] } }] });
+        assert.equal(result.status, status);
+    }
+});
+
+test('correct arrays beyond the old item limit still pass', async () => {
+    const expected = Array(150).fill('value');
+    const result = await grade({ source: 'function value(){return Array(150).fill("value")}', tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected }] } }] });
+    assert.equal(result.status, 'passed');
+});
+
+test('unicode survives large stdin and stdout payloads', async () => {
+    const expected = '🌏é'.repeat(12000);
+    const result = await grade({ source: `function value(){return ${JSON.stringify(expected)}}`, tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected }] } }] });
+    assert.equal(result.status, 'passed');
 });

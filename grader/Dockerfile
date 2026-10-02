@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM docker.io/library/node:22-alpine
 
 # Runner image for ephemeral grading sandboxes. The container is the
 # security boundary; all hard limits (network, user, read-only root,

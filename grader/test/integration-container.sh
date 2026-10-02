@@ -69,8 +69,7 @@ RUN_FLAGS="--rm -i --network none --user 65534:65534 --read-only \
 # Word-split RUN_FLAGS on purpose: fixed flags, no user data.
 # shellcheck disable=SC2086
 grade() {
-    printf '%s' "$1" | timeout 60 "$RUNTIME" run $RUN_FLAGS \
-        codequest-js-runner:1.0 node /app/src/runner.js
+    printf '%s' "$1" | GRADER_RUNTIME="$RUNTIME" node test/grade-container.js
 }
 
 PASS=0
@@ -123,6 +122,10 @@ check "node modules stay unavailable to student code" "passed" "$(printf '%s' "$
 NETWORK='{"source":"try { require(\"https\").get(\"https://example.com\"); console.log(1); } catch (e) { console.log(0); }","exec_timeout_ms":8000,"tests":[{"type":"console","payload":{"expected":[[0]]}}]}'
 RESULT=$(grade "$NETWORK")
 check "node network modules stay unavailable to student code" "passed" "$(printf '%s' "$RESULT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>process.stdout.write(JSON.parse(d).status))")"
+FORGED='{"source":"const p=console.log.constructor(\"return process\")();p.stdout.write(JSON.stringify({status:\"passed\",tests_total:1,tests_passed:1,duration_ms:0,error_type:null}));p.exit(0)","tests":[{"type":"function","payload":{"function":"add","cases":[{"args":[2,3],"expected":5}]}}]}'
+RESULT=$(grade "$FORGED")
+check "forged execution verdict fails closed" "error" "$(printf '%s' "$RESULT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>process.stdout.write(JSON.parse(d).status))")"
+
 # Live egress: independent of module isolation. A real fetch attempt from
 # inside the sandbox must fail under NetworkMode=none. Bounded so an
 # offline hang cannot stall the suite.
@@ -196,7 +199,7 @@ check "tmpfs /tmp is writable" "marker" "$(printf '%s' "$VISIBILITY" | grep -E '
 check "tmpfs /tmp denies execution" "NOEXEC_OK" "$(printf '%s' "$VISIBILITY" | grep -E '^(NOEXEC_OK|EXEC_OK)$' || echo MISSING)"
 
 # Cleanup: after a timeout kill, no grading container may remain.
-TIMEOUT_SRC='{"source":"while (true) {}","exec_timeout_ms":2000,"tests":[{"type":"console","payload":{"expected":[[1]]}}]}'
+TIMEOUT_SRC='{"source":"while (true) {}","exec_timeout_ms":2000,"tests":[{"type":"console"}]}'
 printf '%s' "$TIMEOUT_SRC" | timeout 60 "$RUNTIME" run --rm -i $RUN_FLAGS \
     --name "codequest-cleanup-probe" \
     codequest-js-runner:1.0 node /app/src/runner.js >/dev/null 2>&1 || true

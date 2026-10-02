@@ -11,8 +11,11 @@ and never touches the container runtime.
   strict result contract.
 - `src/runner.js`: runs inside the sandbox. Reads the payload from stdin,
   evaluates the student source in a bare VM context (ergonomics only),
-  captures `console.log` and `console.info`, compares strictly, prints one
-  JSON result line.
+  captures `console.log` and `console.info`, and emits tagged observations.
+  It receives invocation inputs only, never expected values or verdict authority.
+- `src/evaluator.js`: runs in the trusted HTTP service, outside student
+  execution. Compares full supported values against server-owned expectations
+  and constructs the version-2 verdict. Old verdict-producing runners fail closed.
 - `test/`: `node:test` suites driving `runner.js` as a subprocess.
 - `Dockerfile`: builds the runner image. Hard limits live in the `run`
   flags in `server.js`, not in the image.
