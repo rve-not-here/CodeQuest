@@ -24,6 +24,19 @@ class AdminCourseUpdateRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $orderNum = $this->input('order_num');
+
+        if (is_string($orderNum) && ctype_digit($orderNum)) {
+            $parsed = filter_var($orderNum, FILTER_VALIDATE_INT);
+
+            if ($parsed !== false) {
+                $this->merge(['order_num' => $parsed]);
+            }
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */

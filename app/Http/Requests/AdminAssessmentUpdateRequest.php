@@ -53,7 +53,7 @@ class AdminAssessmentUpdateRequest extends FormRequest
             'title' => ['required', 'string', 'max:128'],
             'description' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
-            'passing_score' => ['required', 'integer', 'min:0'],
+            'passing_score' => ['required', 'integer', 'min:0', 'max:100'],
             'status' => ['required', Rule::in(AdminAssessmentService::STATUSES)],
         ];
     }

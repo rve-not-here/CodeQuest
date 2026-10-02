@@ -101,8 +101,8 @@ class AdminAssessmentService
             $this->refuse($actor, $assessment, 'Assessment title must be a non-empty string of at most 128 characters.');
         }
 
-        if (! is_int($passingScore) || $passingScore < 0) {
-            $this->refuse($actor, $assessment, 'Assessment passing score must be a non-negative integer.');
+        if (! is_int($passingScore) || $passingScore < 0 || $passingScore > 100) {
+            $this->refuse($actor, $assessment, 'Assessment passing score must be an integer between 0 and 100.');
         }
 
         if (! in_array($status, self::STATUSES, true)) {

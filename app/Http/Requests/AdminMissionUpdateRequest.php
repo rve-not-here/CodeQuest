@@ -34,13 +34,15 @@ class AdminMissionUpdateRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $sectionId = $this->input('section_id');
+        foreach (['section_id', 'points', 'order_num'] as $field) {
+            $value = $this->input($field);
 
-        if (is_string($sectionId) && ctype_digit($sectionId)) {
-            $parsed = filter_var($sectionId, FILTER_VALIDATE_INT);
+            if (is_string($value) && ctype_digit($value)) {
+                $parsed = filter_var($value, FILTER_VALIDATE_INT);
 
-            if ($parsed !== false) {
-                $this->merge(['section_id' => $parsed]);
+                if ($parsed !== false) {
+                    $this->merge([$field => $parsed]);
+                }
             }
         }
     }
