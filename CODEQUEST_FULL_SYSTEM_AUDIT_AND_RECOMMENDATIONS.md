@@ -782,18 +782,18 @@ Remediation date: 2026-10-02. This section is an ongoing record, not final accep
 
 | Finding | Current status | Evidence / remaining action |
 | --- | --- | --- |
-| F03 | NOT FIXED | Editor serialization remains the original double-parsed expression; repair both workspaces and verify restoration. |
+| F03 | FIXED | Both workspaces use context-safe Js::from output; exact restoration and malformed-input regressions execute rendered JavaScript successfully. |
 | F04 | FIXED | Browser-string course/section/mission updates now normalize valid bounded digit strings; strict domain guards remain. |
 | F05 | FIXED | Protected mission definitions now preflight before evaluation; malformed content returns unavailable without progress, reward or penalty. |
 | F06 | FIXED | HTTP and domain boundaries reject thresholds outside 0–100. |
 | F07 | NOT FIXED | Shared access/read-model verdicts still required. |
 | F08 | NOT FIXED | Required unsectioned missions still need consistent discovery. |
-| F09 | NOT FIXED | Mission query-shape validation still required. |
+| F09 | FIXED | Form Request validates scalar/bounded filters before read-model work; JSON errors are 422 and browser errors redirect to a safe index with feedback. |
 | F10 | NOT FIXED | Role-specific valid navigation still required. |
 | F11 | FIXED | Accepted mutations, version/status saves, assignments and audit now commit together; failure injection passes on SQLite and MariaDB. |
-| F12 | NOT FIXED | Submitted-attempt recovery remains unimplemented. |
+| F12 | FIXED | HTTP submission/verdict now share one transaction; legacy submitted attempts can resume using stored source. Failure and concurrency regressions pass. |
 | F13 | NOT FIXED | Failed submission operation identity/replay protection remains missing. |
-| F19 | NOT FIXED | Canonical total-order prerequisite enforcement remains required. |
+| F19 | FIXED | Course lists/current-course selection and predecessor gates consistently use order_num then id; tied-course bypass regression passes. |
 | F20 | NOT FIXED | Ungraded Experiment workflow remains missing. |
 | F21 | NOT FIXED | Accessible resizing/pane controls remain missing. |
 | F23 | NOT FIXED | Privacy-scoped authoritative event/KC evidence remains required. |
@@ -858,11 +858,55 @@ Remediation date: 2026-10-02. This section is an ongoing record, not final accep
 
 `tests/TestCase.php` now refuses fixture initialization unless the target is in-memory SQLite or an explicitly opted-in disposable MariaDB/MySQL database ending in `_test` with its inherited Unix socket cleared. The missing-opt-in invocation failed before fixtures with zero assertions, an expected safety refusal. This guards against environment overrides accidentally directing resets to the configured database. Commit `b34097d`. The configured port 3307 database remains read-only; tests use the separate rootless container on port 33308 without host volumes. F30 remains open for mandatory CI integration jobs.
 
+### F19: deterministic tied-course prerequisites
+
+- Root cause: the gate ignored equal ordinals while displayed courses implicitly had a predecessor. The new regression reproduced the bypass before implementation.
+- Files changed: `AssessmentService`, `DashboardService`, `LearningPathService`, `CourseService`, `CourseProgressService`, `StudentService`, `CompetencyService`, `CourseAnalyticsService`, `AttentionService`, `AssessmentController`, `MissionIndexController`; new `CourseSequenceSecurityTest` and affected preview/report/ownership fixture tests.
+- Implementation: earlier courses are those with lower order_num, or equal order_num and lower ID. All course ordering consumers use order_num then ID. Existing active/nonempty predecessor and historical-pass semantics remain. Accepted reordering still uses the audited transactional course write service; no schema mutation or historical-state rewrite was introduced.
+- Tests: tied successor denies lesson/workspace/submission/draft/hint/reveal/Boss initiation with no academic writes; historical pass followed by failed retry permits successor; inactive/empty courses do not block; audited reordering changes prerequisites. Existing preview tests now isolate each active course. Reporting fixtures provide trusted historical state instead of relying on the bypass, and student ownership is tested against the same eligible course.
+- Verification: new regression failed before fix; final four-suite progression group passed 40 / 249. The eight fixture-dependent failures/errors discovered by the broad suite were corrected without weakening route gates or changing metric expectations. Full suite then passed 1,223 / 7,015 assertions, skipped 13 MariaDB-only cases. Disposable MariaDB progression/Boss group passed 37 / 149; ordering/analytics/report group passed 35 / 300. Analysis, Pint and diff checks passed.
+- Remaining risk: published reordering intentionally affects future access; earned historical passes remain valid. Read-only inventory of existing ties remains part of F31.
+- Commit: `8b32c95`.
+
+### F12: atomic Boss submission and recoverable stored submissions
+
+- Root cause confirmed by failure injection: a notification/evaluation exception left the separately committed attempt in submitted status. A second request could not resume it.
+- Files changed: `AssessmentService`, `AssessmentController`, `resources/views/assessments/show.blade.php`, new `AssessmentRecoveryTest`, `AcademicConcurrencyTest`.
+- Implementation: the only HTTP submission caller uses a new synchronous domain operation that locks the user then attempt, rechecks ownership/current eligibility, and wraps submit plus evaluate plus all reward/notification effects in one transaction. Existing lower-level submit/evaluate methods retain their accepted separate contracts. A pre-existing submitted attempt is evaluated using its persisted source, ignoring replacement source and authoritative fields from the request. The pending view offers a CSRF-protected RESUME VERIFICATION action. Final attempts remain immutable; repeat requests cannot re-award.
+- Tests: injected evaluation/notification failure leaves started status, null submission/score and no reward/achievement/notification; repaired infrastructure permits a successful retry. Stored failing source cannot be replaced with passing source or forged score/status/XP. Stored passing source recovers once despite replacement failing source. Wrong user/attempt targeting is denied at HTTP and domain boundaries. Concurrent new submission and recovery cases each commit one verdict and one XP/notification effect.
+- Verification: two regression defects reproduced before fix. Final assessment/recovery/attempt group passed 83 / 266. Full PHP suite passed 1,227 / 7,051 assertions with 15 MariaDB-only skips. Disposable MariaDB recovery/concurrency group passed 18 / 88 without skips, including both new races. Static analysis, Pint and diff checks passed. The first concurrency fixture omitted rules and correctly failed; explicit matching protected rules corrected the fixture, not the grading contract.
+- Remaining risk: infrastructure failures still use the existing reported HTTP 500 handler; rollback makes them retryable. Recovery requires current eligibility and an active course/challenge, preserving access restrictions. Existing malformed legacy source/content still needs controlled inventory/repair under F31. Interactive browser smoke remains part of F30.
+- Commit: `f379fd1`.
+
+### F09: validate mission-index filters before normalization
+
+- Root cause: manual casts/string operations accepted array-valued GET filters; new tests reproduced 500s for nested search/course inputs and missing validation for unsupported values.
+- Files changed: new `MissionIndexRequest`, `MissionIndexController`, `resources/views/missions-index.blade.php`, new `MissionIndexInputTest`.
+- Implementation: student authorization and ownership-probe rejection run before validation. Search is nullable scalar text bounded to 200 characters, status is an explicit scalar vocabulary, and course is an existing integer ID. Only safe validated fields reach filtering. Browser validation redirects to the unfiltered missions route and displays the error with the existing status component; the search input also communicates the length limit.
+- Tests: nested/array search, course and status; unsupported status, fractional/missing course, oversized search; valid scoped filtering; combined ownership probe and malformed search; browser redirect and visible message. Existing role/security/index cases remain intact.
+- Verification: initial regression group reproduced seven missing-validation defects. Final input/index/authorization/security group passed 33 tests / 196 assertions. Pint, static analysis and diff checks passed; the subsequent full suite after F03 includes this group and passed.
+- Remaining risk: catalog processing scale remains separately tracked under performance findings; this fix does not expand academic visibility. Commit `49ff769`.
+
+### F03: safe exact editor source restoration
+
+- Root cause: JSON embedded inside a JavaScript string was decoded twice, turning source escapes into invalid JSON or changing characters. All 12 original rendered-expression regressions failed before correction.
+- Files changed: `resources/views/challenge.blade.php`, `resources/views/assessments/show.blade.php`; new `EditorSourceRestorationTest`.
+- Implementation: use installed Laravel's context-safe `Js::from` exactly once. The hidden textarea and editor initialization consume the same normalized source string. Valid flashed text takes precedence over stored code; null becomes empty text, and malformed non-string flashed input falls back to the stored draft/attempt. No draft, grading or completion authority moved to JavaScript.
+- Tests: execute the actual rendered initialization expression in isolated Node/V8 for both workspaces, with stored and flashed multiline/quote/backslash/Unicode/line-separator/script-boundary/template/empty source; assert exact round trip, safe script boundaries and no XP writes. Both malformed flashed-array cases reproduced render-time 500s before their correction.
+- Verification: final editor/mission/Boss group passed 89 tests / 364 assertions, including 18 restoration cases. Full PHP suite passed 1,255 / 7,201 assertions, skipped 15 MariaDB-only cases already exercised across isolated target groups. Static analysis, Pint, production build and diff checks passed. Existing editor chunk-size warning remains F38.
+- Remaining risk: these checks execute rendered JavaScript, not interactive CodeMirror/browser navigation. Browser work remains required under F30 and is being provisioned in the approved disposable tooling environment. Commit `68771ad`.
+
 ## Remaining P2/P3 Work
 
-The original 14 P2 and two P3 findings remain open. F29 gained stdin-error handling and successful ordinary timeout/cleanup evidence during F01, but is only PARTIALLY FIXED and requires lifecycle verification. No broader lifecycle claim is made.
+Thirteen original P2 and two P3 findings remain open; F32 is now fixed as described below. F29 gained stdin-error handling and successful ordinary timeout/cleanup evidence during F01, but is only PARTIALLY FIXED and requires lifecycle verification. No broader lifecycle claim is made.
 
-F32 is now conclusive but NOT FIXED: `composer audit --format=json` retrieved two advisories for installed `league/commonmark`, one Medium raw-HTML filtering bypass, PKSA-m2dq-1fhr-29b1 / GHSA-97jj-33gv-5xf9, and one High quadratic table-parsing denial of service, PKSA-m4t9-vsgq-8khn / GHSA-3q6v-r5mr-hxv8. See [raw HTML advisory](https://github.com/advisories/GHSA-97jj-33gv-5xf9) and [table parsing advisory](https://github.com/advisories/GHSA-3q6v-r5mr-hxv8). No dependencies were updated. Approval, patched-version verification, usage assessment and regression/build checks remain required. This replaces the original inconclusive retrieval status, not the historical audit finding.
+### F32: conclusive dependency advisories and patched package
+
+- Status: FIXED. Retrieval was originally inconclusive, then found Medium PKSA-m2dq-1fhr-29b1 / GHSA-97jj-33gv-5xf9 and High PKSA-m4t9-vsgq-8khn / GHSA-3q6v-r5mr-hxv8 affecting Commonmark 2.10.0. See [raw HTML advisory](https://github.com/advisories/GHSA-97jj-33gv-5xf9) and [table parsing advisory](https://github.com/advisories/GHSA-3q6v-r5mr-hxv8).
+- Explicit user approval obtained for a targeted dependency update. `composer update league/commonmark --no-interaction --no-scripts` changed only Commonmark to 2.10.3 in `composer.lock`, without changing manifest constraints or executing project hooks.
+- Verification: independent `composer audit --format=json` returned empty advisories and abandoned lists; `composer validate --strict` passed. The production build passed with existing F38 chunk-size warning. Full PHP suite after update passed 1,227 / 7,051 assertions, with 15 separately tracked MariaDB-only skips. No direct application Markdown rendering usage was found by code search; broad rendered feature coverage passed. npm advisory verification remains zero vulnerabilities.
+- Remaining risk: future advisories require periodic verification; F30 CI evidence remains separate. Commit `dd2f419`.
+
 
 ## Regression Verification
 
@@ -872,6 +916,8 @@ F32 is now conclusive but NOT FIXED: `composer audit --format=json` retrieved tw
 | PHP after P0 | 1,183 passed / 10 skipped / 6,711 assertions. |
 | PHP after F04/F05/F06 | 1,209 passed / 10 skipped / 6,952 assertions; final extra publication-refusal test passed in its target group. Further full verification remains required after subsequent fixes. |
 | PHP after F11/F28 | 1,220 passed / 13 skipped / 6,993 assertions; all skips require MariaDB and were separately executed successfully. |
+| PHP after F12 and approved F32 update | 1,227 passed / 15 skipped / 7,051 assertions; all 15 MariaDB-only cases have executed successfully across isolated target groups. |
+| PHP after F03/F09 | 1,255 passed / 15 skipped / 7,201 assertions. Editor restoration expressions also executed in isolated Node/V8; interactive browser acceptance remains outstanding. |
 | Grader subprocess/HTTP suite | 37 passed, zero skipped/failed. |
 | Strict real sandbox | 20 checks passed, zero failed, rootless Podman and Node 22.23.3. |
 | Static analysis | Passed, zero new errors against frozen baseline, after approved execution outside worker-socket sandbox restriction. |
@@ -879,21 +925,21 @@ F32 is now conclusive but NOT FIXED: `composer audit --format=json` retrieved tw
 | Production frontend build | Passed after P0; existing editor-size advisory remains F38. No interactive frontend acceptance claimed. |
 | Composer metadata | `composer validate --strict` passed. |
 | npm advisories | Completed, zero vulnerabilities across 165 dependencies. |
-| Composer advisories | Completed, two Commonmark advisories; vulnerable result, not pass. |
+| Composer advisories | Completed after approved update to Commonmark 2.10.3, zero advisories and zero abandoned packages. |
 | Git diff whitespace | `git diff --check` and staged diff checks passed for committed groups. |
-| MariaDB skips | All 13 currently skipped SQLite cases were executed successfully in the separate disposable MariaDB target; the combined concurrency/index/rollback group passed 23 / 95, zero skips. Port 3307 stays read-only. |
+| MariaDB skips | All 15 currently skipped SQLite cases were executed successfully in the separate disposable MariaDB target; the concurrency/index/rollback group passed 23 / 95, and the expanded recovery/concurrency group passed 18 / 88, zero skips. Port 3307 stays read-only. |
 | Browser/front-end tests | Not yet executed; no readiness claim. |
 
 ## Security Reassessment
 
 Preserved CSRF/student/role gates, source-only submission authority, required Knowledge Check guards, server-owned XP, historical Boss-pass completion, exact classroom student-course scope and report protections. Grader observations are untrusted; only the trusted service compares them to protected expectations. Forged client authority fields do not affect academic outcomes. Legacy verdicts and wrong academic totals fail unavailable without XP changes.
 
-Remaining security/integrity risks include malformed existing content requiring repair, F13 replay penalties, F19 tied prerequisites, F26 admission limits, F12 recovery and the newly retrieved dependency advisories. These have not been concealed by passing tests.
+Remaining security/integrity risks include malformed existing content requiring repair, F13 replay penalties and F26 admission limits. These have not been concealed by passing tests.
 
 ## E2E/UAT Readiness Reassessment
 
-**NOT READY.** Both original P0 findings are fixed and verified at the documented boundaries. Fifteen P1 findings remain open, including integrity, recovery, admission, authorization-invariant and integration-confidence blockers. Passing the SQLite suite and sandbox tests is insufficient for full-system acceptance.
+**NOT READY.** Both original P0 findings are fixed and verified at the documented boundaries. Eleven P1 findings remain open, including integrity, recovery, admission, authorization-invariant and integration-confidence blockers. Passing the SQLite suite and sandbox tests is insufficient for full-system acceptance.
 
-Current unresolved original-register counts: Critical 0, High 9, Medium 17, Low 5; P0 0, P1 15, P2 14, P3 2, total 31. Counts retain original finding severity/priority rather than counting two advisories as new top-level entries. F32 now has a known High dependency advisory within its original Medium verification finding and must be treated accordingly during remediation planning.
+Current unresolved original-register counts: Critical 0, High 6, Medium 15, Low 5; P0 0, P1 11, P2 13, P3 2, total 26. Counts retain original finding severity/priority rather than counting two advisories as new top-level entries. The two advisories retrieved under F32 were patched and independently reverified; they are not counted as new top-level findings.
 
 Continue security/integrity P1 groups, then progression/read-model integration, then UI/accessibility and required integration CI. Re-run the broad suite and reassess every finding before issuing a final readiness decision. This phase is ongoing; the report does not authorize deployment or the next development phase.
