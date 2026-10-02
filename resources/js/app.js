@@ -1,5 +1,9 @@
 const editorHost = document.getElementById('editor-host');
 
+if (document.querySelector('[data-workspace]')) {
+    import('./workspace.js').then(({ initializeWorkspace }) => initializeWorkspace(document));
+}
+
 if (editorHost) {
     import('./editor.js').catch((error) => {
         editorHost.setAttribute('role', 'alert');

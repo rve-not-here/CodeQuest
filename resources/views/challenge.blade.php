@@ -77,8 +77,14 @@
     @endif
     </div>
 
-    <div class="challenge-workspace">
-        <section class="panel challenge-pane">
+    <nav class="flex flex-wrap gap-2 px-4 py-2" aria-label="Workspace panes" data-workspace-controls>
+        <button type="button" class="btn btn-ghost btn-sm" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Brief</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Editor</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Preview</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-workspace-reset>RESET PANES</button>
+    </nav>
+    <div class="challenge-workspace" data-workspace>
+        <section class="panel challenge-pane" id="workspace-brief" data-workspace-pane="brief">
             <h2 class="challenge-pane-header">Challenge brief</h2>
             <div class="challenge-pane-body">
                 <div class="space-y-4 text-sm leading-6 text-fg-muted">
@@ -96,7 +102,8 @@
             </div>
         </section>
 
-        <section class="panel challenge-pane">
+        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize brief pane" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="15" aria-valuemax="35" aria-valuenow="25" data-workspace-resize="brief"></div>
+        <section class="panel challenge-pane" id="workspace-editor" data-workspace-pane="editor">
             <div class="challenge-pane-header">
                 <h2>Code editor</h2>
                 <p id="draft-status" class="challenge-draft-status" aria-live="polite">
@@ -166,7 +173,8 @@
             </div>
         </section>
 
-        <section class="panel challenge-pane">
+        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize preview pane" aria-controls="workspace-preview" aria-orientation="vertical" aria-valuemin="20" aria-valuemax="40" aria-valuenow="30" data-workspace-resize="preview"></div>
+        <section class="panel challenge-pane" id="workspace-preview" data-workspace-pane="preview">
             <h2 class="challenge-pane-header">Preview output</h2>
             <div class="challenge-pane-body is-frame">
                 <iframe
