@@ -3,6 +3,10 @@
 @section('title', $mission->title)
 
 @section('content')
+    @php
+        $initialCode = old('code', $code);
+        $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
+    @endphp
     <header class="challenge-context-bar">
         <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost btn-sm shrink-0">← BACK TO LESSON</a>
         <div class="min-w-0 flex-1">
@@ -101,7 +105,7 @@
             </div>
             <div class="challenge-pane-body editor-pane">
                 <div id="editor-host" class="challenge-pane-editor"></div>
-                <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ old('code', $code) }}</textarea>
+                <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
 
                 <div class="challenge-toolbar">
                     <button type="button" id="run" class="btn btn-secondary">RUN / PREVIEW</button>
@@ -236,7 +240,7 @@
                 });
             });
 
-            var initial = JSON.parse('{!! json_encode(old('code', $code), JSON_HEX_APOS | JSON_HEX_QUOT) !!}');
+            var initial = {{ Illuminate\Support\Js::from($initialCode) }};
             var host = document.getElementById('editor-host');
             var source = document.getElementById('editor-source');
             var runBtn = document.getElementById('run');

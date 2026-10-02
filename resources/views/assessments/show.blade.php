@@ -3,6 +3,10 @@
 @section('title', $assessment->title)
 
 @section('content')
+    @php
+        $initialCode = old('code', $code);
+        $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
+    @endphp
     <div class="mx-auto w-full max-w-[1180px]">
         <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
             <ol class="flex flex-wrap items-center gap-1.5">
@@ -100,7 +104,7 @@
                             </div>
                         @endif
                         <div id="editor-host" class="min-h-[380px] overflow-hidden bg-[#0b0e14]"></div>
-                        <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ old('code', $code) }}</textarea>
+                        <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
                         <div class="flex flex-wrap items-center gap-2 border-t border-line p-3">
                             <button type="button" id="run" class="btn btn-secondary">RUN</button>
                             @if ($canEdit)
@@ -148,7 +152,7 @@
                 return;
             }
 
-            var initial = JSON.parse('{!! json_encode(old('code', $code), JSON_HEX_APOS | JSON_HEX_QUOT) !!}');
+            var initial = {{ Illuminate\Support\Js::from($initialCode) }};
             var source = document.getElementById('editor-source');
             var runBtn = document.getElementById('run');
             var frame = document.getElementById('preview-frame');
