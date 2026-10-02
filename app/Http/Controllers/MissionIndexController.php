@@ -42,10 +42,7 @@ class MissionIndexController extends Controller
         $tree = $this->paths->build($user);
 
         // Use the same course-reach verdict as MissionController::show.
-        $reachedCourses = $tree->mapWithKeys(fn (array $node): array => [
-            $node['course']->id => $node['course']->status === 'active'
-                && $this->assessments->isCourseReached($user, $node['course']),
-        ]);
+        $reachedCourses = $this->assessments->courseReachForCourses($user, $tree->pluck('course'));
 
         /** @var Collection<int, array{course: Course, section: Section, mission: Mission, state: string, accessible: bool}> $rows */
         $rows = collect();
@@ -58,7 +55,7 @@ class MissionIndexController extends Controller
                         'section' => $sectionNode['section'],
                         'mission' => $row['mission'],
                         'state' => $row['state'],
-                        'accessible' => $reachedCourses->get($courseNode['course']->id, false),
+                        'accessible' => $courseNode['course']->status === 'active' && $reachedCourses[$courseNode['course']->id],
                     ]);
                 }
             }

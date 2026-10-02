@@ -105,7 +105,7 @@ class AssessmentService
      * single-course methods.
      *
      * @param  Collection<int, Course>  $courses
-     * @return array<int, array{assessment: ?Assessment, passed: bool, eligible: bool}> keyed by course id
+     * @return array<int, array{assessment: ?Assessment, passed: bool, eligible: bool, reached: bool, unlocked: bool, reason: string}> keyed by course id
      */
     public function assessmentStatesForCourses(User $user, Collection $courses): array
     {
@@ -132,17 +132,31 @@ class AssessmentService
             ->flip();
 
         $passed = $this->passedAssessmentIds($user)->flip();
+        $reached = $this->courseReachForCourses($user, $courses);
 
         $states = [];
 
         foreach ($courses as $course) {
             $missionIds = $missionIdsByCourse->get($course->id, collect())->pluck('id')->all();
             $assessment = $assessments->get($course->id);
+            $eligible = $missionIds !== [] && collect($missionIds)->every(fn (int $id): bool => $completed->has($id));
+            $unlocked = $course->status === 'active' && $reached[$course->id]
+                && $assessment?->status === 'active' && $eligible;
 
             $states[$course->id] = [
                 'assessment' => $assessment,
                 'passed' => $assessment !== null && $passed->has($assessment->id),
-                'eligible' => $missionIds !== [] && collect($missionIds)->every(fn (int $id): bool => $completed->has($id)),
+                'eligible' => $eligible,
+                'reached' => $reached[$course->id],
+                'unlocked' => $unlocked,
+                'reason' => match (true) {
+                    $course->status !== 'active' => 'This course is not currently active.',
+                    ! $reached[$course->id] => 'Pass earlier courses before opening this course.',
+                    $assessment === null => 'No Boss Challenge is configured for this course.',
+                    $assessment->status !== 'active' => 'This assessment is not currently active.',
+                    ! $eligible => 'Complete every required mission before opening this challenge.',
+                    default => 'All required challenges are complete.',
+                },
             ];
         }
 
@@ -179,24 +193,32 @@ class AssessmentService
      */
     public function isCourseReached(User $user, Course $course): bool
     {
-        $earlierCourses = Course::query()
-            ->where('status', 'active')
-            ->where(function ($query) use ($course): void {
-                $query->where('order_num', '<', $course->order_num)
-                    ->orWhere(function ($tied) use ($course): void {
-                        $tied->where('order_num', $course->order_num)->where('id', '<', $course->id);
-                    });
-            })
-            ->whereHas('missions')
-            ->get();
+        return $this->courseReachForCourses($user, collect([$course]))[$course->id];
+    }
 
-        foreach ($earlierCourses as $earlierCourse) {
-            if (! $this->hasPassed($user, $earlierCourse)) {
-                return false;
-            }
+    /**
+     * @param  Collection<int, Course>  $courses
+     * @return array<int, bool>
+     */
+    public function courseReachForCourses(User $user, Collection $courses): array
+    {
+        if ($courses->isEmpty()) {
+            return [];
         }
 
-        return true;
+        $blockingCourses = Course::query()
+            ->where('status', 'active')
+            ->whereHas('missions')
+            ->whereDoesntHave('assessment.attempts', fn ($query) => $query->where('user_id', $user->id)->where('status', 'passed'))
+            ->get(['id', 'order_num']);
+
+        $reached = [];
+        foreach ($courses as $course) {
+            $reached[$course->id] = ! $blockingCourses->contains(fn (Course $blocking): bool => $blocking->order_num < $course->order_num
+                || ($blocking->order_num === $course->order_num && $blocking->id < $course->id));
+        }
+
+        return $reached;
     }
 
     /**

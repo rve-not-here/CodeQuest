@@ -44,7 +44,7 @@
         @foreach ($tree as $courseNode)
             @php
                 $pathCourse = $courseNode['course'];
-                $courseLocked = $pathCourse->status !== 'active';
+                $courseLocked = ! $courseNode['accessible'];
                 $isCurrentCourse = $currentCourseId === $pathCourse->id && ! $courseLocked;
                 $boss = $courseNode['boss'];
                 $courseMission = $isCurrentCourse ? $nextMission : null;
@@ -138,7 +138,7 @@
                                 <p class="eyebrow">FINAL COURSE MILESTONE · BOSS {{ $boss['state'] }}</p>
                                 <h3 id="boss-{{ $pathCourse->id }}-title" class="mt-1 text-[15px] font-medium text-fg">{{ $boss['assessment']?->title ?? 'Boss Challenge' }}</h3>
                                 <p class="mt-1 text-sm text-fg-muted">{{ $boss['reason'] }}</p>
-                                @if ($boss['assessment'] !== null && $boss['state'] !== 'LOCKED')
+                                @if ($boss['assessment'] !== null && $boss['accessible'])
                                     <a href="{{ route('assessment.show', $boss['assessment']) }}" class="btn btn-secondary btn-sm mt-3">{{ $boss['state'] === 'PASSED' ? 'Review challenge' : 'START CHALLENGE' }} →</a>
                                 @endif
                             </div>

@@ -53,6 +53,7 @@ class LearningPathController extends Controller
 
         $tree = $tree->map(function (array $courseNode) use ($states): array {
             $courseNode['boss'] = $this->bossNode($courseNode, $states[$courseNode['course']->id]);
+            $courseNode['accessible'] = $courseNode['course']->status === 'active' && $states[$courseNode['course']->id]['reached'];
 
             return $courseNode;
         });
@@ -80,7 +81,7 @@ class LearningPathController extends Controller
      * accessible. An href with no known target defaults to inaccessible
      * rather than rendering a hopeful link.
      *
-     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>, boss: array{assessment: ?Assessment, state: string, reason: string}}>  $tree
+     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>, boss: array{assessment: ?Assessment, state: string, reason: string, accessible: bool}, accessible: bool}>  $tree
      * @return Collection<int, array{slot: int, title: string, subtitle: string, href: string, cta: string, accessible: bool, locked_reason: ?string}>
      */
     private function accessibleRecommendations(User $user, Collection $tree): Collection
@@ -88,7 +89,7 @@ class LearningPathController extends Controller
         $access = [route('learning-path') => ['accessible' => true, 'locked_reason' => null]];
 
         foreach ($tree as $courseNode) {
-            $locked = $courseNode['course']->status !== 'active';
+            $locked = ! $courseNode['accessible'];
 
             foreach ($courseNode['sections'] as $sectionNode) {
                 foreach ($sectionNode['missions'] as $row) {
@@ -104,7 +105,7 @@ class LearningPathController extends Controller
             $boss = $courseNode['boss'];
 
             if ($boss['assessment'] !== null) {
-                $available = $boss['state'] !== 'LOCKED';
+                $available = $boss['accessible'];
                 $access[route('assessment.show', $boss['assessment'])] = [
                     'accessible' => $available,
                     'locked_reason' => $available ? null : $boss['reason'],
@@ -121,8 +122,8 @@ class LearningPathController extends Controller
 
     /**
      * @param  array{course: Course, progress: array{completed: int, total: int, percent: int}}  $courseNode
-     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool}  $state
-     * @return array{assessment: ?Assessment, state: 'PASSED'|'AVAILABLE'|'LOCKED', reason: string}
+     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool, reached: bool, unlocked: bool, reason: string}  $state
+     * @return array{assessment: ?Assessment, state: 'PASSED'|'AVAILABLE'|'LOCKED', reason: string, accessible: bool}
      */
     private function bossNode(array $courseNode, array $state): array
     {
@@ -134,6 +135,7 @@ class LearningPathController extends Controller
                 'assessment' => null,
                 'state' => 'LOCKED',
                 'reason' => 'No Boss Challenge is configured for this course.',
+                'accessible' => false,
             ];
         }
 
@@ -141,15 +143,17 @@ class LearningPathController extends Controller
             return [
                 'assessment' => $assessment,
                 'state' => 'PASSED',
-                'reason' => 'Course-level competency has been demonstrated.',
+                'reason' => $state['unlocked'] ? 'Course-level competency has been demonstrated.' : 'Historical pass retained. '.$state['reason'],
+                'accessible' => $state['unlocked'],
             ];
         }
 
-        if ($course->status === 'active' && $assessment->status === 'active' && $state['eligible']) {
+        if ($state['unlocked']) {
             return [
                 'assessment' => $assessment,
                 'state' => 'AVAILABLE',
                 'reason' => 'All required challenges are complete.',
+                'accessible' => true,
             ];
         }
 
@@ -158,9 +162,10 @@ class LearningPathController extends Controller
         return [
             'assessment' => $assessment,
             'state' => 'LOCKED',
-            'reason' => $course->status !== 'active' || $assessment->status !== 'active'
-                ? 'This assessment is not currently active.'
+            'reason' => ! $state['reached'] || $course->status !== 'active' || $assessment->status !== 'active'
+                ? $state['reason']
                 : 'Complete '.$remaining.' remaining '.Str::plural('challenge', $remaining).' to unlock it.',
+            'accessible' => false,
         ];
     }
 }

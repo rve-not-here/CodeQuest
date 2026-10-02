@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Assessment;
+use App\Models\Mission;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use InvalidArgumentException;
 
@@ -263,7 +266,8 @@ class NotificationService
      * or link to an unintended internal target — the method simply returns
      * null and the view renders no link.
      */
-    public function linkFor(Notification $notification): ?string
+    /** @param array<string, bool>|null $availability */
+    public function linkFor(Notification $notification, ?array $availability = null): ?string
     {
         $data = $notification->data;
 
@@ -292,7 +296,92 @@ class NotificationService
 
         $params = array_map(static fn (mixed $value): int => (int) $value, $params);
 
+        if ($availability !== null) {
+            $href = route($routeName, $params);
+
+            return ($availability[$href] ?? $availability[$routeName] ?? false) ? $href : null;
+        }
+
+        $user = $notification->user;
+        if ($user === null || ! $this->destinationAvailable($user, $routeName, $params)) {
+            return null;
+        }
+
         return route($routeName, $params);
+    }
+
+    /**
+     * @param  Collection<int, Notification>  $notifications
+     * @return array<int, string|null>
+     */
+    public function linksFor(User $user, Collection $notifications): array
+    {
+        $missionIds = [];
+        $assessmentIds = [];
+        foreach ($notifications as $notification) {
+            $params = $notification->data['params'] ?? [];
+            if (is_array($params)) {
+                foreach (['mission', 'assessment'] as $key) {
+                    $value = $params[$key] ?? 0;
+                    if (is_int($value) || (is_string($value) && is_numeric($value))) {
+                        if ($key === 'mission') {
+                            $missionIds[] = (int) $value;
+                        } else {
+                            $assessmentIds[] = (int) $value;
+                        }
+                    }
+                }
+            }
+        }
+        $missions = Mission::query()->with('course')->whereIn('id', array_filter($missionIds, is_int(...)))->get();
+        $assessments = Assessment::query()->with('course')->whereIn('id', array_filter($assessmentIds, is_int(...)))->get();
+        $courses = $missions->pluck('course')->merge($assessments->pluck('course'))->filter()->unique('id')->values();
+        $states = app(AssessmentService::class)->assessmentStatesForCourses($user, $courses);
+        $student = $user->role === 'student';
+        $availability = [
+            'notifications' => true,
+            'learning-path' => $student,
+            'achievements' => $student,
+            'needs-attention' => in_array($user->role, ['teacher', 'admin'], true),
+        ];
+        foreach ($missions as $mission) {
+            $availability[route('mission.show', $mission)] = $student && $mission->course?->status === 'active' && ($states[$mission->course_id]['reached'] ?? false);
+        }
+        foreach ($assessments as $assessment) {
+            $availability[route('assessment.show', $assessment)] = $student && ($states[$assessment->course_id]['unlocked'] ?? false);
+        }
+
+        return $notifications->mapWithKeys(fn (Notification $notification): array => [
+            $notification->id => $notification->user_id === $user->id ? $this->linkFor($notification, $availability) : null,
+        ])->all();
+    }
+
+    /** @param array<int|string, int> $params */
+    private function destinationAvailable(User $user, string $routeName, array $params): bool
+    {
+        if ($routeName === 'notifications') {
+            return true;
+        }
+        if ($routeName === 'needs-attention') {
+            return in_array($user->role, ['teacher', 'admin'], true);
+        }
+        if ($user->role !== 'student') {
+            return false;
+        }
+        if ($routeName === 'mission.show') {
+            $mission = Mission::query()->with('course')->find($params['mission'] ?? $params[0] ?? 0);
+
+            return $mission?->course?->status === 'active'
+                && app(AssessmentService::class)->isCourseReached($user, $mission->course);
+        }
+        if ($routeName === 'assessment.show') {
+            $assessment = Assessment::query()->with('course')->find($params['assessment'] ?? $params[0] ?? 0);
+
+            return $assessment?->course !== null
+                && app(AssessmentService::class)->isUnlocked($user, $assessment->course);
+        }
+
+        return true;
     }
 
     /**

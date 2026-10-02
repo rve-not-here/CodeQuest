@@ -38,11 +38,7 @@ class NotificationController extends Controller
         // once per page from each owned row's server-authored data, via the
         // same TYPE_ROUTES allowlist that guards rendering. A null means
         // "no link" — the view renders the plain title.
-        $links = collect($notifications->items())
-            ->mapWithKeys(fn (Notification $notification): array => [
-                $notification->id => $this->notifications->linkFor($notification),
-            ])
-            ->all();
+        $links = $this->notifications->linksFor($user, collect($notifications->items()));
 
         return view('notifications', [
             'role' => $user->role,

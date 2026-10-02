@@ -234,14 +234,14 @@ class AssessmentController extends Controller
     }
 
     /**
-     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool}  $state
+     * @param  array{assessment: ?Assessment, passed: bool, eligible: bool, reached: bool, unlocked: bool, reason: string}  $state
      * @param  array{completed: int, total: int, percent: int}  $progress
      * @return array<string, mixed>
      */
     private function indexRow(Course $course, array $state, ?AssessmentAttempt $latest, array $progress): array
     {
         $assessment = $state['assessment'];
-        $eligible = $assessment !== null && $state['eligible'];
+        $eligible = $state['unlocked'];
         $passed = $state['passed'];
 
         return [
@@ -250,6 +250,7 @@ class AssessmentController extends Controller
             'hasPassed' => $passed,
             'latest' => $latest,
             'unlocked' => $eligible,
+            'lockedReason' => $eligible ? null : $state['reason'],
             'missionProgress' => ['completed' => $progress['completed'], 'total' => $progress['total']],
             'state' => $this->challengeState($assessment, $eligible, $passed, $latest),
         ];

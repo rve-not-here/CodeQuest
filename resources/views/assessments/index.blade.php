@@ -87,16 +87,19 @@
                                     </div>
                                 @endif
                                 @if ($state === 'sealed')
-                                    <p class="mt-3 text-sm text-fg-muted">Complete the remaining course missions to unlock this challenge.</p>
+                                    <p class="mt-3 text-sm text-fg-muted">{{ $row['lockedReason'] }}</p>
                                 @elseif ($state === 'none')
                                     <p class="mt-3 text-sm text-fg-muted">The final assessment has not been published for this course.</p>
                                 @elseif ($state === 'failed-retry')
                                     <p class="mt-3 text-sm text-fg-muted">Last retry failed — your pass stands.</p>
                                 @elseif ($state === 'passed')
-                                    <p class="mt-3 text-sm text-fg-muted">Course cleared. Your result remains available to review.</p>
+                                    <p class="mt-3 text-sm text-fg-muted">{{ $row['unlocked'] ? 'Course cleared. Your result remains available to review.' : 'Historical pass retained. '.$row['lockedReason'] }}</p>
                                 @endif
                             </div>
                             <div class="flex flex-wrap gap-2 md:justify-end">
+                                @if (! $row['unlocked'])
+                                    <a href="{{ route('learning-path') }}" class="btn btn-secondary">View Learning Path →</a>
+                                @else
                                 @if ($state === 'ready')
                                     <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                                         @csrf
@@ -117,6 +120,7 @@
                                     <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-secondary">OPEN CHALLENGE</a>
                                 @elseif ($state === 'sealed')
                                     <a href="{{ route('missions') }}" class="btn btn-secondary">View missions →</a>
+                                @endif
                                 @endif
                             </div>
                         </div>

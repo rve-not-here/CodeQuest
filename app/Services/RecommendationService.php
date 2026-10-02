@@ -67,6 +67,8 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }>
      */
     public function recommendations(User $user, ?SupportCollection $courseIds = null): SupportCollection
@@ -93,6 +95,8 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }
      */
     private function positionCard(User $user, ?SupportCollection $courseIds = null): ?array
@@ -110,7 +114,7 @@ class RecommendationService
         }
 
         if ($resume['type'] === 'course') {
-            return $this->challengeCard($course);
+            return $this->challengeCard($user, $course);
         }
 
         if ($this->nextCourseAfterCompletion($user, $course)) {
@@ -140,18 +144,21 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }
      */
-    private function challengeCard(Course $course): array
+    private function challengeCard(User $user, Course $course): array
     {
         $assessment = $course->assessment;
+        $unlocked = $this->assessments->isUnlocked($user, $course);
 
         return [
             'slot' => 2,
             'title' => 'Boss Challenge',
             'subtitle' => $course->name.' · '.($assessment->title ?? 'Take the Boss Challenge'),
-            'href' => $assessment !== null ? route('assessment.show', $assessment) : route('learning-path'),
-            'cta' => 'START CHALLENGE',
+            'href' => $unlocked && $assessment !== null ? route('assessment.show', $assessment) : route('learning-path'),
+            'cta' => $unlocked ? 'START CHALLENGE' : 'VIEW LEARNING PATH',
         ];
     }
 
@@ -164,6 +171,8 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }
      */
     private function continueLearningCard(Mission $mission): array
@@ -187,6 +196,8 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }
      */
     private function courseCard(Course $course): array
@@ -212,6 +223,8 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }
      */
     private function nextCourseCard(Course $course): array
@@ -273,6 +286,8 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }>
      */
     private function reviewCards(User $user, ?SupportCollection $courseIds = null): SupportCollection
@@ -307,6 +322,7 @@ class RecommendationService
             ->with(['course', 'skills'])
             ->get()
             ->keyBy('id');
+        $reached = $this->assessments->courseReachForCourses($user, $missions->pluck('course')->unique('id')->values());
 
         $cards = new SupportCollection;
 
@@ -324,7 +340,8 @@ class RecommendationService
 
         foreach ($qualified as $row) {
             $mission = $missions->get($row->mission_id);
-            $card = $this->reviewCard($mission);
+            $accessible = $mission?->course?->status === 'active' && ($reached[$mission->course_id] ?? false);
+            $card = $this->reviewCard($mission, $accessible);
 
             if ($card === null || $mission === null) {
                 continue;
@@ -353,9 +370,11 @@ class RecommendationService
      *     subtitle: string,
      *     href: string,
      *     cta: string,
+     *     accessible?: bool,
+     *     locked_reason?: string|null,
      * }
      */
-    private function reviewCard(?Mission $mission): ?array
+    private function reviewCard(?Mission $mission, bool $accessible): ?array
     {
         if ($mission === null) {
             return null;
@@ -367,6 +386,8 @@ class RecommendationService
             'subtitle' => $mission->title.' · '.($mission->course->name ?? ''),
             'href' => route('mission.show', $mission),
             'cta' => 'REVIEW',
+            'accessible' => $accessible,
+            'locked_reason' => $accessible ? null : 'Course access is sealed. Pass earlier courses or return when this course is active.',
         ];
     }
 
