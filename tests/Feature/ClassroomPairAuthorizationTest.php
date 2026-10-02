@@ -282,7 +282,11 @@ class ClassroomPairAuthorizationTest extends TestCase
             ->map(fn (array $beat): string => $beat['user']['username'].'|'.$beat['label'])
             ->all();
 
-        $this->assertCount(2, $beats);
+        $this->assertCount(4, $beats);
+        $this->assertContains($fleet['s1']->username.'|Mission completed: '.$fleet['m1']->title, $beats);
+        $this->assertContains($fleet['s2']->username.'|Mission completed: '.$fleet['m2']->title, $beats);
+        $this->assertNotContains($fleet['s1']->username.'|Mission completed: '.$fleet['m2']->title, $beats);
+        $this->assertNotContains($fleet['s2']->username.'|Mission completed: '.$fleet['m1']->title, $beats);
         $this->assertContains(
             $fleet['s1']->username.'|Boss Challenge passed: Alpha Boss (score 90)',
             $beats,
@@ -360,8 +364,8 @@ class ClassroomPairAuthorizationTest extends TestCase
         $classroomA = $this->classroomFor($teacher, [$s1], [$c1]);
         $classroomB = $this->classroomFor($teacher, [$s2], [$c2]);
 
-        // Each student completes both courses' missions (progress is not a beat
-        // source by itself, but it drives engagement and active-student counts).
+        // Each student completes both courses. The scoped timeline must emit
+        // only the progress rows belonging to the teacher's exact pairs.
         foreach ([$s1, $s2] as $student) {
             foreach ([$m1, $m2] as $mission) {
                 Progress::query()->create([

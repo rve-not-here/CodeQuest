@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\Activity;
 use App\Models\AssessmentAttempt;
+use App\Models\KnowledgeCheck;
+use App\Models\KnowledgeCheckAttempt;
+use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
 use App\Models\XpTransaction;
@@ -310,6 +313,8 @@ class TimelineService
                 'xp' => $this->xpEvents($ids, $from, $to, $type, $courseId, $studentCourseScopes),
                 'assessment' => $this->assessmentEvents($ids, $type, $courseId, $studentCourseScopes),
                 'section' => $this->sectionCompletionEvents($sectionCandidates ?? $users, $from, $to, $courseId, $studentCourseScopes),
+                'progress' => $this->scopedRecordEvents($ids, false, $from, $to, $courseId, $studentCourseScopes),
+                'knowledge-check' => $this->scopedRecordEvents($ids, true, $from, $to, $courseId, $studentCourseScopes),
                 default => new Collection,
             });
         }
@@ -318,13 +323,10 @@ class TimelineService
     }
 
     /**
-     * Which sources can emit beats, given the event-type filter. A course
-     * filter drops the Activity source entirely: activity rows carry no course
-     * link (no mission/course columns), so attributing them to a course would
-     * be guesswork — exclude rather than mis-attribute. A per-student course
-     * scope (a classroom teacher) drops it for the same reason: the batched
-     * teacher feed can attribute a beat to a Student/Course pair only where
-     * the underlying record ties to a course.
+     * Scoped feeds replace un-attributable Activity rows with Progress,
+     * failed-submission XP entries, and submitted Knowledge Check attempts.
+     * Every replacement has a course reference; each exact Student/Course
+     * pair is applied before its evidence is loaded.
      *
      * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
      * @return list<string>
@@ -341,13 +343,86 @@ class TimelineService
         };
 
         if ($courseId !== null || $studentCourseScopes !== null) {
-            $sources = array_values(array_filter(
-                $sources,
-                fn (string $source): bool => $source !== 'activity',
-            ));
+            $sources = match ($type) {
+                null => ['progress', 'knowledge-check', 'xp', 'assessment', 'section'],
+                'mission_completed' => ['progress'],
+                'wrong_submission' => ['xp'],
+                KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED => ['knowledge-check'],
+                default => array_values(array_filter($sources, fn (string $source): bool => $source !== 'activity')),
+            };
         }
 
         return $sources;
+    }
+
+    /**
+     * @param  Collection<int, int>  $ids
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}>
+     */
+    private function scopedRecordEvents(Collection $ids, bool $knowledgeCheck, ?Carbon $from, ?Carbon $to, ?int $courseId, ?array $studentCourseScopes): Collection
+    {
+        if ($knowledgeCheck) {
+            return $this->scopedEvidenceQuery(KnowledgeCheckAttempt::query()->where('status', KnowledgeCheckAttempt::STATUS_SUBMITTED), $ids, 'knowledgeCheck.mission', 'submitted_at', $from, $to, $courseId, $studentCourseScopes)
+                ->get()->map(fn (KnowledgeCheckAttempt $record): array => $this->evidenceBeat(
+                    $record->user_id, Carbon::parse($record->submitted_at),
+                    'Knowledge Check submitted: '.$this->checkTitle($record->knowledgeCheck),
+                    KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED, null,
+                ));
+        }
+
+        return $this->scopedEvidenceQuery(Progress::query(), $ids, 'mission', 'completed_at', $from, $to, $courseId, $studentCourseScopes)
+            ->get()->map(fn (Progress $record): array => $this->evidenceBeat(
+                $record->user_id, Carbon::parse($record->completed_at),
+                'Mission completed: '.$this->missionTitle($record->mission), 'mission_completed', $record->pts_earned,
+            ));
+    }
+
+    private function checkTitle(?KnowledgeCheck $check): string
+    {
+        if ($check === null) {
+            return 'Knowledge Check';
+        }
+
+        return $check->title;
+    }
+
+    private function missionTitle(?Mission $mission): string
+    {
+        if ($mission === null) {
+            return 'Mission';
+        }
+
+        return $mission->title;
+    }
+
+    /**
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
+     * @param  Collection<int, int>  $ids
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     * @return Builder<TModel>
+     */
+    private function scopedEvidenceQuery(Builder $query, Collection $ids, string $relation, string $timestamp, ?Carbon $from, ?Carbon $to, ?int $courseId, ?array $studentCourseScopes): Builder
+    {
+        $query->with($relation)->whereIn('user_id', $ids)
+            ->when($from !== null && $to !== null, fn (Builder $query) => $query->whereBetween($timestamp, [$from, $to]))
+            ->when($courseId !== null, fn (Builder $query) => $query->whereHas($relation, fn (Builder $query) => $query->where('course_id', $courseId)));
+        if ($studentCourseScopes !== null) {
+            $query = $this->whereScopedByCourseReference($query, $studentCourseScopes,
+                function (Builder $query, Collection $courseIds) use ($relation): void {
+                    $query->whereHas($relation, fn (Builder $query) => $query->whereIn('course_id', $courseIds));
+                });
+        }
+
+        return $query->orderBy($timestamp);
+    }
+
+    /** @return array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int} */
+    private function evidenceBeat(int $userId, Carbon $at, string $label, string $type, ?int $points): array
+    {
+        return ['at' => $at, 'label' => $label, 'type' => $type, 'pts' => $points, 'seq' => ++$this->seq, 'user_id' => $userId];
     }
 
     /**
@@ -394,7 +469,7 @@ class TimelineService
     ): Collection {
         $query = XpTransaction::query()
             ->whereIn('user_id', $ids)
-            ->whereIn('type', self::XP_BEAT_TYPES)
+            ->whereIn('type', $courseId !== null || $studentCourseScopes !== null ? [...self::XP_BEAT_TYPES, XpService::TYPE_WRONG_SUBMISSION] : self::XP_BEAT_TYPES)
             ->when($from !== null && $to !== null, fn (Builder $query) => $query->whereBetween('created_at', [$from, $to]))
             ->when($type !== null, fn (Builder $query) => $query->where('type', $type))
             ->when($courseId !== null, fn (Builder $query) => $query->where(
@@ -447,6 +522,10 @@ class TimelineService
      */
     private function whereScopedByCourseReference(Builder $query, array $studentCourseScopes, callable $withAllowedCourses): Builder
     {
+        if ($studentCourseScopes === []) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query->where(function (Builder $query) use ($studentCourseScopes, $withAllowedCourses): void {
             foreach ($studentCourseScopes as $userId => $courseIds) {
                 $query->orWhere(function (Builder $query) use ($userId, $courseIds, $withAllowedCourses): void {

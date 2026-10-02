@@ -3,6 +3,37 @@
 @section('title', 'Student Progress')
 
 @section('content')
+    <section class="panel mb-5 p-5" aria-labelledby="monitoring-checks-title">
+        <h2 id="monitoring-checks-title" class="text-lg font-semibold">Knowledge Check evidence</h2>
+        <p class="mt-2 text-sm text-fg-muted">Submitted attempt history in your current classroom scope. Scores are formative and do not award XP. Question feedback uses the recorded submission snapshots.</p>
+        <h3 class="mt-4 text-sm font-semibold">Questions needing review</h3>
+        <p class="mt-1 text-xs text-fg-subtle">Up to 20 questions with incorrect recorded responses across submitted attempts in this scope. Counts describe answers, not competency or mastery.</p>
+        <ul class="mt-3 space-y-2 text-sm">
+            @forelse ($knowledgeCheckMisconceptions as $misconception)
+                <li>{{ $misconception['prompt'] }} · {{ $misconception['incorrect'] }} incorrect / {{ $misconception['responses'] }} recorded responses</li>
+            @empty
+                <li class="text-fg-subtle">No incorrect submitted responses in your current scope.</li>
+            @endforelse
+        </ul>
+        @forelse ($knowledgeCheckAttempts as $checkAttempt)
+            <details class="mt-4 border-t border-line pt-3">
+                <summary class="cursor-pointer text-sm">{{ $checkAttempt->knowledgeCheck->title }} · {{ $checkAttempt->knowledgeCheck->mission->course->name }} · Attempt {{ $checkAttempt->attempt_number }} · {{ $checkAttempt->score }}/{{ $checkAttempt->total_questions }} · {{ $checkAttempt->submitted_at?->format('Y-m-d H:i') }}</summary>
+                <ol class="mt-3 space-y-3">
+                    @foreach ($checkAttempt->responses as $checkResponse)
+                        <li class="text-sm">
+                            <p>{{ $checkResponse->prompt_snapshot }}</p>
+                            <p class="text-fg-muted">Selected: {{ $checkResponse->selected_option_snapshot ?? 'No answer' }}</p>
+                            <p class="{{ $checkResponse->is_correct ? 'text-accent' : 'text-warning' }}">{{ $checkResponse->is_correct ? 'Correct' : 'Needs review' }} · Recorded answer: {{ $checkResponse->correct_option_snapshot }}</p>
+                            <p class="text-fg-subtle">{{ $checkResponse->explanation_snapshot }}</p>
+                        </li>
+                    @endforeach
+                </ol>
+            </details>
+        @empty
+            <p class="mt-4 text-sm text-fg-subtle">No submitted Knowledge Checks in your current scope.</p>
+        @endforelse
+        <div class="mt-4">{{ $knowledgeCheckAttempts->links() }}</div>
+    </section>
     <x-page-header
         title="Student Progress"
         subtitle="{{ $student->username }} · {{ $student->name }}"

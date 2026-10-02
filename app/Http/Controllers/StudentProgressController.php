@@ -8,6 +8,7 @@ use App\Services\AssessmentService;
 use App\Services\ClassroomAccessService;
 use App\Services\CompetencyService;
 use App\Services\CourseProgressService;
+use App\Services\KnowledgeCheckService;
 use App\Services\RecommendationService;
 use App\Services\ResumeService;
 use App\Services\SectionProgressService;
@@ -28,6 +29,7 @@ class StudentProgressController extends Controller
         private readonly CompetencyService $competencies,
         private readonly RecommendationService $recommendations,
         private readonly ClassroomAccessService $access,
+        private readonly KnowledgeCheckService $knowledgeChecks,
     ) {}
 
     /**
@@ -154,6 +156,8 @@ class StudentProgressController extends Controller
             'attemptLog' => $attemptLog,
             'competency' => $competency,
             'recommendations' => $recommendations,
+            'knowledgeCheckAttempts' => $this->knowledgeChecks->monitoringAttempts($teacher, $student),
+            'knowledgeCheckMisconceptions' => $this->knowledgeChecks->monitoringMisconceptions($teacher, $student),
             'skills' => $this->competencies->skills($student, $courseIds),
         ]);
     }

@@ -12,7 +12,9 @@ use App\Models\KnowledgeCheckQuestion;
 use App\Models\KnowledgeCheckResponse;
 use App\Models\Mission;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -23,7 +25,61 @@ class KnowledgeCheckService
 
     public function __construct(
         private readonly ActivityService $activity,
+        private readonly ClassroomAccessService $classroomAccess,
     ) {}
+
+    /**
+     * Immutable submitted evidence, restricted to current classroom pairs.
+     * Unsubmitted attempts never expose questions or answer keys here.
+     *
+     * @return LengthAwarePaginator<int, KnowledgeCheckAttempt>
+     */
+    public function monitoringAttempts(User $viewer, User $student): LengthAwarePaginator
+    {
+        return $this->monitoringQuery($viewer, $student)
+            ->with(['knowledgeCheck.mission.course', 'responses'])
+            ->orderByDesc('submitted_at')->orderByDesc('id')
+            ->paginate(20, ['*'], 'checks_page');
+    }
+
+    /**
+     * Counts describe submitted responses, never competency or mastery.
+     * Distinct historical prompts remain distinct after curriculum edits.
+     *
+     * @return Collection<int, array{prompt: string, responses: int, incorrect: int}>
+     */
+    public function monitoringMisconceptions(User $viewer, User $student): Collection
+    {
+        return KnowledgeCheckResponse::query()
+            ->whereIn('knowledge_check_attempt_id', $this->monitoringQuery($viewer, $student)->select('id'))
+            ->select('knowledge_check_question_id', 'prompt_snapshot')
+            ->selectRaw('COUNT(*) AS response_count, SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) AS incorrect_count')
+            ->groupBy('knowledge_check_question_id', 'prompt_snapshot')
+            ->havingRaw('SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) > 0')
+            ->orderByDesc('incorrect_count')->orderBy('knowledge_check_question_id')->limit(20)
+            ->get()->map(fn (KnowledgeCheckResponse $response): array => $this->misconceptionRow($response->prompt_snapshot, (int) $response->getAttribute('response_count'), (int) $response->getAttribute('incorrect_count')));
+    }
+
+    /** @return array{prompt: string, responses: int, incorrect: int} */
+    private function misconceptionRow(string $prompt, int $responses, int $incorrect): array
+    {
+        return ['prompt' => $prompt, 'responses' => $responses, 'incorrect' => $incorrect];
+    }
+
+    /** @return Builder<KnowledgeCheckAttempt> */
+    private function monitoringQuery(User $viewer, User $student): Builder
+    {
+        $access = $this->classroomAccess;
+        if (! in_array($viewer->role, ['teacher', 'admin'], true)
+            || $student->role !== 'student' || ! $access->isAuthorizedForStudent($viewer, $student)) {
+            throw new AuthorizationException;
+        }
+        $courseIds = $access->courseIdsForStudent($viewer, $student);
+
+        return KnowledgeCheckAttempt::query()->where('user_id', $student->id)
+            ->where('status', KnowledgeCheckAttempt::STATUS_SUBMITTED)
+            ->when($courseIds !== null, fn (Builder $query) => $query->whereHas('knowledgeCheck.mission', fn (Builder $query) => $query->whereIn('course_id', $courseIds)));
+    }
 
     /**
      * Presentation-ready check status for one Lesson. The latest attempt is
