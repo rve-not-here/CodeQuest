@@ -13,6 +13,7 @@
         ['route' => 'section-progress', 'label' => 'Section Progress'],
         ['route' => 'timeline', 'label' => 'Timeline'],
         ['route' => 'xp-ledger', 'label' => 'XP Ledger'],
+        ['route' => 'reports.progress', 'label' => 'Progress Report'],
         ['route' => 'competency', 'label' => 'Competency'],
         ['heading' => 'Support'],
         ['route' => 'recommendations', 'label' => 'Recommendations'],
@@ -29,6 +30,7 @@
         ['heading' => 'System'],
         ['route' => 'activity', 'label' => 'Learning Activity'],
         ['route' => 'course-analytics', 'label' => 'Course Analytics'],
+        ['route' => 'reports.teacher', 'label' => 'Reports'],
         ['route' => 'needs-attention', 'label' => 'Needs Attention'],
         ['route' => 'notifications', 'label' => 'Notifications'],
     ];
@@ -41,6 +43,7 @@
         ['route' => 'admin.announcements', 'label' => 'Announcements'],
         ['route' => 'admin.activity', 'label' => 'Audit Trail'],
         ['route' => 'admin.analytics', 'label' => 'System Analytics'],
+        ['route' => 'reports.admin-system', 'label' => 'System Report'],
         ['route' => 'admin.system', 'label' => 'System Status'],
         ['route' => 'notifications', 'label' => 'Notifications'],
     ];

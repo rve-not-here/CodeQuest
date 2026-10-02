@@ -27,6 +27,7 @@ use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionIndexController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RecommendationsController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\SectionProgressController;
 use App\Http\Controllers\ShellController;
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function (): void {
     // Report exports (US-1010, CSV only): the student's own progress as a
     // download. Authorization and filters match the on-screen report.
     Route::get('/export/progress', [ReportExportController::class, 'studentProgress'])->middleware('student')->middleware('throttle:report-export')->name('export.progress');
+    Route::get('/reports/progress', [ReportController::class, 'student'])->middleware('student')->name('reports.progress');
 
     // Mission / challenge
     Route::get('/missions', MissionIndexController::class)->middleware('student')->name('missions');
@@ -132,6 +134,9 @@ Route::middleware('auth')->group(function (): void {
 // gate, narrowing only); the other user-scoping spellings are still rejected.
 // Apply this same 'teacher' middleware to every route added in US-602..US-610.
 Route::middleware(['auth', 'teacher'])->group(function (): void {
+    Route::get('/reports/teacher', [ReportController::class, 'teacherIndex'])->name('reports.teacher');
+    Route::get('/reports/teacher/students/{student}', [ReportController::class, 'teacherStudent'])->name('reports.teacher-student');
+    Route::get('/reports/teacher/courses/{course}', [ReportController::class, 'teacherCourse'])->name('reports.teacher-course');
     Route::get('/students', StudentController::class)->name('students');
     Route::get('/student-progress/{student?}', StudentProgressController::class)->name('student-progress');
     Route::get('/activity', ActivityController::class)->name('activity');
@@ -162,6 +167,7 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
     // Report exports (US-1010, CSV only): fleet system download under the
     // same admin authorization, scope, and filters as the system report.
     Route::get('/export/admin/system', [ReportExportController::class, 'adminSystem'])->middleware('throttle:report-export')->name('export.admin-system');
+    Route::get('/reports/admin/system', [ReportController::class, 'system'])->name('reports.admin-system');
 
     // User management (US-703, §9.0–§12.0): directory + create/edit. Since
     // US-704 update also accepts optional role (UserService::ROLES, operator

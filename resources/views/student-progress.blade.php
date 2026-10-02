@@ -3,6 +3,9 @@
 @section('title', 'Student Progress')
 
 @section('content')
+    @if (auth()->user()->role === 'teacher')
+        <a href="{{ route('reports.teacher-student', $student) }}" class="btn btn-secondary mb-4">VIEW STUDENT REPORT →</a>
+    @endif
     <section class="panel mb-5 p-5" aria-labelledby="monitoring-checks-title">
         <h2 id="monitoring-checks-title" class="text-lg font-semibold">Knowledge Check evidence</h2>
         <p class="mt-2 text-sm text-fg-muted">Submitted attempt history in your current classroom scope. Scores are formative and do not award XP. Question feedback uses the recorded submission snapshots.</p>
