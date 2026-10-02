@@ -231,3 +231,15 @@ test('unicode survives large stdin and stdout payloads', async () => {
     const result = await grade({ source: `function value(){return ${JSON.stringify(expected)}}`, tests: [{ type: 'function', payload: { function: 'value', cases: [{ args: [], expected }] } }] });
     assert.equal(result.status, 'passed');
 });
+
+test('server-authored curriculum state probes remain supported', async () => {
+    for (const [source, expression, expected] of [
+        ['let signalStatus="ONLINE"', '() => signalStatus', 'ONLINE'],
+        ['class Operator { constructor(name){this.name=name} report(){return this.name+" READY"} }', '(name) => new Operator(name).report()', 'CHEN READY'],
+        ['function makeCounter(){let n=0;return ()=>++n}', '() => { const a = makeCounter(), b = makeCounter(); return [a(), a(), b(), a(), b()]; }', [1,2,1,3,2]],
+    ]) {
+        const args = expression.startsWith('(name)') ? ['CHEN'] : [];
+        const result = await grade({ source, tests: [{ type: 'function', payload: { function: expression, cases: [{ args, expected }] } }] });
+        assert.equal(result.status, 'passed');
+    }
+});

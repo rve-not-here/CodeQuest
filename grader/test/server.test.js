@@ -51,9 +51,9 @@ test('missing/wrong service credentials cannot trigger execution', async () => {
     });
 });
 
-test('malformed invocation names cannot cross into evaluation expressions', async () => {
+test('malformed server invocation definitions are rejected', async () => {
     await withService(async url => {
-        const response = await post(url, 'function add(a,b){return a+b}', { tests: [{ type: 'function', payload: { function: 'add);process.exit(0)//', cases: [{ args: [], expected: 1 }] } }] });
+        const response = await post(url, 'function add(a,b){return a+b}', { tests: [{ type: 'function', payload: { function: ['add'], cases: [{ args: [], expected: 1 }] } }] });
         assert.equal(response.status, 400);
     });
 });

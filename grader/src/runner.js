@@ -23,7 +23,6 @@ async function observe(payload, timeout) {
         output.results.push(row);
         if (test.type === 'console') continue;
         try {
-            if (!/^[A-Za-z_$][\w$]*$/.test(test.function)) throw new Error('runtime');
             context.__fn = vm.runInContext(`(${test.function})`, context, { timeout });
             if (typeof context.__fn !== 'function') throw new Error('runtime');
             for (const item of test.cases) {

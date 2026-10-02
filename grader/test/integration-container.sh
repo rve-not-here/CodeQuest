@@ -95,6 +95,10 @@ ARROW='{"source":"const add = (a, b) => a + b;","exec_timeout_ms":8000,"tests":[
 RESULT=$(grade "$ARROW")
 check "alternative valid solution passes" "passed" "$(printf '%s' "$RESULT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>process.stdout.write(JSON.parse(d).status))")"
 
+PROBE='{"source":"let signalStatus=\"ONLINE\";","tests":[{"type":"function","payload":{"function":"() => signalStatus","cases":[{"args":[],"expected":"ONLINE"}]}}]}'
+RESULT=$(grade "$PROBE")
+check "server-authored curriculum probe passes" "passed" "$(printf '%s' "$RESULT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>process.stdout.write(JSON.parse(d).status))")"
+
 HARDCODED='{"source":"function add() { return 8; }","exec_timeout_ms":8000,"tests":[{"type":"function","payload":{"function":"add","cases":[{"args":[2,3],"expected":5},{"args":[10,20],"expected":30}]}}]}'
 RESULT=$(grade "$HARDCODED")
 check "hard-coded answer fails hidden cases" "failed" "$(printf '%s' "$RESULT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>process.stdout.write(JSON.parse(d).status))")"

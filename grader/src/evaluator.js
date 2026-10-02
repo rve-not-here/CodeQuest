@@ -17,7 +17,7 @@ export function executionPayload(payload, timeout = 8000) {
             test.payload.expected.forEach(entry => { if (!Array.isArray(entry)) throw new Error('invalid_response'); encode(entry); });
             return { type: 'console' };
         }
-        if (test.type !== 'function' || !/^[A-Za-z_$][\w$]*$/.test(test.payload?.function ?? '') || !Array.isArray(test.payload?.cases) || test.payload.cases.length === 0 || test.payload.cases.length > 50) throw new Error('invalid_response');
+        if (test.type !== 'function' || typeof test.payload?.function !== 'string' || test.payload.function.trim() === '' || test.payload.function.length > 120 || !Array.isArray(test.payload?.cases) || test.payload.cases.length === 0 || test.payload.cases.length > 50) throw new Error('invalid_response');
         return { type: 'function', function: test.payload.function, cases: test.payload.cases.map(item => {
             if (!Array.isArray(item?.args) || !Object.hasOwn(item, 'expected')) throw new Error('invalid_response');
             encode(item.expected);
