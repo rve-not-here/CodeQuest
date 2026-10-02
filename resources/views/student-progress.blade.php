@@ -337,7 +337,7 @@
                         <div>
                             <div class="flex items-baseline justify-between gap-3 mb-2">
                                 <h3 class="text-sm font-bold text-amber">
-                                    {{ $section->title }}
+                                    {{ $section?->title ?? 'Additional missions' }}
                                 </h3>
                                 <div class="flex items-center gap-2 shrink-0">
                                     <x-badge tone="{{ $xYTone }}">

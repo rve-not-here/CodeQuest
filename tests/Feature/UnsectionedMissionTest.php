@@ -37,5 +37,7 @@ class UnsectionedMissionTest extends TestCase
         $this->get(route('section-progress'))->assertSee('Additional missions')->assertSee('1/1 missions complete');
         $this->assertDatabaseCount('the404_sections', 1);
         $this->assertNull($unsectioned->fresh()->section_id);
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->get(route('student-progress', $student))->assertOk()->assertSee('Additional missions');
     }
 }
