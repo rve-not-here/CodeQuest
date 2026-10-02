@@ -139,6 +139,7 @@
                     </p>
                 </div>
                 <div class="space-y-4 p-5">
+                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">TRY IT YOURSELF →</a>
                     @if ($outstandingRequiredCheck)
                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
                             @csrf

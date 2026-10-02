@@ -66,6 +66,17 @@ class MissionController extends Controller
         return view('challenge', $this->viewData($user, $mission));
     }
 
+    public function experiment(Mission $mission): View
+    {
+        $this->ensureCourseActive($mission);
+
+        /** @var User $user */
+        $user = auth()->user();
+        $this->ensureCourseReached($user, $mission);
+
+        return view('experiment', $this->lessonData($user, $mission));
+    }
+
     public function submit(Request $request, Mission $mission): RedirectResponse
     {
         $this->ensureCourseActive($mission);

@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/missions', MissionIndexController::class)->middleware('student')->name('missions');
     Route::get('/missions/{mission}', [MissionController::class, 'show'])->middleware('student')->name('mission.show');
     Route::get('/missions/{mission}/challenge', [MissionController::class, 'challenge'])->middleware('student')->name('mission.challenge');
+    Route::get('/missions/{mission}/experiment', [MissionController::class, 'experiment'])->middleware('student')->name('mission.experiment');
     Route::post('/missions/{mission}/submit', [MissionController::class, 'submit'])->middleware(['student', 'throttle:academic-submit'])->name('mission.submit');
     Route::post('/missions/{mission}/draft', [MissionController::class, 'saveDraft'])->middleware(['student', 'throttle:academic-draft'])->name('mission.draft');
     Route::post('/missions/{mission}/hints', [MissionController::class, 'hint'])->middleware(['student', 'throttle:academic-assistance'])->name('mission.hint');
