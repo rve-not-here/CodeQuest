@@ -18,9 +18,15 @@ class Element {
     fire(name, fields = {}) { this.events[name]({ preventDefault() {}, ...fields }); }
 }
 
-function fixture() {
+function fixture(width = 1200) {
     const media = { matches: false, addEventListener(name, callback) { this.change = callback; } };
-    globalThis.window = { matchMedia: () => media };
+    const events = {};
+    globalThis.window = {
+        matchMedia: () => media,
+        getComputedStyle: () => ({ fontSize: '16px' }),
+        addEventListener: (name, callback) => { events[name] = callback; },
+    };
+    const dimensions = { width };
     const panes = ['brief', 'editor', 'preview'].map((name) => new Element({ workspacePane: name }));
     const buttons = ['brief', 'editor', 'preview'].map((name) => new Element({ paneToggle: name }));
     const separators = ['brief', 'preview'].map((name) => new Element({ workspaceResize: name }, {
@@ -30,13 +36,14 @@ function fixture() {
     const reset = new Element();
     const style = {};
     const workspace = {
+        ownerDocument: { documentElement: {} },
         querySelectorAll: (selector) => selector === '[data-workspace-pane]' ? panes : separators,
         style: { setProperty: (name, value) => { style[name] = value; } },
-        getBoundingClientRect: () => ({ width: 1200 }),
+        getBoundingClientRect: () => dimensions,
     };
     const controls = { querySelectorAll: () => buttons, querySelector: () => reset };
     initializeWorkspace({ querySelector: (selector) => selector === '[data-workspace]' ? workspace : controls });
-    return { media, panes, buttons, separators, reset, style };
+    return { media, panes, buttons, separators, reset, style, dimensions, events };
 }
 
 test('keyboard and pointer resizing retain minimum pane widths and reset restores defaults', () => {
@@ -77,4 +84,37 @@ test('collapse, narrow-screen switching and restore preserve the same editor ele
     media.change();
     reset.fire('click');
     assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
+});
+
+test('restoring either pane clamps combined widths after resizing a collapsed layout', () => {
+    const { panes, buttons, separators, style } = fixture();
+    buttons[0].fire('click');
+    separators[1].fire('keydown', { key: 'End' });
+    buttons[0].fire('click');
+    assert.equal(style['--brief-width'], '25%');
+    assert.equal(style['--preview-width'], '40%');
+
+    buttons[2].fire('click');
+    separators[0].fire('keydown', { key: 'End' });
+    buttons[2].fire('click');
+    assert.equal(style['--brief-width'], '35%');
+    assert.equal(style['--preview-width'], '33%');
+    assert.equal(separators[1].getAttribute('aria-valuenow'), '33');
+    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
+});
+
+test('pane widths reserve room for the editor and handles as the desktop viewport shrinks', () => {
+    const { buttons, separators, style, dimensions, events } = fixture();
+    buttons[0].fire('click');
+    separators[1].fire('keydown', { key: 'End' });
+    buttons[0].fire('click');
+    buttons[2].fire('click');
+    separators[0].fire('keydown', { key: 'End' });
+    buttons[2].fire('click');
+
+    dimensions.width = 1000;
+    events.resize();
+    assert.equal(style['--brief-width'], '33%');
+    assert.equal(style['--preview-width'], '33%');
+    assert.ok((parseInt(style['--brief-width']) + parseInt(style['--preview-width'])) / 100 * 1000 + 320 + 16 <= 1000);
 });

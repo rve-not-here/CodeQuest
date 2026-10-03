@@ -10,6 +10,7 @@ use App\Services\ReportPdfExporter;
 use App\Services\StudentProgressReportService;
 use App\Support\ReportFilters;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Concerns\WithClassroomScope;
 use Tests\TestCase;
 
@@ -17,6 +18,48 @@ class ReportPageTest extends TestCase
 {
     use RefreshDatabase;
     use WithClassroomScope;
+
+    /** @return array<string, array{string}> */
+    public static function scopingProbes(): array
+    {
+        return array_combine(['user_id', 'userId', 'user', 'student', 'owner'], array_map(fn (string $key): array => [$key], ['user_id', 'userId', 'user', 'student', 'owner']));
+    }
+
+    #[DataProvider('scopingProbes')]
+    public function test_student_report_and_download_return_403_for_scoping_probes(string $key): void
+    {
+        $student = User::factory()->create();
+        $this->actingAs($student);
+
+        foreach (['reports.progress', 'export.progress'] as $route) {
+            $this->getJson(route($route, [$key => $student->id, 'from' => 'invalid']))->assertForbidden();
+        }
+    }
+
+    public function test_teacher_report_pages_and_downloads_reject_foreign_and_missing_filter_ids_identically(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $classroom = $this->classroomFor($teacher, [$student], [$course]);
+        $foreignStudent = User::factory()->create();
+        $foreignCourse = Course::factory()->create();
+        $this->actingAs($teacher);
+
+        foreach (['reports.teacher-student', 'export.teacher-student', 'reports.teacher-course', 'export.teacher-course'] as $route) {
+            $params = str_ends_with($route, 'student') ? ['student' => $student->id] : ['course' => $course->id];
+            foreach (['student_id' => $foreignStudent->id, 'course_id' => $foreignCourse->id] as $field => $foreignId) {
+                $foreign = $this->getJson(route($route, $params + [$field => $foreignId]))->assertUnprocessable();
+                $missing = $this->getJson(route($route, $params + [$field => $foreignId + 10000]))->assertUnprocessable();
+                $this->assertSame($foreign->json('errors'), $missing->json('errors'));
+                $this->assertSame([$field => ['The selected '.($field === 'student_id' ? 'student' : 'course').' is invalid.']], $foreign->json('errors'));
+            }
+            $this->get(route($route, $params + ['student_id' => $student->id, 'course_id' => $course->id]))->assertOk();
+        }
+
+        $classroom->update(['status' => 'inactive']);
+        $this->get(route('reports.teacher-course', $course))->assertForbidden();
+    }
 
     public function test_student_page_reuses_export_presentation_and_preserves_filters_and_own_scope(): void
     {

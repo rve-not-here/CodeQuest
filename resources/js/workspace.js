@@ -10,7 +10,25 @@ export function initializeWorkspace(root) {
     const collapsed = new Set();
     let selected = 'editor';
 
+    function constrainedWidth(separator, value) {
+        const name = separator.dataset.workspaceResize;
+        const other = name === 'brief' ? 'preview' : 'brief';
+        const containerWidth = workspace.getBoundingClientRect().width;
+        const rem = Number.parseFloat(window.getComputedStyle(workspace.ownerDocument.documentElement).fontSize);
+        const handles = separators.filter((item) => !collapsed.has(item.dataset.workspaceResize)).length * 8;
+        const available = Math.min(68, Math.floor((containerWidth - 20 * rem - handles) / containerWidth * 100));
+        const minimum = Number(separator.getAttribute('aria-valuemin'));
+        const maximum = Math.min(Number(separator.getAttribute('aria-valuemax')), available - (collapsed.has(other) ? 0 : widths[other]));
+        return Math.max(minimum, Math.min(maximum, Math.round(value)));
+    }
+
     function render() {
+        if (!narrow.matches) {
+            for (const separator of separators) {
+                const name = separator.dataset.workspaceResize;
+                if (!collapsed.has(name)) widths[name] = constrainedWidth(separator, widths[name]);
+            }
+        }
         for (const pane of panes) {
             const name = pane.dataset.workspacePane;
             pane.hidden = narrow.matches ? name !== selected : collapsed.has(name);
@@ -33,10 +51,7 @@ export function initializeWorkspace(root) {
 
     function resize(separator, value) {
         const name = separator.dataset.workspaceResize;
-        const other = name === 'brief' ? 'preview' : 'brief';
-        const minimum = Number(separator.getAttribute('aria-valuemin'));
-        const maximum = Math.min(Number(separator.getAttribute('aria-valuemax')), 68 - (collapsed.has(other) ? 0 : widths[other]));
-        widths[name] = Math.round(Math.max(minimum, Math.min(maximum, value)));
+        widths[name] = constrainedWidth(separator, value);
         render();
     }
 
@@ -45,8 +60,10 @@ export function initializeWorkspace(root) {
             const name = button.dataset.paneToggle;
             if (narrow.matches) selected = name;
             else if (name !== 'editor') {
-                if (collapsed.has(name)) collapsed.delete(name);
-                else collapsed.add(name);
+                if (collapsed.has(name)) {
+                    collapsed.delete(name);
+                    resize(separators.find((separator) => separator.dataset.workspaceResize === name), widths[name]);
+                } else collapsed.add(name);
             }
             render();
         });
@@ -89,5 +106,6 @@ export function initializeWorkspace(root) {
         separator.addEventListener('lostpointercapture', stop);
     }
     narrow.addEventListener('change', render);
+    window.addEventListener('resize', render);
     render();
 }

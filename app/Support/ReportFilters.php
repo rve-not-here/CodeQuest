@@ -37,10 +37,12 @@ final class ReportFilters
     /**
      * @param  array<string, mixed>  $input
      * @param  array<int, string>  $allowedStatuses  the calling report's finite status vocabulary
+     * @param  list<int>|null  $studentIds  null permits fleet-wide existence validation
+     * @param  list<int>|null  $courseIds  an empty list permits no courses
      *
      * @throws ValidationException
      */
-    public static function fromArray(array $input, array $allowedStatuses = []): self
+    public static function fromArray(array $input, array $allowedStatuses = [], ?array $studentIds = null, ?array $courseIds = null): self
     {
         $from = self::parseDate($input['from'] ?? null, 'from');
         $to = self::parseDate($input['to'] ?? null, 'to');
@@ -54,8 +56,8 @@ final class ReportFilters
         return new self(
             $from?->startOfDay(),
             $to?->addDay()->startOfDay(),
-            self::parseStudentId($input['student_id'] ?? null),
-            self::parseCourseId($input['course_id'] ?? null),
+            self::parseStudentId($input['student_id'] ?? null, $studentIds),
+            self::parseCourseId($input['course_id'] ?? null, $courseIds),
             self::parseStatus($input['status'] ?? null, $allowedStatuses),
         );
     }
@@ -113,9 +115,11 @@ final class ReportFilters
     }
 
     /**
+     * @param  list<int>|null  $studentIds
+     *
      * @throws ValidationException
      */
-    private static function parseStudentId(mixed $value): ?int
+    private static function parseStudentId(mixed $value, ?array $studentIds): ?int
     {
         $id = self::parseId($value, 'student_id');
 
@@ -126,6 +130,7 @@ final class ReportFilters
         $isStudent = DB::table('the404_users')
             ->where('id', $id)
             ->where('role', 'student')
+            ->when($studentIds !== null, fn (QueryBuilder $query): QueryBuilder => $query->whereIn('id', $studentIds))
             ->exists();
 
         if (! $isStudent) {
@@ -138,9 +143,11 @@ final class ReportFilters
     }
 
     /**
+     * @param  list<int>|null  $courseIds
+     *
      * @throws ValidationException
      */
-    private static function parseCourseId(mixed $value): ?int
+    private static function parseCourseId(mixed $value, ?array $courseIds): ?int
     {
         $id = self::parseId($value, 'course_id');
 
@@ -148,7 +155,9 @@ final class ReportFilters
             return null;
         }
 
-        $exists = DB::table('the404_courses')->where('id', $id)->exists();
+        $exists = DB::table('the404_courses')->where('id', $id)
+            ->when($courseIds !== null, fn (QueryBuilder $query): QueryBuilder => $query->whereIn('id', $courseIds))
+            ->exists();
 
         if (! $exists) {
             throw ValidationException::withMessages([

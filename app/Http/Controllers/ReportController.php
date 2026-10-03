@@ -31,6 +31,10 @@ class ReportController extends Controller
 
     public function student(Request $request): View
     {
+        if ($request->hasAny(['user_id', 'userId', 'user', 'student', 'owner'])) {
+            abort(403, 'Student report is scoped to the authenticated user.');
+        }
+
         /** @var User $viewer */
         $viewer = $request->user();
         abort_unless($this->authorization->canViewStudentReport($viewer, $viewer), 403);
@@ -77,7 +81,15 @@ class ReportController extends Controller
 
     private function filters(Request $request): ReportFilters
     {
-        return ReportFilters::fromArray($request->only(['from', 'to', 'student_id', 'course_id', 'status']), []);
+        /** @var User $viewer */
+        $viewer = $request->user();
+        $scope = $viewer->role === 'teacher' ? $this->access->scopesFor($viewer) : null;
+
+        return ReportFilters::fromArray(
+            $request->only(['from', 'to', 'student_id', 'course_id', 'status']),
+            studentIds: $scope === null ? null : array_values($scope['studentIds']?->all() ?? []),
+            courseIds: $scope === null ? null : array_values($scope['courseIds']?->all() ?? []),
+        );
     }
 
     /**

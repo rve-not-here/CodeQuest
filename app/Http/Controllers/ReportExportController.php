@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\User;
 use App\Services\AdminSystemReportService;
+use App\Services\ClassroomAccessService;
 use App\Services\ReportAuthorizationService;
 use App\Services\ReportCsvExporter;
 use App\Services\ReportPdfExporter;
@@ -42,6 +43,7 @@ class ReportExportController extends Controller
         private readonly TeacherStudentReportService $teacherStudentReport,
         private readonly TeacherCourseReportService $teacherCourseReport,
         private readonly AdminSystemReportService $adminReport,
+        private readonly ClassroomAccessService $access,
     ) {}
 
     /**
@@ -64,7 +66,15 @@ class ReportExportController extends Controller
 
     private function filters(Request $request): ReportFilters
     {
-        return ReportFilters::fromArray($request->only(['from', 'to', 'student_id', 'course_id', 'status']), []);
+        /** @var User $viewer */
+        $viewer = $request->user();
+        $scope = $viewer->role === 'teacher' ? $this->access->scopesFor($viewer) : null;
+
+        return ReportFilters::fromArray(
+            $request->only(['from', 'to', 'student_id', 'course_id', 'status']),
+            studentIds: $scope === null ? null : array_values($scope['studentIds']?->all() ?? []),
+            courseIds: $scope === null ? null : array_values($scope['courseIds']?->all() ?? []),
+        );
     }
 
     private function download(string $csv, string $filename): StreamedResponse
@@ -96,6 +106,10 @@ class ReportExportController extends Controller
      */
     public function studentProgress(Request $request): StreamedResponse
     {
+        if ($request->hasAny(['user_id', 'userId', 'user', 'student', 'owner'])) {
+            abort(403, 'Student report is scoped to the authenticated user.');
+        }
+
         ['format' => $format, 'dataset' => $dataset] = $this->exportEnvelope($request, ['courses', 'skills', 'period']);
 
         /** @var User $viewer */

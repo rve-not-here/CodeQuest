@@ -136,10 +136,9 @@ class ReportingIntegrationTest extends TestCase
             ->get(route('export.admin-system'))->assertOk()->streamedContent());
         $this->assertSame('1', $summary['learning.course_completions']);
 
-        $outsideScope = $this->csvRows($this->actingAs($teacher)
+        $this->actingAs($teacher)
             ->get(route('export.teacher-student', [$student, 'course_id' => $foreignCourse->id]))
-            ->assertOk()->streamedContent());
-        $this->assertCount(1, $outsideScope);
+            ->assertRedirect()->assertSessionHasErrors(['course_id']);
         $this->actingAs($teacher)->get(route('export.teacher-course', $foreignCourse))->assertForbidden();
         $this->actingAs($teacher)->get(route('export.teacher-course', [$foreignCourse, 'format' => 'pdf']))
             ->assertForbidden();

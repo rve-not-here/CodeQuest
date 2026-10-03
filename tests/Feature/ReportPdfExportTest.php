@@ -471,7 +471,7 @@ class ReportPdfExportTest extends TestCase
         $course = $this->course('alpha', 'Alpha');
         $mission = $this->mission($course, 'Alpha One');
 
-        $this->classroomFor($teacher, [$student], [$course]);
+        $this->classroomFor($teacher, [$student, $other], [$course]);
         $this->complete($student, $mission);
 
         // Matching student filter preserves the download.
