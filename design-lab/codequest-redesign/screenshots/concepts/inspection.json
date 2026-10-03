@@ -1,0 +1,233 @@
+{
+  "report": [
+    {
+      "concept": "workbench",
+      "screen": "dashboard",
+      "width": 1440,
+      "title": "dashboard · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nYour learning workspace\n\n",
+      "overflow": false,
+      "viewport": 1440
+    },
+    {
+      "concept": "workbench",
+      "screen": "challenge",
+      "width": 1440,
+      "title": "challenge · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 860,
+      "viewport": 1440
+    },
+    {
+      "concept": "studio",
+      "screen": "dashboard",
+      "width": 1440,
+      "title": "dashboard · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nHTML foundations\nOne clea",
+      "overflow": false,
+      "viewport": 1440
+    },
+    {
+      "concept": "studio",
+      "screen": "challenge",
+      "width": 1440,
+      "title": "challenge · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 847.046875,
+      "viewport": 1440
+    },
+    {
+      "concept": "academy",
+      "screen": "dashboard",
+      "width": 1440,
+      "title": "dashboard · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLet's build your next thi",
+      "overflow": false,
+      "viewport": 1440
+    },
+    {
+      "concept": "academy",
+      "screen": "challenge",
+      "width": 1440,
+      "title": "challenge · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 1140,
+      "viewport": 1440
+    },
+    {
+      "concept": "workbench",
+      "screen": "dashboard",
+      "width": 1024,
+      "title": "dashboard · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nYour learning workspace\n\n",
+      "overflow": false,
+      "viewport": 1024
+    },
+    {
+      "concept": "workbench",
+      "screen": "challenge",
+      "width": 1024,
+      "title": "challenge · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 1024,
+      "viewport": 1024
+    },
+    {
+      "concept": "studio",
+      "screen": "dashboard",
+      "width": 1024,
+      "title": "dashboard · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nHTML foundations\nOne clea",
+      "overflow": false,
+      "viewport": 1024
+    },
+    {
+      "concept": "studio",
+      "screen": "challenge",
+      "width": 1024,
+      "title": "challenge · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 1024,
+      "viewport": 1024
+    },
+    {
+      "concept": "academy",
+      "screen": "dashboard",
+      "width": 1024,
+      "title": "dashboard · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLet's build your next thi",
+      "overflow": false,
+      "viewport": 1024
+    },
+    {
+      "concept": "academy",
+      "screen": "challenge",
+      "width": 1024,
+      "title": "challenge · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 1024,
+      "viewport": 1024
+    },
+    {
+      "concept": "workbench",
+      "screen": "dashboard",
+      "width": 768,
+      "title": "dashboard · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nYour learning workspace\n\n",
+      "overflow": false,
+      "viewport": 768
+    },
+    {
+      "concept": "workbench",
+      "screen": "challenge",
+      "width": 768,
+      "title": "challenge · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 768,
+      "viewport": 768
+    },
+    {
+      "concept": "studio",
+      "screen": "dashboard",
+      "width": 768,
+      "title": "dashboard · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nHTML foundations\nOne clea",
+      "overflow": false,
+      "viewport": 768
+    },
+    {
+      "concept": "studio",
+      "screen": "challenge",
+      "width": 768,
+      "title": "challenge · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 768,
+      "viewport": 768
+    },
+    {
+      "concept": "academy",
+      "screen": "dashboard",
+      "width": 768,
+      "title": "dashboard · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLet's build your next thi",
+      "overflow": false,
+      "viewport": 768
+    },
+    {
+      "concept": "academy",
+      "screen": "challenge",
+      "width": 768,
+      "title": "challenge · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 768,
+      "viewport": 768
+    },
+    {
+      "concept": "workbench",
+      "screen": "dashboard",
+      "width": 375,
+      "title": "dashboard · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nYour learning workspace\n\nHTML ",
+      "overflow": false,
+      "viewport": 375
+    },
+    {
+      "concept": "workbench",
+      "screen": "challenge",
+      "width": 375,
+      "title": "challenge · A · Learning workbench · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nLesson\nLinks that make sense\nH",
+      "overflow": false,
+      "editor": 360,
+      "viewport": 375
+    },
+    {
+      "concept": "studio",
+      "screen": "dashboard",
+      "width": 375,
+      "title": "dashboard · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nHTML foundations\nOne clear nex",
+      "overflow": false,
+      "viewport": 375
+    },
+    {
+      "concept": "studio",
+      "screen": "challenge",
+      "width": 375,
+      "title": "challenge · B · Guided studio · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nLesson\nLinks that make sense\nH",
+      "overflow": false,
+      "editor": 360,
+      "viewport": 375
+    },
+    {
+      "concept": "academy",
+      "screen": "dashboard",
+      "width": 375,
+      "title": "dashboard · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nLet's build your next thing, A",
+      "overflow": false,
+      "viewport": 375
+    },
+    {
+      "concept": "academy",
+      "screen": "challenge",
+      "width": 375,
+      "title": "challenge · C · Technical academy · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nLesson\nLinks that make sense\nH",
+      "overflow": false,
+      "editor": 360,
+      "viewport": 375
+    }
+  ],
+  "errors": []
+}

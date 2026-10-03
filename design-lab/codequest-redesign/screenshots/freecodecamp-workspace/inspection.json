@@ -1,0 +1,441 @@
+{
+  "report": [
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 1440,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Review hint cost",
+          "height": 44,
+          "width": 148
+        },
+        {
+          "label": "Review solution cost",
+          "height": 44,
+          "width": 136
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Preview",
+          "height": 47,
+          "width": 51
+        },
+        {
+          "label": "Feedback 1",
+          "height": 47,
+          "width": 58
+        },
+        {
+          "label": "Run preview",
+          "height": 44,
+          "width": 148
+        },
+        {
+          "label": "Hint",
+          "height": 44,
+          "width": 82
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 120
+        },
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 105
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 89
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44,
+          "width": 183
+        }
+      ],
+      "editor": 768.8125,
+      "viewport": 1440
+    },
+    {
+      "concept": "final",
+      "screen": "boss",
+      "width": 1440,
+      "title": "boss · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nCourse\nBuild a student po",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Preview",
+          "height": 47,
+          "width": 51
+        },
+        {
+          "label": "Feedback 1",
+          "height": 47,
+          "width": 58
+        },
+        {
+          "label": "Run preview",
+          "height": 44,
+          "width": 148
+        },
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 105
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 89
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44,
+          "width": 197
+        }
+      ],
+      "editor": 768.8125,
+      "viewport": 1440
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 1024,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Review hint cost",
+          "height": 44,
+          "width": 148
+        },
+        {
+          "label": "Review solution cost",
+          "height": 44,
+          "width": 136
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44,
+          "width": 51
+        },
+        {
+          "label": "Feedback 1",
+          "height": 44,
+          "width": 58
+        },
+        {
+          "label": "Run preview",
+          "height": 44,
+          "width": 148
+        },
+        {
+          "label": "Hint",
+          "height": 44,
+          "width": 82
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 120
+        },
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 105
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 89
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44,
+          "width": 183
+        }
+      ],
+      "editor": 484,
+      "viewport": 1024
+    },
+    {
+      "concept": "final",
+      "screen": "boss",
+      "width": 1024,
+      "title": "boss · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nCourse\nBuild a student po",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44,
+          "width": 51
+        },
+        {
+          "label": "Feedback 1",
+          "height": 44,
+          "width": 58
+        },
+        {
+          "label": "Run preview",
+          "height": 44,
+          "width": 148
+        },
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 105
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 89
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44,
+          "width": 197
+        }
+      ],
+      "editor": 484,
+      "viewport": 1024
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 768,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "Instructions",
+          "height": 47,
+          "width": 95
+        },
+        {
+          "label": "Code",
+          "height": 47,
+          "width": 51
+        },
+        {
+          "label": "Output",
+          "height": 47,
+          "width": 63
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Hint",
+          "height": 44,
+          "width": 82
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 120
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 89
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44,
+          "width": 183
+        }
+      ],
+      "editor": 768,
+      "viewport": 768
+    },
+    {
+      "concept": "final",
+      "screen": "boss",
+      "width": 768,
+      "title": "boss · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nCourse\nBuild a student po",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "Instructions",
+          "height": 47,
+          "width": 95
+        },
+        {
+          "label": "Code",
+          "height": 47,
+          "width": 51
+        },
+        {
+          "label": "Output",
+          "height": 47,
+          "width": 63
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 89
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44,
+          "width": 197
+        }
+      ],
+      "editor": 768,
+      "viewport": 768
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 375,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nLesson\nLinks that make sense\nH",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "Instructions",
+          "height": 47,
+          "width": 112
+        },
+        {
+          "label": "Code",
+          "height": 47,
+          "width": 112
+        },
+        {
+          "label": "Output",
+          "height": 47,
+          "width": 112
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Hint",
+          "height": 44,
+          "width": 74
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 121
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44,
+          "width": 207
+        }
+      ],
+      "editor": 360,
+      "viewport": 375
+    },
+    {
+      "concept": "final",
+      "screen": "boss",
+      "width": 375,
+      "title": "boss · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nCourse\nBuild a student portfol",
+      "overflow": false,
+      "targets": [
+        {
+          "label": "Instructions",
+          "height": 47,
+          "width": 112
+        },
+        {
+          "label": "Code",
+          "height": 47,
+          "width": 112
+        },
+        {
+          "label": "Output",
+          "height": 47,
+          "width": 112
+        },
+        {
+          "label": "",
+          "height": 44,
+          "width": 44
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 121
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44,
+          "width": 207
+        }
+      ],
+      "editor": 360,
+      "viewport": 375
+    }
+  ],
+  "errors": []
+}

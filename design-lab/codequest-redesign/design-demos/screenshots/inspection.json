@@ -1,0 +1,681 @@
+{
+  "report": [
+    {
+      "file": "typographic-workbench",
+      "width": 1440,
+      "title": "Links that make sense · CodeQuest",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 83
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 64
+        },
+        {
+          "label": "Show hint 5 XP in the app",
+          "height": 44,
+          "width": 276
+        },
+        {
+          "label": "Show solution 30 XP in the app",
+          "height": 44,
+          "width": 276
+        },
+        {
+          "label": "Show example feedback →",
+          "height": 44,
+          "width": 167
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 97
+        },
+        {
+          "label": "Run code",
+          "height": 44,
+          "width": 102
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 85
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Submit your Boss Challenge?",
+        "Lesson"
+      ]
+    },
+    {
+      "file": "classic-learning-lab",
+      "width": 1440,
+      "title": "CodeQuest · Classic learning lab",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 94
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 94
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 84
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Show example feedback",
+          "height": 44,
+          "width": 173
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 102
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 91
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 118
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "guided-build-studio",
+      "width": 1440,
+      "title": "CodeQuest · Guided build studio",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Open task   +",
+          "height": 44,
+          "width": 122
+        },
+        {
+          "label": "Show example feedback",
+          "height": 44,
+          "width": 147
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 100
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 108
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Preview",
+        "Feedback",
+        "Submit your Boss Challenge?"
+      ]
+    },
+    {
+      "file": "typographic-workbench",
+      "width": 1024,
+      "title": "Links that make sense · CodeQuest",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 83
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 64
+        },
+        {
+          "label": "Show hint 5 XP in the app",
+          "height": 44,
+          "width": 238
+        },
+        {
+          "label": "Show solution 30 XP in the app",
+          "height": 44,
+          "width": 238
+        },
+        {
+          "label": "Show example feedback →",
+          "height": 44,
+          "width": 167
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 91
+        },
+        {
+          "label": "Run code",
+          "height": 44,
+          "width": 96
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 79
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Submit your Boss Challenge?",
+        "Lesson"
+      ]
+    },
+    {
+      "file": "classic-learning-lab",
+      "width": 1024,
+      "title": "CodeQuest · Classic learning lab",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 94
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 94
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 231
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 231
+        },
+        {
+          "label": "Show example feedback",
+          "height": 44,
+          "width": 173
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 102
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 91
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 118
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "guided-build-studio",
+      "width": 1024,
+      "title": "CodeQuest · Guided build studio",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Open task   +",
+          "height": 44,
+          "width": 122
+        },
+        {
+          "label": "Show example feedback",
+          "height": 44,
+          "width": 147
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 100
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 108
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Preview",
+        "Feedback",
+        "Submit your Boss Challenge?"
+      ]
+    },
+    {
+      "file": "typographic-workbench",
+      "width": 768,
+      "title": "Links that make sense · CodeQuest",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 67
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 49
+        },
+        {
+          "label": "Instructions",
+          "height": 48,
+          "width": 256
+        },
+        {
+          "label": "Code",
+          "height": 48,
+          "width": 256
+        },
+        {
+          "label": "Output",
+          "height": 48,
+          "width": 256
+        },
+        {
+          "label": "Show hint 5 XP in the app",
+          "height": 44,
+          "width": 705
+        },
+        {
+          "label": "Show solution 30 XP in the app",
+          "height": 44,
+          "width": 705
+        },
+        {
+          "label": "Show example feedback →",
+          "height": 44,
+          "width": 167
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 240
+        },
+        {
+          "label": "Run code",
+          "height": 44,
+          "width": 240
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 240
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Submit your Boss Challenge?",
+        "Lesson"
+      ]
+    },
+    {
+      "file": "classic-learning-lab",
+      "width": 768,
+      "title": "CodeQuest · Classic learning lab",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 80
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 80
+        },
+        {
+          "label": "Instructions",
+          "height": 49,
+          "width": 256
+        },
+        {
+          "label": "Code",
+          "height": 49,
+          "width": 256
+        },
+        {
+          "label": "Output",
+          "height": 49,
+          "width": 256
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 84
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 239
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 239
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 239
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "guided-build-studio",
+      "width": 768,
+      "title": "CodeQuest · Guided build studio",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 244
+        },
+        {
+          "label": "Code",
+          "height": 44,
+          "width": 244
+        },
+        {
+          "label": "Output",
+          "height": 44,
+          "width": 244
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 101
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 59
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 82
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Preview",
+        "Feedback",
+        "Submit your Boss Challenge?"
+      ]
+    },
+    {
+      "file": "typographic-workbench",
+      "width": 375,
+      "title": "Links that make sense · CodeQuest",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 63
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 45
+        },
+        {
+          "label": "Instructions",
+          "height": 48,
+          "width": 125
+        },
+        {
+          "label": "Code",
+          "height": 48,
+          "width": 125
+        },
+        {
+          "label": "Output",
+          "height": 48,
+          "width": 125
+        },
+        {
+          "label": "Show hint 5 XP in the app",
+          "height": 44,
+          "width": 320
+        },
+        {
+          "label": "Show solution 30 XP in the app",
+          "height": 44,
+          "width": 320
+        },
+        {
+          "label": "Show example feedback →",
+          "height": 44,
+          "width": 167
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Run code",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 112
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Submit your Boss Challenge?",
+        "Lesson"
+      ]
+    },
+    {
+      "file": "classic-learning-lab",
+      "width": 375,
+      "title": "CodeQuest · Classic learning lab",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 63
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 62
+        },
+        {
+          "label": "Instructions",
+          "height": 49,
+          "width": 125
+        },
+        {
+          "label": "Code",
+          "height": 49,
+          "width": 125
+        },
+        {
+          "label": "Output",
+          "height": 49,
+          "width": 125
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 106
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 106
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 118
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "guided-build-studio",
+      "width": 375,
+      "title": "CodeQuest · Guided build studio",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 117
+        },
+        {
+          "label": "Code",
+          "height": 44,
+          "width": 117
+        },
+        {
+          "label": "Output",
+          "height": 44,
+          "width": 117
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 112
+        }
+      ],
+      "headings": [
+        "Links that make sense",
+        "Connect your profile to your work.",
+        "Preview",
+        "Feedback",
+        "Submit your Boss Challenge?"
+      ]
+    }
+  ],
+  "errors": []
+}

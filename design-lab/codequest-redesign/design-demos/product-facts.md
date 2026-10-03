@@ -1,0 +1,7 @@
+# Verified reference and project facts
+
+Reference checked on 2026-10-03: https://github.com/freeCodeCamp/freeCodeCamp/blob/main/client/src/templates/Challenges/classic/desktop-layout.tsx . It composes instructions, editor, preview, and test-output panes, with optional sections and resizable boundaries. Mobile source at the adjacent mobile-layout.tsx uses pane switching. No award or latest-release claim is made.
+
+CodeQuest source exists in this repository. Identity verified in resources/views/components/student-header.blade.php. Existing research input: docs/design/comparative-ui-ux-research.md. Prior prototypes and screenshots are the comparison baseline, not a selected direction. Current exploration concerns Challenge and Boss Challenge and keeps backend authority intact. All learner examples in drafts are fixtures. The user selected Classic Learning Lab: “go with classic learning lab”. Decision recorded in direction-approved.md; classic-learning-lab-v2.html is the refined prototype.
+
+Exploration anchors: webpage roulette used second 25, 25 % 20 + 1 = 6, corresponding to Bold Big-Type Editorial. Its typographic contrast is adapted to a programming workspace without 120px marketing titles. Real-world anchor is freeCodeCamp classic pane composition. Custom design anchor is the functional grid and typographic discipline associated with Pentagram’s information-design approach; this is an interpretation, not an attribution of actual work to that studio.

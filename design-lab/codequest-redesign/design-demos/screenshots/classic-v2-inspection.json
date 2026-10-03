@@ -1,0 +1,277 @@
+{
+  "report": [
+    {
+      "file": "classic-learning-lab-v2",
+      "width": 1440,
+      "title": "CodeQuest · Classic learning lab · refined",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Instructions",
+          "height": 44,
+          "width": 95
+        },
+        {
+          "label": "Preview",
+          "height": 44,
+          "width": 71
+        },
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 94
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 94
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 84
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Show example feedback",
+          "height": 44,
+          "width": 173
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 102
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 104
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 104
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "width": 1024,
+      "title": "CodeQuest · Classic learning lab · refined",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 80
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 80
+        },
+        {
+          "label": "Instructions",
+          "height": 49,
+          "width": 341
+        },
+        {
+          "label": "Code",
+          "height": 49,
+          "width": 341
+        },
+        {
+          "label": "Output",
+          "height": 49,
+          "width": 341
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 84
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 321
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 321
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 321
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "width": 768,
+      "title": "CodeQuest · Classic learning lab · refined",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 80
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 80
+        },
+        {
+          "label": "Instructions",
+          "height": 49,
+          "width": 256
+        },
+        {
+          "label": "Code",
+          "height": 49,
+          "width": 256
+        },
+        {
+          "label": "Output",
+          "height": 49,
+          "width": 256
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 84
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 236
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 236
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 236
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "width": 375,
+      "title": "CodeQuest · Classic learning lab · refined",
+      "hasSource": true,
+      "overflow": false,
+      "buttons": [
+        {
+          "label": "Practice",
+          "height": 44,
+          "width": 63
+        },
+        {
+          "label": "Boss",
+          "height": 44,
+          "width": 60
+        },
+        {
+          "label": "Instructions",
+          "height": 47,
+          "width": 125
+        },
+        {
+          "label": "Code",
+          "height": 47,
+          "width": 125
+        },
+        {
+          "label": "Output",
+          "height": 47,
+          "width": 125
+        },
+        {
+          "label": "Hint · 5 XP",
+          "height": 44,
+          "width": 112
+        },
+        {
+          "label": "Solution · 30 XP",
+          "height": 44,
+          "width": 115
+        },
+        {
+          "label": "Save draft",
+          "height": 44,
+          "width": 109
+        },
+        {
+          "label": "Run",
+          "height": 44,
+          "width": 109
+        },
+        {
+          "label": "Submit",
+          "height": 44,
+          "width": 109
+        }
+      ],
+      "headings": [
+        "Links thatmake sense",
+        "What to include",
+        "Give your link a destination",
+        "Code · index.html",
+        "Preview",
+        "Feedback Not submitted",
+        "Submit your portfolio?"
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<!--
+Direction: Guided build studio. An interpretation of the typographic discipline
+and functional information-design thinking associated with Pentagram, not its work.
+Form: a horizontal brief establishes intent, then source and destination sit beside
+each other. Instructions expand into a drawer rather than consuming a third column.
+The editor occupies most of the working area. Straight rules and type establish hierarchy.
+Assumptions: standalone exploratory draft; all Alex content is a fixture. No backend,
+grading, academic records, XP writes, production changes, fonts or remote dependencies.
+Run assigns exact textarea source to srcdoc with an empty sandbox. Save is in memory.
+Submission and feedback are openly labelled demonstrations, never server outcomes.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CodeQuest · Guided build studio</title>
+<style>
+:root{--paper:#f4f3ed;--white:#fff;--ink:#24282b;--muted:#586168;--line:#c8cbc6;--accent:#174d62;--code:#1d272c;--code-ink:#e9eeea;--soft:#e6ecec;--warn:#8a441a;--sans:"Trebuchet MS",Verdana,sans-serif;--mono:Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans)}button,a,select,textarea{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer;min-height:44px;border:1px solid var(--line);border-radius:2px;background:transparent;padding:8px 15px;color:inherit}button:hover{background:var(--soft)}button:disabled{cursor:wait;opacity:.65}a{color:var(--accent);text-underline-offset:4px}a:hover{text-decoration-thickness:2px}button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a8541f;outline-offset:3px}[hidden]{display:none!important}.skip{position:fixed;left:16px;top:-70px;z-index:20;background:var(--white);padding:12px}.skip:focus{top:8px}
+.site-header{height:70px;display:flex;align-items:center;gap:46px;padding:0 32px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:9px;font-size:20px;font-weight:bold;color:var(--ink);text-decoration:none}.mark{font:700 24px var(--mono);color:var(--accent)}nav{display:flex;align-items:center;gap:28px}nav a{display:flex;align-items:center;min-height:44px;color:var(--muted);text-decoration:none;font-size:14px}nav a.current{color:var(--ink);border-bottom:2px solid var(--ink)}.profile{margin-left:auto;color:var(--muted);font-size:13px;white-space:nowrap}.profile span{display:inline-grid;place-items:center;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;margin-left:9px;color:var(--ink)}
+.app{max-width:1800px;margin:auto;padding:20px 32px 0;height:calc(100dvh - 70px);min-height:690px;display:flex;flex-direction:column}.breadcrumb{display:flex;align-items:center;justify-content:space-between;gap:12px}.lesson{min-height:44px;display:inline-flex;align-items:center;font-size:13px}.mode-control{display:flex;gap:9px;align-items:center;font-size:12px;color:var(--muted)}select{padding:8px;min-height:44px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:2px;font-size:13px}.heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:9px 0 22px}.eyebrow{margin:0 0 3px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}h1{margin:0;font-size:30px;line-height:1.2;letter-spacing:-1px}.task-toggle{flex:none;border-color:var(--ink)}.context{display:grid;grid-template-columns:1.1fr 1.5fr;gap:28px;padding:16px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line)}.objective strong{display:block;font-size:16px}.objective p{margin:4px 0 0;font-size:13px;color:var(--muted)}.requirements{display:flex;gap:20px;align-items:center;flex-wrap:wrap;list-style:none;padding:0;margin:0;font-size:13px}.requirements li{display:flex;gap:8px;align-items:center}.req-num{font:12px var(--mono);border-bottom:1px solid var(--ink);padding-bottom:3px}.anchor-note{display:flex;justify-content:space-between;gap:16px;padding:12px 0;font-size:13px;color:var(--muted)}.anchor-note p{margin:0}code{font: .95em var(--mono);color:var(--ink)}.badge{white-space:nowrap;font-size:12px;color:var(--accent)}
+.mobile-tabs{display:none}.workbench{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);flex:1;min-height:280px;border:1px solid var(--line)}.code-panel{display:flex;flex-direction:column;min-width:0;background:var(--code);color:var(--code-ink)}.pane-header{height:53px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #425058;gap:10px}.pane-header h2,.pane-header label{margin:0;font-size:14px;font-weight:bold}.pane-meta{font:12px var(--mono);color:#bfcbc8}.editor-wrap{flex:1;display:flex;min-height:0;padding:18px 0}.line-numbers{width:48px;flex:none;padding:0 10px;text-align:right;font:14px/1.7 var(--mono);color:#b0bdbe;overflow:hidden;user-select:none;white-space:pre}.source{display:block;resize:none;flex:1;min-width:0;width:100%;border:0;background:transparent;color:var(--code-ink);font:14px/1.7 var(--mono);padding:0 20px 0 8px;outline-offset:-4px;tab-size:2;white-space:pre;overflow:auto}.editor-foot{display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:9px 20px;border-top:1px solid #425058;color:#bfcbc8}.output-panel{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--white);border-left:1px solid var(--line)}.output-panel .pane-header{border-color:var(--line)}.output-panel .pane-meta{color:var(--muted)}iframe{display:block;width:100%;border:0;flex:1;min-height:180px;background:var(--white)}.feedback{border-top:1px solid var(--line);padding:15px 20px 18px}.feedback-title{display:flex;align-items:center;justify-content:space-between;gap:8px}.feedback h2{font-size:14px;margin:0}.feedback p{font-size:14px;margin:8px 0;color:var(--muted)}.example-control{font-size:12px;min-height:44px;padding:5px 8px;border:0;text-decoration:underline;text-underline-offset:3px;color:var(--accent)}.recovery{font-size:13px;color:var(--accent);border-color:var(--accent)}
+.actionbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0 14px}.action-buttons{display:flex;gap:9px}.run{background:var(--accent);color:white;border-color:var(--accent);min-width:112px;font-weight:bold}.run:hover{background:#113c4d}.submit{border-color:var(--ink);min-width:108px;font-weight:bold}.draft-note{font-size:12px;color:var(--muted)}.status-footer{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:39px;font-size:12px;color:var(--muted)}#status{margin:0}.demo-note{white-space:nowrap}
+.instructions{padding:26px;overflow:auto;background:var(--paper);min-width:0}.instructions h2{margin:0 0 14px;font-size:24px;letter-spacing:-.5px}.instructions h3{font-size:15px;margin:24px 0 8px}.instructions p{margin:10px 0}.instructions ol{padding-left:24px}.instructions li{margin:10px 0}.help-controls{display:flex;gap:10px;flex-wrap:wrap}.help-text{font-size:14px;color:var(--muted);min-height:25px}.cost{font-size:12px;color:var(--muted)}dialog{border:1px solid var(--line);padding:0;background:var(--paper);color:var(--ink);max-width:600px;width:calc(100% - 32px);max-height:85dvh}dialog::backdrop{background:#17222980}.drawer{margin:0 0 0 auto;height:100dvh;max-height:100dvh;max-width:540px;width:min(540px,100%)}.dialog-header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:1px solid var(--line)}.dialog-header strong{font-size:14px}.dialog-body{padding:24px}.dialog-body h2{margin:0 0 14px;font-size:23px}.dialog-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:18px}
+@media(min-width:1800px){.app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+@media(max-width:1100px){.site-header{gap:28px;padding:0 24px}nav{gap:20px}.app{padding:14px 24px 0;min-height:640px}.heading{margin-bottom:18px}h1{font-size:27px}.context{grid-template-columns:1fr;gap:14px;padding:12px 0}.requirements{gap:24px}.objective p{display:none}.anchor-note{padding:10px 0}.workbench{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.pane-header{padding:0 15px}.source{font-size:13px}.line-numbers{font-size:13px;width:37px}.feedback{padding:12px 15px}.feedback-title{align-items:flex-start}.example-control{max-width:150px;text-align:right}.actionbar{padding:12px 0}.profile{font-size:12px}}
+@media(max-width:800px){body{font-size:16px}.site-header{height:60px;padding:0 18px;gap:20px}.brand{font-size:18px}.mark{font-size:21px}nav{gap:15px}nav a{font-size:12px}.profile{font-size:0}.profile span{font-size:12px;margin:0}.app{padding:10px 18px 0;height:calc(100dvh - 60px);min-height:660px}.heading{margin:8px 0 17px}h1{font-size:25px}.task-toggle{display:none}.context{padding:12px 0}.objective strong{font-size:15px}.requirements{gap:8px 20px;font-size:12px}.anchor-note{font-size:12px}.mobile-tabs{display:flex;border-top:1px solid var(--line)}.mobile-tabs button{flex:1;border:0;border-radius:0;font-size:14px;color:var(--muted);border-bottom:3px solid transparent}.mobile-tabs button[aria-selected=true]{border-bottom-color:var(--accent);color:var(--accent);font-weight:bold}.workbench{display:flex;min-height:250px}.code-panel,.output-panel,.instructions{width:100%;border-left:0}.source{font-size:16px;line-height:1.65}.line-numbers{font-size:16px;line-height:1.65}.editor-foot{font-size:12px}.feedback p{font-size:14px}.draft-note{max-width:200px}.status-footer{font-size:12px}.demo-note{display:none}.actionbar{gap:8px}.action-buttons{gap:8px}.action-buttons button{padding:8px 13px;min-width:0}.instructions{padding:20px}.instructions h2{font-size:22px}}
+@media(max-width:520px){.site-header{gap:12px;padding:0 12px;flex-wrap:wrap;height:auto;min-height:100px;align-content:center}.brand{width:calc(100% - 42px)}nav{order:3;width:100%;justify-content:space-between}.profile{position:absolute;right:12px;top:13px}.app{height:calc(100dvh - 100px);padding:8px 12px 0;min-height:665px}.breadcrumb{align-items:center}.lesson{font-size:12px}.mode-control{gap:4px}.mode-control label{display:none}select{font-size:12px;max-width:117px}.heading{margin:8px 0 14px}h1{font-size:25px}.context{gap:10px}.objective strong{font-size:14px}.requirements{font-size:12px;gap:8px 13px}.anchor-note{align-items:flex-start}.anchor-note p{max-width:250px}.badge{max-width:70px;white-space:normal;text-align:right}.pane-header{padding:0 12px}.pane-meta{font-size:12px}.editor-foot{padding:8px 12px}.actionbar{flex-wrap:wrap;padding:10px 0;gap:6px}.action-buttons{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr}.actionbar.boss .action-buttons{grid-template-columns:1fr 1fr}.draft-note{max-width:none;font-size:12px}.feedback-title{align-items:center}.example-control{max-width:none}.instructions{font-size:16px}.status-footer{padding:7px 0}.dialog-header{padding:15px 20px}.line-numbers{width:32px}.source{padding-right:12px}.editor-wrap{padding-top:14px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+@media(min-width:801px) and (max-width:1100px){.source,.line-numbers{font-size:14px}}
+@media(max-width:800px){.context,.anchor-note{display:none}.workbench{min-height:300px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#source">Skip to code</a>
+<header class="site-header"><a class="brand" href="#" data-navigation="CodeQuest"><span class="mark">&gt;_</span>CodeQuest</a><nav aria-label="Primary"><a href="#" data-navigation="Dashboard">Dashboard</a><a href="#" class="current" data-navigation="Learn">Learn</a><a href="?mode=boss" id="boss-link">Boss Challenges</a></nav><div class="profile">Example learner<span aria-label="Alex, example learner">A</span></div></header>
+<main class="app">
+<div class="breadcrumb"><a href="#lesson" class="lesson" id="lesson-link">← Back to lesson</a><div class="mode-control"><label for="mode">Workspace</label><select id="mode"><option value="practice">Practice</option><option value="boss">Boss challenge</option></select></div></div>
+<div class="heading"><div><p class="eyebrow">HTML foundations <span id="kind">/ Practice challenge</span></p><h1 id="title">Links that make sense</h1></div><button class="task-toggle" id="task-toggle">Open task &nbsp; +</button></div>
+<div class="context"><div class="objective"><strong id="objective">Connect your profile to your work.</strong><p>Create a profile with a clear introduction and a descriptive link to projects.</p></div><ol class="requirements" aria-label="Public requirements"><li><span class="req-num">01</span>Top-level heading</li><li><span class="req-num">02</span>Short introduction</li><li><span class="req-num">03</span>Descriptive portfolio link</li></ol></div>
+<div class="anchor-note"><p id="context-note">An <code>&lt;a&gt;</code> names the link. Its <code>href</code> sets the destination.</p><span class="badge" id="threshold">Ungraded preview</span></div>
+<div class="mobile-tabs" role="tablist" aria-label="Workspace panels"><button role="tab" id="tab-instructions" aria-controls="instructions" aria-selected="false" tabindex="-1" data-pane="instructions">Instructions</button><button role="tab" id="tab-code" aria-controls="code-panel" aria-selected="true" data-pane="code">Code</button><button role="tab" id="tab-output" aria-controls="output-panel" aria-selected="false" tabindex="-1" data-pane="output">Output</button></div>
+<div class="workbench" id="workbench">
+<section class="instructions" id="instructions" hidden aria-label="Task instructions"><h2 id="instruction-title">Connect your profile to your work.</h2><p>Create a profile with a clear introduction and a descriptive link to projects.</p><h3>Public requirements</h3><ol><li>Use a top-level heading for your name.</li><li>Write a short introduction about yourself.</li><li>Add a descriptive portfolio link with a destination.</li></ol><div id="practice-help"><h3>Link text and destination</h3><p>The anchor element, <code>&lt;a&gt;</code>, creates a link. The <code>href</code> attribute points to the page it opens. Use text that tells someone what they will find.</p><p><code>&lt;a href="projects.html"&gt;View my projects&lt;/a&gt;</code></p><div class="help-controls"><button id="hint">Hint · 5 XP</button><button id="solution">Solution · 30 XP</button></div><p class="help-text" id="help-text">Example help controls. No XP changes in this demo.</p><p class="cost">Practice failed submission penalty · 10 XP. No deduction occurs here.</p></div><p id="boss-instructions" hidden>Work independently. Passing threshold is 70%. A recorded submission is final. This draft only demonstrates the interaction and records no assessment.</p></section>
+<section class="code-panel" id="code-panel" aria-label="Code editor"><div class="pane-header"><label for="source">Code <span class="pane-meta">/ index.html</span></label><span class="pane-meta" id="source-state">Example source</span></div><div class="editor-wrap"><div class="line-numbers" id="line-numbers" aria-hidden="true"></div><textarea class="source" id="source" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="editor-description" wrap="off"></textarea></div><div class="editor-foot"><span id="editor-description">HTML · Tab moves to controls</span><span id="line-count">20 lines</span></div></section>
+<section class="output-panel" id="output-panel" aria-label="Preview and feedback"><div class="pane-header"><h2>Preview</h2><span class="pane-meta" id="preview-state">Example rendered</span></div><iframe id="preview" title="Your HTML preview, ungraded" sandbox="" referrerpolicy="no-referrer"></iframe><div class="feedback"><div class="feedback-title"><h2>Feedback</h2><button class="example-control" id="example-feedback">Show example feedback</button></div><p id="feedback-copy">Run your source to inspect the result. A preview does not check the requirements.</p><button class="recovery" id="recovery" hidden>Return to the link in code</button></div></section>
+</div>
+<div class="actionbar" id="actionbar"><div class="draft-note" id="draft-note">Example source. Drafts stay in this tab.</div><div class="action-buttons"><button id="save" data-action="save">Save draft</button><button class="run" id="run" data-action="run">Run</button><button class="submit" id="submit" data-action="submit">Submit</button></div></div>
+<footer class="status-footer"><p id="status" role="status" aria-live="polite" aria-atomic="true">Design demo. No progress or XP is recorded.</p><span class="demo-note">Guided build studio · standalone draft</span></footer>
+</main>
+<dialog class="drawer" id="task-dialog" aria-labelledby="task-dialog-title"><div class="dialog-header"><strong id="task-dialog-title">Challenge brief</strong><button id="close-task" aria-label="Close task instructions">Close</button></div></dialog>
+<dialog id="submit-dialog" aria-labelledby="submit-dialog-title"><div class="dialog-body"><h2 id="submit-dialog-title">Submit your Boss Challenge?</h2><p>In CodeQuest, a recorded assessment submission is final. Review your source before submitting.</p><p>This design demo sends nothing to a server. No assessment is recorded.</p><div class="dialog-actions"><button id="cancel-submit">Keep editing</button><button class="run" id="confirm-submit">Demonstrate submit</button></div></div></dialog>
+<script>
+const fixture = `<style>
+  body { margin: 0; padding: 24px;
+    font: 16px/1.5 Georgia, serif;
+    background: #f6f5f1; color: #242538; }
+  article { max-width: 420px; margin: auto; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 12px 0; }
+  a { color: #174b87; }
+</style>
+<article>
+  <p>Student developer · SEAIT</p>
+  <h1>Hello, I'm Alex.</h1>
+  <p>I build thoughtful things for the web.</p>
+  <a>Explore my projects</a>
+</article>`;
+const $ = id => document.getElementById(id);
+const source = $('source');
+const narrow = matchMedia('(max-width: 800px)');
+let isBoss = new URLSearchParams(location.search).get('mode') === 'boss';
+let activePane = 'code';
+let savedSource = null;
+let renderedSource = '';
+let submissionTimer;
+const sources = { practice: fixture, boss: '' };
+function announce(message) { $('status').textContent = message; }
+function updateLines() {
+  const count = source.value.split('\n').length;
+  $('line-count').textContent = `${count} ${count === 1 ? 'line' : 'lines'}`;
+  $('line-numbers').textContent = Array.from({length: count}, (_, i) => i + 1).join('\n');
+  $('line-numbers').scrollTop = source.scrollTop;
+}
+function layout() {
+  if ($('task-dialog').open) { $('task-dialog').close(); }
+  const instructions = $('instructions');
+  $('workbench').prepend(instructions);
+  instructions.hidden = !narrow.matches || activePane !== 'instructions';
+  $('code-panel').hidden = narrow.matches && activePane !== 'code';
+  $('output-panel').hidden = narrow.matches && activePane !== 'output';
+  document.querySelectorAll('[data-pane]').forEach(tab => {
+    const selected = tab.dataset.pane === activePane;
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  });
+}
+function showPane(pane) { activePane = pane; layout(); }
+function render() {
+  renderedSource = source.value;
+  $('preview').srcdoc = renderedSource;
+  $('preview-state').textContent = renderedSource.trim() ? 'Current · ungraded' : 'Blank · ungraded';
+}
+function applyMode() {
+  clearTimeout(submissionTimer);
+  $('submit').disabled = false;
+  $('submit').textContent = 'Submit';
+  $('mode').value = isBoss ? 'boss' : 'practice';
+  $('title').textContent = isBoss ? 'Build a student portfolio' : 'Links that make sense';
+  $('kind').textContent = isBoss ? '/ Boss Challenge' : '/ Practice challenge';
+  $('objective').textContent = isBoss ? 'Build your profile independently.' : 'Connect your profile to your work.';
+  $('instruction-title').textContent = isBoss ? 'Build a student portfolio' : 'Connect your profile to your work.';
+  $('context-note').textContent = isBoss ? 'Independent assessment. Review the public requirements before submitting.' : '';
+  if (!isBoss) { $('context-note').innerHTML = 'An <code>&lt;a&gt;</code> names the link. Its <code>href</code> sets the destination.'; }
+  $('threshold').textContent = isBoss ? '70% to pass' : 'Ungraded preview';
+  $('save').hidden = isBoss;
+  $('practice-help').hidden = isBoss;
+  $('boss-instructions').hidden = !isBoss;
+  $('example-feedback').hidden = isBoss;
+  $('recovery').hidden = true;
+  $('help-text').textContent = 'Example help controls. No XP changes in this demo.';
+  $('feedback-copy').textContent = 'Run your source to inspect the result. A preview does not check the requirements.';
+  source.value = sources[isBoss ? 'boss' : 'practice'];
+  savedSource = null;
+  $('source-state').textContent = isBoss ? (source.value ? 'Unsaved source' : 'Blank source') : 'Example source';
+  $('draft-note').textContent = isBoss ? 'No assessment is recorded in this demo.' : 'Example source. Drafts stay in this tab.';
+  $('actionbar').classList.toggle('boss', isBoss);
+  render(); updateLines(); showPane('code');
+  announce(isBoss ? 'Boss Challenge demo. No assessment is recorded.' : 'Design demo. No progress or XP is recorded.');
+}
+source.addEventListener('input', () => {
+  sources[isBoss ? 'boss' : 'practice'] = source.value;
+  $('source-state').textContent = source.value === savedSource ? 'Saved in memory' : 'Unsaved source';
+  $('preview-state').textContent = source.value === renderedSource ? 'Current · ungraded' : 'Stale · Run to update';
+  $('draft-note').textContent = isBoss ? 'Unsaved source. No assessment is recorded.' : 'Unsaved source. Save keeps a draft in memory.';
+  updateLines();
+});
+source.addEventListener('scroll', () => { $('line-numbers').scrollTop = source.scrollTop; });
+$('run').addEventListener('click', () => { render(); showPane('output'); announce('Preview updated from your exact source. Run is ungraded.'); });
+$('save').addEventListener('click', () => { savedSource = source.value; $('source-state').textContent = 'Saved in memory'; $('draft-note').textContent = 'Saved in memory only. Closing or refreshing loses it.'; announce('Draft saved in memory only. No server storage.'); });
+function demonstrateSubmission() {
+  const modeAtSubmission = isBoss;
+  $('submit').disabled = true; $('submit').textContent = 'Pending…';
+  $('feedback-copy').textContent = 'Example submission pending. This demo is not connected to a grader.';
+  showPane('output'); announce('Example submission pending. Nothing is sent to a server.');
+  submissionTimer = setTimeout(() => {
+    $('submit').disabled = false; $('submit').textContent = 'Submit';
+    $('feedback-copy').textContent = modeAtSubmission ? 'Demo submission finished. No assessment was recorded. A real result must come from the server.' : 'Demo submission finished. Your source was not graded. No progress or XP changed.';
+    announce(modeAtSubmission ? 'No assessment recorded. Demonstration finished.' : 'No grade, progress or XP recorded. Demonstration finished.');
+  }, 850);
+}
+$('submit').addEventListener('click', () => { if (isBoss) { $('submit-dialog').showModal(); } else { demonstrateSubmission(); } });
+$('cancel-submit').addEventListener('click', () => $('submit-dialog').close());
+$('confirm-submit').addEventListener('click', () => { $('submit-dialog').close(); demonstrateSubmission(); });
+$('example-feedback').addEventListener('click', () => {
+  $('feedback-copy').textContent = 'Example feedback, not a check of your source. The sample link has no destination. Add an href to tell the browser where to go.';
+  $('recovery').hidden = false;
+  announce('Example feedback shown. This is a sample message, not a grading result.');
+});
+$('recovery').addEventListener('click', () => {
+  showPane('code'); source.focus();
+  const start = source.value.indexOf('<a');
+  if (start >= 0) { source.setSelectionRange(start, source.value.indexOf('>', start) + 1); }
+});
+function openTask() {
+  if (narrow.matches) { showPane('instructions'); $('tab-instructions').focus(); return; }
+  $('instructions').hidden = false; $('task-dialog').append($('instructions')); $('task-dialog').showModal();
+}
+$('task-toggle').addEventListener('click', openTask);
+$('lesson-link').addEventListener('click', event => { event.preventDefault(); openTask(); announce('Lesson context shown in this standalone demo. No completion is recorded.'); });
+$('close-task').addEventListener('click', () => $('task-dialog').close());
+$('task-dialog').addEventListener('close', () => { $('workbench').prepend($('instructions')); $('instructions').hidden = !narrow.matches || activePane !== 'instructions'; });
+$('hint').addEventListener('click', () => { $('help-text').textContent = 'Example hint. Add an href attribute to the anchor with your projects page as its value. No XP charged.'; });
+$('solution').addEventListener('click', () => { $('help-text').textContent = 'Example solution: <a href="projects.html">View my projects</a>. No XP charged. Your source stays yours to edit.'; });
+$('mode').addEventListener('change', () => { sources[isBoss ? 'boss' : 'practice'] = source.value; isBoss = $('mode').value === 'boss'; applyMode(); });
+$('boss-link').addEventListener('click', event => { event.preventDefault(); sources[isBoss ? 'boss' : 'practice'] = source.value; isBoss = true; applyMode(); });
+document.querySelectorAll('[data-navigation]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); announce(`${link.dataset.navigation} navigation is outside this standalone workspace draft.`); }));
+const tabs = [...document.querySelectorAll('[data-pane]')];
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => showPane(tab.dataset.pane));
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { return; }
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    showPane(tabs[next].dataset.pane); tabs[next].focus();
+  });
+});
+narrow.addEventListener('change', layout);
+applyMode();
+</script>
+</body>
+</html>

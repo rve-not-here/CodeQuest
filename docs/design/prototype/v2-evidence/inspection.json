@@ -1,0 +1,1478 @@
+{
+  "browser": "Chrome for Testing 154.0.8037.92",
+  "screens": [
+    {
+      "file": "synthesis-dashboard-375-ready.png",
+      "screen": "dashboard",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-path-375-ready.png",
+      "screen": "path",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "A page, from the inside out.",
+      "buttons": [
+        {
+          "label": "Continue →",
+          "height": 44
+        },
+        {
+          "label": "View lesson",
+          "height": 44
+        },
+        {
+          "label": "Why locked?",
+          "height": 61
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-lesson-375-ready.png",
+      "screen": "lesson",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Links that make sense.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Check your understanding →",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-check-375-ready.png",
+      "screen": "check",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Check the idea before you build.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "1",
+          "height": 44
+        },
+        {
+          "label": "2",
+          "height": 44
+        },
+        {
+          "label": "3",
+          "height": 44
+        },
+        {
+          "label": "Submit answers",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-challenge-375-ready.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 360,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-boss-375-ready.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44
+        }
+      ],
+      "editor": 360,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-progress-375-ready.png",
+      "screen": "progress",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "See the evidence, not a guess.",
+      "buttons": [
+        {
+          "label": "Return to course route",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-dashboard-768-ready.png",
+      "screen": "dashboard",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-path-768-ready.png",
+      "screen": "path",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "A page, from the inside out.",
+      "buttons": [
+        {
+          "label": "Continue →",
+          "height": 44
+        },
+        {
+          "label": "View lesson",
+          "height": 44
+        },
+        {
+          "label": "Why locked?",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-lesson-768-ready.png",
+      "screen": "lesson",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "Links that make sense.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Check your understanding →",
+          "height": 61
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-check-768-ready.png",
+      "screen": "check",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "Check the idea before you build.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "1",
+          "height": 44
+        },
+        {
+          "label": "2",
+          "height": 44
+        },
+        {
+          "label": "3",
+          "height": 44
+        },
+        {
+          "label": "Submit answers",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-challenge-768-ready.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 753,
+      "viewport": 753
+    },
+    {
+      "file": "synthesis-boss-768-ready.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44
+        }
+      ],
+      "editor": 753,
+      "viewport": 753
+    },
+    {
+      "file": "synthesis-progress-768-ready.png",
+      "screen": "progress",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 768,
+      "scrollWidth": 753,
+      "title": "See the evidence, not a guess.",
+      "buttons": [
+        {
+          "label": "Return to course route",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-dashboard-1024-ready.png",
+      "screen": "dashboard",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-path-1024-ready.png",
+      "screen": "path",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "A page, from the inside out.",
+      "buttons": [
+        {
+          "label": "Continue →",
+          "height": 44
+        },
+        {
+          "label": "View lesson",
+          "height": 44
+        },
+        {
+          "label": "Why locked?",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-lesson-1024-ready.png",
+      "screen": "lesson",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "Links that make sense.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Check your understanding →",
+          "height": 61
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-check-1024-ready.png",
+      "screen": "check",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "Check the idea before you build.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "1",
+          "height": 44
+        },
+        {
+          "label": "2",
+          "height": 44
+        },
+        {
+          "label": "3",
+          "height": 44
+        },
+        {
+          "label": "Submit answers",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-challenge-1024-ready.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 1009,
+      "viewport": 1009
+    },
+    {
+      "file": "synthesis-boss-1024-ready.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44
+        }
+      ],
+      "editor": 1009,
+      "viewport": 1009
+    },
+    {
+      "file": "synthesis-progress-1024-ready.png",
+      "screen": "progress",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1024,
+      "scrollWidth": 1009,
+      "title": "See the evidence, not a guess.",
+      "buttons": [
+        {
+          "label": "Return to course route",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-dashboard-1440-ready.png",
+      "screen": "dashboard",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-path-1440-ready.png",
+      "screen": "path",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "A page, from the inside out.",
+      "buttons": [
+        {
+          "label": "Continue →",
+          "height": 44
+        },
+        {
+          "label": "View lesson",
+          "height": 44
+        },
+        {
+          "label": "Why locked?",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-lesson-1440-ready.png",
+      "screen": "lesson",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Links that make sense.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Check your understanding →",
+          "height": 61
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-check-1440-ready.png",
+      "screen": "check",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Check the idea before you build.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "1",
+          "height": 44
+        },
+        {
+          "label": "2",
+          "height": 44
+        },
+        {
+          "label": "3",
+          "height": 44
+        },
+        {
+          "label": "Submit answers",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-challenge-1440-ready.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Hide",
+          "height": 44
+        },
+        {
+          "label": "Review hint cost",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 1125,
+      "viewport": 1425
+    },
+    {
+      "file": "synthesis-boss-1440-ready.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Hide",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit assessment",
+          "height": 44
+        }
+      ],
+      "editor": 1125,
+      "viewport": 1425
+    },
+    {
+      "file": "synthesis-progress-1440-ready.png",
+      "screen": "progress",
+      "variant": "synthesis",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "See the evidence, not a guess.",
+      "buttons": [
+        {
+          "label": "Return to course route",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "developer-dashboard-1440-ready.png",
+      "screen": "dashboard",
+      "variant": "developer",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "developer-challenge-1440-ready.png",
+      "screen": "challenge",
+      "variant": "developer",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Hide",
+          "height": 44
+        },
+        {
+          "label": "Review hint cost",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 825,
+      "viewport": 1425
+    },
+    {
+      "file": "guided-dashboard-1440-ready.png",
+      "screen": "dashboard",
+      "variant": "guided",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "guided-challenge-1440-ready.png",
+      "screen": "challenge",
+      "variant": "guided",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Hide",
+          "height": 44
+        },
+        {
+          "label": "Review hint cost",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 712.5,
+      "viewport": 1425
+    },
+    {
+      "file": "academy-dashboard-1440-ready.png",
+      "screen": "dashboard",
+      "variant": "academy",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Make something today, Alex.",
+      "buttons": [
+        {
+          "label": "Continue learning →",
+          "height": 44
+        },
+        {
+          "label": "See the course route",
+          "height": 44
+        },
+        {
+          "label": "Review your learning evidence",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "academy-challenge-1440-ready.png",
+      "screen": "challenge",
+      "variant": "academy",
+      "state": "ready",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Hide",
+          "height": 44
+        },
+        {
+          "label": "Review hint cost",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 1065,
+      "viewport": 1425
+    },
+    {
+      "file": "synthesis-challenge-375-failed.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "failed",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Return to Code",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Submit challenge",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-challenge-375-completed.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "completed",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Continue to course route →",
+          "height": 44
+        },
+        {
+          "label": "Review code",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Continue →",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-challenge-375-network.png",
+      "screen": "challenge",
+      "variant": "synthesis",
+      "state": "network",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build a profile card.",
+      "buttons": [
+        {
+          "label": "← Lesson",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Check status",
+          "height": 44
+        },
+        {
+          "label": "Help",
+          "height": 44
+        },
+        {
+          "label": "Save draft",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Check status",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-boss-375-failed.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "failed",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Review recorded code",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Retry assessment",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-boss-375-completed.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "completed",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Continue to course route →",
+          "height": 44
+        },
+        {
+          "label": "Review code",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Retry assessment",
+          "height": 44
+        },
+        {
+          "label": "Continue →",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-boss-375-network.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "network",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Task",
+          "height": 44
+        },
+        {
+          "label": "Code",
+          "height": 44
+        },
+        {
+          "label": "Output",
+          "height": 44
+        },
+        {
+          "label": "Feedback",
+          "height": 44
+        },
+        {
+          "label": "Preview",
+          "height": 44
+        },
+        {
+          "label": "Check status",
+          "height": 44
+        },
+        {
+          "label": "Run preview",
+          "height": 44
+        },
+        {
+          "label": "Check status",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 360
+    },
+    {
+      "file": "synthesis-boss-1440-entry.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "entry",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "Begin assessment",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    },
+    {
+      "file": "synthesis-boss-375-locked.png",
+      "screen": "boss",
+      "variant": "synthesis",
+      "state": "locked",
+      "width": 375,
+      "scrollWidth": 360,
+      "title": "Build your portfolio.",
+      "buttons": [
+        {
+          "label": "← Course route",
+          "height": 44
+        },
+        {
+          "label": "View remaining practice",
+          "height": 44
+        }
+      ],
+      "editor": 0,
+      "viewport": 0
+    }
+  ],
+  "interactions": [
+    {
+      "check": "Mounted editor survives pane switching",
+      "pass": true
+    },
+    {
+      "check": "Run displays exact source inside sandbox",
+      "pass": true
+    },
+    {
+      "check": "Editing marks preview stale",
+      "pass": true
+    },
+    {
+      "check": "Save confirmation is explicitly demo-only",
+      "pass": true
+    },
+    {
+      "check": "Terminal Boss source read-only and no Save/Help",
+      "pass": true
+    },
+    {
+      "check": "Boss retry starts blank",
+      "pass": true
+    },
+    {
+      "check": "Unanswered question receives focus",
+      "pass": true
+    },
+    {
+      "check": "Answered count updates",
+      "pass": true
+    },
+    {
+      "check": "Pane tabs support arrow navigation",
+      "pass": true
+    },
+    {
+      "check": "Reduced motion removes transitions",
+      "pass": true
+    },
+    {
+      "check": "Effective 720px reflow",
+      "pass": true
+    },
+    {
+      "check": "Visible keyboard focus outline",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

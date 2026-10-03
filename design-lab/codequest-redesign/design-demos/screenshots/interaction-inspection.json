@@ -1,0 +1,225 @@
+{
+  "checks": [
+    {
+      "file": "typographic-workbench",
+      "name": "Pane switches retain edited source",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Run uses exact source in script-free sandbox",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Edits mark output stale",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Draft acknowledges memory only",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Example recovery returns keyboard focus to source",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Pending submit is disabled",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Demo makes no academic claim",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Mobile tabs support arrow-key focus",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Boss blank and restricted at 1440px",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Boss blank and restricted at 1024px",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Boss blank and restricted at 768px",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Boss blank and restricted at 375px",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Boss submission requires native confirmation",
+      "pass": true
+    },
+    {
+      "file": "typographic-workbench",
+      "name": "Boss demo records no assessment",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Pane switches retain edited source",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Run uses exact source in script-free sandbox",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Edits mark output stale",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Draft acknowledges memory only",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Example recovery returns keyboard focus to source",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Pending submit is disabled",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Demo makes no academic claim",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Mobile tabs support arrow-key focus",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Boss blank and restricted at 1440px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Boss blank and restricted at 1024px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Boss blank and restricted at 768px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Boss blank and restricted at 375px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Boss submission requires native confirmation",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab",
+      "name": "Boss demo records no assessment",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Pane switches retain edited source",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Run uses exact source in script-free sandbox",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Edits mark output stale",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Draft acknowledges memory only",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Example recovery returns keyboard focus to source",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Pending submit is disabled",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Demo makes no academic claim",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Mobile tabs support arrow-key focus",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Boss blank and restricted at 1440px",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Boss blank and restricted at 1024px",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Boss blank and restricted at 768px",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Boss blank and restricted at 375px",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Boss submission requires native confirmation",
+      "pass": true
+    },
+    {
+      "file": "guided-build-studio",
+      "name": "Boss demo records no assessment",
+      "pass": true
+    },
+    {
+      "file": "gallery",
+      "name": "Live gallery images load",
+      "pass": true
+    },
+    {
+      "file": "gallery",
+      "name": "Live gallery has no overflow",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

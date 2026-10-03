@@ -1,0 +1,141 @@
+{
+  "method": "Opaque sRGB token pairs; not exhaustive composited accessibility certification",
+  "pairs": [
+    {
+      "pair": "body/canvas",
+      "foreground": "#242538",
+      "background": "#fafafd",
+      "ratio": 14.43,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "support/canvas",
+      "foreground": "#62657b",
+      "background": "#fafafd",
+      "ratio": 5.5,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "support/tint",
+      "foreground": "#62657b",
+      "background": "#eeebfa",
+      "ratio": 4.88,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "primary button",
+      "foreground": "#ffffff",
+      "background": "#6044c5",
+      "ratio": 6.71,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "control edge/white",
+      "foreground": "#87899d",
+      "background": "#ffffff",
+      "ratio": 3.45,
+      "minimum": 3,
+      "pass": true
+    },
+    {
+      "pair": "success",
+      "foreground": "#216a4c",
+      "background": "#fafafd",
+      "ratio": 6.24,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "warning",
+      "foreground": "#825311",
+      "background": "#ffffff",
+      "ratio": 6.57,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "failure",
+      "foreground": "#b12f42",
+      "background": "#ffffff",
+      "ratio": 6.26,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "code text",
+      "foreground": "#e6e7f2",
+      "background": "#20222e",
+      "ratio": 12.84,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "code support",
+      "foreground": "#afb3c8",
+      "background": "#292c3a",
+      "ratio": 6.67,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#a6abc2",
+      "background": "#303347",
+      "ratio": 5.46,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#c8b3f2",
+      "background": "#303347",
+      "ratio": 6.62,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#e8c787",
+      "background": "#303347",
+      "ratio": 7.66,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#b6c9ef",
+      "background": "#303347",
+      "ratio": 7.45,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#b8d99b",
+      "background": "#303347",
+      "ratio": 7.95,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#edba91",
+      "background": "#303347",
+      "ratio": 7.12,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "syntax on active line",
+      "foreground": "#e6e7f2",
+      "background": "#303347",
+      "ratio": 10.1,
+      "minimum": 4.5,
+      "pass": true
+    }
+  ]
+}

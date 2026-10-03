@@ -1,0 +1,5 @@
+# Existing assets and constraints
+
+CodeQuest identity is repository-owned. Use its actual text wordmark and >_ terminal mark from resources/views/components/student-header.blade.php:13–15. The legacy 404 mark in resources/views/layouts/app.blade.php is not the active student-header mark. No new logo is invented. Existing UI screenshots are under ../screenshots/current/ and ../screenshots/freecodecamp-workspace/. No photography is required for this tool. No third-party product names or logos appear inside the student interface.
+
+The current production token source is resources/css/app.css. Its terminal greens remain historical identity evidence; the user has explicitly requested a new color scheme. Recent prototype palette evidence is ../style.css. Colors may be adapted for extended reading and coding, with contrast measured after rendering. Source and code use a monospace stack. Since no local font binaries are installed in the prototype, standalone files must use honest local fallback fonts instead of claiming a downloaded font is present.

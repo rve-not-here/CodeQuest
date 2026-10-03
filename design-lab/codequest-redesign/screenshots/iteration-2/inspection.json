@@ -1,0 +1,81 @@
+{
+  "report": [
+    {
+      "concept": "final",
+      "screen": "dashboard",
+      "width": 1440,
+      "title": "dashboard · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nWelcome back, Alex.\n\nPick",
+      "overflow": false,
+      "viewport": 1440
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 1440,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 1140,
+      "viewport": 1440
+    },
+    {
+      "concept": "final",
+      "screen": "dashboard",
+      "width": 1024,
+      "title": "dashboard · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nWelcome back, Alex.\n\nPick",
+      "overflow": false,
+      "viewport": 1024
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 1024,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 1024,
+      "viewport": 1024
+    },
+    {
+      "concept": "final",
+      "screen": "dashboard",
+      "width": 768,
+      "title": "dashboard · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nWelcome back, Alex.\n\nPick",
+      "overflow": false,
+      "viewport": 768
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 768,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nAlex\nLesson\nLinks that make se",
+      "overflow": false,
+      "editor": 768,
+      "viewport": 768
+    },
+    {
+      "concept": "final",
+      "screen": "dashboard",
+      "width": 375,
+      "title": "dashboard · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nWelcome back, Alex.\n\nPick up y",
+      "overflow": false,
+      "viewport": 375
+    },
+    {
+      "concept": "final",
+      "screen": "challenge",
+      "width": 375,
+      "title": "challenge · Selected · Build & learn · CodeQuest design lab",
+      "text": "Skip to content\nCodeQuest\n.\nDashboard\nLearn\nBoss Challenges\n450 XP\nAM\nLesson\nLinks that make sense\nH",
+      "overflow": false,
+      "editor": 360,
+      "viewport": 375
+    }
+  ],
+  "errors": []
+}

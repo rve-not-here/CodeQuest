@@ -1,0 +1,100 @@
+{
+  "checks": [
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Focus mode hides side panes without losing source",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Run restores a collapsed output pane",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Pane controls restore workspace",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Pane switches retain edited source",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Run uses exact source in script-free sandbox",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Edits mark output stale",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Draft acknowledges memory only",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Example recovery returns keyboard focus to source",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Pending submit is disabled",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Demo makes no academic claim",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Mobile tabs support arrow-key focus",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Boss blank and restricted at 1440px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Boss blank and restricted at 1024px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Boss blank and restricted at 768px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Boss blank and restricted at 375px",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Boss submission requires native confirmation",
+      "pass": true
+    },
+    {
+      "file": "classic-learning-lab-v2",
+      "name": "Boss demo records no assessment",
+      "pass": true
+    },
+    {
+      "file": "gallery",
+      "name": "Live gallery images load",
+      "pass": true
+    },
+    {
+      "file": "gallery",
+      "name": "Live gallery has no overflow",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,108 @@
+{
+  "checks": [
+    {
+      "name": "Pane switching preserves editor source",
+      "pass": true
+    },
+    {
+      "name": "Run uses exact current source in isolated sandbox",
+      "pass": true
+    },
+    {
+      "name": "Editing marks previous preview stale",
+      "pass": true
+    },
+    {
+      "name": "Save reports only in-memory demo persistence",
+      "pass": true
+    },
+    {
+      "name": "Feedback shown beside work with source recovery",
+      "pass": true
+    },
+    {
+      "name": "Feedback recovery focuses editor",
+      "pass": true
+    },
+    {
+      "name": "Collapsing instructions gives editor more space",
+      "pass": true
+    },
+    {
+      "name": "Keyboard-accessible range resizes task pane",
+      "pass": true
+    },
+    {
+      "name": "Practice completion promotes Continue",
+      "pass": true
+    },
+    {
+      "name": "Ambiguous response preserves source and uses Check status",
+      "pass": true
+    },
+    {
+      "name": "Boss has no hint or draft controls",
+      "pass": true
+    },
+    {
+      "name": "Boss submission requires confirmation",
+      "pass": true
+    },
+    {
+      "name": "Recorded Boss code is read-only",
+      "pass": true
+    },
+    {
+      "name": "Boss retry starts blank",
+      "pass": true
+    },
+    {
+      "name": "Missing question receives focus",
+      "pass": true
+    },
+    {
+      "name": "Answered count updates accessibly",
+      "pass": true
+    },
+    {
+      "name": "Submitted check places explanations near questions",
+      "pass": true
+    },
+    {
+      "name": "Workspace tabs support arrow-key selection",
+      "pass": true
+    },
+    {
+      "name": "Reduced motion disables transitions",
+      "pass": true
+    },
+    {
+      "name": "Effective narrow-width reflow",
+      "pass": true
+    },
+    {
+      "name": "Keyboard focus has visible outline",
+      "pass": true
+    }
+  ],
+  "shots": [
+    "practice-preview-375",
+    "practice-partial-375",
+    "practice-preview-1440",
+    "practice-partial-1440",
+    "practice-completed-1440",
+    "practice-network-375",
+    "boss-entry-1440",
+    "boss-locked-1440",
+    "boss-entry-1024",
+    "boss-locked-1024",
+    "boss-entry-768",
+    "boss-locked-768",
+    "boss-entry-375",
+    "boss-locked-375",
+    "boss-failed-375",
+    "boss-passed-1440",
+    "check-submitted-375"
+  ],
+  "errors": []
+}
