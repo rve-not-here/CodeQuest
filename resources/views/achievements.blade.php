@@ -8,7 +8,7 @@
             <div>
                 <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Achievements</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Milestones you have earned through missions and Boss Challenges.</p>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Milestones you have earned through challenges and Boss Challenges.</p>
             </div>
             <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
         </header>

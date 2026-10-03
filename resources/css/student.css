@@ -42,7 +42,7 @@ body.student-ui .student-account[open] > summary {
 }
 
 /* The coding workspace uses the whole viewport below the student navigation. */
-@media (min-width: 1101px) {
+@media (min-width: 0px) {
     body.student-ui:has(.challenge-workspace) {
         height: 100dvh;
         overflow: hidden;
@@ -175,7 +175,7 @@ body.student-ui .student-toast-close:focus-visible {
 
 body.student-ui .challenge-workspace {
     flex: 1 1 auto;
-    grid-template-columns: minmax(15rem, 24%) minmax(0, 44%) minmax(16rem, 32%);
+    grid-template-columns: minmax(0, 1fr);
     height: auto;
     min-height: 0;
 }
@@ -319,9 +319,6 @@ body.student-ui .completion-results dt {
         border: 1px solid var(--color-line);
     }
 
-    body.student-ui .challenge-pane:nth-child(2) {
-        min-height: 34rem;
-    }
 
     body.student-ui .challenge-pane-body.is-frame {
         min-height: 22rem;
@@ -340,11 +337,6 @@ body.student-ui .completion-results dt {
         justify-content: flex-start;
     }
 
-    body.student-ui .challenge-toolbar,
-    body.student-ui .challenge-toolbar form,
-    body.student-ui .challenge-toolbar .btn {
-        width: 100%;
-    }
 }
 
 body.student-ui #editor-host .cm-editor {
@@ -356,3 +348,51 @@ body.student-ui #editor-host .cm-focused {
     outline: 2px solid var(--color-accent);
     outline-offset: -2px;
 }
+
+/* Keep actions outside the scrolling panes at every viewport width. */
+body.student-ui .challenge-workspace[data-workspace] {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    grid-template-columns: var(--brief-width, 25%) var(--brief-handle, 8px) minmax(0, 1fr) var(--preview-handle, 0px) var(--preview-width, 0px);
+}
+body.student-ui .challenge-pane { min-height: 0; overflow: hidden; }
+body.student-ui .challenge-pane-body { min-height: 0; overflow: auto; }
+body.student-ui .challenge-pane-editor .cm-editor { height: 100%; min-height: 0; }
+body.student-ui .workspace-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-line);
+    padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+}
+body.student-ui .workspace-actions form,
+body.student-ui .workspace-actions .btn { width: auto; }
+body.student-ui [data-workspace-controls] { flex: none; background: var(--color-surface); }
+body.student-ui [data-pane-toggle][aria-selected="true"] { border-color: var(--color-accent); color: var(--color-accent); background: var(--color-accent-soft); }
+body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+@media (max-width: 1100px) {
+    body.student-ui .challenge-workspace[data-workspace] { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; }
+    body.student-ui .challenge-pane,
+    body.student-ui .challenge-pane:first-child { border: 0; border-top: 1px solid var(--color-line); }
+    body.student-ui .challenge-pane-body.is-frame { min-height: 0; }
+    body.student-ui [data-workspace-pane] { grid-column: 1; }
+    body.student-ui [data-workspace-reset] { margin-left: auto; }
+}
+@media (max-width: 640px) {
+    body.student-ui .workspace-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+    body.student-ui .workspace-actions form,
+    body.student-ui .workspace-actions .btn { width: 100%; }
+    body.student-ui .workspace-actions #run { grid-column: 1; grid-row: 2; margin-left: 0; }
+    body.student-ui .workspace-actions .workspace-submit { grid-column: 2; grid-row: 2; }
+    body.student-ui .workspace-actions .btn { min-height: 2.75rem; font-size: 0.75rem; padding-inline: 0.65rem; }
+    body.student-ui .challenge-context-bar { min-height: 0; }
+    body.student-ui .challenge-context-meta { width: auto; margin-left: auto; }
+}
+body.student-ui { --color-ink: var(--color-fg); --color-phosphor-dim: var(--color-fg-muted); --color-surface-alt: var(--color-raised); --color-static: var(--color-fg-muted); --color-phosphor: var(--color-accent); --color-amber: var(--color-warning); --color-alert: var(--color-danger); --color-cyan: var(--color-info); }
+body.student-ui .terminal-kicker { font-family: var(--font-mono); }

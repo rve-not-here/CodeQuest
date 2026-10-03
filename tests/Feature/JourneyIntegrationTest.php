@@ -144,7 +144,7 @@ class JourneyIntegrationTest extends TestCase
 
         $this->get(route('mission.show', $alphaMissions[0]))
             ->assertOk()
-            ->assertSee('MISSION COMPLETE');
+            ->assertSee('CHALLENGE COMPLETE');
 
         // DASHBOARD #2: after the first mission the resume has advanced to the
         // next unfinished mission (not a course-level resume), and the XP total

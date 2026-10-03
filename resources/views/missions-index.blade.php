@@ -1,13 +1,13 @@
 @extends('layouts.app', ['role' => $role, 'studentPrototype' => true])
 
-@section('title', 'Missions')
+@section('title', 'Challenges')
 
 @section('content')
     <header class="grid grid-cols-1 gap-6 border-b border-line pb-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
         <div>
-            <p class="eyebrow">Learn / Missions</p>
-            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Missions</h1>
-            <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Practice concepts and track your coding missions across courses.</p>
+            <p class="eyebrow">Learn / Challenges</p>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Challenges</h1>
+            <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Practice concepts and track your coding challenges across courses.</p>
         </div>
         <div class="lg:text-right">
             <p class="eyebrow">Your learning record</p>
@@ -17,14 +17,14 @@
     </header>
 
     @if ($errors->any())
-        <x-status-message type="error" title="Invalid mission filters" class="mt-5">{{ $errors->first() }}</x-status-message>
+        <x-status-message type="error" title="Invalid challenge filters" class="mt-5">{{ $errors->first() }}</x-status-message>
     @endif
 
     <form method="GET" action="{{ route('missions') }}" class="panel mt-5 p-4" role="search">
         <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
-                <label for="mission-search" class="eyebrow">Search missions</label>
-                <input id="mission-search" name="q" type="search" maxlength="200" value="{{ $filters['q'] }}" class="field mt-1.5 w-full" placeholder="Mission or course" autocomplete="off">
+                <label for="mission-search" class="eyebrow">Search challenges</label>
+                <input id="mission-search" name="q" type="search" maxlength="200" value="{{ $filters['q'] }}" class="field mt-1.5 w-full" placeholder="Challenge or course" autocomplete="off">
             </div>
             <div>
                 <label for="mission-course" class="eyebrow">Course</label>
@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="mt-4 flex flex-wrap items-center gap-2">
-            <button type="submit" class="btn btn-primary btn-sm">Filter missions</button>
+            <button type="submit" class="btn btn-primary btn-sm">Filter challenges</button>
             @if ($filters['q'] !== '' || $filters['status'] !== null || $filters['course'] !== null)
                 <a href="{{ route('missions') }}" class="btn btn-ghost btn-sm">Clear filters</a>
             @endif
@@ -56,7 +56,7 @@
     @if ($rows->isEmpty())
         <section class="panel mt-5 px-6 py-10 text-center" aria-labelledby="empty-missions-title">
             <h2 id="empty-missions-title" class="text-[15px] font-medium">NO CHALLENGES</h2>
-            <p class="mt-2 text-sm text-fg-muted">No missions match the current filters.</p>
+            <p class="mt-2 text-sm text-fg-muted">No challenges match the current filters.</p>
             @if ($filters['q'] !== '' || $filters['status'] !== null || $filters['course'] !== null)
                 <a href="{{ route('missions') }}" class="btn btn-secondary btn-sm mt-4">Clear filters</a>
             @endif
@@ -91,7 +91,7 @@
                                         <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-muted" aria-hidden="true">{{ $courseAccessible ? '○' : '×' }}</span>
                                         <div class="min-w-0 flex-1">
                                             <p class="eyebrow">Section {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
-                                            <h3 id="mission-section-{{ $sectionId }}-title" class="text-[15px] font-medium">{{ $listedSection?->title ?? 'Additional missions' }}</h3>
+                                            <h3 id="mission-section-{{ $sectionId }}-title" class="text-[15px] font-medium">{{ $listedSection?->title ?? 'Additional challenges' }}</h3>
                                         </div>
                                         <span class="font-mono text-xs text-fg-subtle">{{ $sectionRows->count() }} shown</span>
                                     </div>
@@ -120,7 +120,7 @@
                                                 @else
                                                     <div class="mission-body" aria-label="{{ $mission->title }}, locked">
                                                         <span class="mission-id">{{ $mission->order_num }}</span>
-                                                        <span class="mission-text"><span class="mission-title">{{ $mission->title }}</span><span class="mission-desc">{{ $listedCourse->status !== 'active' ? 'Course access is sealed. Return when Command restores this course.' : 'Complete earlier courses to unlock this mission.' }}</span></span>
+                                                        <span class="mission-text"><span class="mission-title">{{ $mission->title }}</span><span class="mission-desc">{{ $listedCourse->status !== 'active' ? 'Course access is sealed. Return when Command restores this course.' : 'Complete earlier courses to unlock this challenge.' }}</span></span>
                                                         <span class="mission-foot"><span class="mission-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span><span class="mission-action"><span class="badge badge-locked">LOCKED</span></span></span>
                                                     </div>
                                                 @endif
@@ -133,7 +133,7 @@
                     </section>
                 @endforeach
             </div>
-            <aside class="hidden lg:block" aria-label="Mission overview">
+            <aside class="hidden lg:block" aria-label="Challenge overview">
                 <nav class="sticky top-20" aria-labelledby="mission-overview-heading">
                     <h2 id="mission-overview-heading" class="eyebrow mb-2">Courses</h2>
                     <ul class="border-l border-line text-sm">

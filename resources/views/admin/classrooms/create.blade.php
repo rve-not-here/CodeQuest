@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="New Classroom"
-        subtitle="Create the classroom row first; teachers, enrolled students, and assigned courses are added afterwards as separate, explicit membership operations."
+        subtitle="Create a classroom, then assign teachers, students, and courses."
         icon="▣"
     >
         <x-slot:actions>

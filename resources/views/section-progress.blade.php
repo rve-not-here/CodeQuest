@@ -8,7 +8,7 @@
             <div>
                 <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Section Progress</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Track mission completion within each course section.</p>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Track challenge completion within each course section.</p>
             </div>
             <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
         </header>
@@ -31,7 +31,7 @@
                                 <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
                                 <h2 id="course-{{ $course->id }}-sections" class="mt-1 text-lg font-semibold">{{ $course->name }}</h2>
                             </div>
-                            <span class="font-mono text-xs text-fg-subtle">{{ $courseProgress['completed'] }}/{{ $courseProgress['total'] }} missions complete</span>
+                            <span class="font-mono text-xs text-fg-subtle">{{ $courseProgress['completed'] }}/{{ $courseProgress['total'] }} challenges complete</span>
                         </div>
                         @if ($courseRow['sections']->isEmpty())
                             <div class="panel px-5 py-6 text-sm text-fg-muted">No sections have been added to this course.</div>
@@ -46,17 +46,17 @@
                                     <li class="panel min-w-0 px-5 py-4 md:px-6" data-section-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
                                         <div class="flex flex-wrap items-start justify-between gap-3">
                                             <div class="min-w-0">
-                                                <p class="eyebrow">{{ $section !== null ? 'Section '.str_pad((string) $section->order_num, 2, '0', STR_PAD_LEFT) : 'Course missions' }}</p>
-                                                <h3 class="mt-1 text-[15px] font-semibold text-balance">{{ $section?->title ?? 'Additional missions' }}</h3>
+                                                <p class="eyebrow">{{ $section !== null ? 'Section '.str_pad((string) $section->order_num, 2, '0', STR_PAD_LEFT) : 'Course challenges' }}</p>
+                                                <h3 class="mt-1 text-[15px] font-semibold text-balance">{{ $section?->title ?? 'Additional challenges' }}</h3>
                                             </div>
                                             <span class="badge {{ $state === 'DONE' ? 'badge-accent' : ($state === 'IN PROGRESS' ? 'badge-warning' : 'badge-neutral') }}">{{ $state }}</span>
                                         </div>
                                         <div class="mt-4 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                                            <span class="font-mono text-fg">{{ $sectionProgress['completed'] }}/{{ $sectionProgress['total'] }} missions complete</span>
+                                            <span class="font-mono text-fg">{{ $sectionProgress['completed'] }}/{{ $sectionProgress['total'] }} challenges complete</span>
                                             <span class="font-mono text-fg-muted">{{ $sectionProgress['percent'] }}%</span>
                                         </div>
                                         @if ($sectionProgress['total'] > 0)
-                                            <div class="progress mt-2" role="progressbar" aria-label="{{ $section?->title ?? 'Additional missions' }} mission progress" aria-valuemin="0" aria-valuemax="{{ $sectionProgress['total'] }}" aria-valuenow="{{ $sectionProgress['completed'] }}" aria-valuetext="{{ $sectionProgress['completed'] }} of {{ $sectionProgress['total'] }} missions complete">
+                                            <div class="progress mt-2" role="progressbar" aria-label="{{ $section?->title ?? 'Additional challenges' }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $sectionProgress['total'] }}" aria-valuenow="{{ $sectionProgress['completed'] }}" aria-valuetext="{{ $sectionProgress['completed'] }} of {{ $sectionProgress['total'] }} challenges complete">
                                                 <span style="width: {{ $sectionProgress['percent'] }}%"></span>
                                             </div>
                                         @endif

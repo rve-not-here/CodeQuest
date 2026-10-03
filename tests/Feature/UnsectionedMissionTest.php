@@ -27,14 +27,14 @@ class UnsectionedMissionTest extends TestCase
         Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $sectioned->id]);
 
         $this->actingAs($student)->get(route('missions'))->assertSee('Required unsectioned challenge')->assertSee(route('mission.show', $unsectioned));
-        $this->get(route('learning-path'))->assertSee('Additional missions')->assertSee('Required unsectioned challenge')->assertSee(route('mission.show', $unsectioned));
-        $this->get(route('section-progress'))->assertSee('Additional missions')->assertSee('0/1 missions complete');
+        $this->get(route('learning-path'))->assertSee('Additional challenges')->assertSee('Required unsectioned challenge')->assertSee(route('mission.show', $unsectioned));
+        $this->get(route('section-progress'))->assertSee('Additional challenges')->assertSee('0/1 challenges complete');
         $this->get(route('dashboard'))->assertSee('Required unsectioned challenge');
         $this->assertFalse(app(AssessmentService::class)->isUnlocked($student, $course));
 
         Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $unsectioned->id]);
         $this->assertTrue(app(AssessmentService::class)->isUnlocked($student, $course));
-        $this->get(route('section-progress'))->assertSee('Additional missions')->assertSee('1/1 missions complete');
+        $this->get(route('section-progress'))->assertSee('Additional challenges')->assertSee('1/1 challenges complete');
         $this->assertDatabaseCount('the404_sections', 1);
         $this->assertNull($unsectioned->fresh()->section_id);
         $this->actingAs(User::factory()->create(['role' => 'admin']))

@@ -100,7 +100,7 @@ class XpService
      * @var array<string, string>
      */
     private const TYPE_LABELS = [
-        self::TYPE_MISSION_COMPLETED => 'Mission completions',
+        self::TYPE_MISSION_COMPLETED => 'Challenge completions',
         self::TYPE_ASSESSMENT_COMPLETED => 'Boss Challenge passes',
         self::TYPE_HINT_USED => 'Hints purchased',
         self::TYPE_SOLUTION_REVEALED => 'Solutions revealed',
@@ -130,7 +130,7 @@ class XpService
             }
 
             $this->record($user, $mission, null, $mission->points, self::TYPE_MISSION_COMPLETED,
-                'Mission completed: '.$mission->title);
+                'Challenge completed: '.$mission->title);
         });
     }
 
@@ -172,7 +172,7 @@ class XpService
     {
         DB::transaction(function () use ($user, $mission): void {
             $this->spendFrom($user, $mission, self::WRONG_SUBMISSION_COST, self::TYPE_WRONG_SUBMISSION,
-                'Wrong submission on mission: '.$mission->title);
+                'Wrong submission on challenge: '.$mission->title);
         });
     }
 
@@ -196,7 +196,7 @@ class XpService
             }
 
             $this->spendFrom($user, $mission, $cost, self::TYPE_HINT_USED,
-                'Hint '.$hintNumber.' on mission: '.$mission->title);
+                'Hint '.$hintNumber.' on challenge: '.$mission->title);
 
             return true;
         }, attempts: 3);
@@ -220,7 +220,7 @@ class XpService
             }
 
             $this->spendFrom($user, $mission, self::REVEAL_COST, self::TYPE_SOLUTION_REVEALED,
-                'Solution reveal on mission: '.$mission->title);
+                'Solution reveal on challenge: '.$mission->title);
 
             return true;
         }, attempts: 3);

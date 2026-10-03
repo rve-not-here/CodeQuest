@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Edit Mission"
-        subtitle="{{ $course->name }} → {{ $mission->title }} — mission fields. Missions carry no status; the access gate sits on course.status. Solution code and validation rules are view-only in this story."
+        subtitle="{{ $course->name }} · {{ $mission->title }}"
         icon="⚑"
     >
         <x-slot:actions>

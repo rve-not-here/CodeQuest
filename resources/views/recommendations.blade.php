@@ -8,7 +8,7 @@
             <div>
                 <p class="eyebrow">Next steps</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">What to work on next</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Suggestions based on your current mission, completed work, and Boss Challenge results.</p>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Suggestions based on your current challenge, completed work, and Boss Challenge results.</p>
             </div>
             <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
         </header>

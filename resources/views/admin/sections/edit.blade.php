@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Edit Section"
-        subtitle="{{ $course->name }} → {{ $section->title }} — section fields. Sections carry no status; the access gate sits on course.status and never changes by editing a section row."
+        subtitle="{{ $course->name }} · {{ $section->title }}"
         icon="▦"
     >
         <x-slot:actions>

@@ -26,7 +26,7 @@ class MissionIndexUiTest extends TestCase
         $response->assertSee('First step')
             ->assertSee('Later step')
             ->assertSee('You are here')
-            ->assertSee('Complete earlier courses to unlock this mission.')
+            ->assertSee('Complete earlier courses to unlock this challenge.')
             ->assertSee('href="'.route('mission.show', $firstMission).'"', false)
             ->assertDontSee('href="'.route('mission.show', $laterMission).'"', false);
 

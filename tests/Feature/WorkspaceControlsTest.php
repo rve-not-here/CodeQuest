@@ -23,7 +23,9 @@ class WorkspaceControlsTest extends TestCase
             ->assertSee('aria-label="Resize preview pane"', false)
             ->assertSee('role="separator" tabindex="0"', false)
             ->assertSee('data-pane-toggle="editor"', false)
-            ->assertSee('RESET PANES');
+            ->assertSee('Reset panes')
+            ->assertSee('aria-label="Challenge actions"', false)
+            ->assertSee('Task')->assertSee('Code')->assertSee('Output');
         $this->assertSame('<h1>Saved draft</h1>', $draft->fresh()->code);
         $this->assertDatabaseCount('the404_xp_transactions', 0);
     }

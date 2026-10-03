@@ -69,7 +69,7 @@ class MissionService
             if ($result['unavailable']) {
                 $this->activity->record($user, [
                     'type' => 'grading_unavailable',
-                    'message' => 'Behavioral grading unavailable on mission: '.$mission->title,
+                    'message' => 'Behavioral grading unavailable on challenge: '.$mission->title,
                 ]);
 
                 return [
@@ -84,7 +84,7 @@ class MissionService
             $this->xp->deductWrongSubmission($user, $mission);
             $this->activity->record($user, [
                 'type' => 'wrong_submission',
-                'message' => 'Wrong submission on mission: '.$mission->title,
+                'message' => 'Wrong submission on challenge: '.$mission->title,
             ]);
 
             return [
@@ -127,8 +127,8 @@ class MissionService
         $this->notifications->create(
             $user,
             NotificationService::TYPE_MISSION_COMPLETED,
-            'MISSION COMPLETED',
-            "Mission completed: {$mission->title}",
+            'CHALLENGE COMPLETED',
+            "Challenge completed: {$mission->title}",
             "mission_completed:{$mission->id}",
             NotificationService::payload('mission.show', ['mission' => $mission->id]),
         );
@@ -152,7 +152,7 @@ class MissionService
 
         $this->activity->record($user, [
             'type' => 'mission_completed',
-            'message' => 'Mission completed: '.$mission->title,
+            'message' => 'Challenge completed: '.$mission->title,
             'pts' => $mission->points,
         ]);
 

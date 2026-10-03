@@ -5,11 +5,11 @@
 @section('content')
     <x-page-header
         title="Announcements"
-        subtitle="System announcements for maintenance, availability, and learning directives. Audience is server-determined; publish delivers the message once to every active matching user."
+        subtitle="Manage announcements and their audiences. Publish when the message is ready."
         icon="◉"
     >
         <x-slot:actions>
-            <a href="{{ route('admin.announcements.create') }}" class="btn-ghost">+ NEW ANNOUNCEMENT</a>
+            <a href="{{ route('admin.announcements.create') }}" class="btn-primary">+ NEW ANNOUNCEMENT</a>
         </x-slot:actions>
     </x-page-header>
 
@@ -26,6 +26,8 @@
     @endif
 
     <h2 class="text-sm font-bold text-phosphor mb-2">Draft → Published → Archived</h2>
+
+    <p class="result-count mb-3 text-sm text-ink">{{ $announcements->count() }} {{ Str::plural('announcement', $announcements->count()) }}</p>
 
     @if ($announcements->isEmpty())
         <x-status-message type="info" title="NO ANNOUNCEMENTS">

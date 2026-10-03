@@ -83,7 +83,7 @@ class MissionTest extends TestCase
         ['mission' => $mission] = $this->createMissionWithCourse();
 
         // mission.show is the teaching Lesson: concept, XP reward, START CHALLENGE,
-        // and no authoritative coding workspace (editor, RUN, SUBMIT, SAVE DRAFT).
+        // and no authoritative coding workspace (editor, RUN, SUBMIT, Save draft).
         $this->actingAs($user)
             ->get(route('mission.show', $mission))
             ->assertOk()
@@ -91,7 +91,7 @@ class MissionTest extends TestCase
             ->assertSee('+'.$mission->points.' XP')
             ->assertSee('START CHALLENGE')
             ->assertDontSee('SUBMIT')
-            ->assertDontSee('SAVE DRAFT');
+            ->assertDontSee('Save draft');
 
         // mission.challenge is the focused Coding Challenge Workspace.
         $this->actingAs($user)
@@ -99,13 +99,13 @@ class MissionTest extends TestCase
             ->assertOk()
             ->assertSee($mission->title)
             ->assertSee('BACK TO LESSON')
-            ->assertSee('SUBMIT')
-            ->assertSee('RUN')
-            ->assertSee('SAVE DRAFT')
+            ->assertSee('Submit challenge')
+            ->assertSee('Run')
+            ->assertSee('Save draft')
             ->assertSee('Assistance')
             ->assertSee('SHOW SOLUTION')
             ->assertSee('Draft:')
-            ->assertDontSee('NEXT MISSION')
+            ->assertDontSee('NEXT CHALLENGE')
             ->assertDontSee('NEW DRAFT')
             ->assertDontSee('data-open', false);
     }
@@ -296,7 +296,7 @@ class MissionTest extends TestCase
             ->assertSee('0% → 50%')
             ->assertSee('Achievement unlocked')
             ->assertSee('First Challenge')
-            ->assertSee('NEXT MISSION')
+            ->assertSee('NEXT CHALLENGE')
             ->assertSee('href="'.route('mission.show', $nextMission).'"', false)
             ->assertDontSee('REVIEW LEARNING PATH');
     }
@@ -315,7 +315,7 @@ class MissionTest extends TestCase
             ->assertOk()
             ->assertSee('REVIEW LEARNING PATH')
             ->assertSee('href="'.route('learning-path').'"', false)
-            ->assertDontSee('NEXT MISSION');
+            ->assertDontSee('NEXT CHALLENGE');
     }
 
     public function test_failed_submission_keeps_the_student_in_the_workspace_without_completion_controls(): void
@@ -330,11 +330,11 @@ class MissionTest extends TestCase
             ->followingRedirects()
             ->post(route('mission.submit', $mission), ['code' => '<p>Not valid</p>'])
             ->assertOk()
-            ->assertSee('Mission not restored')
+            ->assertSee('Challenge not passed')
             ->assertSee('Code editor')
             ->assertDontSee('class="completion-overlay"', false)
             ->assertDontSee('CONTINUE TO LEARNING PATH')
-            ->assertDontSee('NEXT MISSION');
+            ->assertDontSee('NEXT CHALLENGE');
     }
 
     public function test_mission_submit_wrong_code_deducts_xp(): void

@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Edit Course"
-        subtitle="{{ $course->name }} — catalog fields and status. Status is an access gate: locking or drafting a course seals its missions and challenge, blocks new progress and XP, but never rewrites recorded progress."
+        subtitle="{{ $course->name }} · Update course details and availability."
         icon="▤"
     >
         <x-slot:actions>

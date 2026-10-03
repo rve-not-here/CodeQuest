@@ -16,7 +16,7 @@
         <section class="panel mt-6 px-5 py-5 md:px-6" aria-labelledby="balance-title">
             <h2 id="balance-title" class="eyebrow">Current balance</h2>
             <p class="mt-2 font-mono text-3xl font-semibold tabular-nums text-fg">XP {{ number_format($balance) }}</p>
-            <p class="mt-2 text-xs leading-5 text-fg-muted">Missions and Boss Challenges can earn XP. Hints, solution reveals, and incorrect submissions can spend it.</p>
+            <p class="mt-2 text-xs leading-5 text-fg-muted">Challenges and Boss Challenges can earn XP. Hints, solution reveals, and incorrect submissions can spend it.</p>
         </section>
 
         @if ($transactions->isEmpty())
@@ -35,7 +35,7 @@
                         @php
                             $credit = $transaction['direction'] === 'credit';
                             $sourceLabel = $credit
-                                ? ($transaction['source'] === 'assessment' ? 'BOSS' : 'MISSION')
+                                ? ($transaction['source'] === 'assessment' ? 'BOSS' : 'CHALLENGE')
                                 : 'SPENT';
                         @endphp
                         <li class="flex min-w-0 flex-wrap items-start gap-3 px-5 py-4 md:flex-nowrap md:px-6">

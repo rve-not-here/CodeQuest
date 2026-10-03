@@ -8,7 +8,7 @@
             <div>
                 <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Course Progress</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">See mission completion and the Boss Challenge milestone for each course.</p>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">See challenge completion and the Boss Challenge milestone for each course.</p>
             </div>
             <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
         </header>
@@ -40,11 +40,11 @@
                         <div class="grid grid-cols-1 gap-5 px-5 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:px-6">
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                                    <p class="text-fg-muted"><span class="font-mono text-fg">{{ $progress['completed'] }}/{{ $progress['total'] }}</span> missions complete</p>
+                                    <p class="text-fg-muted"><span class="font-mono text-fg">{{ $progress['completed'] }}/{{ $progress['total'] }}</span> challenges complete</p>
                                     <span class="font-mono text-fg">{{ $progress['percent'] }}%</span>
                                 </div>
                                 @if ($progress['total'] > 0)
-                                    <div class="progress mt-3" role="progressbar" aria-label="{{ $course->name }} mission progress" aria-valuemin="0" aria-valuemax="{{ $progress['total'] }}" aria-valuenow="{{ $progress['completed'] }}" aria-valuetext="{{ $progress['completed'] }} of {{ $progress['total'] }} missions complete">
+                                    <div class="progress mt-3" role="progressbar" aria-label="{{ $course->name }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $progress['total'] }}" aria-valuenow="{{ $progress['completed'] }}" aria-valuetext="{{ $progress['completed'] }} of {{ $progress['total'] }} challenges complete">
                                         <span style="width: {{ $progress['percent'] }}%"></span>
                                     </div>
                                 @endif
@@ -52,9 +52,9 @@
                                     @if ($state === 'COMPLETED')
                                         Boss Challenge cleared. Your course result is recorded.
                                     @elseif ($state === 'READY')
-                                        All missions complete. The Boss Challenge is ready.
+                                        All challenges complete. The Boss Challenge is ready.
                                     @elseif ($state === 'IN PROGRESS')
-                                        Continue your missions to reach the Boss Challenge.
+                                        Continue your challenges to reach the Boss Challenge.
                                     @else
                                         This course opens when the earlier course is cleared and the course is active.
                                     @endif

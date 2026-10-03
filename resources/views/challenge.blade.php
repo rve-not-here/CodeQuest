@@ -17,7 +17,7 @@
         </div>
         <div class="challenge-context-meta">
             @if ($completed)
-                <span class="badge badge-accent">MISSION COMPLETE</span>
+                <span class="badge badge-accent">CHALLENGE COMPLETE</span>
             @endif
             <span class="badge badge-neutral">{{ $mission->difficulty }}</span>
             <span class="badge badge-accent">+{{ $mission->points }} XP</span>
@@ -57,7 +57,7 @@
     @endif
     @if (session('reveal_flat'))
         <x-student-toast type="info" title="NOT NEEDED">
-            Solution reveal not needed on a completed mission.
+            Solution reveal not needed on a completed challenge.
         </x-student-toast>
     @endif
     @if (session('solution_revealed'))
@@ -78,13 +78,13 @@
     </div>
 
     <nav class="flex flex-wrap gap-2 px-4 py-2" aria-label="Workspace panes" data-workspace-controls>
-        <button type="button" class="btn btn-ghost btn-sm" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Brief</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Editor</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Preview</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-workspace-reset>RESET PANES</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Task</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Code</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="false">Output</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-workspace-reset>Reset panes</button>
     </nav>
     <div class="challenge-workspace" data-workspace>
-        <section class="panel challenge-pane" id="workspace-brief" data-workspace-pane="brief">
+        <section class="panel challenge-pane" id="workspace-brief" data-workspace-pane="brief" tabindex="0">
             <h2 class="challenge-pane-header">Challenge brief</h2>
             <div class="challenge-pane-body">
                 <div class="space-y-4 text-sm leading-6 text-fg-muted">
@@ -99,39 +99,6 @@
                     </div>
                     <p class="text-xs text-fg-subtle">A failed submission costs {{ $wrongPenalty }} XP.</p>
                 </div>
-            </div>
-        </section>
-
-        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize brief pane" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="15" aria-valuemax="35" aria-valuenow="25" data-workspace-resize="brief"></div>
-        <section class="panel challenge-pane" id="workspace-editor" data-workspace-pane="editor">
-            <div class="challenge-pane-header">
-                <h2>Code editor</h2>
-                <p id="draft-status" class="challenge-draft-status" aria-live="polite">
-                    Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span>
-                </p>
-            </div>
-            <div class="challenge-pane-body editor-pane">
-                <div id="editor-host" class="challenge-pane-editor"></div>
-                <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
-
-                <div class="challenge-toolbar">
-                    <button type="button" id="run" class="btn btn-secondary">RUN / PREVIEW</button>
-
-                    <form method="POST" action="{{ route('mission.submit', $mission) }}" class="inline">
-                        @csrf
-                        <input type="hidden" name="code" class="code-payload">
-                        <button type="submit" class="btn btn-primary">SUBMIT CHALLENGE</button>
-                    </form>
-
-                    @if (! $completed)
-                    <form method="POST" action="{{ route('mission.draft', $mission) }}" class="inline" id="draft-form">
-                        @csrf
-                        <input type="hidden" name="code" class="code-payload">
-                        <button type="submit" class="btn btn-ghost">SAVE DRAFT</button>
-                    </form>
-                    @endif
-                </div>
-
                 @if (! $completed || $hints)
                 <section class="challenge-assistance" aria-labelledby="assistance-title">
                     <div class="challenge-assistance-heading">
@@ -140,16 +107,8 @@
                             <p>Optional help uses XP and never changes validation rules.</p>
                         </div>
 
-                        @if (! $completed && ($revealedHintCount < $totalHintCount || $totalHintCount === 0))
+                        @if (! $completed)
                         <div class="challenge-assistance-actions">
-                            @if ($totalHintCount > 0 && $revealedHintCount < $totalHintCount)
-                            <form method="POST" action="{{ route('mission.hint', $mission) }}" class="inline">
-                                @csrf
-                                <input type="hidden" name="code" class="code-payload">
-                                <button type="submit" class="btn btn-ghost btn-sm">HINT {{ $revealedHintCount + 1 }}/{{ $totalHintCount }} · {{ $nextHintCost }} XP</button>
-                            </form>
-                            @endif
-
                             <form method="POST" action="{{ route('mission.reveal', $mission) }}" class="inline">
                                 @csrf
                                 <input type="hidden" name="code" class="code-payload">
@@ -173,8 +132,22 @@
             </div>
         </section>
 
-        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize preview pane" aria-controls="workspace-preview" aria-orientation="vertical" aria-valuemin="20" aria-valuemax="40" aria-valuenow="30" data-workspace-resize="preview"></div>
-        <section class="panel challenge-pane" id="workspace-preview" data-workspace-pane="preview">
+        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize brief pane" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="15" aria-valuemax="35" aria-valuenow="25" data-workspace-resize="brief"></div>
+        <section class="panel challenge-pane" id="workspace-editor" data-workspace-pane="editor" tabindex="0">
+            <div class="challenge-pane-header">
+                <h2>Code editor</h2>
+                <p id="draft-status" class="challenge-draft-status" aria-live="polite">
+                    Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span>
+                </p>
+            </div>
+            <div class="challenge-pane-body editor-pane">
+                <div id="editor-host" class="challenge-pane-editor"></div>
+                <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
+            </div>
+        </section>
+
+        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize preview pane" aria-controls="workspace-preview" aria-orientation="vertical" aria-valuemin="20" aria-valuemax="40" aria-valuenow="25" data-workspace-resize="preview"></div>
+        <section class="panel challenge-pane" id="workspace-preview" data-workspace-pane="preview" tabindex="0" hidden>
             <h2 class="challenge-pane-header">Preview output</h2>
             <div class="challenge-pane-body is-frame">
                 <iframe
@@ -184,6 +157,30 @@
                 ></iframe>
             </div>
         </section>
+    </div>
+
+    <div class="challenge-toolbar workspace-actions" role="region" aria-label="Challenge actions">
+        @if (! $completed && $totalHintCount > 0 && $revealedHintCount < $totalHintCount)
+        <form method="POST" action="{{ route('mission.hint', $mission) }}" class="inline">
+            @csrf
+            <input type="hidden" name="code" class="code-payload">
+            <button type="submit" class="btn btn-ghost">Hint · {{ $nextHintCost }} XP</button>
+        </form>
+        @endif
+        @if (! $completed)
+        <form method="POST" action="{{ route('mission.draft', $mission) }}" class="inline" id="draft-form">
+            @csrf
+            <input type="hidden" name="code" class="code-payload">
+            <button type="submit" class="btn btn-ghost">Save draft</button>
+        </form>
+        @endif
+        <button type="button" id="run" class="btn btn-secondary ml-auto">Run</button>
+
+        <form method="POST" action="{{ route('mission.submit', $mission) }}" class="inline workspace-submit">
+            @csrf
+            <input type="hidden" name="code" class="code-payload">
+            <button type="submit" class="btn btn-primary">Submit challenge</button>
+        </form>
     </div>
 
     @if (session('mission_success'))
@@ -297,11 +294,12 @@
                 syncPayloads(view);
 
                 runBtn.addEventListener('click', function () {
-                    frame.srcdoc = view.state.doc.toString();
+                    frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type);
+                    document.dispatchEvent(new CustomEvent('cq:workspace-pane', { detail: 'preview' }));
                 });
 
                 // Initial preview reflects any restored draft.
-                frame.srcdoc = view.state.doc.toString();
+                frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type);
 
                 draftForm?.addEventListener('submit', function () {
                     if (draftStatus) draftStatus.textContent = 'Saving...';

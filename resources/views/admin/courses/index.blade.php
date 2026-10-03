@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Course Management"
-        subtitle="The course catalog, ordered by order_num. Status is an access gate: locking or drafting a course seals its missions and challenge but never rewrites recorded progress."
+        subtitle="Manage course details, order, and availability. Recorded progress is preserved."
         icon="▤"
     >
         <x-slot:actions>
@@ -20,6 +20,8 @@
     @endif
 
     <h2 class="text-sm font-bold text-phosphor mb-2">Course Catalog</h2>
+
+    <p class="result-count mb-3 text-sm text-ink">{{ $courses->count() }} {{ Str::plural('course', $courses->count()) }}</p>
 
     @if ($courses->isEmpty())
         <x-status-message type="info" title="NO COURSES">

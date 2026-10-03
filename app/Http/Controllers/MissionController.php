@@ -111,7 +111,7 @@ class MissionController extends Controller
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('mission_success', [
-                    'title' => 'Mission complete',
+                    'title' => 'Challenge complete',
                     'message' => '+'.$outcome['xpAwarded'].' XP awarded.',
                     'xp_awarded' => $outcome['xpAwarded'],
                     'xp_balance' => $outcome['xpBalance'],
@@ -122,7 +122,7 @@ class MissionController extends Controller
                         ? route('mission.show', $nextMission)
                         : route('learning-path'),
                     'next_label' => $nextMission !== null
-                        ? 'NEXT MISSION'
+                        ? 'NEXT CHALLENGE'
                         : 'REVIEW LEARNING PATH',
                 ]);
         }
@@ -132,14 +132,14 @@ class MissionController extends Controller
                 ->withInput(['code' => $request->input('code')])
                 ->with('mission_info', [
                     'title' => 'Already completed',
-                    'message' => 'You have already passed this mission.',
+                    'message' => 'You have already passed this challenge.',
                 ]);
         }
 
         return back()
             ->withInput(['code' => $request->input('code')])
             ->with('mission_error', [
-                'title' => 'Mission not restored',
+                'title' => 'Challenge not passed',
                 'message' => $this->firstFailure($outcome['failures']),
             ]);
     }

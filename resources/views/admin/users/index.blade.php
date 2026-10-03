@@ -5,11 +5,11 @@
 @section('content')
     <x-page-header
         title="User Management"
-        subtitle="Every account in the fleet, searched and filtered server-side. Role and status are assigned by the server, never by the client."
+        subtitle="Search accounts and manage roles and access."
         icon="☷"
     >
         <x-slot:actions>
-            <a href="{{ route('admin.users.create') }}" class="btn-ghost">+ NEW USER</a>
+            <a href="{{ route('admin.users.create') }}" class="btn-primary">+ NEW USER</a>
         </x-slot:actions>
     </x-page-header>
 
@@ -66,6 +66,8 @@
             </x-status-message>
         @endif
     </form>
+
+    <p class="result-count mb-3 text-sm text-ink">{{ $users->total() }} {{ Str::plural('user', $users->total()) }}</p>
 
     @if ($users->isEmpty())
         <x-status-message type="info" title="NO USERS">

@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Edit Announcement"
-        subtitle="{{ $announcement->title }} — editing a published announcement never re-delivers it; already-notified users keep the version they were sent."
+        subtitle="{{ $announcement->title }} · Changes do not resend a published announcement."
         icon="◉"
     >
         <x-slot:actions>

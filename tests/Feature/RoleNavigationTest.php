@@ -11,6 +11,21 @@ class RoleNavigationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_student_primary_navigation_uses_learning_terms_and_report_shares_the_shell(): void
+    {
+        $student = User::factory()->create();
+        foreach (['dashboard', 'reports.progress'] as $route) {
+            $response = $this->actingAs($student)->get(route($route))->assertOk();
+            preg_match('/<nav aria-label="Primary"[^>]*>(.*?)<\/nav>/s', $response->getContent(), $primary);
+            $this->assertStringContainsString('Dashboard', $primary[1]);
+            $this->assertStringContainsString('Learn', $primary[1]);
+            $this->assertStringContainsString('Boss Challenges', $primary[1]);
+            $this->assertStringNotContainsString('Missions', $primary[1]);
+            $this->assertStringNotContainsString('Assessments', $primary[1]);
+            $response->assertSee('aria-label="Learning record"', false);
+        }
+    }
+
     /** @return array<string, array{string, string}> */
     public static function roleHomes(): array
     {

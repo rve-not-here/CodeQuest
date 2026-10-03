@@ -5,11 +5,11 @@
 @section('content')
     <x-page-header
         title="Classroom Management"
-        subtitle="The enrollment containers behind teacher visibility. A teacher may monitor only the students and courses of their ACTIVE classrooms; deactivating a classroom removes that visibility immediately without touching the memberships or any academic history."
+        subtitle="Manage classrooms, teacher assignments, student enrollment, and course access."
         icon="▣"
     >
         <x-slot:actions>
-            <a href="{{ route('admin.classrooms.create') }}" class="btn-ghost">+ NEW CLASSROOM</a>
+            <a href="{{ route('admin.classrooms.create') }}" class="btn-primary">+ NEW CLASSROOM</a>
         </x-slot:actions>
     </x-page-header>
 
@@ -64,6 +64,8 @@
             </x-status-message>
         @endif
     </form>
+
+    <p class="result-count mb-3 text-sm text-ink">{{ $classrooms->count() }} {{ Str::plural('classroom', $classrooms->count()) }}</p>
 
     @if ($classrooms->isEmpty())
         <x-status-message type="info" title="NO CLASSROOMS">

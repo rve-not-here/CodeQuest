@@ -20,7 +20,7 @@
             <div class="min-w-0">
                 <p class="eyebrow">{{ $course->name }} · Boss Challenge</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">{{ $assessment->title }}</h1>
-                <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">{{ $assessment->description ?: 'Apply the skills from this course in one coding assessment.' }}</p>
+                <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">{{ $assessment->description ?: 'Apply the skills from this course in one Boss Challenge.' }}</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <span class="badge {{ $hasPassed ? 'badge-accent' : ($attempt?->status === 'failed' ? 'badge-warning' : 'badge-neutral') }}">
@@ -131,7 +131,7 @@
             </div>
 
             <aside class="panel p-5 lg:sticky lg:top-20" aria-labelledby="boss-details-title">
-                <p class="eyebrow text-accent">Assessment details</p>
+                <p class="eyebrow text-accent">Boss Challenge details</p>
                 <h2 id="boss-details-title" class="mt-1 text-lg font-semibold">What to expect</h2>
                 <dl class="mt-4 space-y-3 border-t border-line pt-4 text-sm">
                     <div class="flex justify-between gap-4"><dt class="text-fg-subtle">Passing score</dt><dd class="font-mono text-fg">{{ $assessment->passing_score }}%</dd></div>

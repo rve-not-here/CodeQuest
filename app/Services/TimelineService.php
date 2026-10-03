@@ -374,7 +374,7 @@ class TimelineService
         return $this->scopedEvidenceQuery(Progress::query(), $ids, 'mission', 'completed_at', $from, $to, $courseId, $studentCourseScopes)
             ->get()->map(fn (Progress $record): array => $this->evidenceBeat(
                 $record->user_id, Carbon::parse($record->completed_at),
-                'Mission completed: '.$this->missionTitle($record->mission), 'mission_completed', $record->pts_earned,
+                'Challenge completed: '.$this->missionTitle($record->mission), 'mission_completed', $record->pts_earned,
             ));
     }
 
@@ -390,7 +390,7 @@ class TimelineService
     private function missionTitle(?Mission $mission): string
     {
         if ($mission === null) {
-            return 'Mission';
+            return 'Challenge';
         }
 
         return $mission->title;

@@ -9,7 +9,7 @@
                 <div>
                     <p class="eyebrow">Your account</p>
                     <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Notifications</h1>
-                    <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Mission updates, Boss Challenge results, and system announcements.</p>
+                    <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Challenge updates, Boss Challenge results, and system announcements.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="badge badge-neutral">{{ $notifications->total() }} TOTAL</span>
@@ -95,7 +95,7 @@
     @else
     <x-page-header
         title="Notifications"
-        subtitle="Your inbox. Mission completions, assessment results, and system announcements land here."
+        subtitle="Your inbox. Challenge completions, Boss Challenge results, and system announcements land here."
         icon="✉"
     >
         <x-slot:actions>

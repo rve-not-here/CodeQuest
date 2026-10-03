@@ -30,7 +30,7 @@
         <header class="border-b border-line pb-6">
             <p class="eyebrow">Course milestones</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Boss Challenges</h1>
-            <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Complete the missions in each course to open its final coding assessment. Your challenge status comes from your recorded work.</p>
+            <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Complete the challenges in each course to open its final Boss Challenge. Your challenge status comes from your recorded work.</p>
             <a href="{{ route('learning-path') }}" class="btn btn-ghost btn-sm mt-4">← View Learning Path</a>
         </header>
 
@@ -76,20 +76,20 @@
                         <div class="grid grid-cols-1 gap-5 px-5 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:px-6">
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-fg-subtle">
-                                    <span>{{ $completedMissions }} / {{ $totalMissions }} missions complete</span>
+                                    <span>{{ $completedMissions }} / {{ $totalMissions }} challenges complete</span>
                                     @if ($assessment)
                                         <span>Pass at {{ $assessment->passing_score }}%</span>
                                     @endif
                                 </div>
                                 @if ($totalMissions > 0)
-                                    <div class="progress mt-3 max-w-sm" role="progressbar" aria-label="{{ $course->name }} mission progress" aria-valuemin="0" aria-valuemax="{{ $totalMissions }}" aria-valuenow="{{ $completedMissions }}" aria-valuetext="{{ $completedMissions }} of {{ $totalMissions }} missions complete">
+                                    <div class="progress mt-3 max-w-sm" role="progressbar" aria-label="{{ $course->name }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $totalMissions }}" aria-valuenow="{{ $completedMissions }}" aria-valuetext="{{ $completedMissions }} of {{ $totalMissions }} challenges complete">
                                         <span style="width: {{ min(100, round($completedMissions / $totalMissions * 100)) }}%"></span>
                                     </div>
                                 @endif
                                 @if ($state === 'sealed')
                                     <p class="mt-3 text-sm text-fg-muted">{{ $row['lockedReason'] }}</p>
                                 @elseif ($state === 'none')
-                                    <p class="mt-3 text-sm text-fg-muted">The final assessment has not been published for this course.</p>
+                                    <p class="mt-3 text-sm text-fg-muted">The Boss Challenge has not been published for this course.</p>
                                 @elseif ($state === 'failed-retry')
                                     <p class="mt-3 text-sm text-fg-muted">Last retry failed — your pass stands.</p>
                                 @elseif ($state === 'passed')
@@ -119,7 +119,7 @@
                                 @elseif (in_array($state, ['passed', 'failed-retry'], true))
                                     <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-secondary">OPEN CHALLENGE</a>
                                 @elseif ($state === 'sealed')
-                                    <a href="{{ route('missions') }}" class="btn btn-secondary">View missions →</a>
+                                    <a href="{{ route('missions') }}" class="btn btn-secondary">View challenges →</a>
                                 @endif
                                 @endif
                             </div>

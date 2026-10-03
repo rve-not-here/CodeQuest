@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Create User"
-        subtitle="Server assigns the role and the default active status; the password is submitted as plaintext and stored as a fresh hash."
+        subtitle="Create an account and choose its role."
         icon="☷"
     >
         <x-slot:actions>

@@ -2,17 +2,17 @@
 
 @php
     $map = [
-        'success' => ['dot' => 'bg-phosphor', 'text' => 'text-phosphor'],
-        'info' => ['dot' => 'bg-cyan', 'text' => 'text-cyan'],
-        'warning' => ['dot' => 'bg-amber', 'text' => 'text-amber'],
-        'error' => ['dot' => 'bg-alert', 'text' => 'text-alert'],
+        'success' => ['dot' => 'bg-phosphor', 'text' => 'text-phosphor', 'border' => 'border-phosphor/30'],
+        'info' => ['dot' => 'bg-cyan', 'text' => 'text-cyan', 'border' => 'border-cyan/30'],
+        'warning' => ['dot' => 'bg-amber', 'text' => 'text-amber', 'border' => 'border-amber/30'],
+        'error' => ['dot' => 'bg-alert', 'text' => 'text-alert', 'border' => 'border-alert/30'],
     ];
     $cfg = $map[$type] ?? $map['info'];
 @endphp
 
 <div
-    {{ $attributes->merge(['class' => 'flex items-start gap-3 border border-phosphor/20 bg-surface-alt px-4 py-3']) }}
-    role="status"
+    {{ $attributes->merge(['class' => 'flex items-start gap-3 border bg-surface-alt px-4 py-3 '.$cfg['border']]) }}
+    role="{{ $type === 'error' ? 'alert' : 'status' }}"
 >
     <span class="w-2 h-2 rounded-full mt-1.5 shrink-0 {{ $cfg['dot'] }}" aria-hidden="true"></span>
     <div class="min-w-0 flex-1">

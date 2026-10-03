@@ -16,7 +16,7 @@
         @if ($competencies->isEmpty())
             <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-competencies-title">
                 <h2 id="no-competencies-title" class="text-lg font-semibold">NO COMPETENCIES</h2>
-                <p class="mt-2 text-sm text-fg-muted">No active skill areas with missions are available yet.</p>
+                <p class="mt-2 text-sm text-fg-muted">No active skill areas with challenges are available yet.</p>
             </section>
         @else
             <section class="mt-6" aria-labelledby="course-competencies-title">
@@ -49,10 +49,10 @@
                                 <span class="badge {{ $state === 'demonstrated' ? 'badge-accent' : ($state === 'practicing' ? 'badge-warning' : 'badge-neutral') }}">{{ $stateLabel }}</span>
                             </div>
                             <div class="mt-5 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                                <span class="text-fg-muted"><span class="font-mono text-fg">{{ $row['completedMissions'] }}/{{ $row['totalMissions'] }}</span> missions complete</span>
+                                <span class="text-fg-muted"><span class="font-mono text-fg">{{ $row['completedMissions'] }}/{{ $row['totalMissions'] }}</span> challenges complete</span>
                                 <span class="font-mono text-fg-muted">{{ $percent }}%</span>
                             </div>
-                            <div class="progress mt-2" role="progressbar" aria-label="{{ $row['name'] }} mission progress" aria-valuemin="0" aria-valuemax="{{ $row['totalMissions'] }}" aria-valuenow="{{ $row['completedMissions'] }}" aria-valuetext="{{ $row['completedMissions'] }} of {{ $row['totalMissions'] }} missions complete">
+                            <div class="progress mt-2" role="progressbar" aria-label="{{ $row['name'] }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $row['totalMissions'] }}" aria-valuenow="{{ $row['completedMissions'] }}" aria-valuetext="{{ $row['completedMissions'] }} of {{ $row['totalMissions'] }} challenges complete">
                                 <span style="width: {{ $percent }}%"></span>
                             </div>
                             <div class="mt-5 border-t border-line pt-4">
@@ -69,7 +69,7 @@
         @if ($skills->isNotEmpty())
             <section class="mt-8" aria-labelledby="skill-competency-title">
                 <div class="mb-3">
-                    <p class="eyebrow">Assessment evidence</p>
+                    <p class="eyebrow">Boss Challenge evidence</p>
                     <h2 id="skill-competency-title" class="mt-1 text-lg font-semibold">Skill Competency</h2>
                 </div>
                 <ul class="panel divide-y divide-line">

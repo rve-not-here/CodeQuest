@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Edit — {{ $classroom->name }}"
-        subtitle="Base fields and the three membership sets. Each membership form REPLACES its set — uncheck everything to clear it. Memberships stay separate from academic history, and a status change never rewrites them."
+        subtitle="Manage classroom details and memberships. Save each membership group separately."
         icon="▣"
     >
         <x-slot:actions>

@@ -283,10 +283,10 @@ class ClassroomPairAuthorizationTest extends TestCase
             ->all();
 
         $this->assertCount(4, $beats);
-        $this->assertContains($fleet['s1']->username.'|Mission completed: '.$fleet['m1']->title, $beats);
-        $this->assertContains($fleet['s2']->username.'|Mission completed: '.$fleet['m2']->title, $beats);
-        $this->assertNotContains($fleet['s1']->username.'|Mission completed: '.$fleet['m2']->title, $beats);
-        $this->assertNotContains($fleet['s2']->username.'|Mission completed: '.$fleet['m1']->title, $beats);
+        $this->assertContains($fleet['s1']->username.'|Challenge completed: '.$fleet['m1']->title, $beats);
+        $this->assertContains($fleet['s2']->username.'|Challenge completed: '.$fleet['m2']->title, $beats);
+        $this->assertNotContains($fleet['s1']->username.'|Challenge completed: '.$fleet['m2']->title, $beats);
+        $this->assertNotContains($fleet['s2']->username.'|Challenge completed: '.$fleet['m1']->title, $beats);
         $this->assertContains(
             $fleet['s1']->username.'|Boss Challenge passed: Alpha Boss (score 90)',
             $beats,

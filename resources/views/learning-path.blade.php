@@ -18,7 +18,7 @@
     <header class="mt-3 mb-7 border-b border-line pb-6">
         <p class="eyebrow">Your journey</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Learning Path</h1>
-        <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Follow your courses from the first mission through the final course milestone.</p>
+        <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Follow your courses from the first challenge through the final course milestone.</p>
         <p class="mt-3 font-mono text-xs text-fg-subtle">XP {{ number_format($totalXp) }}</p>
     </header>
 
@@ -59,14 +59,14 @@
                         @if ($pathCourse->description)
                             <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">{{ $pathCourse->description }}</p>
                         @endif
-                        <p class="mt-3 font-mono text-xs text-fg-subtle">{{ $courseNode['sections']->count() }} {{ $courseNode['sections']->count() === 1 ? 'SECTION' : 'SECTIONS' }} · {{ $courseNode['progress']['total'] }} MISSIONS · BOSS CHALLENGE</p>
+                        <p class="mt-3 font-mono text-xs text-fg-subtle">{{ $courseNode['sections']->count() }} {{ $courseNode['sections']->count() === 1 ? 'SECTION' : 'SECTIONS' }} · {{ $courseNode['progress']['total'] }} CHALLENGES · BOSS CHALLENGE</p>
                     </div>
                     <div>
                         <div class="mb-2 flex items-baseline justify-between gap-2">
                             <span class="text-sm text-fg-muted">Course progress</span>
                             <span class="font-mono text-xs text-fg-subtle"><span class="text-base font-medium text-fg">{{ $courseNode['progress']['percent'] }}%</span> · {{ $courseNode['progress']['completed'] }} / {{ $courseNode['progress']['total'] }}</span>
                         </div>
-                        <div class="progress" role="progressbar" aria-label="{{ $pathCourse->name }} progress" aria-valuemin="0" aria-valuemax="{{ $courseNode['progress']['total'] }}" aria-valuenow="{{ $courseNode['progress']['completed'] }}" aria-valuetext="{{ $courseNode['progress']['completed'] }} of {{ $courseNode['progress']['total'] }} missions complete, {{ $courseNode['progress']['percent'] }} percent"><span style="width: {{ $courseNode['progress']['percent'] }}%"></span></div>
+                        <div class="progress" role="progressbar" aria-label="{{ $pathCourse->name }} progress" aria-valuemin="0" aria-valuemax="{{ $courseNode['progress']['total'] }}" aria-valuenow="{{ $courseNode['progress']['completed'] }}" aria-valuetext="{{ $courseNode['progress']['completed'] }} of {{ $courseNode['progress']['total'] }} challenges complete, {{ $courseNode['progress']['percent'] }} percent"><span style="width: {{ $courseNode['progress']['percent'] }}%"></span></div>
                         @if ($courseMission !== null)
                             <a href="{{ route('mission.show', $courseMission) }}" class="btn btn-primary mt-4 w-full">Continue {{ $courseMission->title }} →</a>
                         @endif
@@ -78,7 +78,7 @@
                         @foreach ($courseNode['sections'] as $sectionNode)
                             @php
                                 $pathSection = $sectionNode['section'];
-                                $sectionTitle = $pathSection?->title ?? 'Additional missions';
+                                $sectionTitle = $pathSection?->title ?? 'Additional challenges';
                                 $sectionKey = $pathSection?->id ?? 'additional-'.$pathCourse->id;
                                 $sectionCurrent = ! $courseLocked && $nextMission !== null && $sectionNode['missions']->contains(fn ($row) => $row['mission']->id === $nextMission->id);
                                 $sectionComplete = $sectionNode['progress']['total'] > 0 && $sectionNode['progress']['completed'] === $sectionNode['progress']['total'];
@@ -96,7 +96,7 @@
                                     <span class="shrink-0 font-mono text-xs text-fg-subtle">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }}</span>
                                     <span class="text-fg-subtle transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
                                 </summary>
-                                <ol class="rail border-t border-line px-4 pb-2 md:px-5" aria-label="{{ $sectionTitle }} missions">
+                                <ol class="rail border-t border-line px-4 pb-2 md:px-5" aria-label="{{ $sectionTitle }} challenges">
                                     @foreach ($sectionNode['missions'] as $row)
                                         @php
                                             $mission = $row['mission'];
@@ -155,7 +155,7 @@
                                     @php
                                         $overviewSection = $sectionNode['section'];
                                     @endphp
-                                    <li><a href="#section-{{ $overviewSection?->id ?? 'additional-'.$pathCourse->id }}" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }} {{ $overviewSection?->title ?? 'Additional missions' }}</span><span class="shrink-0 font-mono text-2xs">{{ $sectionNode['progress']['completed'] }}/{{ $sectionNode['progress']['total'] }}</span></a></li>
+                                    <li><a href="#section-{{ $overviewSection?->id ?? 'additional-'.$pathCourse->id }}" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }} {{ $overviewSection?->title ?? 'Additional challenges' }}</span><span class="shrink-0 font-mono text-2xs">{{ $sectionNode['progress']['completed'] }}/{{ $sectionNode['progress']['total'] }}</span></a></li>
                                 @endforeach
                             </ul>
                         </nav>

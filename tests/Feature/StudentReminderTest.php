@@ -55,7 +55,7 @@ class StudentReminderTest extends TestCase
         $this->assertSame('learning_reminder', $row->type);
         $this->assertNull($row->dedupe_key);
         $this->assertSame('COURSE STALLED', $row->title);
-        $this->assertSame('No new mission on "Boss" in 14 days (1/3 missions). Pick it back up.', $row->message);
+        $this->assertSame('No new challenge on "Boss" in 14 days (1/3 challenges). Pick it back up.', $row->message);
         $this->assertEquals([
             'route' => 'learning-path',
             'params' => [],
@@ -265,7 +265,7 @@ class StudentReminderTest extends TestCase
 
         $this->assertSame('draft_reminder', $first->type);
         $this->assertNull($first->dedupe_key);
-        $this->assertSame('MISSION DRAFT AWAITING', $first->title);
+        $this->assertSame('CHALLENGE DRAFT AWAITING', $first->title);
         $this->assertSame('Your saved draft for "Mission Boss 1" is waiting (4 days). Pick it back up.', $first->message);
         $this->assertEquals([
             'route' => 'mission.show',
@@ -297,7 +297,7 @@ class StudentReminderTest extends TestCase
         $this->actingAs($student)
             ->get(route('notifications'))
             ->assertOk()
-            ->assertSee('MISSION DRAFT AWAITING')
+            ->assertSee('CHALLENGE DRAFT AWAITING')
             ->assertSee(route('mission.show', $mission));
     }
 

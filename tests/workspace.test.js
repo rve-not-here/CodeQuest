@@ -11,6 +11,7 @@ class Element {
         this.focused = false;
     }
     setAttribute(name, value) { this.attributes[name] = value; }
+    removeAttribute(name) { delete this.attributes[name]; }
     getAttribute(name) { return this.attributes[name]; }
     addEventListener(name, callback) { this.events[name] = callback; }
     focus() { this.focused = true; }
@@ -41,80 +42,69 @@ function fixture(width = 1200) {
         style: { setProperty: (name, value) => { style[name] = value; } },
         getBoundingClientRect: () => dimensions,
     };
-    const controls = { querySelectorAll: () => buttons, querySelector: () => reset };
-    initializeWorkspace({ querySelector: (selector) => selector === '[data-workspace]' ? workspace : controls });
-    return { media, panes, buttons, separators, reset, style, dimensions, events };
+    const controls = new Element();
+    controls.querySelectorAll = () => buttons;
+    controls.querySelector = () => reset;
+    const root = new Element();
+    root.querySelector = (selector) => selector === '[data-workspace]' ? workspace : controls;
+    initializeWorkspace(root);
+    return { media, panes, buttons, separators, reset, style, dimensions, events, root, controls };
 }
 
-test('keyboard and pointer resizing retain minimum pane widths and reset restores defaults', () => {
-    const { separators, reset, style } = fixture();
-    separators[0].fire('keydown', { key: 'Home' });
-    assert.equal(separators[0].getAttribute('aria-valuenow'), '15');
-    separators[0].fire('keydown', { key: 'ArrowLeft' });
-    assert.equal(style['--brief-width'], '15%');
+test('editor owns the desktop workspace and reset collapses output', () => {
+    const { panes, buttons, separators, reset, style } = fixture();
+    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, true]);
+    assert.equal(style['--brief-width'], '25%');
+    assert.equal(style['--preview-width'], '0px');
+    buttons[2].fire('click');
     separators[1].fire('pointerdown', { button: 0, pointerId: 1, clientX: 900 });
     separators[1].fire('pointermove', { pointerId: 1, clientX: 0 });
-    assert.equal(separators[1].getAttribute('aria-valuenow'), '40');
+    assert.ok(parseInt(style['--brief-width']) + parseInt(style['--preview-width']) <= 40);
     assert.equal(separators[1].focused, true);
     separators[1].fire('pointercancel');
-    separators[1].fire('pointermove', { pointerId: 1, clientX: 900 });
-    assert.equal(style['--preview-width'], '40%');
     reset.fire('click');
     assert.equal(style['--brief-width'], '25%');
-    assert.equal(style['--preview-width'], '30%');
+    assert.equal(style['--preview-width'], '0px');
 });
 
-test('collapse, narrow-screen switching and restore preserve the same editor element', () => {
-    const { panes, buttons, media, separators, reset } = fixture();
+test('accessible tabs preserve the editor document across pane switches and Run', () => {
+    const { panes, buttons, media, controls, root } = fixture();
     const editor = panes[1];
     editor.document = 'unsaved\n日本語';
-    buttons[0].fire('click');
-    assert.equal(panes[0].hidden, true);
-    assert.equal(buttons[0].getAttribute('aria-expanded'), 'false');
-    assert.equal(separators[0].hidden, true);
     media.matches = true;
     media.change();
-    assert.deepEqual(panes.map((pane) => pane.hidden), [true, false, true]);
-    buttons[2].fire('click');
+    assert.equal(controls.getAttribute('role'), 'tablist');
+    assert.equal(buttons[1].getAttribute('aria-selected'), 'true');
+    assert.equal(buttons[0].getAttribute('tabindex'), '-1');
+    buttons[1].fire('keydown', { key: 'ArrowLeft' });
+    assert.deepEqual(panes.map((pane) => pane.hidden), [false, true, true]);
+    assert.equal(buttons[0].focused, true);
+    root.fire('cq:workspace-pane', { detail: 'preview' });
     assert.deepEqual(panes.map((pane) => pane.hidden), [true, true, false]);
-    buttons[1].fire('click');
+    buttons[2].fire('keydown', { key: 'Home' });
+    buttons[0].fire('keydown', { key: 'ArrowRight' });
     assert.equal(panes[1], editor);
     assert.equal(editor.document, 'unsaved\n日本語');
     media.matches = false;
     media.change();
-    reset.fire('click');
-    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
+    assert.equal(controls.getAttribute('role'), 'group');
+    assert.equal(buttons[1].getAttribute('aria-selected'), undefined);
 });
 
-test('restoring either pane clamps combined widths after resizing a collapsed layout', () => {
-    const { panes, buttons, separators, style } = fixture();
+test('restoring resized panes always reserves at least sixty percent for code', () => {
+    const { panes, buttons, separators, style, dimensions, events } = fixture();
     buttons[0].fire('click');
+    buttons[2].fire('click');
     separators[1].fire('keydown', { key: 'End' });
     buttons[0].fire('click');
-    assert.equal(style['--brief-width'], '25%');
-    assert.equal(style['--preview-width'], '40%');
-
+    assert.ok(parseInt(style['--brief-width']) + parseInt(style['--preview-width']) <= 40);
     buttons[2].fire('click');
     separators[0].fire('keydown', { key: 'End' });
     buttons[2].fire('click');
-    assert.equal(style['--brief-width'], '35%');
-    assert.equal(style['--preview-width'], '33%');
-    assert.equal(separators[1].getAttribute('aria-valuenow'), '33');
-    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
-});
-
-test('pane widths reserve room for the editor and handles as the desktop viewport shrinks', () => {
-    const { buttons, separators, style, dimensions, events } = fixture();
-    buttons[0].fire('click');
-    separators[1].fire('keydown', { key: 'End' });
-    buttons[0].fire('click');
-    buttons[2].fire('click');
-    separators[0].fire('keydown', { key: 'End' });
-    buttons[2].fire('click');
-
-    dimensions.width = 1000;
+    dimensions.width = 1120;
     events.resize();
-    assert.equal(style['--brief-width'], '33%');
-    assert.equal(style['--preview-width'], '33%');
-    assert.ok((parseInt(style['--brief-width']) + parseInt(style['--preview-width'])) / 100 * 1000 + 320 + 16 <= 1000);
+    assert.ok(parseInt(style['--brief-width']) + parseInt(style['--preview-width']) <= 40);
+    const editorWidth = dimensions.width * (1 - (parseInt(style['--brief-width']) + parseInt(style['--preview-width'])) / 100) - 16;
+    assert.ok(editorWidth >= dimensions.width * 0.6);
+    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
 });

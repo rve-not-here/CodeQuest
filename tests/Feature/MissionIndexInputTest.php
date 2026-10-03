@@ -56,6 +56,6 @@ class MissionIndexInputTest extends TestCase
     public function test_invalid_browser_filter_redirects_to_safe_index_with_visible_error(): void
     {
         $this->actingAs(User::factory()->create())->followingRedirects()->get(route('missions', ['q' => ['bad']]))
-            ->assertOk()->assertSee('Invalid mission filters')->assertSee('The q field must be a string.');
+            ->assertOk()->assertSee('Invalid challenge filters')->assertSee('The q field must be a string.');
     }
 }

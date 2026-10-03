@@ -6,8 +6,8 @@ export function initializeWorkspace(root) {
     const separators = [...workspace.querySelectorAll('[data-workspace-resize]')];
     const buttons = [...controls.querySelectorAll('[data-pane-toggle]')];
     const narrow = window.matchMedia('(max-width: 1100px)');
-    const widths = { brief: 25, preview: 30 };
-    const collapsed = new Set();
+    const widths = { brief: 25, preview: 25 };
+    const collapsed = new Set(['preview']);
     let selected = 'editor';
 
     function constrainedWidth(separator, value) {
@@ -16,13 +16,15 @@ export function initializeWorkspace(root) {
         const containerWidth = workspace.getBoundingClientRect().width;
         const rem = Number.parseFloat(window.getComputedStyle(workspace.ownerDocument.documentElement).fontSize);
         const handles = separators.filter((item) => !collapsed.has(item.dataset.workspaceResize)).length * 8;
-        const available = Math.min(68, Math.floor((containerWidth - 20 * rem - handles) / containerWidth * 100));
+        const available = Math.min(Math.floor(40 - handles / containerWidth * 100), Math.floor((containerWidth - 20 * rem - handles) / containerWidth * 100));
         const minimum = Number(separator.getAttribute('aria-valuemin'));
+        if (!collapsed.has(other)) widths[other] = Math.min(widths[other], available - minimum);
         const maximum = Math.min(Number(separator.getAttribute('aria-valuemax')), available - (collapsed.has(other) ? 0 : widths[other]));
         return Math.max(minimum, Math.min(maximum, Math.round(value)));
     }
 
     function render() {
+        controls.setAttribute('role', narrow.matches ? 'tablist' : 'group');
         if (!narrow.matches) {
             for (const separator of separators) {
                 const name = separator.dataset.workspaceResize;
@@ -32,10 +34,20 @@ export function initializeWorkspace(root) {
         for (const pane of panes) {
             const name = pane.dataset.workspacePane;
             pane.hidden = narrow.matches ? name !== selected : collapsed.has(name);
+            pane.setAttribute('role', narrow.matches ? 'tabpanel' : 'region');
+            pane.setAttribute('aria-labelledby', `workspace-tab-${name}`);
         }
         for (const button of buttons) {
             const pane = panes.find((item) => item.dataset.workspacePane === button.dataset.paneToggle);
-            button.setAttribute('aria-expanded', String(!pane.hidden));
+            button.setAttribute('role', narrow.matches ? 'tab' : 'button');
+            button.setAttribute('tabindex', narrow.matches && pane.hidden ? '-1' : '0');
+            if (narrow.matches) {
+                button.setAttribute('aria-selected', String(!pane.hidden));
+                button.removeAttribute('aria-expanded');
+            } else {
+                button.setAttribute('aria-expanded', String(!pane.hidden));
+                button.removeAttribute('aria-selected');
+            }
         }
         for (const separator of separators) {
             const name = separator.dataset.workspaceResize;
@@ -56,6 +68,19 @@ export function initializeWorkspace(root) {
     }
 
     for (const button of buttons) {
+        button.addEventListener('keydown', (event) => {
+            if (!narrow.matches) return;
+            let index = buttons.indexOf(button);
+            if (event.key === 'ArrowRight') index = (index + 1) % buttons.length;
+            else if (event.key === 'ArrowLeft') index = (index + buttons.length - 1) % buttons.length;
+            else if (event.key === 'Home') index = 0;
+            else if (event.key === 'End') index = buttons.length - 1;
+            else return;
+            event.preventDefault();
+            selected = buttons[index].dataset.paneToggle;
+            render();
+            buttons[index].focus();
+        });
         button.addEventListener('click', () => {
             const name = button.dataset.paneToggle;
             if (narrow.matches) selected = name;
@@ -70,8 +95,9 @@ export function initializeWorkspace(root) {
     }
     controls.querySelector('[data-workspace-reset]').addEventListener('click', () => {
         widths.brief = 25;
-        widths.preview = 30;
+        widths.preview = 25;
         collapsed.clear();
+        collapsed.add('preview');
         selected = 'editor';
         render();
     });
@@ -107,5 +133,12 @@ export function initializeWorkspace(root) {
     }
     narrow.addEventListener('change', render);
     window.addEventListener('resize', render);
+    root.addEventListener('cq:workspace-pane', (event) => {
+        const name = event.detail;
+        if (!panes.some((pane) => pane.dataset.workspacePane === name)) return;
+        selected = name;
+        collapsed.delete(name);
+        render();
+    });
     render();
 }

@@ -154,7 +154,7 @@ class AssessmentService
                     ! $reached[$course->id] => 'Pass earlier courses before opening this course.',
                     $assessment === null => 'No Boss Challenge is configured for this course.',
                     $assessment->status !== 'active' => 'This assessment is not currently active.',
-                    ! $eligible => 'Complete every required mission before opening this challenge.',
+                    ! $eligible => 'Complete every required challenge before opening this challenge.',
                     default => 'All required challenges are complete.',
                 },
             ];

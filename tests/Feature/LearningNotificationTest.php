@@ -118,8 +118,8 @@ class LearningNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("mission_completed:{$missions[0]->id}", $notification->dedupe_key);
-        $this->assertSame('MISSION COMPLETED', $notification->title);
-        $this->assertSame("Mission completed: {$missions[0]->title}", $notification->message);
+        $this->assertSame('CHALLENGE COMPLETED', $notification->title);
+        $this->assertSame("Challenge completed: {$missions[0]->title}", $notification->message);
         $this->assertSame(['route' => 'mission.show', 'params' => ['mission' => $missions[0]->id]], $notification->data);
         $this->assertSame(
             route('mission.show', ['mission' => $missions[0]->id]),
@@ -160,7 +160,7 @@ class LearningNotificationTest extends TestCase
                 app(NotificationService::class)->create(
                     $user,
                     NotificationService::TYPE_MISSION_COMPLETED,
-                    'MISSION COMPLETED',
+                    'CHALLENGE COMPLETED',
                     'Mission completed.',
                     "mission_completed:{$mission->id}",
                     NotificationService::payload('mission.show', ['mission' => $mission->id]),

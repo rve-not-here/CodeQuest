@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Section Management"
-        subtitle="{{ $course->name }} — {{ $sections->count() }} {{ Str::plural('section', $sections->count()) }} in order_num order. Sections group missions inside the course and carry no status of their own; course.status remains the access gate."
+        subtitle="{{ $course->name }} · Manage sections in learning order."
         icon="▦"
     >
         <x-slot:actions>
@@ -21,6 +21,8 @@
     @endif
 
     <h2 class="text-sm font-bold text-phosphor mb-2">Sections in {{ $course->name }}</h2>
+
+    <p class="result-count mb-3 text-sm text-ink">{{ $sections->count() }} {{ Str::plural('section', $sections->count()) }}</p>
 
     @if ($sections->isEmpty())
         <x-status-message type="info" title="NO SECTIONS">

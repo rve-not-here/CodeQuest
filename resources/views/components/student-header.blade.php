@@ -1,5 +1,10 @@
 @php
     $studentActiveRoute = request()->route()?->getName();
+    $studentNavigation = [
+        ['route' => 'dashboard', 'label' => 'Dashboard', 'active' => $studentActiveRoute === 'dashboard'],
+        ['route' => 'learning-path', 'label' => 'Learn', 'active' => in_array($studentActiveRoute, ['learning-path', 'missions', 'mission.show', 'mission.experiment', 'knowledge-check.show', 'mission.challenge'], true)],
+        ['route' => 'assessments', 'label' => 'Boss Challenges', 'active' => in_array($studentActiveRoute, ['assessments', 'assessment.show'], true)],
+    ];
 @endphp
 <a href="#main" class="sr-only z-50 rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-accent-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Skip to content</a>
 
@@ -12,10 +17,9 @@
 
         <nav aria-label="Primary" class="hidden md:block">
             <ul class="flex items-center">
-                <li><a href="{{ route('dashboard') }}" class="nav-link" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
-                <li><a href="{{ route('learning-path') }}" class="nav-link {{ in_array($studentActiveRoute, ['mission.show', 'knowledge-check.show', 'mission.challenge'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
-                <li><a href="{{ route('missions') }}" class="nav-link" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
-                <li><a href="{{ route('assessments') }}" class="nav-link {{ $studentActiveRoute === 'assessment.show' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'assessments') aria-current="page" @endif>Assessments</a></li>
+                @foreach ($studentNavigation as $item)
+                    <li><a href="{{ route($item['route']) }}" class="nav-link {{ $item['active'] ? 'text-accent' : '' }}" @if ($item['active']) aria-current="page" @endif>{{ $item['label'] }}</a></li>
+                @endforeach
             </ul>
         </nav>
 
@@ -34,7 +38,7 @@
                     <span class="font-mono text-xs" aria-hidden="true">⌄</span>
                 </summary>
 
-                <div class="panel absolute top-full right-0 z-50 mt-2 w-[min(28rem,calc(100vw-2rem))] bg-surface p-2 shadow-2xl shadow-black/50">
+                <div class="panel absolute top-full right-0 z-50 mt-2 max-h-[calc(100dvh-5rem)] w-[min(28rem,calc(100vw-2rem))] overflow-y-auto bg-surface p-2 shadow-2xl shadow-black/50">
                     <div class="border-b border-line px-2.5 py-2">
                         <p class="truncate text-sm font-medium text-fg">{{ $displayName }}</p>
                         <p class="font-mono text-2xs text-fg-subtle">STUDENT</p>
@@ -43,10 +47,9 @@
                     <nav aria-label="Primary (mobile)" class="border-b border-line py-2 md:hidden">
                         <p class="eyebrow px-2.5 py-1">Navigate</p>
                         <ul class="grid grid-cols-2 gap-0.5">
-                            <li><a href="{{ route('dashboard') }}" class="menu-item {{ $studentActiveRoute === 'dashboard' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'dashboard') aria-current="page" @endif>Dashboard</a></li>
-                            <li><a href="{{ route('learning-path') }}" class="menu-item {{ in_array($studentActiveRoute, ['learning-path', 'mission.show', 'knowledge-check.show', 'mission.challenge'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'learning-path') aria-current="page" @endif>Learn</a></li>
-                            <li><a href="{{ route('missions') }}" class="menu-item {{ $studentActiveRoute === 'missions' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'missions') aria-current="page" @endif>Missions</a></li>
-                            <li><a href="{{ route('assessments') }}" class="menu-item {{ in_array($studentActiveRoute, ['assessments', 'assessment.show'], true) ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'assessments') aria-current="page" @endif>Assessments</a></li>
+                            @foreach ($studentNavigation as $item)
+                                <li><a href="{{ route($item['route']) }}" class="menu-item {{ $item['active'] ? 'text-accent' : '' }}" @if ($item['active']) aria-current="page" @endif>{{ $item['label'] }}</a></li>
+                            @endforeach
                         </ul>
                     </nav>
 
@@ -58,6 +61,7 @@
                             <a href="{{ route('competency') }}" class="menu-item {{ $studentActiveRoute === 'competency' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'competency') aria-current="page" @endif>Competency</a>
                             <a href="{{ route('timeline') }}" class="menu-item {{ $studentActiveRoute === 'timeline' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'timeline') aria-current="page" @endif>Timeline</a>
                             <a href="{{ route('xp-ledger') }}" class="menu-item {{ $studentActiveRoute === 'xp-ledger' ? 'text-accent' : '' }}" @if ($studentActiveRoute === 'xp-ledger') aria-current="page" @endif>XP Ledger</a>
+                            <a href="{{ route('reports.progress') }}" class="menu-item" @if ($studentActiveRoute === 'reports.progress') aria-current="page" @endif>Progress Report</a>
                         </nav>
                         <nav aria-label="More learning tools">
                             <p class="eyebrow px-2.5 py-1">More</p>

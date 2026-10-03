@@ -331,10 +331,10 @@ class XpServiceTest extends TestCase
         $rows = $this->service->transactionHistory($user);
 
         $this->assertCount(2, $rows);
-        $this->assertSame('Hint 1 on mission: First Contact', $rows[0]['reason']);
+        $this->assertSame('Hint 1 on challenge: First Contact', $rows[0]['reason']);
         $this->assertInstanceOf(Carbon::class, $rows[0]['at']);
         $this->assertSame('Aug 02, 10:00', $rows[0]['at']->format('M d, H:i'));
-        $this->assertSame('Mission completed: First Contact', $rows[1]['reason']);
+        $this->assertSame('Challenge completed: First Contact', $rows[1]['reason']);
     }
 
     public function test_transaction_history_rows_expose_action_fields_and_no_internal_ids(): void
@@ -375,10 +375,10 @@ class XpServiceTest extends TestCase
 
         $this->assertSame('Boss Challenge completed: Signal Restoration — HTML Boss Challenge', $rows[0]['reason']);
         $this->assertSame('assessment', $rows[0]['source']);
-        $this->assertSame('Wrong submission on mission: First Contact', $rows[1]['reason']);
+        $this->assertSame('Wrong submission on challenge: First Contact', $rows[1]['reason']);
         $this->assertSame('mission', $rows[1]['source']);
-        $this->assertSame('Hint 1 on mission: First Contact', $rows[2]['reason']);
-        $this->assertSame('Mission completed: First Contact', $rows[3]['reason']);
+        $this->assertSame('Hint 1 on challenge: First Contact', $rows[2]['reason']);
+        $this->assertSame('Challenge completed: First Contact', $rows[3]['reason']);
 
         $credits = $rows->filter(fn (array $row): bool => $row['direction'] === 'credit')->values();
         $debits = $rows->filter(fn (array $row): bool => $row['direction'] === 'debit')->values();
@@ -399,6 +399,6 @@ class XpServiceTest extends TestCase
         $this->assertCount(1, $rows);
         $this->assertSame(0, $rows[0]['amount']);
         $this->assertSame('debit', $rows[0]['direction']);
-        $this->assertSame('Wrong submission on mission: First Contact', $rows[0]['reason']);
+        $this->assertSame('Wrong submission on challenge: First Contact', $rows[0]['reason']);
     }
 }

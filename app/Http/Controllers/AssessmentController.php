@@ -57,7 +57,7 @@ class AssessmentController extends Controller
             return redirect()->route('assessments')
                 ->with('assessment_locked', [
                     'title' => 'Challenge sealed',
-                    'message' => 'Complete every mission in '.$course->name.' to unlock its Boss Challenge.',
+                    'message' => 'Complete every challenge in '.$course->name.' to unlock its Boss Challenge.',
                 ]);
         }
 
@@ -80,7 +80,7 @@ class AssessmentController extends Controller
             return redirect()->route('assessments')
                 ->with('assessment_error', [
                     'title' => 'Challenge sealed',
-                    'message' => 'Complete every mission in '.$course->name.' before beginning its Boss Challenge.',
+                    'message' => 'Complete every challenge in '.$course->name.' before beginning its Boss Challenge.',
                 ]);
         } catch (AssessmentAttemptStateException) {
             return redirect()->route('assessment.show', $assessment)
@@ -111,7 +111,7 @@ class AssessmentController extends Controller
             return redirect()->route('assessments')
                 ->with('assessment_error', [
                     'title' => 'Challenge sealed',
-                    'message' => 'Complete every mission in '.($course === null ? 'this course' : $course->name).' before submitting its Boss Challenge.',
+                    'message' => 'Complete every challenge in '.($course === null ? 'this course' : $course->name).' before submitting its Boss Challenge.',
                 ]);
         }
 
@@ -186,7 +186,7 @@ class AssessmentController extends Controller
             return redirect()->route('assessments')
                 ->with('assessment_error', [
                     'title' => 'Challenge sealed',
-                    'message' => 'Complete every mission in '.$course->name.' before retrying its Boss Challenge.',
+                    'message' => 'Complete every challenge in '.$course->name.' before retrying its Boss Challenge.',
                 ]);
         } catch (AssessmentAttemptStateException) {
             return redirect()->route('assessment.show', $assessment)

@@ -8,7 +8,7 @@
             <div>
                 <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Learning Timeline</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Your missions, Knowledge Checks, and Boss Challenges in the order they happened.</p>
+                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Your challenges, Knowledge Checks, and Boss Challenges in the order they happened.</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <span class="font-mono text-sm text-fg-muted">XP {{ number_format($totalXp) }}</span>

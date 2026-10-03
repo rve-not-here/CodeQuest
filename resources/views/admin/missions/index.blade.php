@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="Mission Management"
-        subtitle="{{ $course->name }} — {{ $missions->count() }} {{ Str::plural('mission', $missions->count()) }} in order_num order. Missions carry no status of their own; course.status remains the access gate. Solution code and validation rules are view-only in this story."
+        subtitle="{{ $course->name }} · Manage challenge content and learning order."
         icon="⚑"
     >
         <x-slot:actions>
@@ -21,6 +21,8 @@
     @endif
 
     <h2 class="text-sm font-bold text-phosphor mb-2">Missions in {{ $course->name }}</h2>
+
+    <p class="result-count mb-3 text-sm text-ink">{{ $missions->count() }} {{ Str::plural('mission', $missions->count()) }}</p>
 
     @if ($missions->isEmpty())
         <x-status-message type="info" title="NO MISSIONS">

@@ -90,12 +90,12 @@
                 </ol>
             </section>
         @else
-            <form method="POST" action="{{ route('knowledge-check.submit', [$mission, $knowledgeCheck, $attempt]) }}">
+            <form method="POST" action="{{ route('knowledge-check.submit', [$mission, $knowledgeCheck, $attempt]) }}" data-knowledge-check>
                 @csrf
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
                     <div class="grid min-w-0 grid-cols-1 gap-4">
                         @foreach ($questions as $index => $question)
-                            <fieldset class="panel min-w-0 p-5 md:p-6">
+                            <fieldset class="panel min-w-0 p-5 md:p-6" id="question-{{ $question['id'] }}" data-check-question tabindex="-1">
                                 <legend class="sr-only">Question {{ $index + 1 }} of {{ $questions->count() }}: {{ $question['prompt'] }}</legend>
                                 <p class="eyebrow text-info" aria-hidden="true">Question {{ $index + 1 }} of {{ $questions->count() }}</p>
                                 <p class="mt-2 text-[15px] font-medium leading-6">{{ $question['prompt'] }}</p>
@@ -117,6 +117,14 @@
                         <p class="eyebrow text-info">Your check</p>
                         <h2 id="knowledge-check-progress-title" class="mt-1 text-lg font-semibold">{{ $questions->count() }} questions</h2>
                         <p class="mt-2 text-sm leading-6 text-fg-muted">Answer every question before submitting. Your answers are scored together.</p>
+                        <div class="mt-4" data-check-summary hidden>
+                            <p class="text-sm font-medium" data-check-count aria-live="polite"></p>
+                            <div class="mt-2 h-2 overflow-hidden rounded-sm bg-raised" role="progressbar" aria-label="Answered questions" aria-valuemin="0" aria-valuemax="{{ $questions->count() }}" aria-valuenow="0" data-check-progress>
+                                <span class="block h-full bg-accent" style="width: 0%"></span>
+                            </div>
+                            <p class="mt-3 text-xs text-fg-subtle">Unanswered questions</p>
+                            <ul class="mt-1 flex flex-wrap gap-2 text-sm text-info" data-check-unanswered></ul>
+                        </div>
                         <button type="submit" class="btn btn-primary mt-5 w-full">Submit answers →</button>
                         <p class="mt-3 text-xs leading-5 text-fg-subtle">Results and explanations appear after submission.</p>
                     </aside>

@@ -1,3 +1,7 @@
+import { initializeKnowledgeCheck } from './knowledge-check.js';
+
+initializeKnowledgeCheck(document);
+
 const editorHost = document.getElementById('editor-host');
 
 if (document.querySelector('[data-workspace]')) {
@@ -118,7 +122,7 @@ window.matchMedia('(min-width: 1024px)').addEventListener('change', (event) => {
 });
 
 document.querySelectorAll('[data-dismiss]').forEach((btn) => {
-    btn.addEventListener('click', () => btn.closest('[role="status"]')?.remove());
+    btn.addEventListener('click', () => btn.closest('[role="status"], [role="alert"]')?.remove());
 });
 
 const accountMenu = document.querySelector('.cq-account-menu');

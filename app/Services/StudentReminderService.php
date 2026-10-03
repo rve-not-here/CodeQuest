@@ -128,7 +128,7 @@ class StudentReminderService
             $this->notifications->create(
                 $user,
                 NotificationService::TYPE_DRAFT_REMINDER,
-                'MISSION DRAFT AWAITING',
+                'CHALLENGE DRAFT AWAITING',
                 $this->draftMessage($mission, $stage, $draft->updated_at),
                 null,
                 NotificationService::payload(
@@ -231,7 +231,7 @@ class StudentReminderService
     {
         if ($kind === self::KIND_STALLED) {
             return sprintf(
-                'No new mission on "%s" in %d days (%d/%d missions). Pick it back up.',
+                'No new challenge on "%s" in %d days (%d/%d challenges). Pick it back up.',
                 $course->name,
                 $days,
                 $completed,
@@ -239,7 +239,7 @@ class StudentReminderService
             );
         }
 
-        return sprintf('You have finished every mission in "%s". The Boss Challenge is ready; take it on.', $course->name);
+        return sprintf('You have finished every challenge in "%s". The Boss Challenge is ready; take it on.', $course->name);
     }
 
     private function isMissionCompleted(User $user, Mission $mission): bool

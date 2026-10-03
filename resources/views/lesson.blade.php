@@ -17,12 +17,12 @@
         </nav>
 
         <header class="mt-3 mb-7 border-b border-line pb-6">
-            <p class="eyebrow">Mission lesson @if ($section) · {{ $section->title }} @endif</p>
+            <p class="eyebrow">Lesson @if ($section) · {{ $section->title }} @endif</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">{{ $mission->title }}</h1>
             <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">Read the brief and inspect the starter, then apply what you learned in the coding challenge.</p>
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 <span class="badge badge-neutral">{{ $mission->difficulty }}</span>
-                <span class="badge badge-accent">+{{ $mission->points }} XP on first pass</span>
+                <span class="badge badge-neutral">+{{ $mission->points }} XP on first pass</span>
                 @if ($completed)
                     <span class="badge badge-accent">Completed</span>
                 @endif
@@ -30,7 +30,7 @@
         </header>
 
         @if (session('mission_success'))
-            <div class="panel mb-5 border-accent-line bg-accent-soft px-4 py-3" role="status"><strong class="text-sm text-accent">MISSION COMPLETE</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
+            <div class="panel mb-5 border-accent-line bg-accent-soft px-4 py-3" role="status"><strong class="text-sm text-accent">CHALLENGE COMPLETE</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
         @endif
         @if (session('mission_info'))
             <div class="panel mb-5 px-4 py-3" role="status"><strong class="text-sm">{{ session('mission_info')['title'] }}.</strong> <span class="text-sm text-fg-muted">{{ session('mission_info')['message'] }}</span></div>
@@ -45,7 +45,7 @@
             <div class="panel mb-5 border-danger/40 bg-danger-soft px-4 py-3" role="alert"><strong class="text-sm text-danger">Knowledge Check unavailable.</strong> <span class="text-sm text-fg-muted">{{ session('knowledge_check_error') }}</span></div>
         @endif
 
-        <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-8">
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-8">
             <div class="min-w-0 space-y-6">
                 <section class="panel" aria-labelledby="lesson-objective">
                     <div class="border-b border-line px-5 py-3.5">
@@ -135,7 +135,7 @@
                     <p class="eyebrow text-accent">Next step</p>
                     <h2 id="lesson-next" class="mt-1 text-lg font-semibold">{{ $outstandingRequiredCheck ? 'Complete the required check' : 'Apply what you learned' }}</h2>
                     <p class="mt-2 text-sm leading-6 text-fg-muted">
-                        {{ $outstandingRequiredCheck ? 'This check must be submitted before the coding challenge opens.' : 'Open the editor to run a preview and complete this mission.' }}
+                        {{ $outstandingRequiredCheck ? 'This check must be submitted before the coding challenge opens.' : 'Open the editor to run a preview and complete this challenge.' }}
                     </p>
                 </div>
                 <div class="space-y-4 p-5">

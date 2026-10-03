@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="New Announcement"
-        subtitle="Saved as a draft by the server — publishing is a separate step that delivers the message to the selected audience."
+        subtitle="Write a draft and choose its audience. Publishing delivers the message."
         icon="◉"
     >
         <x-slot:actions>
