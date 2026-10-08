@@ -57,6 +57,8 @@ class RoleNavigationTest extends TestCase
 
         $this->get(route('login'))->assertRedirect(route($home));
         if ($role !== 'student') {
+            preg_match('/<form[^>]*action="'.preg_quote(route('logout'), '/').'"[^>]*>(.*?)<\/form>/s', $html, $logout);
+            $this->assertMatchesRegularExpression('/<button[^>]*aria-label="Sign out"/', $logout[1]);
             $this->get(route('dashboard'))->assertForbidden();
             $this->get(route('assessments'))->assertForbidden();
             $this->get(route('competency'))->assertForbidden();

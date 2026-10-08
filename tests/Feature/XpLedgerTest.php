@@ -56,7 +56,7 @@ class XpLedgerTest extends TestCase
     public function test_the_xp_ledger_lists_transactions_with_amount_direction_reason_source_and_timestamp(): void
     {
         $user = User::factory()->create(['role' => 'student']);
-        $mission = Mission::factory()->create(['title' => 'The Breach', 'points' => 30]);
+        $mission = Mission::factory()->create(['title' => 'The Breach', 'points' => 30, 'hints' => '["First hint"]']);
         $assessment = Assessment::factory()->create(['title' => 'Signal Restoration — HTML Boss Challenge']);
 
         $this->xp->awardCompletion($user, $mission);

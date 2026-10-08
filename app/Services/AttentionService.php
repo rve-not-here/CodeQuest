@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\Assessment;
 use App\Models\Course;
+use App\Models\KnowledgeCheckAttempt;
 use App\Models\Mission;
 use App\Models\User;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +40,8 @@ use Illuminate\Support\Facades\DB;
  */
 class AttentionService
 {
+    public function __construct(private readonly ClassroomAccessService $access) {}
+
     /**
      * Primary-reason priority, highest first. boss_fail is the current-course
      * gate state, so it leads; plain inactivity ranks below never_started
@@ -125,12 +129,22 @@ class AttentionService
      */
     public function list(?Collection $studentIds = null, ?array $allowedByStudent = null): Collection
     {
+        $monitorableStudentIds = $allowedByStudent === null ? null : array_keys(array_filter(
+            $allowedByStudent,
+            fn (Collection $courseIds): bool => $courseIds->isNotEmpty(),
+        ));
         $students = User::query()
             ->where('role', 'student')
             ->when($studentIds !== null, fn ($query) => $query->whereIn('id', $studentIds))
+            ->when($monitorableStudentIds !== null, fn ($query) => $query->whereIn('id', $monitorableStudentIds))
             ->orderBy('username')
             ->get();
 
+        if ($students->isEmpty()) {
+            return collect();
+        }
+
+        $studentIds = $students->pluck('id');
         $courses = Course::query()->where('status', 'active')->orderBy('order_num')->orderBy('id')->get();
 
         $missionCounts = Mission::query()
@@ -143,32 +157,32 @@ class AttentionService
             ->get(['id', 'course_id', 'status', 'passing_score'])
             ->keyBy('course_id');
 
-        $passedCoursesByUser = DB::table('the404_assessment_attempts as at')
+        $passedCoursesByUser = $this->scopeEvidence(DB::table('the404_assessment_attempts as at')
             ->join('the404_assessments as a', 'a.id', '=', 'at.assessment_id')
             ->select('at.user_id as user_id', 'a.course_id as course_id')
             ->where('at.status', 'passed')
-            ->distinct()
+            ->distinct(), 'at.user_id', 'a.course_id', $studentIds, $allowedByStudent)
             ->get()
             ->groupBy('user_id')
             ->map(fn (Collection $rows): Collection => $rows->pluck('course_id'));
 
-        $progressByUserCourse = DB::table('the404_progress as p')
+        $progressByUserCourse = $this->scopeEvidence(DB::table('the404_progress as p')
             ->join('the404_missions as m', 'm.id', '=', 'p.mission_id')
             ->selectRaw(
                 'p.user_id as user_id, m.course_id as course_id, '
                 .'COUNT(DISTINCT p.mission_id) as done, MAX(p.completed_at) as completed_at',
             )
-            ->groupBy('p.user_id', 'm.course_id')
+            ->groupBy('p.user_id', 'm.course_id'), 'p.user_id', 'm.course_id', $studentIds, $allowedByStudent)
             ->get()
             ->groupBy('user_id');
 
-        $attemptsByUserCourse = DB::table('the404_assessment_attempts as at')
+        $attemptsByUserCourse = $this->scopeEvidence(DB::table('the404_assessment_attempts as at')
             ->join('the404_assessments as a', 'a.id', '=', 'at.assessment_id')
-            ->select('at.id as id', 'at.user_id as user_id', 'a.course_id as course_id', 'at.status as status', 'at.score as score')
+            ->select('at.id as id', 'at.user_id as user_id', 'a.course_id as course_id', 'at.status as status', 'at.score as score'), 'at.user_id', 'a.course_id', $studentIds, $allowedByStudent)
             ->get()
             ->groupBy('user_id');
 
-        $lastEventsByUser = $this->lastEventsByUser();
+        $lastEventsByUser = $this->lastEventsByUser($studentIds, $allowedByStudent);
 
         $hasCoursesToStart = $courses->contains(
             fn (Course $course): bool => ((int) ($missionCounts->get($course->id) ?? 0)) > 0,
@@ -181,7 +195,7 @@ class AttentionService
             $progressRows = $progressByUserCourse->get($student->id, collect());
             $attemptRows = $attemptsByUserCourse->get($student->id, collect());
 
-            $allowed = $allowedByStudent[$student->id] ?? null;
+            $allowed = $allowedByStudent === null ? null : ($allowedByStudent[$student->id] ?? collect());
             $candidateCourses = $allowed === null
                 ? $courses
                 : $courses->filter(fn (Course $course): bool => $allowed->contains($course->id))->values();
@@ -330,28 +344,71 @@ class AttentionService
     }
 
     /**
+     * @param  Collection<int, int>  $studentIds
+     * @param  array<int, Collection<int, int>>|null  $allowedByStudent
      * @return array<string, Collection<int, int|string>>
      */
-    private function lastEventsByUser(): array
+    private function lastEventsByUser(Collection $studentIds, ?array $allowedByStudent): array
     {
-        return [
-            'progress' => DB::table('the404_progress')
-                ->selectRaw('user_id, MAX(completed_at) as last')
-                ->groupBy('user_id')
+        $xp = DB::table('the404_xp_transactions as x')->whereIn('x.user_id', $studentIds);
+
+        if ($allowedByStudent !== null) {
+            $xp->leftJoin('the404_missions as m', 'm.id', '=', 'x.mission_id')
+                ->leftJoin('the404_assessments as a', 'a.id', '=', 'x.assessment_id')
+                ->where(function (Builder $query) use ($allowedByStudent): void {
+                    $this->access->whereAllowedPairs($query, 'x.user_id', 'm.course_id', $allowedByStudent);
+                    $query->orWhere(function (Builder $query) use ($allowedByStudent): void {
+                        $this->access->whereAllowedPairs($query, 'x.user_id', 'a.course_id', $allowedByStudent);
+                    });
+                });
+        }
+
+        $sources = [
+            'progress' => $this->scopeEvidence(DB::table('the404_progress as p')
+                ->join('the404_missions as m', 'm.id', '=', 'p.mission_id')
+                ->selectRaw('p.user_id as user_id, MAX(p.completed_at) as last')
+                ->groupBy('p.user_id'), 'p.user_id', 'm.course_id', $studentIds, $allowedByStudent)
                 ->pluck('last', 'user_id'),
-            'attempts' => DB::table('the404_assessment_attempts')
-                ->selectRaw('user_id, MAX(COALESCE(passed_at, submitted_at, created_at)) as last')
-                ->groupBy('user_id')
+            'attempts' => $this->scopeEvidence(DB::table('the404_assessment_attempts as at')
+                ->join('the404_assessments as a', 'a.id', '=', 'at.assessment_id')
+                ->selectRaw('at.user_id as user_id, MAX(COALESCE(at.passed_at, at.submitted_at, at.created_at)) as last')
+                ->groupBy('at.user_id'), 'at.user_id', 'a.course_id', $studentIds, $allowedByStudent)
                 ->pluck('last', 'user_id'),
-            'activity' => DB::table('the404_activity')
-                ->selectRaw('user_id, MAX(created_at) as last')
-                ->groupBy('user_id')
-                ->pluck('last', 'user_id'),
-            'xp' => DB::table('the404_xp_transactions')
-                ->selectRaw('user_id, MAX(created_at) as last')
-                ->groupBy('user_id')
+            'xp' => $xp->selectRaw('x.user_id as user_id, MAX(x.created_at) as last')
+                ->groupBy('x.user_id')
                 ->pluck('last', 'user_id'),
         ];
+
+        if ($allowedByStudent === null) {
+            $sources['activity'] = DB::table('the404_activity')
+                ->whereIn('user_id', $studentIds)
+                ->selectRaw('user_id, MAX(created_at) as last')
+                ->groupBy('user_id')
+                ->pluck('last', 'user_id');
+        } else {
+            $sources['knowledge-check'] = $this->scopeEvidence(DB::table('the404_knowledge_check_attempts as at')
+                ->join('the404_knowledge_checks as k', 'k.id', '=', 'at.knowledge_check_id')
+                ->join('the404_missions as m', 'm.id', '=', 'k.mission_id')
+                ->where('at.status', KnowledgeCheckAttempt::STATUS_SUBMITTED)
+                ->selectRaw('at.user_id as user_id, MAX(at.submitted_at) as last')
+                ->groupBy('at.user_id'), 'at.user_id', 'm.course_id', $studentIds, $allowedByStudent)
+                ->pluck('last', 'user_id');
+        }
+
+        return $sources;
+    }
+
+    /**
+     * @param  Collection<int, int>  $studentIds
+     * @param  array<int, Collection<int, int>>|null  $allowedByStudent
+     */
+    private function scopeEvidence(Builder $query, string $userColumn, string $courseColumn, Collection $studentIds, ?array $allowedByStudent): Builder
+    {
+        $query->whereIn($userColumn, $studentIds);
+
+        return $allowedByStudent === null
+            ? $query
+            : $this->access->whereAllowedPairs($query, $userColumn, $courseColumn, $allowedByStudent);
     }
 
     /**

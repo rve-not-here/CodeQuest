@@ -190,7 +190,10 @@ VISIBILITY=$(timeout 60 "$RUNTIME" run --rm -i $RUN_FLAGS \
     --entrypoint sh \
     codequest-js-runner:1.0 -c 'for p in "$1" "$2" /host /mnt/host; do if [ -e "$p" ]; then echo "PRESENT:$p"; fi; done; echo "marker" > /tmp/probe && cat /tmp/probe; echo "intruder" > /app/pwned 2>/dev/null && echo WRITABLE_ROOT || echo READONLY_ROOT; printf "echo HI\n" > /tmp/noexec.sh; chmod +x /tmp/noexec.sh; /tmp/noexec.sh >/dev/null 2>&1 && echo EXEC_OK || echo NOEXEC_OK' \
     sh "$HOST_HOME" "$PROJECT_ROOT" 2>&1 || true)
-if printf '%s' "$VISIBILITY" | grep -q PRESENT; then
+if ! printf '%s' "$VISIBILITY" | grep -q '^marker$'; then
+    FAIL=$((FAIL + 1))
+    echo "NOT OK: host visibility probe did not execute"
+elif printf '%s' "$VISIBILITY" | grep -q PRESENT; then
     FAIL=$((FAIL + 1))
     echo "NOT OK: host path is visible inside the sandbox"
     printf '%s\n' "$VISIBILITY" | grep PRESENT | head -n 5
@@ -202,14 +205,21 @@ check "read-only root rejects writes" "READONLY_ROOT" "$(printf '%s' "$VISIBILIT
 check "tmpfs /tmp is writable" "marker" "$(printf '%s' "$VISIBILITY" | grep -E '^marker$' || echo MISSING)"
 check "tmpfs /tmp denies execution" "NOEXEC_OK" "$(printf '%s' "$VISIBILITY" | grep -E '^(NOEXEC_OK|EXEC_OK)$' || echo MISSING)"
 
-# Cleanup: after a timeout kill, no grading container may remain.
-TIMEOUT_SRC='{"source":"while (true) {}","exec_timeout_ms":2000,"tests":[{"type":"console"}]}'
-printf '%s' "$TIMEOUT_SRC" | timeout 60 "$RUNTIME" run --rm -i $RUN_FLAGS \
-    --name "codequest-cleanup-probe" \
-    codequest-js-runner:1.0 node /app/src/runner.js >/dev/null 2>&1 || true
-sleep 2
-LEFTOVER=$("$RUNTIME" ps --format '{{.Names}}' 2>/dev/null | grep -c codequest-cleanup-probe || true)
+# The async loop outlives the VM timeout and must be removed by the service.
+TIMEOUT_SRC='{"source":"Promise.resolve().then(() => { while (true) {} });","tests":[{"type":"console","payload":{"expected":[[1]]}}]}'
+RESULT=$(grade "$TIMEOUT_SRC")
+check "service timeout fails closed" "error timeout" "$(printf '%s' "$RESULT" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const r=JSON.parse(d);process.stdout.write(r.status+' '+r.error_type)})")"
+RUNNING=$("$RUNTIME" ps --format '{{.Names}}')
+LEFTOVER=$(printf '%s\n' "$RUNNING" | grep -c '^codequest-grade-' || true)
 check "no grading container remains after timeout" "0" "$LEFTOVER"
+
+# Read the enforced kernel limits inside a live sandbox, not only its config.
+# shellcheck disable=SC2086
+LIMITS=$(timeout 30 "$RUNTIME" run --rm -i $RUN_FLAGS --entrypoint sh \
+    codequest-js-runner:1.0 -c 'id -u; cat /sys/fs/cgroup/cpu.max /sys/fs/cgroup/memory.max /sys/fs/cgroup/pids.max; grep -E "^(NoNewPrivs|Seccomp):" /proc/self/status' 2>&1 || true)
+check "non-root identity and kernel resource limits" "65534 50000 100000 134217728 32" "$(printf '%s' "$LIMITS" | head -n 4 | tr '\n' ' ' | sed 's/ $//')"
+check "no-new-privileges enforced" "1" "$(printf '%s' "$LIMITS" | awk '/^NoNewPrivs:/ {print $2}')"
+check "seccomp enforced" "2" "$(printf '%s' "$LIMITS" | awk '/^Seccomp:/ {print $2}')"
 
 echo "---"
 echo "pass=$PASS fail=$FAIL runtime=$RUNTIME mode=$MODE"

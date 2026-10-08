@@ -68,4 +68,64 @@ class EditorSourceRestorationTest extends TestCase
 
         return $cases;
     }
+
+    #[DataProvider('previewLanguages')]
+    public function test_boss_preview_renders_its_language_on_load_and_after_running_edited_code(string $type, string $source, string $changedSource, string $expectedSource, string $expectedChangedSource): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create(['type' => $type]);
+        $mission = Mission::factory()->create(['course_id' => $course->id]);
+        Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $mission->id]);
+        $boss = Assessment::factory()->create(['course_id' => $course->id]);
+        AssessmentAttempt::factory()->started()->create(['user_id' => $student->id, 'assessment_id' => $boss->id, 'code' => $source]);
+
+        $response = $this->actingAs($student)->get(route('assessment.show', $boss))->assertOk();
+        $this->assertSame(1, preg_match('/<script>\s*(\(function[\s\S]*?)<\/script>/', $response->getContent(), $matches));
+        $result = Process::timeout(5)->input($matches[1])->run(['node', '--input-type=module', '-e', <<<'JS'
+import vm from 'node:vm';
+import { previewDocument } from './resources/js/preview.js';
+let script = '';
+for await (const chunk of process.stdin) script += chunk;
+const elements = new Map();
+const document = {
+    getElementById(id) {
+        if (!elements.has(id)) elements.set(id, { listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; } });
+        return elements.get(id);
+    },
+    querySelectorAll() { return []; },
+};
+let editor;
+const CM = {
+    html() {}, css() {}, javascript() {},
+    EditorView: class {
+        static updateListener = { of() {} };
+        constructor(options) { editor = this; this.state = { doc: { toString: () => options.doc } }; }
+    },
+};
+vm.runInNewContext(script, { document, window: { CodeQuest: { CodeMirror: CM, previewDocument } } });
+const initial = elements.get('preview-frame').srcdoc;
+editor.state.doc = { toString: () => process.argv[1] };
+elements.get('run').listeners.click();
+process.stdout.write(JSON.stringify({ initial, changed: elements.get('preview-frame').srcdoc }));
+JS, $changedSource]);
+
+        $this->assertTrue($result->successful(), $result->errorOutput());
+        $previews = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertStringContainsString($expectedSource, $previews['initial']);
+        $this->assertStringContainsString($expectedChangedSource, $previews['changed']);
+        $response->assertSee('sandbox="'.(in_array($type, ['js', 'javascript'], true) ? 'allow-scripts' : '').'"', false);
+        $response->assertDontSee('allow-same-origin');
+        $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    /** @return array<string, array{string, string, string, string, string}> */
+    public static function previewLanguages(): array
+    {
+        return [
+            'html' => ['html', '<h1>Initial output</h1>', '<h1>Changed output</h1>', '<h1>Initial output</h1>', '<h1>Changed output</h1>'],
+            'css' => ['css', '<style>h1 { color: red; }</style><h1>Terminal</h1>', '<style>h1 { color: blue; }</style><h1>Terminal</h1>', '<style>h1 { color: red; }</style><h1>Terminal</h1>', '<style>h1 { color: blue; }</style><h1>Terminal</h1>'],
+            'js' => ['js', '<button>Signal</button><script>console.log("Initial output");</script>', '<button>Signal</button><script>console.log("Changed output");</script>', '<button>Signal</button><script>console.log("Initial output");</script>', '<button>Signal</button><script>console.log("Changed output");</script>'],
+            'javascript' => ['javascript', '<script>console.log("Initial output");</script>', '<script>console.log("Changed output");</script>', '<script>console.log("Initial output");</script>', '<script>console.log("Changed output");</script>'],
+        ];
+    }
 }

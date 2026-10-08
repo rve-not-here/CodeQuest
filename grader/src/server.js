@@ -1,7 +1,8 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { timingSafeEqual } from 'node:crypto';
+import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { basename } from 'node:path';
 import { evaluate, executionPayload, result } from './evaluator.js';
 
 // CodeQuest JS grader service. Internal infrastructure only: binds
@@ -49,9 +50,9 @@ function validPayload(body) {
 
 // Fixed argument vector. No user-controlled data ever reaches argv;
 // the payload travels over stdin as JSON.
-function runtimeArgs() {
+function runtimeArgs(containerName) {
     return [
-        'run', '--rm', '-i',
+        'run', '--rm', '-i', '--name', containerName,
         '--network', 'none',
         '--user', '65534:65534',
         '--read-only',
@@ -67,29 +68,66 @@ function runtimeArgs() {
     ];
 }
 
-export function gradeInSandbox(payload, spawnSandbox = () => spawn(RUNTIME, runtimeArgs(), { stdio: ['pipe', 'pipe', 'ignore'] })) {
+function removeContainer(containerName) {
+    return new Promise((resolve, reject) => {
+        const docker = basename(RUNTIME) === 'docker';
+        const args = docker ? ['rm', '--force', containerName] : ['rm', '--force', '--time', '0', '--ignore', containerName];
+        const cleanup = spawn(RUNTIME, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+        let stderr = '';
+        cleanup.stderr.setEncoding('utf8');
+        cleanup.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(0, 4096); });
+        const timer = setTimeout(() => {
+            cleanup.kill('SIGKILL');
+            reject(new Error('container cleanup timeout'));
+        }, 5000);
+        timer.unref?.();
+        cleanup.once('error', error => { clearTimeout(timer); reject(error); });
+        cleanup.once('close', code => {
+            clearTimeout(timer);
+            const absent = docker && code === 1 && stderr.trim() === `Error response from daemon: No such container: ${containerName}`;
+            if (code === 0 || absent) {
+                resolve();
+            } else {
+                reject(new Error('container cleanup failed'));
+            }
+        });
+    });
+}
+
+export function gradeInSandbox(payload, spawnSandbox, cleanupSandbox) {
     const started = Date.now();
+    const containerName = `codequest-grade-${randomUUID()}`;
+    const start = spawnSandbox ?? (() => spawn(RUNTIME, runtimeArgs(containerName), { stdio: ['pipe', 'pipe', 'ignore'] }));
+    const cleanup = cleanupSandbox ?? (spawnSandbox ? async () => {} : removeContainer);
     return new Promise((resolve) => {
         let child;
-        try {
-            child = spawnSandbox();
-        } catch {
-            resolve(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
-            return;
-        }
         let stdout = '';
         let settled = false;
         let timer;
-        const finish = (result) => {
-            if (!settled) {
-                settled = true;
-                clearTimeout(timer);
-                resolve(result);
+        const finish = async (outcome, aborted = false) => {
+            if (settled) {
+                return;
             }
+            settled = true;
+            clearTimeout(timer);
+            if (aborted) {
+                child?.kill('SIGKILL');
+                try {
+                    await cleanup(containerName);
+                } catch {
+                    outcome = result('error', 0, 0, 'grader_unavailable', Date.now() - started);
+                }
+            }
+            resolve(outcome);
         };
+        try {
+            child = start(containerName);
+        } catch {
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started), true);
+            return;
+        }
         timer = setTimeout(() => {
-            child.kill('SIGKILL');
-            finish(result('error', 0, 0, 'timeout', Date.now() - started));
+            finish(result('error', 0, 0, 'timeout', Date.now() - started), true);
         }, EXEC_TIMEOUT_MS);
         timer.unref?.();
 
@@ -97,21 +135,20 @@ export function gradeInSandbox(payload, spawnSandbox = () => spawn(RUNTIME, runt
         child.stdout.on('data', (chunk) => {
             stdout += chunk;
             if (Buffer.byteLength(stdout) > MAX_STDOUT_BYTES) {
-                child.kill('SIGKILL');
-                finish(result('error', 0, 0, 'resource_limit', Date.now() - started));
+                finish(result('error', 0, 0, 'resource_limit', Date.now() - started), true);
             }
         });
         child.stdin.on('error', () => {
-            clearTimeout(timer);
-            child.kill('SIGKILL');
-            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started), true);
         });
         child.on('error', () => {
-            clearTimeout(timer);
-            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started), true);
         });
-        child.on('close', () => {
-            clearTimeout(timer);
+        child.on('close', code => {
+            if (code !== 0) {
+                finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started), true);
+                return;
+            }
             finish(evaluate(payload, stdout, Date.now() - started));
         });
 
@@ -119,8 +156,7 @@ export function gradeInSandbox(payload, spawnSandbox = () => spawn(RUNTIME, runt
             child.stdin.write(JSON.stringify(executionPayload(payload, EXEC_TIMEOUT_MS)));
             child.stdin.end();
         } catch {
-            child.kill('SIGKILL');
-            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started));
+            finish(result('error', 0, 0, 'grader_unavailable', Date.now() - started), true);
         }
     });
 }
@@ -153,8 +189,18 @@ function readBody(request) {
     });
 }
 
-export function createApp(spawnSandbox) {
+export function createApp(spawnSandbox, cleanupSandbox) {
     let active = 0;
+    let cleanupFailed = false;
+    const cleanup = cleanupSandbox ?? (spawnSandbox ? async () => {} : removeContainer);
+    const cleanupExecution = async containerName => {
+        try {
+            await cleanup(containerName);
+        } catch (error) {
+            cleanupFailed = true;
+            throw error;
+        }
+    };
     return createServer(async (request, response) => {
         const json = (code, body) => {
             response.writeHead(code, { 'content-type': 'application/json' });
@@ -162,7 +208,7 @@ export function createApp(spawnSandbox) {
         };
 
         if (request.method === 'GET' && request.url === '/healthz') {
-            json(200, { ok: true });
+            json(cleanupFailed ? 503 : 200, { ok: !cleanupFailed });
             return;
         }
 
@@ -176,7 +222,7 @@ export function createApp(spawnSandbox) {
             return;
         }
 
-        if (active >= MAX_CONCURRENT) {
+        if (cleanupFailed || active >= MAX_CONCURRENT) {
             response.setHeader('retry-after', '1');
             json(503, { error: 'grader_unavailable' });
             return;
@@ -197,7 +243,7 @@ export function createApp(spawnSandbox) {
                 return;
             }
 
-            json(200, await gradeInSandbox({ source: body.source, tests: body.tests }, spawnSandbox));
+            json(200, await gradeInSandbox({ source: body.source, tests: body.tests }, spawnSandbox, cleanupExecution));
         } finally {
             active--;
         }

@@ -202,20 +202,41 @@ class AssessmentService
      */
     public function courseReachForCourses(User $user, Collection $courses): array
     {
-        if ($courses->isEmpty()) {
+        return $this->courseReachForStudents(collect([$user->id]), $courses)[$user->id] ?? [];
+    }
+
+    /**
+     * Reach verdicts only: prerequisite records are never added to monitoring output.
+     *
+     * @param  Collection<int, int>  $studentIds
+     * @param  Collection<int, Course>  $courses
+     * @return array<int, array<int, bool>>
+     */
+    public function courseReachForStudents(Collection $studentIds, Collection $courses): array
+    {
+        if ($studentIds->isEmpty() || $courses->isEmpty()) {
             return [];
         }
 
-        $blockingCourses = Course::query()
-            ->where('status', 'active')
-            ->whereHas('missions')
-            ->whereDoesntHave('assessment.attempts', fn ($query) => $query->where('user_id', $user->id)->where('status', 'passed'))
-            ->get(['id', 'order_num']);
+        $active = Course::query()->where('status', 'active')->whereHas('missions')
+            ->orderBy('order_num')->orderBy('id')->get(['id', 'order_num']);
+        $passedRows = DB::table('the404_assessment_attempts as attempt')
+            ->join('the404_assessments as assessment', 'assessment.id', '=', 'attempt.assessment_id')
+            ->whereIn('attempt.user_id', $studentIds)->where('attempt.status', 'passed')
+            ->distinct()->get(['attempt.user_id', 'assessment.course_id']);
+        $passed = [];
+        foreach ($passedRows as $row) {
+            $passed[(int) $row->user_id][(int) $row->course_id] = true;
+        }
 
         $reached = [];
-        foreach ($courses as $course) {
-            $reached[$course->id] = ! $blockingCourses->contains(fn (Course $blocking): bool => $blocking->order_num < $course->order_num
-                || ($blocking->order_num === $course->order_num && $blocking->id < $course->id));
+        foreach ($studentIds as $studentId) {
+            $firstBlocker = $active->first(fn (Course $candidate): bool => ! isset($passed[$studentId][$candidate->id]));
+            foreach ($courses as $course) {
+                $reached[$studentId][$course->id] = $firstBlocker === null
+                    || $firstBlocker->order_num > $course->order_num
+                    || ($firstBlocker->order_num === $course->order_num && $firstBlocker->id >= $course->id);
+            }
         }
 
         return $reached;

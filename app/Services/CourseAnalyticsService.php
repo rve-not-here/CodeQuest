@@ -47,6 +47,7 @@ class CourseAnalyticsService
      */
     public function __construct(
         private readonly ClassroomAccessService $access,
+        private readonly AssessmentService $assessments,
     ) {}
 
     /**
@@ -132,6 +133,9 @@ class CourseAnalyticsService
             ? $this->courseFleetByScope($studentCourseScopes)
             : null;
 
+        $engagedIds = $progressByCourse->flatten(1)->pluck('user_id')->map(fn (mixed $id): int => (int) $id)->unique()->values();
+        $reach = $this->assessments->courseReachForStudents($engagedIds, $courses);
+
         return $courses->map(fn (Course $course): array => $this->course(
             $course,
             $scopedCourseFleet !== null ? ($scopedCourseFleet[$course->id] ?? 0) : $fleet,
@@ -139,6 +143,7 @@ class CourseAnalyticsService
             $progressByCourse->get($course->id, collect()),
             $attemptsByCourse->get($course->id, collect()),
             $assessmentStatuses->get($course->id),
+            $reach,
         ))->values();
     }
 
@@ -167,6 +172,7 @@ class CourseAnalyticsService
     /**
      * @param  Collection<int, \stdClass>  $progressRows
      * @param  Collection<int, \stdClass>  $attemptRows
+     * @param  array<int, array<int, bool>>  $reach
      * @return array{
      *     course: Course,
      *     fleet: int,
@@ -184,6 +190,7 @@ class CourseAnalyticsService
         Collection $progressRows,
         Collection $attemptRows,
         ?string $assessmentStatus,
+        array $reach,
     ): array {
         $assessmentReady = $assessmentStatus === 'active';
 
@@ -209,7 +216,7 @@ class CourseAnalyticsService
                 continue;
             }
 
-            if ($assessmentReady && $done === $total) {
+            if ($assessmentReady && $done === $total && ($reach[(int) $row->user_id][$course->id] ?? false)) {
                 $ready++;
             } else {
                 $inProgress++;

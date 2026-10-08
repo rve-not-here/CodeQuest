@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Announcement;
 use App\Models\User;
+use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -85,23 +86,25 @@ class AnnouncementService
      */
     public function create(User $actor, array $attributes): Announcement
     {
-        $announcement = Announcement::query()->create([
-            'created_by' => $actor->id,
-            'title' => $attributes['title'],
-            'message' => $attributes['message'],
-            'audience' => $attributes['audience'],
-            'status' => 'draft',
-        ]);
+        return DB::transaction(function () use ($actor, $attributes): Announcement {
+            $announcement = Announcement::query()->create([
+                'created_by' => $actor->id,
+                'title' => $attributes['title'],
+                'message' => $attributes['message'],
+                'audience' => $attributes['audience'],
+                'status' => 'draft',
+            ]);
 
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_ANNOUNCEMENT_CREATE,
-            "Announcement created: '{$announcement->title}', audience → {$announcement->audience}",
-            targetType: 'announcement',
-            targetId: $announcement->id,
-        );
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_ANNOUNCEMENT_CREATE,
+                "Announcement created: '{$announcement->title}', audience → {$announcement->audience}",
+                targetType: 'announcement',
+                targetId: $announcement->id,
+            );
 
-        return $announcement;
+            return $announcement;
+        }, attempts: 3);
     }
 
     /**
@@ -118,88 +121,89 @@ class AnnouncementService
      */
     public function update(User $actor, Announcement $announcement, array $attributes): Announcement
     {
-        if ($announcement->status === 'archived') {
-            $this->refuse($actor, $announcement, 'An archived announcement is read-only.', AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE);
-        }
+        return $this->mutate($actor, $announcement, AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE, function (Announcement $announcement) use ($actor, $attributes): Announcement|string {
+            if ($announcement->status === 'archived') {
+                return 'An archived announcement is read-only.';
+            }
 
-        $title = (string) $attributes['title'];
-        $message = (string) $attributes['message'];
-        $audience = (string) $attributes['audience'];
+            $title = (string) $attributes['title'];
+            $message = (string) $attributes['message'];
+            $audience = (string) $attributes['audience'];
 
-        if (trim($title) === '') {
-            $this->refuse($actor, $announcement, 'Announcement title must be a non-empty string.', AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE);
-        }
+            if (trim($title) === '') {
+                return 'Announcement title must be a non-empty string.';
+            }
 
-        if (trim($message) === '') {
-            $this->refuse($actor, $announcement, 'Announcement message must be a non-empty string.', AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE);
-        }
+            if (trim($message) === '') {
+                return 'Announcement message must be a non-empty string.';
+            }
 
-        if (! in_array($audience, self::AUDIENCES, true)) {
-            $this->refuse($actor, $announcement, "Unknown audience '{$audience}'.", AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE);
-        }
+            if (! in_array($audience, self::AUDIENCES, true)) {
+                return "Unknown audience '{$audience}'.";
+            }
 
-        $changes = [];
-        $summary = [];
+            $changes = [];
+            $summary = [];
 
-        if ($title !== $announcement->title) {
-            $changes['title'] = $title;
-            $summary[] = "title → '{$title}'";
-        }
+            if ($title !== $announcement->title) {
+                $changes['title'] = $title;
+                $summary[] = "title → '{$title}'";
+            }
 
-        if ($message !== $announcement->message) {
-            $changes['message'] = $message;
-            $summary[] = 'message → (updated)';
-        }
+            if ($message !== $announcement->message) {
+                $changes['message'] = $message;
+                $summary[] = 'message → (updated)';
+            }
 
-        if ($audience !== $announcement->audience) {
-            $changes['audience'] = $audience;
-            $summary[] = "audience → '{$audience}'";
-        }
+            if ($audience !== $announcement->audience) {
+                $changes['audience'] = $audience;
+                $summary[] = "audience → '{$audience}'";
+            }
 
-        if ($changes === []) {
+            if ($changes === []) {
+                return $announcement;
+            }
+
+            $announcement->update($changes);
+
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE,
+                'Announcement updated: '.implode(', ', $summary),
+                targetType: 'announcement',
+                targetId: $announcement->id,
+            );
+
             return $announcement;
-        }
-
-        $announcement->update($changes);
-
-        $this->audit->record(
-            $actor,
-            AdminAuditService::ACTION_ANNOUNCEMENT_UPDATE,
-            'Announcement updated: '.implode(', ', $summary),
-            targetType: 'announcement',
-            targetId: $announcement->id,
-        );
-
-        return $announcement;
+        });
     }
 
     /**
-     * Publish an announcement: first-publish-only (§31). Guards run BEFORE
-     * any write (and before the transaction) so a refused row always persists
-     * on the trail; the success audit row plus the notification fan-out run
-     * inside ONE transaction so a rollback removes the fan-out too (§19).
+     * Publish an announcement: first-publish-only (§31). Guards inspect the
+     * locked current record before writing. Refusal audits persist outside the
+     * mutation transaction; success audit and fan-out commit together (§19).
      *
      * @throws InvalidArgumentException
      */
     public function publish(User $actor, Announcement $announcement): Announcement
     {
-        if ($announcement->status === 'published') {
-            $this->refuse($actor, $announcement, 'This announcement has already been published.', AdminAuditService::ACTION_ANNOUNCEMENT_PUBLISH);
-        }
+        return $this->mutate($actor, $announcement, AdminAuditService::ACTION_ANNOUNCEMENT_PUBLISH, function (Announcement $announcement) use ($actor): Announcement|string {
+            if ($announcement->status === 'published') {
+                return 'This announcement has already been published.';
+            }
 
-        if ($announcement->status === 'archived') {
-            $this->refuse($actor, $announcement, 'An archived announcement cannot be published.', AdminAuditService::ACTION_ANNOUNCEMENT_PUBLISH);
-        }
+            if ($announcement->status === 'archived') {
+                return 'An archived announcement cannot be published.';
+            }
 
-        if (trim((string) $announcement->title) === '' || trim((string) $announcement->message) === '') {
-            $this->refuse($actor, $announcement, 'A published announcement needs both a title and a message.', AdminAuditService::ACTION_ANNOUNCEMENT_PUBLISH);
-        }
+            if (trim((string) $announcement->title) === '' || trim((string) $announcement->message) === '') {
+                return 'A published announcement needs both a title and a message.';
+            }
 
-        if (! in_array($announcement->audience, self::AUDIENCES, true)) {
-            $this->refuse($actor, $announcement, "Unknown audience '{$announcement->audience}'.", AdminAuditService::ACTION_ANNOUNCEMENT_PUBLISH);
-        }
+            if (! in_array($announcement->audience, self::AUDIENCES, true)) {
+                return "Unknown audience '{$announcement->audience}'.";
+            }
 
-        DB::transaction(function () use ($actor, $announcement): void {
             $announcement->status = 'published';
             $announcement->published_at = now();
             $announcement->save();
@@ -213,9 +217,9 @@ class AnnouncementService
             );
 
             $this->announce($announcement);
-        });
 
-        return $announcement;
+            return $announcement;
+        });
     }
 
     /**
@@ -228,11 +232,11 @@ class AnnouncementService
      */
     public function archive(User $actor, Announcement $announcement): Announcement
     {
-        if ($announcement->status !== 'published') {
-            $this->refuse($actor, $announcement, 'Only a published announcement can be archived.', AdminAuditService::ACTION_ANNOUNCEMENT_ARCHIVE);
-        }
+        return $this->mutate($actor, $announcement, AdminAuditService::ACTION_ANNOUNCEMENT_ARCHIVE, function (Announcement $announcement) use ($actor): Announcement|string {
+            if ($announcement->status !== 'published') {
+                return 'Only a published announcement can be archived.';
+            }
 
-        DB::transaction(function () use ($actor, $announcement): void {
             $announcement->status = 'archived';
             $announcement->save();
 
@@ -243,9 +247,28 @@ class AnnouncementService
                 targetType: 'announcement',
                 targetId: $announcement->id,
             );
-        });
 
-        return $announcement;
+            return $announcement;
+        });
+    }
+
+    /**
+     * @param  Closure(Announcement): (Announcement|string)  $mutation
+     */
+    private function mutate(User $actor, Announcement $announcement, string $action, Closure $mutation): Announcement
+    {
+        $result = DB::transaction(function () use ($announcement, $mutation): Announcement|string {
+            Announcement::query()->whereKey($announcement->id)->lockForUpdate()->firstOrFail();
+            $announcement->refresh();
+
+            return $mutation($announcement);
+        }, attempts: 3);
+
+        if (is_string($result)) {
+            $this->refuse($actor, $announcement, $result, $action);
+        }
+
+        return $result;
     }
 
     /**

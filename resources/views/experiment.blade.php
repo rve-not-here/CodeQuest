@@ -40,7 +40,8 @@
                     extensions: [CM.basicSetup, language, CM.oneDark],
                 });
                 var preview = document.getElementById('experiment-preview');
-                function run() { preview.srcdoc = cq.previewDocument(editor.state.doc.toString(), type); }
+                preview.sandbox.value = cq.previewSandbox(type, initial);
+                function run() { preview.srcdoc = cq.previewDocument(editor.state.doc.toString(), type, initial); }
                 document.getElementById('experiment-run').addEventListener('click', run);
                 document.getElementById('experiment-reset').addEventListener('click', function () {
                     editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: initial } });

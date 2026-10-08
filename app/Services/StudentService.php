@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Builds the teacher-facing student overview (US-602): a paginated list of every
@@ -32,6 +31,7 @@ class StudentService
     public function __construct(
         private readonly CompetencyService $competency,
         private readonly TimelineService $timeline,
+        private readonly AssessmentService $assessments,
     ) {}
 
     /**
@@ -180,20 +180,9 @@ class StudentService
             ->whereIn('course_id', $activeCourses->pluck('id'))
             ->get(['id', 'course_id', 'status'])
             ->keyBy('course_id');
-        $passedRows = DB::table('the404_assessment_attempts as attempt')
-            ->join('the404_assessments as assessment', 'assessment.id', '=', 'attempt.assessment_id')
-            ->whereIn('attempt.user_id', $students->pluck('id'))
-            ->whereIn('assessment.course_id', $activeCourses->pluck('id'))
-            ->where('attempt.status', 'passed')
-            ->distinct()
-            ->get(['attempt.user_id', 'assessment.course_id']);
-        $passedByStudent = [];
+        $reach = $this->assessments->courseReachForStudents($students->pluck('id'), $activeCourses);
 
-        foreach ($passedRows as $passedRow) {
-            $passedByStudent[(int) $passedRow->user_id][(int) $passedRow->course_id] = true;
-        }
-
-        return $students->map(function (User $student) use ($competencies, $latest, $activeCourses, $assessments, $passedByStudent): array {
+        return $students->map(function (User $student) use ($competencies, $latest, $assessments, $reach): array {
             $courseRows = $competencies->get($student->id) ?? collect();
             $current = $courseRows->first(fn (array $row): bool => ! $row['challengePassed']);
             $counts = ['not_started' => 0, 'developing' => 0, 'practicing' => 0, 'demonstrated' => 0];
@@ -207,10 +196,8 @@ class StudentService
             $total = $current['totalMissions'] ?? 0;
             $assessment = $course === null ? null : $assessments->get($course->id);
             $eligible = $course !== null && $total > 0 && $completed === $total;
-            $reached = $course !== null && $activeCourses
-                ->filter(fn (Course $earlier): bool => $earlier->order_num < $course->order_num)
-                ->every(fn (Course $earlier): bool => isset($passedByStudent[$student->id][$earlier->id]));
-            $ready = $eligible && $assessment?->status === 'active';
+            $reached = $course !== null && ($reach[$student->id][$course->id] ?? false);
+            $ready = $eligible && $reached && $assessment?->status === 'active';
             $beat = $latest->get($student->id);
 
             return [
@@ -220,7 +207,7 @@ class StudentService
                 'currentCourse' => $course === null ? null : ['id' => $course->id, 'name' => $course->name],
                 'progress' => $course === null ? null : ['completed' => $completed, 'total' => $total, 'percent' => $current['percent'] ?? 0],
                 'state' => $course === null ? 'completed' : ($ready ? 'ready' : 'in_progress'),
-                'assessment' => $course === null ? 'ALL CLEARED' : ($ready && $reached ? 'READY' : 'LOCKED'),
+                'assessment' => $course === null ? 'ALL CLEARED' : ($ready ? 'READY' : 'LOCKED'),
                 'competency' => $counts,
                 'lastActivity' => $beat === null ? null : ['message' => $beat['label'], 'at' => $beat['at']->diffForHumans()],
             ];

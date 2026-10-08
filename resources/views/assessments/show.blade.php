@@ -103,6 +103,7 @@
                                 <span class="text-fg-muted">Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. SUBMIT is closed; open a retry for a fresh attempt.</span>
                             </div>
                         @endif
+                        <p class="px-3 py-2 text-sm text-fg-muted">Build an HTML document. Include your CSS in a style element and JavaScript in a script element.</p>
                         <div id="editor-host" class="min-h-[380px] overflow-hidden bg-[#0b0e14]"></div>
                         <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
                         <div class="flex flex-wrap items-center gap-2 border-t border-line p-3">
@@ -168,15 +169,7 @@
             function init(cq) {
                 var CM = cq.CodeMirror;
 
-                var lang;
-                var type = '{{ $course->type ?? 'html' }}';
-                if (type === 'js' || type === 'javascript') {
-                    lang = CM.javascript();
-                } else if (type === 'css') {
-                    lang = CM.css();
-                } else {
-                    lang = CM.html();
-                }
+                var lang = CM.html();
 
                 var view = new CM.EditorView({
                     doc: initial,
@@ -194,10 +187,10 @@
                 syncPayloads(view);
 
                 runBtn.addEventListener('click', function () {
-                    frame.srcdoc = view.state.doc.toString();
+                    frame.srcdoc = cq.previewDocument(view.state.doc.toString(), 'html');
                 });
 
-                frame.srcdoc = view.state.doc.toString();
+                frame.srcdoc = cq.previewDocument(view.state.doc.toString(), 'html');
             }
 
             if (window.CodeQuest && window.CodeQuest.CodeMirror) {

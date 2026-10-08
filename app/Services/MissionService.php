@@ -2,10 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Orchestrates the challenge submit flow end to end.
@@ -39,34 +43,91 @@ class MissionService
      *     xpBalance: int
      * }
      */
-    public function submit(User $user, Mission $mission, string $code): array
+    public function submit(User $user, Mission $mission, string $code, ?string $submissionId = null): array
     {
-        return DB::transaction(function () use ($user, $mission, $code): array {
-            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+        if ($submissionId !== null && ! Str::isUuid($submissionId)) {
+            throw ValidationException::withMessages(['submission_id' => 'Invalid submission identifier.']);
+        }
 
-            return $this->submitForLockedUser($user, $mission, $code);
+        return DB::transaction(function () use ($user, $mission, $code, $submissionId): array {
+            $user = User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $mission = Mission::query()->whereKey($mission->id)->sharedLock()->firstOrFail();
+            $course = Course::query()->whereKey($mission->course_id)->sharedLock()->firstOrFail();
+            $mission->setRelation('course', $course);
+
+            abort_unless($course->status === 'active', 403);
+
+            if ($this->isCompleted($user, $mission)) {
+                return [
+                    'passed' => true,
+                    'alreadyCompleted' => true,
+                    'failures' => [],
+                    'xpAwarded' => 0,
+                    'xpBalance' => $this->xp->balance($user),
+                ];
+            }
+
+            if (! Schema::hasTable('the404_mission_submission_results')) {
+                return [
+                    'passed' => false,
+                    'alreadyCompleted' => false,
+                    'failures' => ['Challenge submission is temporarily unavailable. Please try again later.'],
+                    'xpAwarded' => 0,
+                    'xpBalance' => $this->xp->balance($user),
+                ];
+            }
+
+            $sourceHash = hash('sha256', $code);
+            $operationId = $submissionId ?? hash('sha256', "legacy:{$mission->id}:{$mission->version}:{$sourceHash}");
+            $stored = DB::table('the404_mission_submission_results')
+                ->where('user_id', $user->id)->where('submission_id', $operationId)->first();
+
+            if ($stored !== null) {
+                if ((int) $stored->mission_id !== $mission->id || ! hash_equals($stored->source_hash, $sourceHash)) {
+                    throw ValidationException::withMessages(['submission_id' => 'This submission identifier already belongs to different work.']);
+                }
+                $failures = json_decode($stored->failures, true, flags: JSON_THROW_ON_ERROR);
+                if (! is_array($failures) || ! array_is_list($failures) || array_filter($failures, fn (mixed $failure): bool => ! is_string($failure)) !== []) {
+                    throw new \RuntimeException('Stored submission outcome is invalid.');
+                }
+
+                return [
+                    'passed' => false,
+                    'alreadyCompleted' => false,
+                    'failures' => $failures,
+                    'xpAwarded' => 0,
+                    'xpBalance' => $this->xp->balance($user),
+                ];
+            }
+
+            $cacheable = true;
+            $outcome = $this->submitForLockedUser($user, $mission, $code, $cacheable);
+            if (! $outcome['passed'] && $cacheable) {
+                DB::table('the404_mission_submission_results')->insert([
+                    'user_id' => $user->id,
+                    'mission_id' => $mission->id,
+                    'mission_version' => $mission->version,
+                    'submission_id' => $operationId,
+                    'source_hash' => $sourceHash,
+                    'failures' => json_encode($outcome['failures'], JSON_THROW_ON_ERROR),
+                    'created_at' => now(),
+                ]);
+            }
+
+            return $outcome;
         }, attempts: 3);
     }
 
     /**
      * @return array{passed: bool, alreadyCompleted: bool, failures: list<string>, xpAwarded: int, xpBalance: int}
      */
-    private function submitForLockedUser(User $user, Mission $mission, string $code): array
+    private function submitForLockedUser(User $user, Mission $mission, string $code, bool &$cacheable): array
     {
-        if ($this->isCompleted($user, $mission)) {
-            return [
-                'passed' => true,
-                'alreadyCompleted' => true,
-                'failures' => [],
-                'xpAwarded' => 0,
-                'xpBalance' => $this->xp->balance($user),
-            ];
-        }
-
         $result = $this->grading->grade($user, $mission, $code);
 
         if (! $result['passed']) {
             if ($result['unavailable']) {
+                $cacheable = false;
                 $this->activity->record($user, [
                     'type' => 'grading_unavailable',
                     'message' => 'Behavioral grading unavailable on challenge: '.$mission->title,

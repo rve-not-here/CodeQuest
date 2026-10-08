@@ -20,7 +20,7 @@ class MissionFactory extends Factory
     {
         return [
             'course_id' => Course::factory(),
-            'order_num' => fake()->unique()->numberBetween(1, 20),
+            'order_num' => fake()->numberBetween(1, 20),
             'title' => fake()->words(2, true),
             'difficulty' => 'EASY',
             'description' => fake()->sentence(),

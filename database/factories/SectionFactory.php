@@ -20,7 +20,7 @@ class SectionFactory extends Factory
     {
         return [
             'course_id' => Course::factory(),
-            'order_num' => fake()->unique()->numberBetween(1, 10),
+            'order_num' => fake()->numberBetween(1, 10),
             'title' => fake()->words(3, true),
             'description' => fake()->sentence(),
             'version' => 1,

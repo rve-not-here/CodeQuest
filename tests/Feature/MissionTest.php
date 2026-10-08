@@ -80,7 +80,7 @@ class MissionTest extends TestCase
     public function test_mission_show_renders_lesson_and_challenge_renders_workspace(): void
     {
         $user = User::factory()->create();
-        ['mission' => $mission] = $this->createMissionWithCourse();
+        ['mission' => $mission] = $this->createMissionWithCourse(['solution_code' => '<h1>Example</h1>']);
 
         // mission.show is the teaching Lesson: concept, XP reward, START CHALLENGE,
         // and no authoritative coding workspace (editor, RUN, SUBMIT, Save draft).

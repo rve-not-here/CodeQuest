@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import vm from 'node:vm';
-import { previewDocument } from '../resources/js/preview.js';
+import { previewDocument, previewSandbox } from '../resources/js/preview.js';
+
+test('only curriculum-owned JavaScript forms receive native form events without navigation authority', () => {
+    const starter = '/* Preview HTML:\n<form id="signup"><input name="callsign"></form>\n*/';
+    assert.equal(previewSandbox('js', starter), 'allow-scripts allow-forms');
+    assert.equal(previewSandbox('js', ''), 'allow-scripts');
+    assert.equal(previewSandbox('html', starter), '');
+    assert.equal(previewSandbox('css', starter), '');
+    assert.match(previewDocument('console.log("test");', 'js', starter), /form-action 'none'/);
+});
 
 function executePreview(source, type = 'js') {
     const html = previewDocument(source, type);
@@ -56,4 +65,18 @@ test('JavaScript syntax, runtime and asynchronous failures appear in output', ()
 test('JavaScript console output is bounded', () => {
     const preview = executePreview('for (let i = 0; i < 1000; i++) console.log("x".repeat(3000));');
     assert.equal(preview.output.length, 200100);
+});
+
+test('JavaScript DOM setup comes from the original curriculum starter', () => {
+    const starter = '/* Preview HTML:\n<div id="status">OFFLINE</div>\n*/';
+    const document = previewDocument('document.getElementById("status").textContent = "SIGNAL ACTIVE";', 'js', starter);
+    assert.ok(document.includes('<div id="status">OFFLINE</div>'));
+    assert.equal(previewDocument('/* Preview HTML:\n<h1>Injected setup</h1>\n*/', 'js').includes('<h1>Injected setup</h1>'), false);
+});
+
+test('authored multi-file module examples are shown as text without execution', () => {
+    const source = 'export const band = "UHF";\nimport { band } from "./radio.js";';
+    const document = previewDocument(source, 'js', '/* Preview source only */');
+    assert.equal([...document.matchAll(/<script>/g)].length, 0);
+    assert.ok(document.includes(source));
 });

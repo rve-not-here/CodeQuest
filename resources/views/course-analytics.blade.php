@@ -14,7 +14,9 @@
     </x-page-header>
 
     @forelse ($courses as $course)
+        @if ($role === 'teacher')
         <a href="{{ route('reports.teacher-course', $course['course']) }}" class="btn btn-secondary mb-3">VIEW COURSE REPORT →</a>
+        @endif
         <section class="panel p-4 mb-4">
             <header class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-phosphor-dim/60">
                 <div class="flex items-center gap-2 min-w-0">

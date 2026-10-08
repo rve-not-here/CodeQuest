@@ -13,6 +13,7 @@ use App\Models\XpTransaction;
 use App\Services\AssessmentService;
 use App\Services\AttentionService;
 use App\Services\DashboardService;
+use App\Services\XpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -394,7 +395,7 @@ class AttentionTest extends TestCase
         $this->attempt($failed, $page->assessment, 'failed', 40, $this->daysAgo(1));
 
         $gone = $this->student('mo_gone');
-        $this->activity($gone, 'login', 'Signed in', 0, $this->daysAgo(30));
+        XpTransaction::factory()->create(['user_id' => $gone->id, 'mission_id' => $page->missions()->firstOrFail()->id, 'type' => XpService::TYPE_HINT_USED, 'created_at' => $this->daysAgo(30)]);
 
         $teacher = $this->teacher();
         $this->classroomFor($teacher, [$failed, $gone], [$page]);

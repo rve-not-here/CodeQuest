@@ -83,10 +83,22 @@ class CurriculumContentSeeder extends Seeder
                         $mission['validate_rule'] = json_encode($definition['rules'], JSON_THROW_ON_ERROR);
                     }
 
-                    $seededMission = Mission::query()->updateOrCreate(
-                        ['course_id' => $course->id, 'order_num' => $missionOrder],
-                        array_merge($mission, ['section_id' => $section->id]),
+                    $seededMission = Mission::query()->firstOrNew([
+                        'course_id' => $course->id,
+                        'order_num' => $missionOrder,
+                    ]);
+                    $seededMission->fill(array_merge($mission, ['section_id' => $section->id]));
+
+                    $materialChanged = collect($seededMission->curriculumVersionMaterialFields())->contains(
+                        fn (string $field): bool => $seededMission->isDirty($field)
+                            && Mission::versionValueChanged($seededMission->getAttribute($field), $seededMission->getOriginal($field)),
                     );
+
+                    if ($seededMission->exists && $materialChanged) {
+                        $seededMission->version = max(1, (int) $seededMission->version) + 1;
+                    }
+
+                    $seededMission->save();
 
                     foreach ($definition['tests'] ?? [] as $testOrder => $test) {
                         MissionBehaviorTest::query()->updateOrCreate(
@@ -933,7 +945,7 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the status node is unresponsive. Select it by id and set its text to SIGNAL ACTIVE.
                                 TEXT,
-                            'broken_code' => "// DOM node is unresponsive\n// Select and update the element below\n\n// <div id=\"status\">OFFLINE</div>",
+                            'broken_code' => "/* Preview HTML:\n<div id=\"status\">OFFLINE</div>\n*/\n\n// DOM node is unresponsive\n// Select and update the element below\n\n// <div id=\"status\">OFFLINE</div>",
                             'solution_code' => "document.getElementById(\"status\").textContent = \"SIGNAL ACTIVE\";\n\n// <div id=\"status\">OFFLINE</div>",
                             'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ DOM UPDATE:</div><div id='status' style='color:#ffb000;margin-top:.5rem;border:1px solid #ffb000;padding:.5rem'>SIGNAL ACTIVE</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ DOM node updated successfully.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains', 'value' => 'getElementById'], ['type' => 'contains_any', 'values' => ['"status"', "'status'"]], ['type' => 'contains', 'value' => 'textContent'], ['type' => 'contains_any', 'values' => ['"SIGNAL ACTIVE"', "'SIGNAL ACTIVE'"]]]),
@@ -952,7 +964,7 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the button reference exists but nothing listens. Register the click listener that logs the activation line.
                                 TEXT,
-                            'broken_code' => "// Button is unresponsive — wire it up\nconst btn = document.getElementById(\"emergencyBtn\");\n\n// Add your event listener here",
+                            'broken_code' => "/* Preview HTML:\n<button id=\"emergencyBtn\" type=\"button\">Activate emergency protocol</button>\n*/\n\n// Button is unresponsive — wire it up\nconst btn = document.getElementById(\"emergencyBtn\");\n\n// Add your event listener here",
                             'solution_code' => "const btn = document.getElementById(\"emergencyBtn\");\nbtn.addEventListener(\"click\", function() {\n  console.log(\"EMERGENCY PROTOCOL ACTIVATED\");\n});",
                             'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ EVENT WIRED:</div><div style='color:#ffb000;margin-top:.5rem'>btn.addEventListener(\"click\", handler)</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Emergency button is now responsive.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains', 'value' => 'addEventListener'], ['type' => 'contains_any', 'values' => ['"click"', "'click'"]], ['type' => 'contains', 'value' => 'EMERGENCY PROTOCOL ACTIVATED']]),
@@ -968,6 +980,8 @@ class CurriculumContentSeeder extends Seeder
                                 Syntax: async function fetchSignal() { const response = await fetch("/api/signal"); const data = await response.json(); return data; }. Three awaits in order: send, parse, return.
 
                                 Example: calling fetchSignal().then(data => console.log(data)) logs whatever the uplink returns.
+
+                                Preview boundary: this sandbox cannot request the application API. A fetch failure here is expected; use a separate served project with an API to observe a successful response. This exercise checks your source structure on the server.
 
                                 Your task: the uplink subroutine is missing. Define the async fetchSignal function that fetches, parses, and returns the signal data.
                                 TEXT,
@@ -1639,7 +1653,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the lamp array below stays dark. Select every .lamp and add the on class to each.
                             TEXT,
-                        'broken_code' => "// Three .lamp elements stay dark\n// Light them all up here",
+                        'broken_code' => "/* Preview HTML:\n<div class=\"lamp\">Lamp 1</div>\n<div class=\"lamp\">Lamp 2</div>\n<div class=\"lamp\">Lamp 3</div>\n*/\n\n// Three .lamp elements stay dark\n// Light them all up here",
                         'solution_code' => 'document.querySelectorAll(".lamp").forEach(el => el.classList.add("on"));',
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ LAMPS:</div><div style='color:#ffb000;margin-top:.5rem'>3 lamps ON</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['querySelectorAll', 'classList', 'forEach']]]),
@@ -1674,6 +1688,8 @@ class CurriculumContentSeeder extends Seeder
                             Syntax: localStorage.setItem("callsign", JSON.stringify({ name: "CHEN" })); then JSON.parse(localStorage.getItem("callsign")).
 
                             Example: saving the operator record and reading back its name prints CHEN.
+
+                            Preview boundary: localStorage requires a normal page origin and is intentionally unavailable in this sandbox. The preview reports a SecurityError. Try persistence in your own served project; CodeQuest checks this exercise’s source structure on the server.
 
                             Your task: the callsign below never persists. Store the record object and read its name back from storage.
                             TEXT,
@@ -1835,7 +1851,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the list below never grows. Create the li, fill it, and append it to the #bands list.
                             TEXT,
-                        'broken_code' => "// <ul id=\"bands\"></ul> present on the page\n// Add a UHF entry here",
+                        'broken_code' => "/* Preview HTML:\n<ul id=\"bands\"></ul>\n*/\n\n// <ul id=\"bands\"></ul> present on the page\n// Add a UHF entry here",
                         'solution_code' => "const li = document.createElement(\"li\");\nli.textContent = \"UHF\";\ndocument.querySelector(\"#bands\").appendChild(li);",
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ LIST:</div><div style='color:#ffb000;margin-top:.5rem'>• UHF (appended)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['createElement', 'appendChild', 'querySelector']]]),
@@ -1854,7 +1870,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the form below submits unchecked. Listen for submit, prevent the reload, and reject short callsigns.
                             TEXT,
-                        'broken_code' => "const form = document.querySelector(\"#signup\");\nconst input = document.querySelector(\"#callsign\");\n// Validate on submit here",
+                        'broken_code' => "/* Preview HTML:\n<form id=\"signup\">\n<label for=\"callsign\">Callsign</label>\n<input id=\"callsign\" name=\"callsign\">\n<button type=\"submit\">Check callsign</button>\n</form>\n*/\n\nconst form = document.querySelector(\"#signup\");\nconst input = document.querySelector(\"#callsign\");\n// Validate on submit here",
                         'solution_code' => "const form = document.querySelector(\"#signup\");\nconst input = document.querySelector(\"#callsign\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  if (input.value.length < 3) {\n    console.log(\"TOO SHORT\");\n  } else {\n    console.log(\"ACCEPTED\");\n  }\n});",
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ FORM:</div><div style='color:#ffb000;margin-top:.5rem'>submit guarded, short rejected</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['addEventListener', '"submit"', 'preventDefault', '.value']]]),
@@ -1873,7 +1889,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the list below wires nothing. Delegate one click listener on the parent that reports the clicked item's text.
                             TEXT,
-                        'broken_code' => "const list = document.querySelector(\"#bands\");\n// Report clicks on any item here",
+                        'broken_code' => "/* Preview HTML:\n<ul id=\"bands\"><li>UHF</li><li>VHF</li></ul>\n*/\n\nconst list = document.querySelector(\"#bands\");\n// Report clicks on any item here",
                         'solution_code' => "const list = document.querySelector(\"#bands\");\nlist.addEventListener(\"click\", function (e) {\n  console.log(e.target.textContent);\n});",
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ DELEGATION:</div><div style='color:#ffb000;margin-top:.5rem'>one listener, every item covered</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['addEventListener', '"click"', 'e.target']]]),
@@ -1896,6 +1912,8 @@ class CurriculumContentSeeder extends Seeder
 
                             Example: an uplink that parses good responses and reports FAILED on anything else.
 
+                            Preview boundary: application API requests are unavailable in this sandbox. The catch handler should report FAILED here; use your own served API to test a successful response.
+
                             Your task: the chain below parses blindly. Add the ok check that throws on HTTP failure and the catch that reports it.
                             TEXT,
                         'broken_code' => "fetch(\"/api/signal\")\n  .then(r => r.json())\n  .then(d => console.log(d));",
@@ -1917,7 +1935,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the two files below share nothing. Export the band constant from the radio module and import it by name.
                             TEXT,
-                        'broken_code' => "// radio.js\nconst band = \"UHF\";\n\n// dashboard.js\nconsole.log(\"band?\");",
+                        'broken_code' => "/* Preview source only */\n\n// radio.js\nconst band = \"UHF\";\n\n// dashboard.js\nconsole.log(\"band?\");",
                         'solution_code' => "// radio.js\nexport const band = \"UHF\";\n\n// dashboard.js\nimport { band } from \"./radio.js\";\nconsole.log(band);",
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ MODULES:</div><div style='color:#ffb000;margin-top:.5rem'>band shared across files</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['export', 'import', './radio.js']]]),
@@ -2762,7 +2780,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the field below listens to nothing. Add input and change listeners that read through currentTarget.
                             TEXT,
-                        'broken_code' => "const input = document.querySelector(\"#callsign\");\n// React to typing here",
+                        'broken_code' => "/* Preview HTML:\n<label for=\"callsign\">Callsign</label>\n<input id=\"callsign\" name=\"callsign\">\n*/\n\nconst input = document.querySelector(\"#callsign\");\n// React to typing here",
                         'solution_code' => "const input = document.querySelector(\"#callsign\");\ninput.addEventListener(\"input\", function (e) {\n  console.log(e.currentTarget.value);\n});\ninput.addEventListener(\"change\", function () {\n  console.log(\"saved\");\n});",
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ EVENTS:</div><div style='color:#ffb000;margin-top:.5rem'>live echo, commit saved</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['"input"', '"change"', 'currentTarget']]]),
@@ -2781,7 +2799,7 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the submit below queries nothing. Read the callsign through FormData and log it.
                             TEXT,
-                        'broken_code' => "const form = document.querySelector(\"#signup\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  console.log(\"?\");\n});",
+                        'broken_code' => "/* Preview HTML:\n<form id=\"signup\">\n<label for=\"callsign\">Callsign</label>\n<input id=\"callsign\" name=\"callsign\">\n<button type=\"submit\">Read callsign</button>\n</form>\n*/\n\nconst form = document.querySelector(\"#signup\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  console.log(\"?\");\n});",
                         'solution_code' => "const form = document.querySelector(\"#signup\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  const data = new FormData(form);\n  console.log(data.get(\"callsign\"));\n});",
                         'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ FORMDATA:</div><div style='color:#ffb000;margin-top:.5rem'>callsign read by name</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['FormData', '.get(']]]),

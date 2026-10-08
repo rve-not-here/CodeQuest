@@ -4,12 +4,12 @@ initializeKnowledgeCheck(document);
 
 const editorHost = document.getElementById('editor-host');
 
-if (document.querySelector('[data-workspace]')) {
-    import('./workspace.js').then(({ initializeWorkspace }) => initializeWorkspace(document));
-}
+const workspaceReady = document.querySelector('[data-workspace]')
+    ? import('./workspace.js').then(({ initializeWorkspace }) => initializeWorkspace(document))
+    : Promise.resolve();
 
 if (editorHost) {
-    import('./editor.js').catch((error) => {
+    workspaceReady.then(() => import('./editor.js')).catch((error) => {
         editorHost.setAttribute('role', 'alert');
         editorHost.textContent = 'Editor could not load. Reload this page to try again.';
         console.error('CodeQuest editor failed to load.', error);

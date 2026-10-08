@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\KnowledgeCheck;
 use App\Models\KnowledgeCheckAttempt;
 use App\Models\Mission;
+use App\Models\MissionDraft;
 use App\Models\Notification;
 use App\Models\Progress;
 use App\Models\User;
@@ -18,14 +19,18 @@ use App\Models\UserAchievement;
 use App\Models\XpTransaction;
 use App\Services\AchievementService;
 use App\Services\AssessmentService;
+use App\Services\DraftService;
 use App\Services\KnowledgeCheckService;
 use App\Services\MissionService;
 use App\Services\UserService;
 use App\Services\XpService;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
@@ -54,7 +59,7 @@ class AcademicConcurrencyTest extends TestCase
     public function test_concurrent_requests_cannot_purchase_the_same_hint_twice(): void
     {
         $student = User::factory()->create();
-        $mission = Mission::factory()->create();
+        $mission = Mission::factory()->create(['hints' => '["First hint"]', 'solution_code' => '<h1>Example</h1>']);
         XpTransaction::query()->create([
             'user_id' => $student->id,
             'mission_id' => $mission->id,
@@ -83,7 +88,7 @@ class AcademicConcurrencyTest extends TestCase
     public function test_concurrent_solution_reveals_charge_once(): void
     {
         $student = User::factory()->create();
-        $mission = Mission::factory()->create();
+        $mission = Mission::factory()->create(['hints' => '["First hint"]', 'solution_code' => '<h1>Example</h1>']);
         XpTransaction::query()->create([
             'user_id' => $student->id,
             'mission_id' => $mission->id,
@@ -111,7 +116,7 @@ class AcademicConcurrencyTest extends TestCase
     public function test_concurrent_distinct_hint_spends_cannot_overdraw_xp(): void
     {
         $student = User::factory()->create();
-        $missions = Mission::factory()->count(2)->create();
+        $missions = Mission::factory()->count(2)->create(['hints' => '["First hint"]']);
         XpTransaction::query()->create([
             'user_id' => $student->id,
             'mission_id' => $missions[0]->id,
@@ -258,6 +263,140 @@ class AcademicConcurrencyTest extends TestCase
             ->count());
         $this->assertSame(1, Notification::query()->where('user_id', $student->id)->where('dedupe_key', 'mission_completed:'.$mission->id)->count());
         $this->assertSame(50, app(XpService::class)->balance($student));
+    }
+
+    public function test_concurrent_failed_submission_replays_charge_once(): void
+    {
+        $student = User::factory()->create();
+        $mission = Mission::factory()->create(['validate_rule' => '[{"type":"contains","value":"valid code"}]']);
+        XpTransaction::query()->create([
+            'user_id' => $student->id,
+            'mission_id' => $mission->id,
+            'amount' => 50,
+            'type' => XpService::TYPE_MISSION_COMPLETED,
+        ]);
+        $submissionId = (string) Str::uuid();
+
+        $results = $this->runPair(
+            fn (int $worker): bool => app(MissionService::class)->submit(
+                User::query()->findOrFail($student->id),
+                Mission::query()->findOrFail($mission->id),
+                'wrong code',
+                $submissionId,
+            )['passed'],
+            'the404_mission_submission_results',
+        );
+
+        $this->assertSame([false, false], $results);
+        $this->assertSame(40, app(XpService::class)->balance($student));
+        $this->assertSame(1, XpTransaction::query()->where('user_id', $student->id)->where('type', XpService::TYPE_WRONG_SUBMISSION)->count());
+        $this->assertSame(1, DB::table('the404_mission_submission_results')->where('user_id', $student->id)->count());
+        $this->assertDatabaseCount('the404_progress', 0);
+    }
+
+    public function test_concurrent_distinct_failed_submission_operations_charge_separately(): void
+    {
+        $student = User::factory()->create();
+        $mission = Mission::factory()->create(['validate_rule' => '[{"type":"contains","value":"valid code"}]']);
+        XpTransaction::query()->create([
+            'user_id' => $student->id,
+            'mission_id' => $mission->id,
+            'amount' => 50,
+            'type' => XpService::TYPE_MISSION_COMPLETED,
+        ]);
+        $submissionIds = [(string) Str::uuid(), (string) Str::uuid()];
+
+        $results = $this->runPair(
+            fn (int $worker): bool => app(MissionService::class)->submit(
+                User::query()->findOrFail($student->id),
+                Mission::query()->findOrFail($mission->id),
+                'wrong code',
+                $submissionIds[$worker],
+            )['passed'],
+            'the404_mission_submission_results',
+        );
+
+        $this->assertSame([false, false], $results);
+        $this->assertSame(30, app(XpService::class)->balance($student));
+        $this->assertSame(2, XpTransaction::query()->where('user_id', $student->id)->where('type', XpService::TYPE_WRONG_SUBMISSION)->count());
+        $this->assertSame(2, DB::table('the404_mission_submission_results')->where('user_id', $student->id)->count());
+        $this->assertDatabaseCount('the404_progress', 0);
+    }
+
+    public function test_concurrent_draft_save_and_completion_leave_no_completed_mission_draft(): void
+    {
+        $this->seed(AchievementSeeder::class);
+        $student = User::factory()->create();
+        $mission = Mission::factory()->create(['validate_rule' => '[{"type":"contains","value":"valid code"}]', 'points' => 50]);
+
+        $results = $this->runPair(function (int $worker) use ($student, $mission): bool {
+            $user = User::query()->findOrFail($student->id);
+            $currentMission = Mission::query()->findOrFail($mission->id);
+
+            if ($worker === 0) {
+                return app(MissionService::class)->submit($user, $currentMission, 'valid code')['passed'];
+            }
+
+            try {
+                app(DraftService::class)->save($user, $currentMission, 'stale draft');
+
+                return true;
+            } catch (ValidationException) {
+                return false;
+            }
+        }, 'the404_progress');
+
+        $this->assertTrue($results[0]);
+        $this->assertSame(1, Progress::query()->where('user_id', $student->id)->where('mission_id', $mission->id)->count());
+        $this->assertSame(0, MissionDraft::query()->where('user_id', $student->id)->where('mission_id', $mission->id)->count());
+        $this->assertSame(50, app(XpService::class)->balance($student));
+    }
+
+    public function test_course_revocation_cannot_commit_during_an_authoritative_mission_submission(): void
+    {
+        $this->seed(AchievementSeeder::class);
+        $student = User::factory()->create();
+        $mission = Mission::factory()->create(['validate_rule' => '[{"type":"contains","value":"valid code"}]', 'points' => 50]);
+        $connectionName = 'academic_revocation_probe';
+        config(['database.connections.'.$connectionName => config('database.connections.'.config('database.default'))]);
+        $revocation = DB::connection($connectionName);
+        $revocation->statement('SET SESSION innodb_lock_wait_timeout = 1');
+        $attempted = false;
+        $blocked = false;
+        DB::listen(function (QueryExecuted $query) use ($mission, $connectionName, $revocation, &$attempted, &$blocked): void {
+            if ($attempted || $query->connectionName === $connectionName
+                || ! str_contains(strtolower($query->sql), 'the404_courses')
+                || ! str_contains(strtolower($query->sql), 'lock in share mode')) {
+                return;
+            }
+
+            $attempted = true;
+
+            try {
+                $revocation->table('the404_courses')->where('id', $mission->course_id)->update(['status' => 'locked']);
+            } catch (QueryException $exception) {
+                if (($exception->errorInfo[1] ?? null) !== 1205) {
+                    throw $exception;
+                }
+
+                $blocked = true;
+            }
+        });
+
+        try {
+            $outcome = app(MissionService::class)->submit($student, $mission, 'valid code');
+
+            $this->assertTrue($attempted);
+            $this->assertTrue($blocked);
+            $this->assertTrue($outcome['passed']);
+            $this->assertSame('active', $mission->course->fresh()->status);
+            $this->assertSame(50, app(XpService::class)->balance($student));
+            $this->assertSame(1, $revocation->table('the404_courses')->where('id', $mission->course_id)->update(['status' => 'locked']));
+            $this->assertSame('locked', $mission->course->fresh()->status);
+        } finally {
+            DB::purge($connectionName);
+            config(['database.connections.'.$connectionName => null]);
+        }
     }
 
     public function test_concurrent_boss_evaluations_grant_first_pass_effects_once(): void

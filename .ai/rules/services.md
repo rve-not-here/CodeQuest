@@ -183,3 +183,6 @@ For list pages with database-filterable membership and ordering, apply the autho
 
 ## US-1108 batched roster and directory projections
 US-1108 supersedes the earlier accepted roster fan-out risk. StudentService paginates authorized students before enrichment for SQL-filterable rosters and uses scoped batch competency, progression, and TimelineService::latestForUsers data for displayed rows; derived filters still operate before pagination. TimelineService shares its four-source vocabulary for latest beats and delegates section-completion batches to LearningPathService, using the same all-missions-complete rule. Do not restore per-displayed-row service calls or fetch academic evidence outside authorized Student/Course pairs.
+
+## Failed mission replay identity and deployment gate
+A new UUID identifies a deliberate mission submission; repeated UUIDs replay the recorded failure without another XP penalty. Legacy callers intentionally deduplicate identical mission/version/source, so deliberate retries must send a fresh UUID. Store the failure and penalty atomically. The submission journal requires separately approved production DDL; missing schema must return unavailable without academic writes.

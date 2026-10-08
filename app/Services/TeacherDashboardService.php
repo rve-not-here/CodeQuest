@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Course;
+use App\Models\KnowledgeCheckAttempt;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
@@ -41,9 +42,9 @@ class TeacherDashboardService
      * A student is "active" when they have at least one learning event in the
      * last ACTIVE_WINDOW_DAYS. The window reuses TimelineService's default
      * feed window on purpose, so "active" means the same span the Learning
-     * Activity strip renders below it. A learning event is one of the four
-     * timeline sources — a mission completion, an assessment attempt, an
-     * activity row, or an xp_transaction — with login/logout bookkeeping
+     * Activity strip renders below it. A learning event is a mission
+     * completion, an assessment attempt, an activity row, an xp_transaction,
+     * or a submitted Knowledge Check — with login/logout bookkeeping
      * excluded (TimelineService::NON_LEARNING_ACTIVITY_TYPES).
      */
     public const ACTIVE_WINDOW_DAYS = TimelineService::DEFAULT_WINDOW_DAYS;
@@ -156,9 +157,9 @@ class TeacherDashboardService
      * A student is "active" when they have at least one learning event in the
      * last ACTIVE_WINDOW_DAYS. The window reuses TimelineService's default
      * feed window on purpose, so "active" means the same span the Learning
-     * Activity strip renders below it. A learning event is one of the four
-     * timeline sources — a mission completion, an assessment attempt, an
-     * activity row, or an xp_transaction — with login/logout bookkeeping
+     * Activity strip renders below it. A learning event is a mission
+     * completion, an assessment attempt, an activity row, an xp_transaction,
+     * or a submitted Knowledge Check — with login/logout bookkeeping
      * excluded (TimelineService::NON_LEARNING_ACTIVITY_TYPES).
      *
      * Under a per-student course scope the definition is stricter: the event
@@ -219,12 +220,33 @@ class TeacherDashboardService
         $union = $progress
             ->union($activity)
             ->union($attempts)
-            ->union($xp);
+            ->union($xp)
+            ->union($this->submittedKnowledgeChecks($cutoff, $studentIds, $studentCourseScopes));
 
         return (int) DB::query()
             ->fromSub($union, 'active_users')
             ->distinct()
             ->count('user_id');
+    }
+
+    /**
+     * @param  Collection<int, int>|null  $studentIds
+     * @param  array<int, Collection<int, int>>|null  $studentCourseScopes
+     */
+    private function submittedKnowledgeChecks(Carbon $cutoff, ?Collection $studentIds, ?array $studentCourseScopes): Builder
+    {
+        $query = DB::table('the404_knowledge_check_attempts as at')
+            ->join('the404_knowledge_checks as k', 'k.id', '=', 'at.knowledge_check_id')
+            ->join('the404_missions as m', 'm.id', '=', 'k.mission_id')
+            ->select('at.user_id')
+            ->where('at.status', KnowledgeCheckAttempt::STATUS_SUBMITTED)
+            ->where('at.submitted_at', '>=', $cutoff);
+
+        if ($studentCourseScopes !== null) {
+            return $this->access->whereAllowedPairs($query, 'at.user_id', 'm.course_id', $studentCourseScopes);
+        }
+
+        return $query->when($studentIds !== null, fn (Builder $query): Builder => $query->whereIn('at.user_id', $studentIds));
     }
 
     /**

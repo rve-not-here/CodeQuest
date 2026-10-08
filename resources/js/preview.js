@@ -1,4 +1,10 @@
-export function previewDocument(source, type) {
+export function previewSandbox(type, starter = '') {
+    if (type !== 'js' && type !== 'javascript') return '';
+    const markup = starter.match(/\/\* Preview HTML:\s*([\s\S]*?)\*\//)?.[1] ?? '';
+    return /<form\b/i.test(markup) ? 'allow-scripts allow-forms' : 'allow-scripts';
+}
+
+export function previewDocument(source, type, starter = '') {
     if (type === 'css') {
         const stylesheet = source.replace(/<\/style/gi, '<\\/style');
         return `<!doctype html><html><head><meta charset="utf-8"><style>${stylesheet}</style></head><body>
@@ -10,8 +16,15 @@ export function previewDocument(source, type) {
     }
     if (type !== 'js' && type !== 'javascript') return source;
 
+    if (starter.includes('/* Preview source only */')) {
+        const text = source.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<!doctype html><html><body><p>Module source. Run these files in a module-enabled project.</p><pre>${text}</pre></body></html>`;
+    }
+
+    const markup = starter.match(/\/\* Preview HTML:\s*([\s\S]*?)\*\//)?.[1] ?? '';
     const encodedSource = JSON.stringify(source).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-    return `<!doctype html><html><head><meta charset="utf-8"></head><body>
+    return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="form-action 'none'"></head><body>
+        ${markup}
         <pre id="experiment-console" aria-label="Console output" role="log"></pre>
         <script>
         (function () {

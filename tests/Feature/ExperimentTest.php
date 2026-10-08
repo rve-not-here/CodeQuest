@@ -36,23 +36,25 @@ class ExperimentTest extends TestCase
         $this->assertSame(1, preg_match('/<script>\s*(\(function[\s\S]*?)<\/script>/', $response->getContent(), $matches));
         $result = Process::timeout(5)->input($matches[1])->run(['node', '--input-type=module', '-e', <<<'JS'
 import vm from 'node:vm';
-import { previewDocument } from './resources/js/preview.js';
+import { previewDocument, previewSandbox } from './resources/js/preview.js';
 let script = '';
 for await (const chunk of process.stdin) script += chunk;
 const elements = new Map();
 const document = { getElementById(id) {
-    if (!elements.has(id)) elements.set(id, { addEventListener() {} });
+    if (!elements.has(id)) elements.set(id, { sandbox: { value: '' }, addEventListener() {} });
     return elements.get(id);
 } };
 const CM = {
     html() {}, css() {}, javascript() {},
     EditorView: class { constructor(options) { this.state = { doc: { toString: () => options.doc } }; } },
 };
-vm.runInNewContext(script, { document, window: { CodeQuest: { CodeMirror: CM, previewDocument } } });
-process.stdout.write(elements.get('experiment-preview').srcdoc);
+vm.runInNewContext(script, { document, window: { CodeQuest: { CodeMirror: CM, previewDocument, previewSandbox } } });
+process.stdout.write(JSON.stringify(elements.get('experiment-preview')));
 JS]);
         $this->assertTrue($result->successful(), $result->errorOutput());
-        $preview = $result->output();
+        $frame = json_decode($result->output(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(in_array($type, ['js', 'javascript'], true) ? 'allow-scripts' : '', $frame['sandbox']['value']);
+        $preview = $frame['srcdoc'];
         if ($type === 'html') {
             $this->assertSame($source, $preview);
         } elseif ($type === 'css') {

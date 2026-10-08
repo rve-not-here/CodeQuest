@@ -203,6 +203,7 @@ class ChallengeAnalyticsTest extends TestCase
         $user = User::factory()->create();
         $course = $this->course();
         $mission = $this->mission($course, 'Drafted');
+        $mission->update(['hints' => '["First hint"]']);
         $earner = $this->mission($course, 'Earner');
 
         app(DraftService::class)->save($user, $mission, '<h1>unfinished');

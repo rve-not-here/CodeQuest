@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Assessment;
+use App\Models\Course;
 use App\Models\Mission;
+use App\Models\Progress;
 use App\Models\User;
 use App\Models\XpTransaction;
 use Carbon\Carbon;
@@ -178,7 +180,8 @@ class XpService
 
     /**
      * Deducts the cost of revealing the nth hint. Returns false when the
-     * student cannot afford it, leaving the ledger untouched.
+     * hint is unavailable or the student cannot afford it, leaving the
+     * ledger untouched.
      */
     public function spendHint(User $user, Mission $mission, int $hintNumber): bool
     {
@@ -186,6 +189,15 @@ class XpService
 
         return DB::transaction(function () use ($user, $mission, $hintNumber, $cost): bool {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $mission = Mission::query()->whereKey($mission->id)->lockForUpdate()->firstOrFail();
+
+            if (! $this->canPurchaseAssistance($user, $mission)) {
+                return false;
+            }
+
+            if ($hintNumber < 1 || ! array_key_exists($hintNumber - 1, $this->hintsFor($mission))) {
+                return false;
+            }
 
             if ($this->revealedHintCount($user, $mission) >= $hintNumber) {
                 return true;
@@ -204,12 +216,21 @@ class XpService
 
     /**
      * Deducts the cost of revealing the full solution. Returns false when the
-     * student cannot afford it.
+     * solution is unavailable or the student cannot afford it.
      */
     public function spendSolutionReveal(User $user, Mission $mission): bool
     {
         return DB::transaction(function () use ($user, $mission): bool {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $mission = Mission::query()->whereKey($mission->id)->lockForUpdate()->firstOrFail();
+
+            if (! $this->canPurchaseAssistance($user, $mission)) {
+                return false;
+            }
+
+            if (! $this->hasSolution($mission)) {
+                return false;
+            }
 
             if ($this->hasRevealedSolution($user, $mission)) {
                 return true;
@@ -224,6 +245,50 @@ class XpService
 
             return true;
         }, attempts: 3);
+    }
+
+    private function canPurchaseAssistance(User $user, Mission $mission): bool
+    {
+        $course = Course::query()->whereKey($mission->course_id)->sharedLock()->firstOrFail();
+
+        return $course->status === 'active'
+            && ! Progress::query()->where('user_id', $user->id)->where('mission_id', $mission->id)->exists();
+    }
+
+    /**
+     * Legacy text and JSON scalar lists share the same usable hint sequence.
+     * Only the three hints with established purchase prices are available.
+     *
+     * @return list<string>
+     */
+    public function hintsFor(Mission $mission): array
+    {
+        $content = $mission->hints ?? '';
+
+        if (trim($content) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($content, true);
+
+        if (! is_array($decoded)) {
+            return [trim($content)];
+        }
+
+        $hints = [];
+
+        foreach ($decoded as $hint) {
+            if (is_scalar($hint) && trim((string) $hint) !== '') {
+                $hints[] = (string) $hint;
+            }
+        }
+
+        return array_slice($hints, 0, count(self::HINT_COSTS));
+    }
+
+    public function hasSolution(Mission $mission): bool
+    {
+        return trim($mission->solution_code ?? '') !== '';
     }
 
     public function hintCost(int $hintNumber): int

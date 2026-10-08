@@ -98,7 +98,8 @@ class MissionController extends Controller
             : null;
         $achievementsBefore = $this->achievementNames($user);
 
-        $outcome = $this->missions->submit($user, $mission, $validated['code'] ?? '');
+        $submission = $request->validate(['submission_id' => ['nullable', 'uuid']]);
+        $outcome = $this->missions->submit($user, $mission, $validated['code'] ?? '', $submission['submission_id'] ?? null);
 
         if ($outcome['passed'] && ! $outcome['alreadyCompleted']) {
             $progressAfter = $course !== null
@@ -190,7 +191,7 @@ class MissionController extends Controller
 
         $hintNumber = $this->xp->revealedHintCount($user, $mission) + 1;
 
-        if ($hintNumber > 3) {
+        if ($hintNumber > count($this->xp->hintsFor($mission))) {
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('hint_flat', true);
@@ -200,6 +201,12 @@ class MissionController extends Controller
         $balance = $this->xp->balance($user);
 
         if (! $this->xp->spendHint($user, $mission, $hintNumber)) {
+            $mission->refresh();
+            $this->ensureCourseActive($mission);
+            if ($this->missions->isCompleted($user, $mission) || $hintNumber > count($this->xp->hintsFor($mission))) {
+                return back()->withInput(['code' => $request->input('code')])->with('hint_flat', true);
+            }
+
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('hint_error', compact('cost', 'balance'));
@@ -225,7 +232,7 @@ class MissionController extends Controller
 
         SourceCodeInput::validate($request, required: false);
 
-        if ($this->missions->isCompleted($user, $mission)) {
+        if ($this->missions->isCompleted($user, $mission) || ! $this->xp->hasSolution($mission)) {
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('reveal_flat', true);
@@ -235,6 +242,12 @@ class MissionController extends Controller
         $balance = $this->xp->balance($user);
 
         if (! $this->xp->spendSolutionReveal($user, $mission)) {
+            $mission->refresh();
+            $this->ensureCourseActive($mission);
+            if ($this->missions->isCompleted($user, $mission) || ! $this->xp->hasSolution($mission)) {
+                return back()->withInput(['code' => $request->input('code')])->with('reveal_flat', true);
+            }
+
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('reveal_error', compact('cost', 'balance'));
@@ -277,7 +290,7 @@ class MissionController extends Controller
         $completed = $this->missions->isCompleted($user, $mission);
         $draft = $this->drafts->find($user, $mission);
 
-        $hints = $this->parseHints($mission);
+        $hints = $this->xp->hintsFor($mission);
         $revealedCount = $this->xp->revealedHintCount($user, $mission);
         $revealedHints = array_slice($hints, 0, $revealedCount);
         $solutionRevealed = $this->xp->hasRevealedSolution($user, $mission);
@@ -298,6 +311,7 @@ class MissionController extends Controller
             'totalHintCount' => count($hints),
             'nextHintCost' => $this->xp->hintCost($revealedCount + 1),
             'revealCost' => $this->xp->revealCost(),
+            'hasSolution' => $this->xp->hasSolution($mission),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
         ];
     }
@@ -327,24 +341,6 @@ class MissionController extends Controller
         }
 
         return null;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function parseHints(Mission $mission): array
-    {
-        if ($mission->hints === null || trim($mission->hints) === '') {
-            return [];
-        }
-
-        $decoded = json_decode($mission->hints, true);
-
-        if (! is_array($decoded)) {
-            return [trim($mission->hints)];
-        }
-
-        return array_values(array_filter(array_map('strval', $decoded), fn (string $h): bool => $h !== ''));
     }
 
     /**

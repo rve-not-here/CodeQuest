@@ -2,9 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Course;
 use App\Models\Mission;
 use App\Models\MissionDraft;
+use App\Models\Progress;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Persists and restores a student's in-progress mission code.
@@ -28,13 +32,21 @@ class DraftService
      */
     public function save(User $user, Mission $mission, string $code): MissionDraft
     {
-        $draft = MissionDraft::query()
-            ->updateOrCreate(
+        return DB::transaction(function () use ($user, $mission, $code): MissionDraft {
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $mission = Mission::query()->whereKey($mission->id)->sharedLock()->firstOrFail();
+            $course = Course::query()->whereKey($mission->course_id)->sharedLock()->firstOrFail();
+            abort_unless($course->status === 'active', 403);
+
+            if (Progress::query()->where('user_id', $user->id)->where('mission_id', $mission->id)->exists()) {
+                throw ValidationException::withMessages(['code' => 'This challenge is complete. Your draft was not saved.']);
+            }
+
+            return MissionDraft::query()->updateOrCreate(
                 ['user_id' => $user->id, 'mission_id' => $mission->id],
                 ['code' => $code],
             );
-
-        return $draft;
+        }, attempts: 3);
     }
 
     /**

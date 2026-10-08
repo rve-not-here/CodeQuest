@@ -551,7 +551,7 @@ class CurriculumVersioningTest extends TestCase
             $this->missionAttributes(50)
         ));
         $spend = Mission::factory()->create(array_merge(
-            ['course_id' => $course->id, 'hints' => json_encode(['First hint'])],
+            ['course_id' => $course->id, 'hints' => json_encode(['First hint']), 'solution_code' => '<h1>Solution</h1>'],
             $this->missionAttributes(50)
         ));
 

@@ -57,7 +57,7 @@
     @endif
     @if (session('reveal_flat'))
         <x-student-toast type="info" title="NOT NEEDED">
-            Solution reveal not needed on a completed challenge.
+            No solution is available, or this challenge is already complete.
         </x-student-toast>
     @endif
     @if (session('solution_revealed'))
@@ -107,7 +107,7 @@
                             <p>Optional help uses XP and never changes validation rules.</p>
                         </div>
 
-                        @if (! $completed)
+                        @if (! $completed && $hasSolution)
                         <div class="challenge-assistance-actions">
                             <form method="POST" action="{{ route('mission.reveal', $mission) }}" class="inline">
                                 @csrf
@@ -178,6 +178,7 @@
 
         <form method="POST" action="{{ route('mission.submit', $mission) }}" class="inline workspace-submit">
             @csrf
+            <input type="hidden" name="submission_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
             <input type="hidden" name="code" class="code-payload">
             <button type="submit" class="btn btn-primary">Submit challenge</button>
         </form>
@@ -245,6 +246,7 @@
                 });
             });
 
+            var starter = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
             var initial = {{ Illuminate\Support\Js::from($initialCode) }};
             var host = document.getElementById('editor-host');
             var source = document.getElementById('editor-source');
@@ -292,14 +294,15 @@
                 });
 
                 syncPayloads(view);
+                frame.sandbox.value = cq.previewSandbox(type, starter);
 
                 runBtn.addEventListener('click', function () {
-                    frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type);
+                    frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
                     document.dispatchEvent(new CustomEvent('cq:workspace-pane', { detail: 'preview' }));
                 });
 
                 // Initial preview reflects any restored draft.
-                frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type);
+                frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
 
                 draftForm?.addEventListener('submit', function () {
                     if (draftStatus) draftStatus.textContent = 'Saving...';

@@ -191,7 +191,7 @@ class XpServiceTest extends TestCase
     public function test_spend_hint_returns_true_when_affordable(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['points' => 30]);
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 30]);
 
         $this->service->awardCompletion($user, $mission);
         $result = $this->service->spendHint($user, $mission, 1);
@@ -203,7 +203,7 @@ class XpServiceTest extends TestCase
     public function test_spend_hint_returns_false_when_unaffordable(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create();
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>']);
 
         $result = $this->service->spendHint($user, $mission, 1);
 
@@ -218,7 +218,7 @@ class XpServiceTest extends TestCase
     public function test_spend_solution_reveal_returns_true_when_affordable(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['points' => 50]);
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 50]);
 
         $this->service->awardCompletion($user, $mission);
         $result = $this->service->spendSolutionReveal($user, $mission);
@@ -230,7 +230,7 @@ class XpServiceTest extends TestCase
     public function test_spend_solution_reveal_returns_false_when_unaffordable(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create();
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>']);
 
         $result = $this->service->spendSolutionReveal($user, $mission);
 
@@ -261,7 +261,7 @@ class XpServiceTest extends TestCase
     public function test_revealed_hint_count_increments(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['points' => 50]);
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 50]);
 
         $this->service->awardCompletion($user, $mission);
 
@@ -277,7 +277,7 @@ class XpServiceTest extends TestCase
     public function test_has_revealed_solution(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['points' => 50]);
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 50]);
 
         $this->assertFalse($this->service->hasRevealedSolution($user, $mission));
 
@@ -314,7 +314,7 @@ class XpServiceTest extends TestCase
     public function test_transaction_history_returns_rows_newest_first(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['title' => 'First Contact', 'points' => 30]);
+        $mission = Mission::factory()->create(['title' => 'First Contact', 'points' => 30, 'hints' => '["First hint"]']);
 
         $this->service->awardCompletion($user, $mission);
         $this->service->spendHint($user, $mission, 1);
@@ -340,7 +340,7 @@ class XpServiceTest extends TestCase
     public function test_transaction_history_rows_expose_action_fields_and_no_internal_ids(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['title' => 'First Contact', 'points' => 30]);
+        $mission = Mission::factory()->create(['title' => 'First Contact', 'points' => 30, 'hints' => '["First hint"]']);
         $assessment = Assessment::factory()->create(['title' => 'Signal Restoration — HTML Boss Challenge']);
 
         $this->service->awardCompletion($user, $mission);

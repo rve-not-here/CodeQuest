@@ -33,6 +33,34 @@ class CourseAnalyticsTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_monitoring_omits_teacher_report_links_while_teacher_reports_remain_forbidden(): void
+    {
+        $course = Course::factory()->create(['status' => 'active']);
+        Mission::factory()->create(['course_id' => $course->id]);
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->get(route('course-analytics'))
+            ->assertOk()
+            ->assertDontSee(route('reports.teacher-course', $course));
+
+        $this->get(route('reports.teacher-course', $course))->assertForbidden();
+    }
+
+    public function test_teacher_course_report_link_opens_the_authorized_report(): void
+    {
+        $course = Course::factory()->create(['status' => 'active']);
+        Mission::factory()->create(['course_id' => $course->id]);
+        $student = User::factory()->create();
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)->get(route('course-analytics'))
+            ->assertOk()
+            ->assertSee(route('reports.teacher-course', $course));
+
+        $this->get(route('reports.teacher-course', $course))->assertOk();
+    }
+
     public function test_course_analytics_rejects_user_scoping_probes(): void
     {
         $this->buildFleet();

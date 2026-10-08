@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Support\DisposableDatabase;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use RuntimeException;
@@ -12,16 +13,11 @@ abstract class TestCase extends BaseTestCase
     {
         $app = parent::createApplication();
         $connection = config('database.default');
-        $database = config("database.connections.{$connection}.database");
-
-        if ($connection === 'sqlite' && $database === ':memory:') {
-            return $app;
-        }
-
-        if (in_array($connection, ['mysql', 'mariadb'], true)
-            && getenv('CODEQUEST_ALLOW_DISPOSABLE_DATABASE') === '1'
-            && is_string($database) && str_ends_with($database, '_test')
-            && config("database.connections.{$connection}.unix_socket") === '') {
+        if (DisposableDatabase::allows(
+            $connection,
+            config("database.connections.{$connection}"),
+            getenv('CODEQUEST_ALLOW_DISPOSABLE_DATABASE') === '1',
+        )) {
             return $app;
         }
 

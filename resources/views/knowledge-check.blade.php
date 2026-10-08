@@ -41,7 +41,7 @@
         @endif
 
         @if ($attempt->status === 'submitted')
-            <section class="panel" aria-labelledby="knowledge-check-result-title">
+            <section class="panel" data-check-completed-key="cq:check:{{ auth()->id() }}:{{ $attempt->id }}" aria-labelledby="knowledge-check-result-title">
                 <div class="flex flex-wrap items-start justify-between gap-5 px-5 py-5 md:px-6">
                     <div class="min-w-0">
                         <p class="eyebrow text-accent">Check recorded</p>
@@ -90,7 +90,7 @@
                 </ol>
             </section>
         @else
-            <form method="POST" action="{{ route('knowledge-check.submit', [$mission, $knowledgeCheck, $attempt]) }}" data-knowledge-check>
+            <form method="POST" action="{{ route('knowledge-check.submit', [$mission, $knowledgeCheck, $attempt]) }}" data-knowledge-check data-draft-key="cq:check:{{ auth()->id() }}:{{ $attempt->id }}">
                 @csrf
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
                     <div class="grid min-w-0 grid-cols-1 gap-4">

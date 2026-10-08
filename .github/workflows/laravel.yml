@@ -44,5 +44,13 @@ jobs:
       run: npm ci --ignore-scripts
     - name: Build frontend assets
       run: npm run build
+    - name: Check PHP types
+      run: composer run analyse
+    - name: Audit PHP dependencies
+      run: composer audit --format=json
+    - name: Audit frontend dependencies
+      run: npm audit --json
+    - name: Execute grader security and frontend tests
+      run: node --test grader/test/*.test.js tests/*.test.js
     - name: Execute unit and feature tests
       run: php artisan test --compact

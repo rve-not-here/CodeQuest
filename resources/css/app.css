@@ -475,6 +475,18 @@
     .cq-primary-nav {
         display: flex;
     }
+
+    .cq-topnav[data-role="admin"] .cq-topnav-inner {
+        flex-wrap: wrap;
+        row-gap: 0;
+        padding-block: 0.5rem;
+    }
+
+    .cq-topnav[data-role="admin"] .cq-primary-nav {
+        order: 3;
+        flex-basis: 100%;
+        flex-wrap: wrap;
+    }
 }
 
 .cq-avatar {
