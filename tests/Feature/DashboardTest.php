@@ -62,6 +62,9 @@ class DashboardTest extends TestCase
             ->assertSee($course->name)
             ->assertSee($course->missions()->where('order_num', 2)->firstOrFail()->title)
             ->assertSee('Continue Learning →')
+            ->assertSeeInOrder(['Current Objective', 'Mission 2', 'Continue Learning', 'Course position', 'Recent learning evidence'])
+            ->assertSee(route('recommendations'))
+            ->assertSee(route('xp-ledger'))
             ->assertSee('XP BALANCE')
             ->assertSee('>'.$missionOne->points.'</strong>', false)
             ->assertSee('operator');

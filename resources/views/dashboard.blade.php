@@ -1,8 +1,6 @@
 @extends('layouts.app', ['role' => $role, 'studentPrototype' => true])
 
 @php
-    $displayName = auth()->user()?->username ?? 'Student';
-    $firstName = strtok($displayName, ' ') ?: $displayName;
     $mission = $resume !== null && $resume['type'] === 'mission' ? $resume['mission'] : null;
     $section = $resume['section'] ?? null;
     $competencyState = $competencySummary === null
@@ -13,175 +11,93 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <p class="eyebrow">Student dashboard</p>
-            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance">Welcome back, {{ $firstName }}</h1>
-        </div>
-    </div>
+    <div class="atlas-dashboard">
+        <header class="atlas-dashboard-heading">
+            <h1>Current Objective</h1>
+            <a class="atlas-dashboard-xp" href="{{ route('xp-ledger') }}"><span>XP BALANCE</span> <strong>{{ number_format($totalXp) }}</strong><span class="sr-only">. View XP ledger</span></a>
+        </header>
 
-    <section aria-labelledby="continue-heading" class="panel overflow-hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_22rem]">
-            <div class="relative p-5 md:p-7">
-                <span class="absolute inset-y-0 left-0 w-0.5 bg-accent" aria-hidden="true"></span>
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="badge {{ $course === null ? 'badge-neutral' : 'badge-accent' }}">
-                        {{ ! $hasLearnableCourses ? 'No lessons available' : ($course === null ? 'Course complete' : ($mission !== null ? 'Current challenge' : 'Course milestone')) }}
-                    </span>
-                    @if ($course !== null)
-                        <span class="font-mono text-xs text-fg-subtle">{{ $course->name }}@if ($section !== null) / {{ $section->title }}@endif</span>
-                    @endif
-                </div>
-
+        <div class="atlas-dashboard-learning">
+            <section class="atlas-dashboard-objective" aria-labelledby="objective-title">
+                @if ($course !== null)
+                    <p class="atlas-dashboard-context">{{ $course->name }}@if ($section !== null)<span aria-hidden="true"> / </span>{{ $section->title }}@endif</p>
+                @endif
+                <p class="atlas-dashboard-state">{{ ! $hasLearnableCourses ? 'Not started' : ($course === null ? 'Complete' : ($mission !== null ? ($resumeHasDraft ? 'Current · Draft saved' : 'Current challenge') : 'Course milestone')) }}</p>
                 @if (! $hasLearnableCourses)
-                    <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">No lessons available yet</h2>
-                    <p class="mt-2 max-w-[62ch] text-fg-muted">There are no active courses with challenges. Your learning path will appear here when lessons are available.</p>
+                    <h2 id="objective-title">No lessons available yet</h2>
+                    <p class="atlas-dashboard-description">There are no active courses with challenges. Your learning path will appear here when lessons are available.</p>
                 @elseif ($course === null)
-                    <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">Course complete</h2>
-                    <p class="mt-2 max-w-[62ch] text-fg-muted">You have cleared every active course. Review your learning record.</p>
+                    <h2 id="objective-title">Course complete</h2>
+                    <p class="atlas-dashboard-description">You have cleared every active course. Review your learning record.</p>
                 @elseif ($mission !== null)
-                    <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">{{ $mission->title }}</h2>
-                    <p class="mt-2 max-w-[62ch] text-fg-muted">{{ $resumeHasDraft ? 'Saved work detected. Your draft is ready to continue.' : 'Open the lesson, then work through the coding challenge.' }}</p>
-                    <dl class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                        <div class="flex items-center gap-2"><dt class="eyebrow">Type</dt><dd>Coding challenge</dd></div>
-                        <div class="flex items-center gap-2"><dt class="eyebrow">Difficulty</dt><dd>{{ ucfirst($mission->difficulty) }}</dd></div>
-                        <div class="flex items-center gap-2"><dt class="eyebrow">Reward</dt><dd class="font-mono text-accent">+{{ $mission->points }} XP</dd></div>
+                    <h2 id="objective-title">@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h2>
+                    <p class="atlas-dashboard-description">{{ $resumeHasDraft ? 'Saved work detected. Your draft is ready to continue.' : 'Open the lesson, then work through the coding challenge.' }}</p>
+                    <dl class="atlas-dashboard-mission-meta">
+                        <div><dt class="sr-only">Type</dt><dd>Coding challenge</dd></div>
+                        <div><dt class="sr-only">Difficulty</dt><dd>{{ ucfirst($mission->difficulty) }}</dd></div>
+                        <div><dt class="sr-only">Completion reward</dt><dd class="font-mono">+{{ $mission->points }} XP</dd></div>
                     </dl>
                 @else
-                    <h2 id="continue-heading" class="mt-4 text-xl font-semibold tracking-tight text-balance md:text-2xl">Boss Challenge ready</h2>
-                    <p class="mt-2 max-w-[62ch] text-fg-muted">Return to the Learning Path to inspect the course milestone.</p>
+                    <h2 id="objective-title">Boss Challenge ready</h2>
+                    <p class="atlas-dashboard-description">Return to the Learning Path to inspect the course milestone.</p>
                 @endif
-
-                @if ($courseProgress !== null)
-                    <div class="mt-6 max-w-md">
-                        <div class="mb-2 flex items-baseline justify-between gap-2 text-sm">
-                            <span class="text-fg-muted">{{ $course->name }} progress</span>
-                            <span class="font-mono text-xs text-fg">{{ $courseProgress['completed'] }} / {{ $courseProgress['total'] }} challenges</span>
-                        </div>
-                        <div class="progress" role="progressbar" aria-label="{{ $course->name }} progress" aria-valuemin="0" aria-valuemax="{{ $courseProgress['total'] }}" aria-valuenow="{{ $courseProgress['completed'] }}" aria-valuetext="{{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} challenges complete">
-                            <span style="width: {{ $courseProgress['percent'] }}%"></span>
-                        </div>
-                    </div>
-                @endif
-
-                <div class="mt-7 flex flex-wrap gap-2.5">
+                <div class="atlas-dashboard-actions">
                     @if ($mission !== null)
                         <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $resumeHasDraft ? 'Resume Challenge' : 'Continue Learning' }} →</a>
-                        <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-lg">View Learning Path</a>
                     @else
                         <a href="{{ route('learning-path') }}" class="btn btn-primary btn-lg">{{ $course === null ? 'View Learning Path' : 'Continue Learning' }} →</a>
                     @endif
                 </div>
-            </div>
-
-            <aside aria-labelledby="next-heading" class="border-t border-line bg-raised/40 p-5 md:p-6 lg:border-t-0 lg:border-l">
-                <h3 id="next-heading" class="eyebrow">Your learning path</h3>
-                <p class="mt-3 text-sm font-medium text-fg">{{ $course?->name ?? ($hasLearnableCourses ? 'All active courses complete' : 'No active lessons') }}</p>
-                <p class="mt-1 text-sm leading-6 text-fg-muted">
-                    @if ($mission !== null)
-                        {{ $section?->title ?? 'Next available challenge' }}
-                    @elseif ($course !== null)
-                        The Boss Challenge is the next milestone.
-                    @elseif (! $hasLearnableCourses)
-                        Check back when your courses are ready.
-                    @else
-                        Review your completed work and learning record.
-                    @endif
-                </p>
-                <div class="mt-5 border-t border-line pt-4">
-                    <a href="{{ route('learning-path') }}" class="text-sm font-medium text-info hover:underline">Open course and section details →</a>
-                </div>
-            </aside>
-        </div>
-    </section>
-
-    <section aria-labelledby="summary-heading" class="mt-4">
-        <h2 id="summary-heading" class="sr-only">Progress summary</h2>
-        <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line lg:grid-cols-4">
-            <div class="min-w-0 bg-surface px-4 py-3.5 md:px-5">
-                <dt class="eyebrow">Course progress</dt>
-                <dd class="mt-1.5 font-mono text-lg font-medium text-fg">{{ ! $hasLearnableCourses ? 'Not started' : ($courseProgress === null ? 'Complete' : $courseProgress['percent'].'%') }}</dd>
-                <dd class="text-[13px] text-fg-subtle">{{ ! $hasLearnableCourses ? 'No active lessons' : ($courseProgress === null ? 'All active courses' : $courseProgress['completed'].' of '.$courseProgress['total'].' challenges') }}</dd>
-            </div>
-            <div class="min-w-0 bg-surface px-4 py-3.5 md:px-5">
-                <dt class="eyebrow">Competency</dt>
-                <dd class="mt-1.5 text-[15px] font-medium text-fg">{{ $competencySummary['name'] ?? 'No active skill area' }}</dd>
-                <dd class="text-[13px] text-info">{{ $competencyState }}</dd>
-            </div>
-            <div class="min-w-0 bg-surface px-4 py-3.5 md:px-5">
-                <dt class="eyebrow">Boss Challenges</dt>
-                <dd class="mt-1.5 font-mono text-lg font-medium text-fg">{{ $learnerStats['boss_challenges_passed'] }}</dd>
-                <dd class="text-[13px] text-fg-subtle">passed</dd>
-            </div>
-            <div class="min-w-0 bg-surface px-4 py-3.5 md:px-5">
-                <dt class="eyebrow">XP BALANCE</dt>
-                <dd class="mt-1.5 font-mono text-lg font-medium text-fg"><strong>{{ number_format($totalXp) }}</strong></dd>
-                <dd><a href="{{ route('xp-ledger') }}" class="text-[13px] text-info hover:underline">View XP ledger →</a></dd>
-            </div>
-        </dl>
-    </section>
-
-    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div class="flex min-w-0 flex-col gap-6 lg:col-span-2">
-            <section aria-labelledby="course-heading" class="panel">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-                    <div>
-                        <h2 id="course-heading" class="text-[15px] font-semibold">{{ $course?->name ?? 'Learning path' }}</h2>
-                        <p class="font-mono text-2xs text-fg-subtle">COURSE · CHALLENGES · BOSS CHALLENGE</p>
-                    </div>
-                    <a href="{{ route('learning-path') }}" class="btn btn-ghost btn-sm">Open path →</a>
-                </div>
-                <div class="px-5 py-4 text-sm text-fg-muted">
-                    @if ($courseProgress !== null)
-                        <p>{{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} required challenges complete.</p>
-                        <p class="mt-1">{{ $mission !== null ? 'Continue the next challenge to advance.' : 'Review the Boss Challenge milestone in the learning path.' }}</p>
-                    @elseif (! $hasLearnableCourses)
-                        <p>No active lessons are available yet.</p>
-                    @else
-                        <p>Review the courses and challenges you completed.</p>
-                    @endif
-                </div>
             </section>
 
-            <section aria-labelledby="activity-heading" class="panel">
-                <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-                    <h2 id="activity-heading" class="text-[15px] font-semibold">Recent activity</h2>
-                    <a href="{{ route('timeline') }}" class="btn btn-ghost btn-sm">View timeline →</a>
-                </div>
-                <ol class="divide-y divide-line">
-                    @forelse ($recentActivity as $activity)
-                        <li class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
-                            <span class="min-w-0 text-sm text-fg">{{ $activity->message }}</span>
-                            <time class="shrink-0 font-mono text-2xs text-fg-subtle" datetime="{{ $activity->created_at?->toIso8601String() }}">{{ $activity->created_at?->format('M d · H:i') }}</time>
-                        </li>
-                    @empty
-                        <li class="px-5 py-4 text-sm text-fg-muted">No learning activity recorded yet.</li>
-                    @endforelse
-                </ol>
+            <section class="atlas-dashboard-position" aria-labelledby="position-heading">
+                <h2 id="position-heading">Course position</h2>
+                @if ($courseProgress !== null)
+                    <div class="atlas-dashboard-track">
+                        <div class="atlas-dashboard-track-stop">
+                            <p class="atlas-dashboard-state">Completed challenges</p>
+                            <p class="atlas-dashboard-count"><strong>{{ $courseProgress['completed'] }}</strong> / {{ $courseProgress['total'] }}</p>
+                            <div class="progress" role="progressbar" aria-label="{{ $course->name }} progress" aria-valuemin="0" aria-valuemax="{{ $courseProgress['total'] }}" aria-valuenow="{{ $courseProgress['completed'] }}" aria-valuetext="{{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} challenges complete"><span style="width: {{ $courseProgress['percent'] }}%"></span></div>
+                        </div>
+                        <div class="atlas-dashboard-track-stop atlas-dashboard-track-current">
+                            <p class="atlas-dashboard-state">{{ $mission !== null ? 'Current section' : 'Course milestone' }}</p>
+                            <p>{{ $section?->title ?? ($mission !== null ? 'Next available challenge' : 'Boss Challenge') }}</p>
+                            <p class="atlas-dashboard-track-note">{{ $course->name }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('learning-path') }}" class="atlas-dashboard-link">View Learning Path →</a>
+                @else
+                    <p class="atlas-dashboard-position-empty">{{ $hasLearnableCourses ? 'All active courses complete' : 'No active lessons' }}</p>
+                    <p class="atlas-dashboard-track-note">{{ $hasLearnableCourses ? 'Your completed work remains in your learning record.' : 'Check back when your courses are ready.' }}</p>
+                @endif
             </section>
         </div>
 
-        <div class="flex min-w-0 flex-col gap-6">
-            <section aria-labelledby="competency-heading" class="panel">
-                <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-                    <h2 id="competency-heading" class="text-[15px] font-semibold">Competency</h2>
-                    <a href="{{ route('competency') }}" class="btn btn-ghost btn-sm">Details →</a>
+        <div class="atlas-dashboard-record">
+            <section class="atlas-dashboard-evidence" aria-labelledby="evidence-heading">
+                <div class="atlas-dashboard-section-heading">
+                    <h2 id="evidence-heading">Recent learning evidence</h2>
+                    <a href="{{ route('timeline') }}" class="atlas-dashboard-link">View timeline →</a>
                 </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-fg">{{ $competencySummary['name'] ?? 'No active skill area' }}</p>
-                    <p class="mt-1 text-sm text-fg-muted">{{ $competencyState }}</p>
-                </div>
+                @if ($recentActivity->isNotEmpty())
+                    <ol class="atlas-dashboard-events">
+                        @foreach ($recentActivity as $activity)
+                            <li><p>{{ $activity->message }}</p><time datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->format('M d · H:i') }}</time></li>
+                        @endforeach
+                    </ol>
+                @else
+                    <p class="atlas-dashboard-no-evidence">No learning activity recorded yet.</p>
+                @endif
+                <p class="atlas-dashboard-history"><span>{{ $learnerStats['boss_challenges_passed'] }} {{ $learnerStats['boss_challenges_passed'] === 1 ? 'Boss Challenge' : 'Boss Challenges' }} passed</span><a href="{{ route('achievements') }}">{{ $learnerStats['achievements'] }} {{ $learnerStats['achievements'] === 1 ? 'achievement' : 'achievements' }} →</a></p>
             </section>
-            <section aria-labelledby="next-action-heading" class="panel">
-                <div class="border-b border-line px-5 py-3.5">
-                    <h2 id="next-action-heading" class="text-[15px] font-semibold">Next steps</h2>
-                </div>
-                <div class="space-y-3 px-5 py-4 text-sm">
-                    <p class="text-fg-muted">Recommendations use your recorded learning activity.</p>
-                    <a href="{{ route('recommendations') }}" class="inline-block font-medium text-info hover:underline">View recommendations →</a>
-                    <div class="border-t border-line pt-3">
-                        <a href="{{ route('achievements') }}" class="text-fg-muted hover:text-fg">{{ $learnerStats['achievements'] }} {{ $learnerStats['achievements'] === 1 ? 'achievement' : 'achievements' }} earned →</a>
-                    </div>
+            <section class="atlas-dashboard-reflection" aria-labelledby="reflection-heading">
+                <h2 id="reflection-heading">Learning performance</h2>
+                <p>{{ $competencySummary['name'] ?? 'No active skill area' }}</p>
+                <p class="atlas-dashboard-state">{{ $competencyState }}</p>
+                <a href="{{ route('competency') }}" class="atlas-dashboard-link">View competency evidence →</a>
+                <div class="atlas-dashboard-recommendation">
+                    <h3>Where to focus</h3>
+                    <a href="{{ route('recommendations') }}" class="atlas-dashboard-link">View recommendations →</a>
                 </div>
             </section>
         </div>

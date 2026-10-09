@@ -4,39 +4,59 @@
 @source '../../storage/framework/views/*.php';
 @source './**/*.blade.php';
 
-/* ============================================================
-   CODEQUEST // SYSTEM 404
-   A readable academic terminal: phosphor identity, restrained CRT
-   atmosphere, and semantic state colors on near-black surfaces.
-   ============================================================ */
-
+/* Mission Atlas tokens; legacy names remain aliases until each page migrates. */
 @theme {
-    --font-display: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-    --font-body: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-    --font-code: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-    --font-sans: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-
-    --color-void: #030604;
-    --color-surface: #060c08;
-    --color-surface-alt: #0a140d;
-    --color-panel: #0b1610;
-    --color-input: #08110b;
-    --color-header: #040806;
-
-    --color-ink: #e1ece4;
-    --color-static: #91a198;
-    --color-phosphor: #33ff00;
-    --color-phosphor-dim: #559260;
-    --color-amber: #ffb000;
-    --color-alert: #ff5c5c;
-    --color-alert-dim: #a63c3c;
-    --color-cyan: #49d8e8;
-    --color-magenta: #d47ab2;
-
-    --color-phosphor-glow: rgba(51, 255, 0, 0.22);
-    --color-amber-glow: rgba(255, 176, 0, 0.2);
-    --color-alert-glow: rgba(255, 92, 92, 0.22);
-    --color-cyan-glow: rgba(73, 216, 232, 0.2);
+    --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --font-display: var(--font-sans);
+    --font-body: var(--font-sans);
+    --font-code: var(--font-mono);
+    --color-canvas: #111416;
+    --color-surface: #171C1F;
+    --color-raised: #1B2023;
+    --color-overlay: #242B2F;
+    --color-line: #343E43;
+    --color-line-strong: #78858A;
+    --color-fg: #F2F3EE;
+    --color-fg-muted: #AAB4B8;
+    --color-fg-subtle: #AAB4B8;
+    --color-locked: #AAB4B8;
+    --color-accent: #C4F56A;
+    --color-accent-strong: #D4FA92;
+    --color-accent-pressed: #B1DD5F;
+    --color-accent-ink: #111416;
+    --color-accent-soft: rgb(196 245 106 / 0.08);
+    --color-accent-line: #78858A;
+    --color-success: #79C7A1;
+    --color-info: #82D7E3;
+    --color-info-soft: rgb(130 215 227 / 0.08);
+    --color-warning: #F2BD65;
+    --color-warning-soft: rgb(242 189 101 / 0.08);
+    --color-danger: #FF8F8F;
+    --color-danger-soft: rgb(255 143 143 / 0.08);
+    --color-void: var(--color-canvas);
+    --color-surface-alt: var(--color-raised);
+    --color-panel: var(--color-surface);
+    --color-input: var(--color-canvas);
+    --color-header: var(--color-canvas);
+    --color-ink: var(--color-fg);
+    --color-static: var(--color-fg-muted);
+    --color-phosphor: var(--color-accent);
+    --color-phosphor-dim: var(--color-fg-muted);
+    --color-amber: var(--color-warning);
+    --color-alert: var(--color-danger);
+    --color-alert-dim: var(--color-danger);
+    --color-cyan: var(--color-info);
+    --color-magenta: var(--color-info);
+    --color-phosphor-glow: transparent;
+    --color-amber-glow: transparent;
+    --color-alert-glow: transparent;
+    --color-cyan-glow: transparent;
+    --radius-xs: 2px;
+    --radius-sm: 2px;
+    --radius-md: 0px;
+    --text-2xs: 0.75rem;
+    --text-2xs--line-height: 1.125rem;
 }
 
 @layer base {
@@ -51,10 +71,7 @@
         @apply bg-surface font-body text-ink antialiased;
         min-width: 320px;
         overflow-x: hidden;
-        background-image:
-            linear-gradient(rgba(51, 255, 0, 0.018) 1px, transparent 1px),
-            radial-gradient(circle at 12% 0%, rgba(51, 255, 0, 0.055), transparent 34rem);
-        background-size: 100% 4px, auto;
+        background: var(--color-canvas);
         font-size: 16px;
         line-height: 1.55;
         text-rendering: optimizeLegibility;
@@ -75,7 +92,7 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: #31543a;
+        background: var(--color-line-strong);
         border: 3px solid var(--color-void);
     }
 
@@ -122,7 +139,7 @@
     }
 
     thead {
-        background: #0d1c13;
+        background: var(--color-raised);
     }
 
     th {
@@ -142,9 +159,9 @@
 @layer components {
     .panel {
         @apply border bg-panel;
-        border-color: rgba(51, 255, 0, 0.22);
-        border-radius: 2px;
-        box-shadow: inset 0 1px 0 rgba(225, 236, 228, 0.025), 0 12px 32px rgba(0, 0, 0, 0.16);
+        border-color: var(--color-line);
+        border-radius: 0;
+        box-shadow: none;
     }
 
     .panel-title {
@@ -205,14 +222,14 @@
     .btn-primary {
         background: var(--color-phosphor);
         color: var(--color-void);
-        box-shadow: 0 0 20px rgba(51, 255, 0, 0.12);
+        box-shadow: none;
     }
 
     .btn-primary:hover {
-        background: #75ff55;
-        border-color: #75ff55;
+        background: var(--color-accent-strong);
+        border-color: var(--color-accent-strong);
         color: var(--color-void);
-        box-shadow: 0 0 26px rgba(51, 255, 0, 0.22);
+        box-shadow: none;
     }
 
     .btn-ghost {
@@ -222,7 +239,7 @@
 
     .btn-ghost:hover {
         background: rgba(51, 255, 0, 0.1);
-        color: #75ff55;
+        color: var(--color-accent-strong);
     }
 
     button:disabled,
@@ -264,10 +281,11 @@
     input:focus-visible,
     select:focus-visible,
     textarea:focus-visible,
+    summary:focus-visible,
     [tabindex]:focus-visible {
         border-radius: 2px;
-        outline: 3px solid var(--color-cyan);
-        outline-offset: 3px;
+        outline: 3px solid var(--color-accent);
+        outline-offset: 2px;
     }
 
     .text-phosphor-dim {
@@ -881,7 +899,7 @@
 
 a.path-node-card:hover {
     border-color: rgba(51, 255, 0, 0.58);
-    background: #0d1c13;
+    background: var(--color-raised);
     color: var(--color-ink);
 }
 
@@ -1990,7 +2008,6 @@ main:has(.challenge-workspace) {
 
 /* Monitoring and management use compact, readable tables and forms. */
 body.console-ui {
-    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --font-body: var(--font-sans);
     background-image: none;
     font-family: var(--font-sans);
@@ -2008,3 +2025,66 @@ body.console-ui main .panel { box-shadow: none; }
 body.console-ui .console-summary { border-block: 1px solid var(--color-line); padding-block: 0.75rem; }
 body.console-ui .console-summary > div { background: transparent; border: 0; border-right: 1px solid var(--color-line); }
 body.console-ui .result-count { color: var(--color-static); font-variant-numeric: tabular-nums; }
+
+/* Shared Mission Atlas shell. Page compositions remain in their own phases. */
+.atlas-ui { background: var(--color-canvas); }
+.atlas-ui .panel { border-radius: 0; box-shadow: none; }
+.atlas-ui :is(.btn-primary, .btn-ghost) { font-family: var(--font-sans); letter-spacing: normal; text-transform: none; }
+.atlas-ui :is(.btn-primary, .btn-secondary, .btn-ghost, .btn-quiet, .btn-icon, .field) { min-height: 44px; border-radius: 2px; }
+.atlas-ui .btn-primary:active { background: var(--color-accent-pressed); }
+.atlas-ui .terminal-input { border-color: var(--color-line-strong); }
+.atlas-ui .terminal-input::placeholder { color: var(--color-fg-muted); }
+.atlas-ui .terminal-input:focus { box-shadow: none; outline: 3px solid var(--color-accent); outline-offset: 2px; }
+.atlas-ui .page-header { border-color: var(--color-line); }
+.atlas-ui .terminal-kicker { font-size: 0.75rem; letter-spacing: 0.04em; }
+.atlas-ui .manual-footer { border-color: var(--color-line); background: var(--color-canvas); color: var(--color-fg-muted); }
+.atlas-ui [data-dismiss] { display: grid; place-items: center; min-width: 44px; min-height: 44px; }
+.atlas-skip { position: fixed; z-index: 100; top: 8px; left: 16px; padding: 12px 16px; background: var(--color-accent); color: var(--color-accent-ink); transform: translateY(-160%); }
+.atlas-skip:focus { transform: none; color: var(--color-accent-ink); }
+.atlas-shell { position: sticky; top: 0; z-index: 40; flex-shrink: 0; border-bottom: 1px solid var(--color-line); background: var(--color-canvas); }
+.atlas-shell-inner { display: flex; align-items: center; gap: 24px; min-height: 64px; max-width: 1536px; margin-inline: auto; padding-inline: 32px; }
+.atlas-brand { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; color: var(--color-fg); font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; min-height: 44px; }
+.atlas-mark { display: grid; place-items: center; width: 32px; height: 32px; border-block: 1px solid var(--color-accent); color: var(--color-accent); font: 500 0.75rem / 1 var(--font-mono); letter-spacing: 0.04em; }
+.atlas-primary { display: flex; align-self: stretch; gap: 20px; }
+.atlas-primary a { display: flex; align-items: center; min-height: 44px; border-bottom: 2px solid transparent; color: var(--color-fg-muted); font-size: 0.875rem; }
+.atlas-primary a[aria-current] { border-color: var(--color-accent); color: var(--color-fg); }
+.atlas-primary a:hover { color: var(--color-accent); }
+.atlas-shell-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.atlas-disclosure { position: relative; }
+.atlas-disclosure summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px; border: 1px solid transparent; border-radius: 2px; color: var(--color-fg-muted); cursor: pointer; font-size: 0.875rem; list-style: none; }
+.atlas-disclosure summary::-webkit-details-marker { display: none; }
+.atlas-disclosure summary:hover, .atlas-disclosure[open] > summary { background: var(--color-raised); border-color: var(--color-line-strong); color: var(--color-fg); }
+.atlas-popover { position: absolute; top: calc(100% + 8px); right: 0; z-index: 50; width: 256px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 88px); overflow-y: auto; overscroll-behavior: contain; padding: 8px; border: 1px solid var(--color-line-strong); border-radius: 2px; background: var(--color-overlay); }
+.atlas-secondary .atlas-popover { left: 0; right: auto; }
+.atlas-popover :is(a, button) { display: flex; align-items: center; min-height: 44px; width: 100%; padding: 10px 12px; color: var(--color-fg); font: 400 0.875rem / 1.5 var(--font-sans); text-align: left; overflow-wrap: anywhere; }
+.atlas-popover :is(a, button):hover { background: var(--color-raised); color: var(--color-accent); }
+.atlas-popover a[aria-current] { border-left: 2px solid var(--color-accent); font-weight: 600; }
+.atlas-popover :focus-visible { outline-offset: -3px; }
+.atlas-group-label { border-top: 1px solid var(--color-line); margin-top: 8px; padding: 12px; color: var(--color-fg-muted); font: 500 0.75rem / 1.5 var(--font-mono); }
+.atlas-account-name { padding: 8px 12px 0; color: var(--color-fg); font-weight: 600; overflow-wrap: anywhere; }
+.atlas-account .atlas-group-label { border: 0; margin: 0; padding-top: 4px; }
+.atlas-account form { border-top: 1px solid var(--color-line); }
+.atlas-avatar { display: grid; place-items: center; width: 24px; height: 24px; color: var(--color-fg); font: 500 0.75rem / 1 var(--font-mono); }
+.atlas-notifications { display: grid; place-items: center; width: 44px; height: 44px; color: var(--color-fg-muted); }
+.atlas-xp { display: flex; align-items: center; gap: 8px; min-height: 44px; white-space: nowrap; color: var(--color-fg); font: 500 0.75rem / 1.5 var(--font-mono); }
+.atlas-xp span { color: var(--color-fg-muted); }
+.atlas-mobile { display: none; }
+@media (min-width: 1600px) { .atlas-shell-inner { padding-inline: 48px; } }
+@media (max-width: 1199.9px) {
+    .atlas-primary, .atlas-secondary { display: none; }
+    .atlas-mobile { display: block; position: static; }
+    .atlas-mobile-links { top: calc(100% + 1px); left: 16px; right: 16px; width: auto; max-width: none; }
+    .atlas-shell-inner { gap: 16px; padding-inline: 24px; }
+}
+@media (max-width: 599.9px) {
+    .atlas-shell-inner { min-height: 64px; padding-inline: 16px; gap: 8px; }
+    .atlas-shell-actions { gap: 4px; }
+    .atlas-brand { gap: 8px; font-size: 1rem; }
+    .atlas-mark { width: 26px; }
+    .atlas-account-label, .atlas-xp { display: none; }
+    .atlas-account { position: fixed; top: 72px; right: 16px; }
+}
+@media (max-width: 359.9px) {
+    .atlas-mark { display: none; }
+    .atlas-shell-actions { gap: 0; }
+}

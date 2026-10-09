@@ -12,7 +12,8 @@
 
 <div
     {{ $attributes->merge(['class' => 'flex items-start gap-3 border bg-surface-alt px-4 py-3 '.$cfg['border']]) }}
-    role="{{ $type === 'error' ? 'alert' : 'status' }}"
+    data-status-message
+    @if ($type === 'error') role="alert" @endif
 >
     <span class="w-2 h-2 rounded-full mt-1.5 shrink-0 {{ $cfg['dot'] }}" aria-hidden="true"></span>
     <div class="min-w-0 flex-1">

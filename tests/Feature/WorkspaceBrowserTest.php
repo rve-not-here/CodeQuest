@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Vite;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -24,7 +25,9 @@ class WorkspaceBrowserTest extends TestCase
         Vite::useHotFile(storage_path('framework/testing-browser-no-hot'));
         $mission = Mission::factory()->create(['broken_code' => '<h1>Try this</h1>']);
         $response = $this->actingAs($student)->get(route($route, $mission))->assertOk();
-        $result = Process::timeout(30)->input(json_encode(['html' => $response->getContent(), 'mode' => $mode], JSON_THROW_ON_ERROR))
+        $messages = Blade::render('<x-status-message dismissible>Draft saved</x-status-message><x-status-message type="error" dismissible>Save failed</x-status-message>');
+        $html = str_replace('</body>', $messages.'</body>', $response->getContent());
+        $result = Process::timeout(30)->input(json_encode(['html' => $html, 'mode' => $mode], JSON_THROW_ON_ERROR))
             ->run(['node', base_path('tests/workspace-browser.mjs')]);
         $this->assertTrue($result->successful(), $result->errorOutput());
         $this->assertStringContainsString('checks passed', $result->output());

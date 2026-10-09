@@ -70,6 +70,15 @@ try {
     }
     await send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/` });
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector('.cm-content')) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Editor failed to initialize')); } }, 50); })`);
+    assert.deepEqual(await evaluate(`[...document.querySelectorAll('[data-status-message]')].map(node => ({ role: node.getAttribute('role'), live: node.getAttribute('aria-live'), atomic: node.getAttribute('aria-atomic') }))`), [
+        { role: null, live: null, atomic: null },
+        { role: 'alert', live: null, atomic: null },
+    ]);
+    await evaluate(`document.querySelector('[data-status-message] [data-dismiss]').click()`);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-status-message]').length`), 1);
+    assert.equal(await evaluate(`document.querySelector('[data-status-message]').getAttribute('role')`), 'alert');
+    await evaluate(`document.querySelector('[data-status-message] [data-dismiss]').click()`);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-status-message]').length`), 0);
     if (mode === 'experiment') {
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc.includes('Try this')`), true);
         await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
@@ -98,5 +107,5 @@ try {
     browser.kill('SIGTERM');
     await new Promise((resolve) => { if (browser.exitCode !== null) resolve(); else browser.once('exit', resolve); });
     await new Promise((resolve) => server.close(resolve));
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
 }

@@ -14,8 +14,17 @@ assert.ok(artifacts.startsWith('/tmp/'), 'Keep browser artifacts under /tmp.');
 await mkdir(artifacts, { recursive: true });
 const report = { assertions: [], layouts: [], screenshots: [], pageErrors: [], serverErrors: [], consoleErrors: [], blocked: [], failures: [], artifacts };
 const browser = await chromium.launch({ executablePath: process.env.CODEQUEST_CHROMIUM || undefined, args: ['--no-sandbox'] });
-const widths = [390, 768, 1280, 1920];
 let activeRole;
+
+if (process.env.CODEQUEST_BROWSER_SHELL_ONLY === '1') {
+    await inspectShells();
+    await browser.close();
+    await writeFile(join(artifacts, 'shell-report.json'), JSON.stringify(report, null, 2));
+    console.log(JSON.stringify(report));
+    process.exit(report.failures.length ? 1 : 0);
+}
+
+const widths = [390, 768, 1280, 1920];
 
 function check(name, actual, expected = true) {
     const passed = actual === expected;
@@ -451,4 +460,124 @@ try {
     await writeFile(join(artifacts, 'report.json'), output);
     process.stdout.write(`${output}\n`);
     if (report.failures.length) process.exitCode = 1;
+}
+
+async function inspectShells() {
+    for (const role of ['student', 'teacher', 'admin']) {
+        activeRole = role;
+        const context = await browser.newContext({ reducedMotion: 'reduce' });
+        await context.route('**/*', (route) => {
+            const request = route.request();
+            return request.resourceType() === 'font' || new URL(request.url()).origin !== new URL(base).origin
+                ? route.abort() : route.continue();
+        });
+        const page = await context.newPage();
+        const errors = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(local('/login'));
+        await page.locator('[name="username"]').fill(`demo.${role}`);
+        await page.locator('[name="password"]').fill(password);
+        await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+        await page.waitForLoadState('networkidle');
+        const home = page.url();
+        await context.setOffline(true);
+        for (const [width, height] of [[1920, 1080], [1366, 768], [768, 1024], [390, 844]]) {
+            await page.setViewportSize({ width, height });
+            const label = `${role}-${width}`;
+            const layout = await page.evaluate(() => ({
+                width: innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                canvas: getComputedStyle(document.body).backgroundColor,
+                mainCount: document.querySelectorAll('main').length,
+            }));
+            check(`${label} offline shell works`, await page.evaluate(() => !navigator.onLine));
+            check(`${label} no page overflow`, layout.scrollWidth <= width);
+            check(`${label} canvas`, layout.canvas, 'rgb(17, 20, 22)');
+            check(`${label} main landmark`, layout.mainCount, 1);
+            await page.screenshot({ path: join(artifacts, `${label}.png`), fullPage: true });
+            const account = page.locator('[data-account-disclosure]');
+            await account.locator('summary').focus();
+            await page.keyboard.press('Enter');
+            check(`${label} keyboard account opens`, await account.evaluate((node) => node.open));
+            await page.screenshot({ path: join(artifacts, `${label}-account.png`), fullPage: true });
+            await page.keyboard.press('Escape');
+            check(`${label} account closes`, await account.evaluate((node) => !node.open));
+            check(`${label} account restores focus`, await account.locator('summary').evaluate((node) => node === document.activeElement));
+            await account.locator('summary').click();
+            await page.locator('main').click({ position: { x: 4, y: 4 } });
+            check(`${label} outside click closes account`, await account.evaluate((node) => !node.open));
+            const navigation = page.locator('[data-navigation-disclosure]');
+            if (width < 1200) {
+                await navigation.locator('summary').focus();
+                await page.keyboard.press('Space');
+                check(`${label} keyboard navigation opens`, await navigation.evaluate((node) => node.open));
+                await page.screenshot({ path: join(artifacts, `${label}-navigation.png`), fullPage: true });
+                await page.keyboard.press('Tab');
+                check(`${label} Tab reaches navigation link`, await navigation.locator('a').first().evaluate((node) => node === document.activeElement));
+                await page.keyboard.press('Escape');
+                check(`${label} navigation returns focus`, await navigation.locator('summary').evaluate((node) => node === document.activeElement));
+                check(`${label} navigation closes`, await navigation.evaluate((node) => !node.open));
+            } else {
+                check(`${label} primary navigation visible`, await page.getByRole('navigation', { name: 'Primary', exact: true }).isVisible());
+                const secondary = page.locator('.atlas-secondary');
+                await secondary.locator('summary').focus();
+                await page.keyboard.press('Enter');
+                check(`${label} secondary disclosure opens`, await secondary.evaluate((node) => node.open));
+                await page.screenshot({ path: join(artifacts, `${label}-secondary.png`), fullPage: true });
+                await page.keyboard.press('Tab');
+                check(`${label} secondary links keyboard accessible`, await secondary.locator('a').first().evaluate((node) => node === document.activeElement));
+                await page.keyboard.press('Escape');
+                check(`${label} secondary closes`, await secondary.evaluate((node) => !node.open));
+                check(`${label} secondary focus restored`, await secondary.locator('summary').evaluate((node) => node === document.activeElement));
+            }
+            const shellColors = await page.locator('[data-atlas-shell]').evaluate((node) => {
+                const text = node.querySelector('summary');
+                return { background: getComputedStyle(node).backgroundColor, foreground: getComputedStyle(text).color };
+            });
+            const luminance = (rgb) => {
+                const channels = rgb.match(/[\d.]+/g).slice(0, 3).map((value) => {
+                    const channel = Number(value) / 255;
+                    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+                });
+                return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+            };
+            const contrast = (luminance(shellColors.foreground) + 0.05) / (luminance(shellColors.background) + 0.05);
+            check(`${label} shell text contrast`, contrast >= 4.5);
+            report.layouts.push({ role, width, shellTextContrast: contrast });
+            const controls = await page.locator('[data-atlas-shell] a, [data-atlas-shell] summary').evaluateAll((nodes) => nodes.filter((node) => node.getClientRects().length).map((node) => ({ label: node.textContent.trim(), height: node.getBoundingClientRect().height })));
+            check(`${label} shell controls reach 44px`, controls.every((control) => control.height >= 44));
+            report.layouts.push({ role, width, height, ...layout });
+        }
+        await context.setOffline(false);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await page.waitForLoadState('networkidle');
+        await context.setOffline(true);
+        await page.locator('[data-navigation-disclosure] summary').click();
+        check(`${role} offline navigation works`, await page.locator('[data-navigation-disclosure]').evaluate((node) => node.open));
+        await page.screenshot({ path: join(artifacts, `${role}-offline.png`), fullPage: true });
+        await page.keyboard.press('Escape');
+        const session = await context.newCDPSession(page);
+        await session.send('DOM.enable');
+        await session.send('CSS.enable');
+        const { root } = await session.send('DOM.getDocument');
+        const { nodeId } = await session.send('DOM.querySelector', { nodeId: root.nodeId, selector: '.atlas-brand' });
+        const { fonts } = await session.send('CSS.getPlatformFontsForNode', { nodeId });
+        check(`${role} local font fallback rendered`, fonts.length > 0 && fonts.every((font) => !font.isCustomFont));
+        report.layouts.push({ role, fonts });
+        await context.setOffline(false);
+        await page.setViewportSize({ width: 320, height: 768 });
+        check(`${role} 320px shell fits`, await page.locator('[data-atlas-shell]').evaluate((node) => node.scrollWidth <= innerWidth));
+        await session.send('Emulation.setDeviceMetricsOverride', { width: 683, height: 384, deviceScaleFactor: 2, mobile: false });
+        check(`${role} 200 percent equivalent reflow`, await page.locator('[data-atlas-shell]').evaluate((node) => node.scrollWidth <= innerWidth));
+        await page.screenshot({ path: join(artifacts, `${role}-200-percent-reflow.png`), fullPage: true });
+        await session.send('Emulation.clearDeviceMetricsOverride');
+        await page.goto(home);
+        await page.keyboard.press('Tab');
+        check(`${role} skip link first`, await page.locator('.atlas-skip').evaluate((node) => node === document.activeElement));
+        await page.keyboard.press('Enter');
+        check(`${role} skip link reaches main`, await page.locator('main').evaluate((node) => node === document.activeElement));
+        check(`${role} no page exceptions`, errors.length, 0);
+        await context.close();
+    }
 }

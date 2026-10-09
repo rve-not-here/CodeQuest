@@ -1,4 +1,4 @@
-@import '../../docs/design/prototype/styles.css';
+@reference './app.css';
 
 @source '../views/dashboard.blade.php';
 @source '../views/learning-path.blade.php';
@@ -19,6 +19,232 @@
 @source '../views/components/student-header.blade.php';
 @source '../views/components/recommendation-cards.blade.php';
 @source '../views/layouts/app.blade.php';
+
+/* Existing student structures retained while their page phases are reviewed. */
+@layer components {
+    .btn {
+        @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-sm border px-3.5 text-sm font-medium whitespace-nowrap transition-colors select-none disabled:cursor-not-allowed disabled:opacity-50;
+    }
+    .btn svg {
+        @apply size-4 shrink-0;
+    }
+    .btn-lg {
+        @apply h-10 px-4;
+    }
+    .btn-sm {
+        @apply h-8 px-2.5 text-[13px];
+    }
+    .btn-primary {
+        @apply border-accent bg-accent font-semibold text-accent-ink hover:border-accent-strong hover:bg-accent-strong;
+    }
+    .btn-secondary {
+        @apply border-line-strong bg-raised text-fg hover:border-fg-subtle hover:bg-overlay;
+    }
+    .btn-quiet {
+        @apply border-line bg-transparent text-fg-muted hover:border-line-strong hover:text-fg;
+    }
+    .btn-ghost {
+        @apply border-transparent bg-transparent text-fg-muted hover:bg-raised hover:text-fg;
+    }
+    .eyebrow {
+        @apply font-mono text-2xs font-medium tracking-[0.08em] text-fg-subtle uppercase;
+    }
+    .badge {
+        @apply inline-flex h-5 items-center gap-1 rounded-xs border px-1.5 font-mono text-2xs font-medium tracking-[0.04em] whitespace-nowrap uppercase;
+    }
+    .badge svg {
+        @apply size-3;
+    }
+    .badge-neutral {
+        @apply border-line-strong text-fg-muted;
+    }
+    .badge-accent {
+        @apply border-accent-line bg-accent-soft text-accent;
+    }
+    .badge-warning {
+        @apply border-warning/35 bg-warning-soft text-warning;
+    }
+    .badge-locked {
+        @apply border-line text-locked;
+    }
+
+    .panel {
+        @apply rounded-md border border-line bg-surface;
+    }
+
+    .progress {
+        @apply relative h-1.5 w-full overflow-hidden rounded-full bg-overlay;
+    }
+    .progress > span {
+        @apply absolute inset-y-0 left-0 rounded-full bg-accent;
+    }
+
+    .field {
+        @apply h-9 w-full rounded-sm border border-line-strong bg-canvas px-3 text-sm text-fg placeholder:text-fg-subtle hover:border-fg-subtle focus-visible:border-accent focus-visible:outline-none;
+    }
+
+    .code-block {
+        @apply overflow-x-auto rounded-sm border border-line bg-canvas p-3 font-mono text-[13px] leading-5 text-fg;
+    }
+}
+
+@layer components {
+    .rail {
+        @apply relative;
+    }
+    .rail > li {
+        @apply relative pl-10;
+    }
+    .rail > li::before {
+        content: '';
+        @apply absolute top-0 bottom-0 left-[11px] w-px bg-line;
+    }
+    .rail > li:first-child::before {
+        @apply top-4;
+    }
+    .rail > li:last-child::before {
+        @apply bottom-auto h-4;
+    }
+    .rail > li[data-state='completed']::before {
+        @apply bg-accent-line;
+    }
+    .node {
+        @apply absolute top-3 left-0 z-10 grid size-6 place-items-center rounded-full border bg-surface;
+    }
+    .node svg {
+        @apply size-3;
+    }
+    [data-state='completed'] > .node {
+        @apply border-accent-line bg-accent-soft text-accent;
+    }
+    [data-state='current'] > .node {
+        @apply border-accent bg-accent text-accent-ink ring-4 ring-accent-soft;
+    }
+    [data-state='available'] > .node {
+        @apply border-line-strong text-fg-muted;
+    }
+    [data-state='locked'] > .node {
+        @apply border-line text-locked;
+    }
+    .tab {
+        @apply relative inline-flex h-10 cursor-pointer items-center gap-2 px-3 text-[13px] font-medium text-fg-subtle hover:text-fg aria-selected:text-fg;
+    }
+    .tab[aria-selected='true']::after {
+        content: '';
+        @apply absolute inset-x-3 bottom-0 h-0.5 bg-accent;
+    }
+    .mission-row {
+        @apply relative border-l-2 border-transparent pl-10;
+    }
+    .mission-row > .node {
+        @apply top-4;
+    }
+    .mission-body {
+        @apply flex flex-col gap-1.5 px-2 py-3 transition-colors md:px-3;
+    }
+    a.mission-body {
+        @apply hover:bg-raised;
+    }
+    .mission-foot {
+        @apply flex flex-wrap items-center gap-x-3 gap-y-2;
+    }
+    @media (width >= 64rem) {
+        .mission-foot {
+            @apply contents;
+        }
+        .mission-body {
+            @apply grid grid-cols-[3.5rem_minmax(0,1fr)_auto_auto] items-center gap-x-4;
+        }
+    }
+    .mission-state {
+        @apply font-mono text-2xs tracking-[0.04em] text-fg-subtle uppercase;
+    }
+    .mission-id {
+        @apply font-mono text-2xs text-fg-subtle;
+    }
+    .mission-text {
+        @apply flex min-w-0 flex-1 flex-col gap-0.5;
+    }
+    .mission-title {
+        @apply text-[15px] font-medium text-balance text-fg;
+    }
+    .mission-desc {
+        @apply max-w-[58ch] text-[13px] leading-5 text-fg-muted;
+    }
+    .mission-meta {
+        @apply flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-2xs text-fg-subtle;
+    }
+    .mission-action {
+        @apply flex shrink-0 flex-wrap items-center gap-2;
+    }
+    @media (width < 40rem) {
+        main:has([data-mission-list]) :is(.btn, .field) {
+            @apply h-10 px-3.5;
+        }
+    }
+    .difficulty {
+        @apply inline-flex items-center gap-1.5;
+    }
+
+    [data-state='completed'] .mission-body {
+        @apply text-fg-muted;
+    }
+    [data-state='completed'] .mission-title {
+        @apply font-normal text-fg-muted;
+    }
+    [data-state='completed'] .mission-id,
+    [data-state='completed'] .mission-meta {
+        @apply text-fg-subtle;
+    }
+    [data-state='locked'] .mission-title {
+        @apply font-normal text-fg-subtle;
+    }
+    .mission-row.is-current {
+        @apply rounded-sm border-l-accent bg-accent-soft/50;
+    }
+    .mission-row.is-current .mission-title {
+        @apply text-[16px] font-semibold;
+    }
+    .mission-row.is-current .mission-id {
+        @apply text-accent;
+    }
+    .answer-option {
+        @apply flex min-h-12 cursor-pointer items-center gap-3 border border-line-strong bg-canvas px-3.5 py-2.5 text-sm transition-colors hover:border-fg-subtle hover:bg-raised;
+    }
+    .answer-option input {
+        @apply size-4 shrink-0 accent-accent;
+    }
+    .answer-option:has(input:checked) {
+        @apply border-accent-line bg-accent-soft font-semibold;
+        box-shadow: inset 3px 0 0 var(--color-accent);
+    }
+    .answer-option:has(input:focus-visible) {
+        @apply outline-2 outline-offset-2 outline-accent;
+    }
+    .answer-option[data-verdict='correct'] {
+        @apply border-accent-line bg-accent-soft;
+        box-shadow: inset 3px 0 0 var(--color-accent);
+    }
+    .answer-option[data-verdict='incorrect'] {
+        @apply border-danger/40 bg-danger-soft;
+        box-shadow: inset 3px 0 0 var(--color-danger);
+    }
+    .student-progress #course-title {
+        scroll-margin-top: 5rem;
+    }
+    @media (width < 40rem) {
+        .student-progress .btn {
+            @apply min-h-11;
+        }
+    }
+
+}
+@media (width < 40rem) {
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
 
 body.student-ui {
     background: var(--color-canvas);
@@ -113,9 +339,9 @@ body.student-ui .student-toast {
     gap: 0.65rem;
     padding: 0.65rem 0.7rem 0.65rem 0.85rem;
     border: 1px solid var(--color-line-strong);
-    border-radius: 1.25rem;
+    border-radius: 2px;
     background: var(--color-overlay);
-    box-shadow: 0 0.7rem 2rem rgb(0 0 0 / 0.35);
+    box-shadow: none;
     color: var(--color-fg);
     pointer-events: auto;
 }
@@ -396,3 +622,63 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 }
 body.student-ui { --color-ink: var(--color-fg); --color-phosphor-dim: var(--color-fg-muted); --color-surface-alt: var(--color-raised); --color-static: var(--color-fg-muted); --color-phosphor: var(--color-accent); --color-amber: var(--color-warning); --color-alert: var(--color-danger); --color-cyan: var(--color-info); }
 body.student-ui .terminal-kicker { font-family: var(--font-mono); }
+
+.atlas-dashboard { min-width: 0; }
+.atlas-dashboard-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-block: 8px 24px; border-bottom: 1px solid var(--color-line); }
+.atlas-dashboard-heading h1 { font-size: 24px; line-height: 32px; font-weight: 600; }
+.atlas-dashboard-xp { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-family: var(--font-mono); font-size: 12px; color: var(--color-fg-muted); }
+.atlas-dashboard-xp strong { color: var(--color-fg); font-size: 16px; }
+.atlas-dashboard-learning, .atlas-dashboard-record { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 32%); }
+.atlas-dashboard-objective { position: relative; min-width: 0; padding: 40px 64px 48px 32px; border-left: 1px solid var(--color-line); margin-left: 8px; }
+.atlas-dashboard-objective::before { content: ''; position: absolute; top: 78px; left: -7px; width: 13px; height: 13px; background: var(--color-accent); border: 3px solid var(--color-canvas); outline: 1px solid var(--color-accent); }
+.atlas-dashboard-context { color: var(--color-fg-muted); margin-bottom: 24px; font-size: 16px; line-height: 26px; overflow-wrap: anywhere; }
+.atlas-dashboard-context span { padding-inline: 8px; }
+.atlas-dashboard-state { font-family: var(--font-mono); font-size: 12px; line-height: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--color-fg-muted); }
+.atlas-dashboard-objective > .atlas-dashboard-state { color: var(--color-accent); }
+.atlas-dashboard-objective h2 { font-size: clamp(30px, 3.3vw, 48px); line-height: 1.15; font-weight: 600; letter-spacing: -.025em; margin-top: 12px; max-width: 22ch; overflow-wrap: anywhere; text-wrap: balance; }
+.atlas-dashboard-description { margin-top: 20px; max-width: 54ch; color: var(--color-fg-muted); line-height: 26px; }
+.atlas-dashboard-mission-meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 24px; font-size: 14px; color: var(--color-fg-muted); }
+.atlas-dashboard-actions { margin-top: 32px; }
+.atlas-dashboard-position { min-width: 0; border-left: 1px solid var(--color-line); padding: 40px 0 32px 32px; }
+.atlas-dashboard-position h2, .atlas-dashboard-record h2 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.atlas-dashboard-track { margin: 28px 0 16px 6px; border-left: 1px solid var(--color-line-strong); }
+.atlas-dashboard-track-stop { position: relative; padding: 0 0 28px 24px; }
+.atlas-dashboard-track-stop::before { content: ''; position: absolute; left: -5px; top: 4px; width: 9px; height: 9px; border: 1px solid var(--color-fg-muted); background: var(--color-canvas); }
+.atlas-dashboard-track-current::before { background: var(--color-accent); border-color: var(--color-accent); }
+.atlas-dashboard-track-current { padding-bottom: 0; }
+.atlas-dashboard-track-current > p:nth-child(2) { margin-top: 8px; overflow-wrap: anywhere; }
+.atlas-dashboard-count { font-family: var(--font-mono); color: var(--color-fg-muted); margin: 8px 0 12px; }
+.atlas-dashboard-count strong { color: var(--color-fg); }
+.atlas-dashboard-track-note { color: var(--color-fg-muted); font-size: 14px; line-height: 22px; margin-top: 8px; overflow-wrap: anywhere; }
+.atlas-dashboard-position-empty { margin-top: 28px; }
+.atlas-dashboard-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-fg); font-size: 14px; text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--color-line-strong); }
+.atlas-dashboard-link:hover, .atlas-dashboard-history a:hover, .atlas-dashboard-xp:hover { color: var(--color-accent); }
+.atlas-dashboard-record { border-top: 1px solid var(--color-line); }
+.atlas-dashboard-evidence { min-width: 0; padding: 24px 40px 0 0; }
+.atlas-dashboard-section-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.atlas-dashboard-events { margin-top: 16px; }
+.atlas-dashboard-events li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px 24px; padding: 16px 0; border-bottom: 1px solid var(--color-line); }
+.atlas-dashboard-events p { overflow-wrap: anywhere; }
+.atlas-dashboard-events time { flex-shrink: 0; font: 12px/18px var(--font-mono); color: var(--color-fg-muted); }
+.atlas-dashboard-no-evidence { padding-block: 24px; color: var(--color-fg-muted); }
+.atlas-dashboard-history { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-block: 16px; color: var(--color-fg-muted); font-size: 14px; }
+.atlas-dashboard-history a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
+.atlas-dashboard-reflection { min-width: 0; padding: 32px 0 0 32px; border-left: 1px solid var(--color-line); }
+.atlas-dashboard-reflection > p { margin-top: 12px; overflow-wrap: anywhere; }
+.atlas-dashboard-recommendation { border-top: 1px solid var(--color-line); margin-top: 24px; padding-top: 24px; }
+.atlas-dashboard-recommendation h3 { font-size: 16px; font-weight: 600; }
+@media (max-width: 900px) {
+    .atlas-dashboard-learning, .atlas-dashboard-record { grid-template-columns: minmax(0, 1fr); }
+    .atlas-dashboard-objective { padding: 32px 16px 40px 24px; }
+    .atlas-dashboard-position { border-left: 0; border-top: 1px solid var(--color-line); padding: 24px 0; }
+    .atlas-dashboard-track { max-width: 480px; }
+    .atlas-dashboard-evidence { padding-right: 0; }
+    .atlas-dashboard-reflection { border-left: 0; border-top: 1px solid var(--color-line); padding: 24px 0 0; }
+}
+@media (max-width: 480px) {
+    .atlas-dashboard-heading { gap: 4px 12px; padding-bottom: 16px; }
+    .atlas-dashboard-heading h1 { font-size: 24px; }
+    .atlas-dashboard-events li { flex-direction: column; gap: 8px; }
+    .atlas-dashboard-objective h2 { font-size: 30px; }
+    .atlas-dashboard-actions .btn { width: 100%; white-space: normal; text-align: center; }
+}
