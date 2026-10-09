@@ -24,6 +24,20 @@ if (process.env.CODEQUEST_BROWSER_SHELL_ONLY === '1') {
     process.exit(report.failures.length ? 1 : 0);
 }
 
+if (process.env.CODEQUEST_BROWSER_PATH_ONLY === '1') {
+    try {
+        await inspectLearningPath();
+    } catch (error) {
+        report.failures.push(error.message);
+    } finally {
+        await browser.close();
+    }
+    report.failures.push(...report.pageErrors.map(error => error.message), ...report.serverErrors.map(error => `HTTP ${error.status}`));
+    await writeFile(join(artifacts, 'path-report.json'), JSON.stringify(report, null, 2));
+    console.log(JSON.stringify({ assertions: report.assertions.length, failures: report.failures, screenshots: report.screenshots.length }));
+    process.exit(report.failures.length ? 1 : 0);
+}
+
 const widths = [390, 768, 1280, 1920];
 
 function check(name, actual, expected = true) {
@@ -177,7 +191,7 @@ async function completeHtmlCourse(page) {
     const missions = await htmlCourse().locator('li[data-state]').evaluateAll(rows => rows.map(row => {
         const anchor = row.querySelector('a[href]');
         return {
-            title: anchor?.getAttribute('aria-label')?.replace(/, (available|completed)$/, '') || row.querySelector('h3')?.textContent.trim(),
+            title: row.querySelector('h4')?.textContent.trim(),
             href: anchor?.href,
             completed: row.dataset.state === 'completed',
         };
@@ -578,6 +592,44 @@ async function inspectShells() {
         await page.keyboard.press('Enter');
         check(`${role} skip link reaches main`, await page.locator('main').evaluate((node) => node === document.activeElement));
         check(`${role} no page exceptions`, errors.length, 0);
+        await context.close();
+    }
+}
+
+async function inspectLearningPath() {
+    const { context, page } = await login('student');
+    try {
+        await navigate(page, '/learning-path');
+        const courses = page.locator('main article');
+        const missions = page.locator('main li[data-domain-state]');
+        check('catalog has missions', await missions.count() > 0);
+        check('sections are not hidden in accordions', await page.locator('main details[id^="section-"]').count(), 0);
+        check('one Boss endpoint per course', await page.locator('main section[aria-labelledby^="boss-"]').count(), await courses.count());
+        check('locked mission links absent', await page.locator('li[data-state="locked"] a').count(), 0);
+        check('current mission exists', await page.locator('li[aria-current="step"]').count(), 1);
+        for (const [width, height] of [[1920, 1080], [1366, 768], [768, 1024], [390, 844], [683, 768], [341, 768], [320, 844]]) {
+            await page.setViewportSize({ width, height });
+            check(`${width}px no page overflow`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+            check(`${width}px every mission visible`, await missions.locator('h4:visible').count(), await missions.count());
+            const current = page.locator('li[aria-current="step"] a');
+            await current.focus();
+            check(`${width}px primary focus visible`, await current.evaluate(node => node === document.activeElement && getComputedStyle(node).outlineStyle !== 'none'));
+            check(`${width}px primary touch target`, (await current.boundingBox()).height >= 44);
+            await page.keyboard.press('Tab');
+            check(`${width}px Tab reaches following mission`, await page.evaluate(() => document.activeElement.matches('li[data-domain-state] a')));
+            await page.evaluate(() => scrollTo(0, 0));
+            await screenshot(page, 'learning-path', width);
+        }
+        await page.locator('li[aria-current="step"] a').press('Enter');
+        await page.waitForLoadState('networkidle');
+        check('Continue opens the lesson', new URL(page.url()).pathname.startsWith('/missions/'));
+        await navigate(page, '/learning-path');
+        const textBefore = await page.locator('main').innerText();
+        await page.evaluate(() => { for (const sheet of document.styleSheets) sheet.disabled = true; });
+        check('CSS-free current label readable', (await page.locator('main').innerText()).includes('CURRENT'));
+        check('CSS-free locked reason readable', (await page.locator('main').innerText()).includes('Pass earlier courses before opening this course.'));
+        check('CSS-free course content preserved', (await page.locator('main').innerText()).replace(/\s+/g, ' ').trim(), textBefore.replace(/\s+/g, ' ').trim());
+    } finally {
         await context.close();
     }
 }

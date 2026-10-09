@@ -682,3 +682,77 @@ body.student-ui .terminal-kicker { font-family: var(--font-mono); }
     .atlas-dashboard-objective h2 { font-size: 30px; }
     .atlas-dashboard-actions .btn { width: 100%; white-space: normal; text-align: center; }
 }
+
+.atlas-path { min-width: 0; }
+.atlas-path-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 8px 24px; }
+.atlas-path-heading h1 { font-size: 32px; line-height: 40px; font-weight: 600; }
+.atlas-path-heading p { margin-top: 8px; color: var(--color-fg-muted); }
+.atlas-path-meta { font: 12px/20px var(--font-mono); color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-path-courses { display: flex; flex-wrap: wrap; gap: 8px 24px; border-block: 1px solid var(--color-line); padding-block: 8px; }
+.atlas-path-courses a, .atlas-path-link { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 5px; }
+.atlas-path-courses [aria-current], .atlas-path-link:hover { color: var(--color-accent); }
+.atlas-path-course { margin-top: 48px; scroll-margin-top: 96px; }
+.atlas-path-course-heading { max-width: 74ch; margin-bottom: 32px; }
+.atlas-path-course-heading h2 { font-size: 40px; line-height: 48px; font-weight: 600; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.atlas-path-course-heading .atlas-path-meta { margin-top: 12px; }
+.atlas-path-description, .atlas-path-lock-reason { margin-top: 16px; line-height: 26px; color: var(--color-fg-muted); }
+.atlas-path-lock-reason { color: var(--color-warning); }
+.atlas-path-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 64px; }
+.atlas-path-route { min-width: 0; padding-left: 16px; }
+.atlas-path-section { border-left: 1px solid var(--color-line-strong); padding: 0 0 32px 32px; scroll-margin-top: 96px; }
+.atlas-path-checkpoint { position: relative; padding-bottom: 16px; }
+.atlas-path-checkpoint h3 { font-size: 24px; line-height: 32px; font-weight: 600; overflow-wrap: anywhere; }
+.atlas-path-checkpoint .atlas-path-meta { margin-top: 8px; }
+.atlas-path-marker { position: absolute; left: -43px; top: 4px; width: 21px; height: 21px; border: 1px solid var(--color-fg-muted); border-radius: 50%; background: var(--color-canvas); display: grid; place-items: center; color: var(--color-fg-muted); }
+.atlas-path-marker svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.atlas-path-marker.is-current { border: 2px solid var(--color-accent); border-radius: 0; }
+.atlas-path-marker.is-complete { color: var(--color-success); border-color: var(--color-success); }
+.atlas-path-missions { position: relative; margin-left: 8px; }
+.atlas-path-missions::before { content: ""; position: absolute; left: -41px; top: 0; width: 40px; border-top: 1px solid var(--color-line-strong); }
+.atlas-path-mission { position: relative; padding: 20px 0 20px 28px; border-left: 1px solid var(--color-line-strong); }
+.atlas-path-mission > .atlas-path-marker { left: -6px; top: 25px; width: 11px; height: 11px; }
+.atlas-path-mission h4 { font-size: 18px; line-height: 26px; font-weight: 600; overflow-wrap: anywhere; margin-top: 4px; }
+.atlas-path-mission[data-state="current"] { padding-block: 24px 32px; }
+.atlas-path-mission[data-state="current"] > .atlas-path-marker { border: 2px solid var(--color-accent); border-radius: 0; width: 17px; height: 17px; left: -9px; }
+.atlas-path-mission[data-state="current"] .atlas-path-mission-content > .atlas-path-meta { color: var(--color-accent); }
+.atlas-path-mission[data-state="current"] h4 { font-size: 30px; line-height: 38px; max-width: 28ch; margin-top: 8px; }
+.atlas-path-mission[data-state="completed"] { padding-block: 12px; }
+.atlas-path-mission[data-state="completed"] > .atlas-path-marker { width: 19px; height: 19px; left: -10px; top: 16px; border-color: var(--color-success); color: var(--color-success); }
+.atlas-path-mission[data-state="completed"] .atlas-path-mission-content > .atlas-path-meta { color: var(--color-success); }
+.atlas-path-mission[data-state="locked"] > .atlas-path-marker { width: 19px; height: 23px; left: -10px; border: 0; }
+.atlas-path-note { color: var(--color-fg-muted); font-size: 14px; line-height: 24px; max-width: 65ch; margin-top: 8px; }
+.atlas-path-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin-top: 12px; }
+.atlas-path-mission[data-state="completed"] .atlas-path-actions { margin-top: 0; }
+.atlas-path-boss { position: relative; margin-left: 0; border-top: 3px double var(--color-line-strong); padding: 24px 0 32px 32px; }
+.atlas-path-boss::before { content: ""; position: absolute; left: -1px; top: 0; height: 24px; border-left: 1px solid var(--color-line-strong); }
+.atlas-path-boss > .atlas-path-marker { left: -11px; top: 24px; outline: 1px solid var(--color-fg-muted); outline-offset: 3px; }
+.atlas-path-boss h3 { font-size: 24px; line-height: 32px; font-weight: 600; margin-top: 8px; overflow-wrap: anywhere; }
+.atlas-path-boss .btn { margin-top: 16px; }
+.atlas-path-context { border-left: 1px solid var(--color-line); padding-left: 24px; min-width: 0; }
+.atlas-path-context h3 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+.atlas-path-context .progress { margin-top: 12px; }
+.atlas-path-context nav { margin-block: 24px; }
+.atlas-path-context a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding-block: 8px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-path-context a:hover { color: var(--color-accent); }
+.atlas-path-context a .atlas-path-meta { flex-shrink: 0; }
+.atlas-path-empty, .atlas-path-recommendations { border-top: 1px solid var(--color-line); padding-top: 24px; margin-top: 32px; }
+.atlas-path-empty h2, .atlas-path-recommendations h2 { font-size: 18px; font-weight: 600; }
+@media (max-width: 1000px) {
+    .atlas-path-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .atlas-path-context { border-left: 0; border-block: 1px solid var(--color-line); padding: 24px 0; }
+    .atlas-path-course-heading h2 { font-size: 32px; line-height: 40px; }
+}
+@media (max-width: 480px) {
+    .atlas-path-heading { flex-wrap: wrap; }
+    .atlas-path-heading h1 { font-size: 28px; line-height: 36px; }
+    .atlas-path-route { padding-left: 10px; }
+    .atlas-path-section { padding-left: 22px; }
+    .atlas-path-checkpoint > .atlas-path-marker { left: -33px; }
+    .atlas-path-missions { margin-left: 0; }
+    .atlas-path-missions::before { left: -23px; width: 22px; }
+    .atlas-path-mission { padding-left: 18px; }
+    .atlas-path-mission[data-state="current"] h4 { font-size: 24px; line-height: 32px; }
+    .atlas-path-checkpoint h3 { font-size: 20px; line-height: 28px; }
+    .atlas-path-boss { padding-left: 22px; }
+    .atlas-path-course-heading h2 { font-size: 30px; line-height: 38px; }
+}
