@@ -3,28 +3,35 @@
 @section('title', 'Experiment: '.$mission->title)
 
 @section('content')
-    <div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 md:px-6">
+    <div class="atlas-practice">
         <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost">← BACK TO LESSON</a>
-        <header>
+        <header class="atlas-reading-heading">
             <p class="eyebrow text-accent">Ungraded experiment</p>
-            <h1 class="mt-2 text-xl font-semibold">{{ $mission->title }}</h1>
+            <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
             <p class="mt-2 text-sm text-fg-muted">Try changes and preview the result. Experiments do not submit answers, award XP, or change your progress.</p>
         </header>
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <section class="panel min-w-0 p-4" aria-labelledby="experiment-editor-title">
+        @if ($mission->description)
+            <section class="atlas-practice-context" aria-label="Example context"><p>{{ $mission->description }}</p></section>
+        @endif
+        <div class="atlas-practice-controls">
+            <div class="atlas-practice-modes" aria-label="Practice views">
+                <button type="button" id="practice-code" data-practice-mode="code" aria-pressed="true" aria-controls="practice-code-panel" class="btn btn-ghost">Code</button>
+                <button type="button" id="practice-output" data-practice-mode="output" aria-pressed="false" aria-controls="practice-output-panel" class="btn btn-ghost">Output</button>
+            </div>
+            <button type="button" id="experiment-run" class="btn btn-primary">RUN / PREVIEW</button>
+            <button type="button" id="experiment-reset" class="btn btn-ghost">RESET EXAMPLE</button>
+        </div>
+        <div id="practice-workspace" class="atlas-practice-workspace" data-mode="code">
+            <section id="practice-code-panel" class="atlas-practice-code" aria-labelledby="experiment-editor-title">
                 <h2 id="experiment-editor-title" class="mb-3 font-semibold">Editable example</h2>
                 <div id="editor-host" class="min-h-80"></div>
-                <div class="mt-4 flex flex-wrap gap-3">
-                    <button type="button" id="experiment-run" class="btn btn-secondary">RUN / PREVIEW</button>
-                    <button type="button" id="experiment-reset" class="btn btn-ghost">RESET EXAMPLE</button>
-                </div>
             </section>
-            <section class="panel min-w-0 p-4" aria-labelledby="experiment-preview-title">
+            <section id="practice-output-panel" class="atlas-practice-output" aria-labelledby="experiment-preview-title">
                 <h2 id="experiment-preview-title" class="mb-3 font-semibold">Preview output</h2>
                 <iframe id="experiment-preview" class="h-96 w-full bg-white" title="Experiment preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
             </section>
         </div>
-        <a href="{{ route('mission.show', $mission) }}" class="btn btn-primary">RETURN TO LESSON →</a>
+        <a href="{{ route('mission.show', $mission) }}" class="btn btn-secondary atlas-practice-return">RETURN TO LESSON →</a>
     </div>
     @push('scripts')
     <script>
@@ -46,8 +53,20 @@
                 document.getElementById('experiment-reset').addEventListener('click', function () {
                     editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: initial } });
                     run();
+                    showMode('code');
                     editor.focus();
                 });
+                var workspace = document.getElementById('practice-workspace');
+                var codeButton = document.getElementById('practice-code');
+                var outputButton = document.getElementById('practice-output');
+                function showMode(mode) {
+                    workspace.dataset.mode = mode;
+                    codeButton.setAttribute('aria-pressed', String(mode === 'code'));
+                    outputButton.setAttribute('aria-pressed', String(mode === 'output'));
+                    editor.requestMeasure();
+                }
+                codeButton.addEventListener('click', function () { showMode('code'); });
+                outputButton.addEventListener('click', function () { showMode('output'); });
                 run();
             }
             if (window.CodeQuest && window.CodeQuest.CodeMirror) {

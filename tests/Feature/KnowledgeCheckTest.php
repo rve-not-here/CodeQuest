@@ -125,6 +125,8 @@ class KnowledgeCheckTest extends TestCase
             ->assertOk()
             ->assertSee('aria-label="Return to '.$mission->title.' lesson"', false)
             ->assertSee('Question 1 of 3')
+            ->assertSee('Formative practice')
+            ->assertDontSee('<legend class="sr-only">', false)
             ->assertSee('type="radio"', false)
             ->assertDontSee('SERVER-ONLY EXPLANATION')
             ->assertDontSee('is_correct')

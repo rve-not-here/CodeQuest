@@ -3,8 +3,8 @@
 @section('title', $knowledgeCheck->title)
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
-        <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
+    <div class="atlas-check">
+        <nav aria-label="Breadcrumb" class="atlas-reading-context">
             <ol class="flex flex-wrap items-center gap-1.5">
                 <li><a href="{{ route('learning-path') }}" class="hover:text-fg">Learning Path</a></li>
                 @if ($course)
@@ -18,15 +18,16 @@
             </ol>
         </nav>
 
-        <header class="mt-3 mb-6 border-b border-line pb-6">
+        <header class="atlas-reading-heading">
             <div class="flex flex-wrap items-start gap-3">
                 <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost btn-sm shrink-0" aria-label="Return to {{ $mission->title }} lesson">← Return</a>
                 <div class="min-w-0 flex-1">
                     <p class="eyebrow text-info">Knowledge Check @if ($section) · {{ $section->title }} @endif</p>
-                    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">{{ $knowledgeCheck->title }}</h1>
+                    <h1 class="atlas-reading-title">{{ $knowledgeCheck->title }}</h1>
                     <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">{{ $knowledgeCheck->instructions ?: 'Answer each question, then submit your answers for feedback.' }}</p>
                 </div>
             </div>
+            <p class="atlas-check-purpose">Formative practice. Your result guides review; it does not award XP or complete the coding challenge.</p>
             <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-line pt-4 font-mono text-xs text-fg-subtle">
                 <div class="flex gap-1.5"><dt>Questions</dt><dd class="text-fg">{{ $questions->count() }}</dd></div>
                 <div class="flex gap-1.5"><dt>Attempt</dt><dd class="text-fg">{{ $attempt->attempt_number }}</dd></div>
@@ -41,7 +42,7 @@
         @endif
 
         @if ($attempt->status === 'submitted')
-            <section class="panel" data-check-completed-key="cq:check:{{ auth()->id() }}:{{ $attempt->id }}" aria-labelledby="knowledge-check-result-title">
+            <section class="atlas-check-result" data-check-completed-key="cq:check:{{ auth()->id() }}:{{ $attempt->id }}" aria-labelledby="knowledge-check-result-title">
                 <div class="flex flex-wrap items-start justify-between gap-5 px-5 py-5 md:px-6">
                     <div class="min-w-0">
                         <p class="eyebrow text-accent">Check recorded</p>
@@ -70,7 +71,7 @@
                 <h2 id="knowledge-check-review-title" class="text-lg font-semibold">Answer review</h2>
                 <ol class="mt-4 grid grid-cols-1 gap-4">
                     @foreach ($responses as $index => $response)
-                        <li class="panel min-w-0 px-5 py-5 md:px-6">
+                        <li class="atlas-check-review">
                             <div class="flex flex-wrap items-center justify-between gap-2">
                                 <p class="eyebrow">Question {{ $index + 1 }}</p>
                                 <span class="badge {{ $response['isCorrect'] ? 'badge-accent' : 'badge-warning' }}">{{ $response['isCorrect'] ? 'Correct' : 'Review needed' }}</span>
@@ -92,28 +93,26 @@
         @else
             <form method="POST" action="{{ route('knowledge-check.submit', [$mission, $knowledgeCheck, $attempt]) }}" data-knowledge-check data-draft-key="cq:check:{{ auth()->id() }}:{{ $attempt->id }}">
                 @csrf
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
-                    <div class="grid min-w-0 grid-cols-1 gap-4">
+                <div class="atlas-check-form">
+                    <div class="atlas-check-questions">
                         @foreach ($questions as $index => $question)
-                            <fieldset class="panel min-w-0 p-5 md:p-6" id="question-{{ $question['id'] }}" data-check-question tabindex="-1">
-                                <legend class="sr-only">Question {{ $index + 1 }} of {{ $questions->count() }}: {{ $question['prompt'] }}</legend>
-                                <p class="eyebrow text-info" aria-hidden="true">Question {{ $index + 1 }} of {{ $questions->count() }}</p>
-                                <p class="mt-2 text-[15px] font-medium leading-6">{{ $question['prompt'] }}</p>
+                            <fieldset class="atlas-check-question" id="question-{{ $question['id'] }}" data-check-question tabindex="-1">
+                                <legend><span class="atlas-check-position">Question {{ $index + 1 }} of {{ $questions->count() }}</span><span class="atlas-check-prompt">{{ $question['prompt'] }}</span></legend>
                                 @if ($question['codeSnippet'])
-                                    <pre class="code-block mt-4 overflow-x-auto"><code>{{ $question['codeSnippet'] }}</code></pre>
+                                    <pre class="code-block mt-4 overflow-x-auto" tabindex="0"><code>{{ $question['codeSnippet'] }}</code></pre>
                                 @endif
                                 <div class="mt-4 grid grid-cols-1 gap-2">
                                     @foreach ($question['options'] as $option)
-                                        <label class="answer-option min-w-0" for="answer-{{ $question['id'] }}-{{ $option['id'] }}">
+                                        <label class="atlas-check-option" for="answer-{{ $question['id'] }}-{{ $option['id'] }}">
                                             <input id="answer-{{ $question['id'] }}-{{ $option['id'] }}" type="radio" name="answers[{{ $question['id'] }}]" value="{{ $option['id'] }}" @checked((string) old('answers.'.$question['id']) === (string) $option['id'])>
-                                            <span class="min-w-0 break-words text-[13px]">{{ $option['text'] }}</span>
+                                            <span class="min-w-0 break-words">{{ $option['text'] }}</span>
                                         </label>
                                     @endforeach
                                 </div>
                             </fieldset>
                         @endforeach
                     </div>
-                    <aside class="panel p-5 lg:sticky lg:top-20" aria-labelledby="knowledge-check-progress-title">
+                    <section class="atlas-check-submit" aria-labelledby="knowledge-check-progress-title">
                         <p class="eyebrow text-info">Your check</p>
                         <h2 id="knowledge-check-progress-title" class="mt-1 text-lg font-semibold">{{ $questions->count() }} questions</h2>
                         <p class="mt-2 text-sm leading-6 text-fg-muted">Answer every question before submitting. Your answers are scored together.</p>
@@ -127,7 +126,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary mt-5 w-full">Submit answers →</button>
                         <p class="mt-3 text-xs leading-5 text-fg-subtle">Results and explanations appear after submission.</p>
-                    </aside>
+                    </section>
                 </div>
             </form>
         @endif

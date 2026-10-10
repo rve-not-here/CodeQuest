@@ -756,3 +756,72 @@ body.student-ui .terminal-kicker { font-family: var(--font-mono); }
     .atlas-path-boss { padding-left: 22px; }
     .atlas-path-course-heading h2 { font-size: 30px; line-height: 38px; }
 }
+
+.atlas-reading-context { color: var(--color-fg-muted); font-size: 14px; line-height: 24px; overflow-wrap: anywhere; }
+.atlas-reading-context a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
+.atlas-reading-heading { border-bottom: 1px solid var(--color-line); padding-block: 24px 32px; margin-bottom: 40px; }
+.atlas-reading-title { font-size: 40px; line-height: 48px; font-weight: 600; letter-spacing: -.025em; overflow-wrap: anywhere; margin-top: 8px; }
+.atlas-reading-meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 24px; }
+.atlas-reading-metadata { font: 12px/20px var(--font-mono); color: var(--color-fg-muted); }
+.atlas-lesson { max-width: 1120px; margin-inline: auto; min-width: 0; }
+.atlas-lesson-body { max-width: 68ch; font-size: 18px; line-height: 30px; margin-inline: auto; min-width: 0; }
+.atlas-lesson-document { min-width: 0; }
+.atlas-lesson-section { margin-block: 0 48px; min-width: 0; }
+.atlas-lesson-section-heading { margin-bottom: 16px; }
+.atlas-lesson-section-heading h2, .atlas-lesson-next h2 { font-size: 24px; line-height: 32px; }
+.atlas-lesson-prose { color: var(--color-fg); overflow-wrap: anywhere; }
+.atlas-lesson-example { min-width: 0; }
+.atlas-lesson-example pre { padding: 24px; border-block: 1px solid var(--color-line-strong); background: var(--color-surface); font: 14px/24px var(--font-mono); max-width: 100%; }
+.atlas-lesson-check { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-block: 20px; font-size: 16px; }
+.atlas-lesson-next { border-top: 3px double var(--color-line-strong); padding-top: 32px; margin-bottom: 40px; }
+.atlas-lesson-next-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 24px; }
+.atlas-lesson-next-actions > .btn { width: auto; }
+.atlas-lesson-next-actions dl { width: 100%; max-width: 360px; }
+.atlas-lesson-next-actions > a:last-child { width: 100%; }
+.atlas-practice { min-width: 0; }
+.atlas-practice-context { max-width: 68ch; margin-bottom: 32px; font-size: 16px; line-height: 26px; white-space: pre-line; overflow-wrap: anywhere; }
+.atlas-practice-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-block: 1px solid var(--color-line-strong); padding-block: 12px; }
+.atlas-practice-modes { display: none; }
+.atlas-practice-workspace { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); border-bottom: 1px solid var(--color-line-strong); }
+.atlas-practice-code, .atlas-practice-output { min-width: 0; padding: 20px; background: var(--color-surface); }
+.atlas-practice-output { border-left: 1px solid var(--color-line-strong); }
+.atlas-practice-workspace h2 { font-size: 16px; line-height: 24px; }
+.atlas-practice-code .cm-editor { height: 420px; }
+.atlas-practice-code .cm-scroller { overflow: auto; }
+.atlas-practice-return { margin-top: 24px; }
+.atlas-check { max-width: 800px; min-width: 0; margin-inline: auto; }
+.atlas-check-purpose { margin-top: 16px; font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+.atlas-check-questions { min-width: 0; }
+.atlas-check-question { min-width: 0; margin-bottom: 40px; padding: 0 0 32px; border: 0; border-bottom: 1px solid var(--color-line); }
+.atlas-check-question legend { width: 100%; padding: 0; }
+.atlas-check-position { display: block; font: 12px/20px var(--font-mono); color: var(--color-fg-muted); margin-bottom: 12px; }
+.atlas-check-prompt { display: block; font-size: 24px; line-height: 34px; font-weight: 500; overflow-wrap: anywhere; }
+.atlas-check-option { display: flex; align-items: baseline; gap: 16px; padding: 14px 12px; min-height: 48px; cursor: pointer; font-size: 16px; line-height: 26px; border-bottom: 1px solid var(--color-line); }
+.atlas-check-option input { flex-shrink: 0; accent-color: var(--color-accent); }
+.atlas-check-option:hover, .atlas-check-option:has(input:checked) { background: var(--color-raised); }
+.atlas-check-option:has(input:checked) { color: var(--color-accent); }
+.atlas-check-option:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.atlas-check-submit { border-top: 3px double var(--color-line-strong); padding-top: 24px; }
+.atlas-check-submit .btn { width: auto; }
+.atlas-check-submit [data-check-unanswered] a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; }
+.atlas-check-result { border-block: 1px solid var(--color-line-strong); }
+.atlas-check-review { padding-block: 24px; border-bottom: 1px solid var(--color-line); overflow-wrap: anywhere; }
+.atlas-check-review h3 { font-size: 20px; line-height: 30px; }
+@media (max-width: 900px) {
+    .atlas-practice-modes { display: flex; gap: 4px; margin-right: auto; }
+    .atlas-practice-modes [aria-pressed="true"] { color: var(--color-accent); border-bottom: 2px solid var(--color-accent); }
+    .atlas-practice-workspace { grid-template-columns: minmax(0, 1fr); }
+    .atlas-practice-output { border-left: 0; }
+    .atlas-practice-workspace[data-mode="code"] .atlas-practice-output,
+    .atlas-practice-workspace[data-mode="output"] .atlas-practice-code { display: none; }
+}
+@media (max-width: 480px) {
+    .atlas-reading-title { font-size: 30px; line-height: 38px; }
+    .atlas-reading-heading { padding-block: 16px 24px; margin-bottom: 32px; }
+    .atlas-lesson-example pre { padding: 16px; }
+    .atlas-lesson-next-actions { align-items: stretch; flex-direction: column; }
+    .atlas-practice-code, .atlas-practice-output { padding: 16px 0; }
+    .atlas-practice-modes { width: 100%; }
+    .atlas-check-prompt { font-size: 22px; line-height: 32px; }
+    .atlas-check-option { padding-inline: 4px; gap: 12px; }
+}

@@ -83,7 +83,20 @@ try {
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc.includes('Try this')`), true);
         await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc`), '<h1>Changed example</h1>');
-        await evaluate(`document.querySelector('#experiment-reset').click()`);
+        for (const width of [390, 768, 1366, 1920]) {
+            await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: false });
+            await evaluate(`experimentView.dispatch({selection: {anchor: 4}}); document.querySelector('[data-practice-mode="output"]').click();`);
+            assert.equal(await evaluate(`document.querySelector('#practice-output').getAttribute('aria-pressed')`), 'true');
+            await evaluate(`document.querySelector('[data-practice-mode="code"]').click()`);
+            assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === experimentView`), true);
+            assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Changed example</h1>');
+            assert.equal(await evaluate(`experimentView.state.selection.main.anchor`), 4);
+            assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
+        }
+        await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
+        await evaluate(`document.querySelector('[data-practice-mode="output"]').click(); document.querySelector('#experiment-reset').click()`);
+        assert.deepEqual(await evaluate(`({visible: document.querySelector('#practice-code-panel').getBoundingClientRect().width > 0, focused: document.activeElement === experimentView.contentDOM, mode: document.querySelector('#practice-workspace').dataset.mode})`), {visible: true, focused: true, mode: 'code'});
+
         assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Try this</h1>');
         assert.equal(await evaluate(`document.querySelectorAll('form[action*="/missions/"]').length`), 0);
     } else {
