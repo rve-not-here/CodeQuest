@@ -78,6 +78,7 @@ async function navigate(path) {
 async function login(role) {
     context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
     page = await context.newPage();
+    page.on('dialog', dialog => dialog.accept());
     page.setDefaultTimeout(15000);
     page.on('pageerror', error => report.pageErrors.push({ url: page.url(), message: error.message }));
     page.on('console', message => {

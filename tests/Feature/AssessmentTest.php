@@ -308,6 +308,7 @@ class AssessmentTest extends TestCase
             ->assertOk()
             ->assertSee('RUN')
             ->assertSee('SUBMIT')
+            ->assertSee('id="assessment-submit"', false)
             ->assertSee('A B');
     }
 

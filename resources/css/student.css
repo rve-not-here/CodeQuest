@@ -825,3 +825,55 @@ body.student-ui .terminal-kicker { font-family: var(--font-mono); }
     .atlas-check-prompt { font-size: 22px; line-height: 32px; }
     .atlas-check-option { padding-inline: 4px; gap: 12px; }
 }
+
+/* Mission Atlas workbench: task, working source, and non-authoritative output. */
+body.student-ui .atlas-workbench-context { background: var(--color-void); border-bottom: 1px solid var(--color-line-strong); }
+body.student-ui .atlas-workbench-context h1 { font-size: 18px; line-height: 26px; overflow-wrap: anywhere; white-space: normal; overflow: visible; }
+body.student-ui .atlas-workbench-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--color-line-strong); }
+body.student-ui .atlas-workbench-controls [data-workspace-reset] { margin-left: auto; }
+body.student-ui .challenge-workspace[data-workspace] { padding: 0; gap: 0; }
+body.student-ui .challenge-pane-header { padding: 12px 16px; background: var(--color-void); font-size: 14px; line-height: 22px; }
+body.student-ui .challenge-pane-body { padding: 20px 16px; overflow-wrap: anywhere; }
+body.student-ui .challenge-pane-body.editor-pane, body.student-ui .challenge-pane-body.is-frame { padding: 0; }
+body.student-ui .challenge-draft-status, body.student-ui .challenge-draft-status span { font-size: 12px; }
+body.student-ui .atlas-workbench-note { font-size: 12px; line-height: 20px; color: var(--color-fg-muted); font-family: var(--font-sans); }
+body.student-ui .challenge-toast-stack { position: static; flex: none; width: auto; max-height: 144px; padding-inline: 16px; pointer-events: auto; }
+body.student-ui .challenge-assistance { border-top: 1px solid var(--color-line-strong); padding-top: 20px; }
+body.student-ui .challenge-assistance-heading { display: block; }
+body.student-ui .challenge-assistance-actions { margin-top: 12px; }
+body.student-ui .challenge-assistance .btn { white-space: normal; }
+body.student-ui .challenge-pane-editor .cm-editor { background: var(--color-surface); }
+body.student-ui .challenge-pane-editor .cm-gutters { background: var(--color-void); border-right: 1px solid var(--color-line); }
+body.student-ui .atlas-boss { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.atlas-boss > nav[aria-label="Breadcrumb"] { padding: 8px 16px 0; }
+.atlas-boss-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px 20px; border-bottom: 3px double var(--color-line-strong); }
+.atlas-boss-heading h1 { font-size: 26px; line-height: 34px; }
+.atlas-boss > .space-y-3 { margin-top: 0; }
+.atlas-boss-brief > div { padding: 0 0 20px; }
+.atlas-boss-details { padding-top: 20px; border-top: 1px solid var(--color-line-strong); }
+.atlas-boss-details h2 { font-size: 16px; }
+.atlas-boss-code, .atlas-boss-output { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.atlas-boss-code { overflow: auto; }
+.atlas-boss-code > .challenge-pane-editor { flex: 1; min-height: 160px; }
+.atlas-boss-code > .challenge-pane-editor .cm-editor { height: 100%; }
+body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
+.atlas-boss-code > p { font-size: 12px; line-height: 20px; }
+.atlas-boss-frame { width: 100%; flex: 1; min-height: 0; background: white; }
+.atlas-boss-workspace [data-workspace-pane="preview"] > .atlas-workbench-note { padding: 12px 16px; border-bottom: 1px solid var(--color-line); }
+.atlas-boss-state { padding: 24px 20px; overflow: auto; }
+.atlas-assessments { max-width: 1120px; margin-inline: auto; }
+.atlas-assessment-entry { min-width: 0; border-top: 3px double var(--color-line-strong); padding-block: 12px 24px; }
+@media (max-width: 1100px) {
+    body.student-ui .atlas-workbench-controls { padding-inline: 16px; }
+    .atlas-boss-heading h1 { font-size: 22px; line-height: 30px; }
+}
+@media (max-width: 640px) {
+    body.student-ui .atlas-workbench-context { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 8px 16px 12px; }
+    body.student-ui .atlas-workbench-context > .min-w-0 { grid-column: 1 / -1; grid-row: 2; }
+    body.student-ui .atlas-workbench-context .challenge-context-meta { grid-column: 2; grid-row: 1; }
+    body.student-ui .atlas-workbench-context p { white-space: normal; overflow-wrap: anywhere; }
+}
+@media (max-height: 600px) {
+    body.student-ui:has(.challenge-workspace) { height: auto; min-height: 100dvh; overflow: auto; }
+    body.student-ui .challenge-workspace[data-workspace] { min-height: 360px; flex: none; }
+}

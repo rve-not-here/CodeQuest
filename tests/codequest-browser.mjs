@@ -109,6 +109,7 @@ async function login(role) {
     activeRole = role;
     const context = await browser.newContext({ viewport: { width: 390, height: 900 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
+    page.on('dialog', dialog => dialog.accept());
     page.setDefaultTimeout(12000);
     page.on('pageerror', error => {
         if (!report.pageErrors.some(item => item.role === role && item.url === page.url() && item.message === error.message)) {

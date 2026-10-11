@@ -7,10 +7,10 @@
         $initialCode = old('code', $code);
         $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
     @endphp
-    <header class="challenge-context-bar">
+    <header class="challenge-context-bar atlas-workbench-context">
         <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost btn-sm shrink-0">← BACK TO LESSON</a>
         <div class="min-w-0 flex-1">
-            <h1 class="truncate text-sm font-semibold">{{ $mission->title }}</h1>
+            <h1 class="text-sm font-semibold">{{ $mission->title }}</h1>
             @if ($course)
                 <p class="truncate text-xs text-fg-subtle">{{ $course->name }}@if ($section) · {{ $section->title }}@endif</p>
             @endif
@@ -77,25 +77,20 @@
     @endif
     </div>
 
-    <nav class="flex flex-wrap gap-2 px-4 py-2" aria-label="Workspace panes" data-workspace-controls>
+    <nav class="atlas-workbench-controls" aria-label="Workspace panes" data-workspace-controls>
         <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Task</button>
         <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Code</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="false">Output</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Output</button>
         <button type="button" class="btn btn-ghost btn-sm" data-workspace-reset>Reset panes</button>
     </nav>
     <div class="challenge-workspace" data-workspace>
-        <section class="panel challenge-pane" id="workspace-brief" data-workspace-pane="brief" tabindex="0">
+        <section class="challenge-pane" id="workspace-brief" data-workspace-pane="brief" tabindex="0">
             <h2 class="challenge-pane-header">Challenge brief</h2>
             <div class="challenge-pane-body">
                 <div class="space-y-4 text-sm leading-6 text-fg-muted">
                     <div>
                         <p class="eyebrow text-accent">Objective</p>
                         <p class="mt-2 text-fg">{{ $mission->description ?: 'Read the lesson, then build your solution in the editor.' }}</p>
-                    </div>
-                    <div class="challenge-requirements">
-                        <p><span aria-hidden="true">01</span> Write the solution in the editor.</p>
-                        <p><span aria-hidden="true">02</span> Run a preview before submitting.</p>
-                        <p><span aria-hidden="true">03</span> Submit for server validation.</p>
                     </div>
                     <p class="text-xs text-fg-subtle">A failed submission costs {{ $wrongPenalty }} XP.</p>
                 </div>
@@ -133,7 +128,7 @@
         </section>
 
         <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize brief pane" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="15" aria-valuemax="35" aria-valuenow="25" data-workspace-resize="brief"></div>
-        <section class="panel challenge-pane" id="workspace-editor" data-workspace-pane="editor" tabindex="0">
+        <section class="challenge-pane" id="workspace-editor" data-workspace-pane="editor" tabindex="0">
             <div class="challenge-pane-header">
                 <h2>Code editor</h2>
                 <p id="draft-status" class="challenge-draft-status" aria-live="polite">
@@ -147,8 +142,8 @@
         </section>
 
         <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize preview pane" aria-controls="workspace-preview" aria-orientation="vertical" aria-valuemin="20" aria-valuemax="40" aria-valuenow="25" data-workspace-resize="preview"></div>
-        <section class="panel challenge-pane" id="workspace-preview" data-workspace-pane="preview" tabindex="0" hidden>
-            <h2 class="challenge-pane-header">Preview output</h2>
+        <section class="challenge-pane" id="workspace-preview" data-workspace-pane="preview" tabindex="0">
+            <div class="challenge-pane-header"><h2>Preview output</h2><p class="atlas-workbench-note">Run previews only. Submit evaluates your code.</p></div>
             <div class="challenge-pane-body is-frame">
                 <iframe
                     id="preview-frame"

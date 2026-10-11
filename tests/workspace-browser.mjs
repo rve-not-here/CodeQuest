@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { readFile, mkdtemp, rm } from 'node:fs/promises';
+import { readFile, mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -9,7 +9,9 @@ let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const { html, mode } = JSON.parse(input);
 const directory = await mkdtemp(join(tmpdir(), 'codequest-browser-'));
+let submissions = 0;
 const server = createServer(async (request, response) => {
+    if (request.method === 'POST') submissions++;
     try {
         if (request.url.startsWith('/build/')) {
             const path = request.url.split('?')[0];
@@ -69,7 +71,13 @@ try {
         return result.result.value;
     }
     await send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/` });
-    await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector('.cm-content')) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Editor failed to initialize')); } }, 50); })`);
+    const waitingForAttempt = ['boss-ready', 'boss-pending'].includes(mode);
+    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : '.cm-content';
+    await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
+    if (mode === 'challenge-unavailable') {
+        assert.equal(await evaluate(`document.querySelector('main').textContent.includes('Your code was not graded and no XP changed')`), true);
+        assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')).state.doc.toString()`), '<h1>Try this</h1>');
+    }
     assert.deepEqual(await evaluate(`[...document.querySelectorAll('[data-status-message]')].map(node => ({ role: node.getAttribute('role'), live: node.getAttribute('aria-live'), atomic: node.getAttribute('aria-atomic') }))`), [
         { role: null, live: null, atomic: null },
         { role: 'alert', live: null, atomic: null },
@@ -79,7 +87,29 @@ try {
     assert.equal(await evaluate(`document.querySelector('[data-status-message]').getAttribute('role')`), 'alert');
     await evaluate(`document.querySelector('[data-status-message] [data-dismiss]').click()`);
     assert.equal(await evaluate(`document.querySelectorAll('[data-status-message]').length`), 0);
-    if (mode === 'experiment') {
+    const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
+    if (capture) {
+        assert.ok(capture.startsWith(join(process.cwd(), 'storage/app/private/mission-atlas-phase5-review/')));
+        await mkdir(capture, { recursive: true });
+        for (const [width, height] of [[1920,1080],[1366,768],[768,1024],[390,844]]) {
+            await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
+            await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+            const shot = await send('Page.captureScreenshot', { format: 'png' });
+            await writeFile(join(capture, `${mode}-${width}.png`), Buffer.from(shot.data, 'base64'));
+        }
+    }
+    if (waitingForAttempt) {
+        assert.equal(await evaluate(`document.querySelectorAll('.cm-editor').length`), 0);
+        const heading = mode === 'boss-ready' ? 'Ready to begin' : 'Verification in progress';
+        assert.equal(await evaluate(`document.querySelector('.atlas-boss-state h2').textContent`), heading);
+        for (const width of [390, 768, 1366, 1920]) {
+            await send('Emulation.setDeviceMetricsOverride', { width, height: 768, deviceScaleFactor: 1, mobile: false });
+            await evaluate(`document.querySelector('[data-pane-toggle="brief"]').click(); document.querySelector('[data-workspace-reset]').click()`);
+            assert.equal(await evaluate(`document.querySelector('.atlas-boss-state form button').getBoundingClientRect().height >= 44`), true);
+            assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
+
+        }
+    } else if (mode === 'experiment') {
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc.includes('Try this')`), true);
         await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc`), '<h1>Changed example</h1>');
@@ -101,17 +131,63 @@ try {
         assert.equal(await evaluate(`document.querySelectorAll('form[action*="/missions/"]').length`), 0);
     } else {
         await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+        assert.equal(await evaluate(`document.querySelectorAll('[data-workspace-pane]').length`), 3);
         await evaluate(`window.originalEditor = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); originalEditor.dispatch({changes: {from: 0, to: originalEditor.state.doc.length, insert: 'unsaved 日本語\\nsecond line'}}); document.querySelector('[data-workspace-resize="brief"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));`);
         assert.equal(await evaluate(`document.querySelector('[data-workspace-resize="brief"]').getAttribute('aria-valuenow')`), '15');
         await evaluate(`document.querySelector('[data-pane-toggle="brief"]').click()`);
         assert.equal(await evaluate(`document.querySelector('[data-workspace-pane="brief"]').getBoundingClientRect().width`), 0);
-        for (const width of [390, 768, 1280]) {
-            await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        await new Promise(resolve => setTimeout(resolve, 600));
+        await evaluate(`originalEditor.dispatch({selection: {anchor: 3, head: 8}}); originalEditor.focus(); window.savedWorkspaceFeedback = document.querySelector('#draft-status')?.textContent;`);
+        await send('Input.insertText', { text: 'changed' });
+        const editedSource = await evaluate(`originalEditor.state.doc.toString()`);
+        const editedSelection = await evaluate(`originalEditor.state.selection.main.anchor`);
+        for (const [width, height] of [[390,844],[768,1024],[1099,768],[1101,768],[1366,768],[1920,1080],[683,384],[320,600],[1366,600]]) {
+            await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
             await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
             await evaluate(`document.querySelector('[data-pane-toggle="preview"]').click(); document.querySelector('[data-pane-toggle="editor"]').click(); document.querySelector('[data-workspace-reset]').click();`);
             assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === originalEditor`), true);
-            assert.equal(await evaluate(`originalEditor.state.doc.toString()`), 'unsaved 日本語\nsecond line');
+            assert.equal(await evaluate(`originalEditor.state.doc.toString()`), editedSource);
+            assert.equal(await evaluate(`originalEditor.state.selection.main.anchor`), editedSelection);
+            assert.equal(await evaluate(`document.querySelector('#draft-status')?.textContent === savedWorkspaceFeedback`), true);
+            if (mode === 'boss-passed') {
+                await evaluate(`document.querySelector('#run').scrollIntoView({block: 'nearest'})`);
+                assert.equal(await evaluate(`document.querySelector('#run').getBoundingClientRect().bottom <= Math.min(innerHeight, document.querySelector('[data-workspace-pane="editor"]').getBoundingClientRect().bottom)`), true);
+            }
             assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
+        }
+        await evaluate(`originalEditor.focus()`);
+        await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'z', code: 'KeyZ', modifiers: 2, windowsVirtualKeyCode: 90 });
+        await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'z', code: 'KeyZ', modifiers: 2, windowsVirtualKeyCode: 90 });
+        assert.equal(await evaluate(`originalEditor.state.doc.toString()`), 'unsaved 日本語\nsecond line');
+        assert.deepEqual(await evaluate(`({anchor: originalEditor.state.selection.main.anchor, head: originalEditor.state.selection.main.head})`), {anchor: 3, head: 8});
+        if (mode === 'boss') {
+            await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
+            await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+            await evaluate(`document.querySelector('#run').focus()`);
+            await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', windowsVirtualKeyCode: 13 });
+            await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+            await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+            assert.deepEqual(await evaluate(`({focus: document.activeElement.id, outputVisible: !document.querySelector('[data-workspace-pane="preview"]').hidden})`), {focus: 'workspace-tab-preview', outputVisible: true});
+            assert.equal(await evaluate(`document.querySelector('[data-workspace-pane="preview"]').hidden`), false);
+            await evaluate(`document.querySelector('[data-pane-toggle="editor"]').click()`);
+            await send('Page.enable');
+            const dialog = new Promise((resolve) => {
+                function opened(event) {
+                    const message = JSON.parse(event.data);
+                    if (message.method !== 'Page.javascriptDialogOpening') return;
+                    socket.removeEventListener('message', opened);
+                    resolve(message.params);
+                }
+                socket.addEventListener('message', opened);
+            });
+            await evaluate(`setTimeout(() => document.querySelector('#assessment-submit button').click(), 0)`);
+            const confirmation = await dialog;
+            assert.equal(confirmation.type, 'confirm');
+            assert.ok(confirmation.message.includes('records the result of your current attempt'));
+            await send('Page.handleJavaScriptDialog', { accept: false });
+            await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+            assert.equal(submissions, 0);
+            assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === originalEditor`), true);
         }
     }
     process.stdout.write(`Chromium ${mode} checks passed\n`);

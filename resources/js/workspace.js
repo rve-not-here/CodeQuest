@@ -6,8 +6,10 @@ export function initializeWorkspace(root) {
     const separators = [...workspace.querySelectorAll('[data-workspace-resize]')];
     const buttons = [...controls.querySelectorAll('[data-pane-toggle]')];
     const narrow = window.matchMedia('(max-width: 1100px)');
-    const widths = { brief: 25, preview: 25 };
-    const collapsed = new Set(['preview']);
+    const containerWidth = workspace.getBoundingClientRect().width;
+    const defaults = { brief: Math.round(280 / containerWidth * 100), preview: Math.round(300 / containerWidth * 100) };
+    const widths = { ...defaults };
+    const collapsed = new Set();
     let selected = 'editor';
 
     function constrainedWidth(separator, value) {
@@ -16,10 +18,11 @@ export function initializeWorkspace(root) {
         const containerWidth = workspace.getBoundingClientRect().width;
         const rem = Number.parseFloat(window.getComputedStyle(workspace.ownerDocument.documentElement).fontSize);
         const handles = separators.filter((item) => !collapsed.has(item.dataset.workspaceResize)).length * 8;
-        const available = Math.min(Math.floor(40 - handles / containerWidth * 100), Math.floor((containerWidth - 20 * rem - handles) / containerWidth * 100));
+        const available = Math.min(Math.floor(60 - handles / containerWidth * 100), Math.floor((containerWidth - 25 * rem - handles) / containerWidth * 100));
         const minimum = Number(separator.getAttribute('aria-valuemin'));
         if (!collapsed.has(other)) widths[other] = Math.min(widths[other], available - minimum);
-        const maximum = Math.min(Number(separator.getAttribute('aria-valuemax')), available - (collapsed.has(other) ? 0 : widths[other]));
+        const preferredMaximum = (name === 'brief' ? 320 : 350) / containerWidth * 100;
+        const maximum = Math.min(Number(separator.getAttribute('aria-valuemax')), Math.max(minimum, preferredMaximum), available - (collapsed.has(other) ? 0 : widths[other]));
         return Math.max(minimum, Math.min(maximum, Math.round(value)));
     }
 
@@ -94,10 +97,9 @@ export function initializeWorkspace(root) {
         });
     }
     controls.querySelector('[data-workspace-reset]').addEventListener('click', () => {
-        widths.brief = 25;
-        widths.preview = 25;
+        widths.brief = defaults.brief;
+        widths.preview = defaults.preview;
         collapsed.clear();
-        collapsed.add('preview');
         selected = 'editor';
         render();
     });
@@ -139,6 +141,7 @@ export function initializeWorkspace(root) {
         selected = name;
         collapsed.delete(name);
         render();
+        if (narrow.matches) buttons.find((button) => button.dataset.paneToggle === name)?.focus();
     });
     render();
 }

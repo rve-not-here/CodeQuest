@@ -87,7 +87,9 @@ import { previewDocument } from './resources/js/preview.js';
 let script = '';
 for await (const chunk of process.stdin) script += chunk;
 const elements = new Map();
+const paneEvents = [];
 const document = {
+    dispatchEvent(event) { paneEvents.push({ type: event.type, detail: event.detail }); },
     getElementById(id) {
         if (!elements.has(id)) elements.set(id, { listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; } });
         return elements.get(id);
@@ -102,17 +104,18 @@ const CM = {
         constructor(options) { editor = this; this.state = { doc: { toString: () => options.doc } }; }
     },
 };
-vm.runInNewContext(script, { document, window: { CodeQuest: { CodeMirror: CM, previewDocument } } });
+vm.runInNewContext(script, { CustomEvent, document, window: { CodeQuest: { CodeMirror: CM, previewDocument } } });
 const initial = elements.get('preview-frame').srcdoc;
 editor.state.doc = { toString: () => process.argv[1] };
 elements.get('run').listeners.click();
-process.stdout.write(JSON.stringify({ initial, changed: elements.get('preview-frame').srcdoc }));
+process.stdout.write(JSON.stringify({ initial, changed: elements.get('preview-frame').srcdoc, paneEvents }));
 JS, $changedSource]);
 
         $this->assertTrue($result->successful(), $result->errorOutput());
         $previews = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
         $this->assertStringContainsString($expectedSource, $previews['initial']);
         $this->assertStringContainsString($expectedChangedSource, $previews['changed']);
+        $this->assertSame([['type' => 'cq:workspace-pane', 'detail' => 'preview']], $previews['paneEvents']);
         $response->assertSee('sandbox="'.(in_array($type, ['js', 'javascript'], true) ? 'allow-scripts' : '').'"', false);
         $response->assertDontSee('allow-same-origin');
         $this->assertDatabaseCount('the404_xp_transactions', 0);

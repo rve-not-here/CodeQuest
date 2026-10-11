@@ -51,20 +51,14 @@ function fixture(width = 1200) {
     return { media, panes, buttons, separators, reset, style, dimensions, events, root, controls };
 }
 
-test('editor owns the desktop workspace and reset collapses output', () => {
-    const { panes, buttons, separators, reset, style } = fixture();
-    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, true]);
-    assert.equal(style['--brief-width'], '25%');
-    assert.equal(style['--preview-width'], '0px');
+test('desktop shows task, code and output and reset restores all three', () => {
+    const { panes, buttons, separators, reset } = fixture();
+    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
     buttons[2].fire('click');
-    separators[1].fire('pointerdown', { button: 0, pointerId: 1, clientX: 900 });
-    separators[1].fire('pointermove', { pointerId: 1, clientX: 0 });
-    assert.ok(parseInt(style['--brief-width']) + parseInt(style['--preview-width']) <= 40);
-    assert.equal(separators[1].focused, true);
-    separators[1].fire('pointercancel');
+    assert.equal(panes[2].hidden, true);
     reset.fire('click');
-    assert.equal(style['--brief-width'], '25%');
-    assert.equal(style['--preview-width'], '0px');
+    assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
+    assert.equal(separators[1].hidden, false);
 });
 
 test('accessible tabs preserve the editor document across pane switches and Run', () => {
@@ -80,6 +74,7 @@ test('accessible tabs preserve the editor document across pane switches and Run'
     assert.deepEqual(panes.map((pane) => pane.hidden), [false, true, true]);
     assert.equal(buttons[0].focused, true);
     root.fire('cq:workspace-pane', { detail: 'preview' });
+    assert.equal(buttons[2].focused, true);
     assert.deepEqual(panes.map((pane) => pane.hidden), [true, true, false]);
     buttons[2].fire('keydown', { key: 'Home' });
     buttons[0].fire('keydown', { key: 'ArrowRight' });
@@ -91,20 +86,17 @@ test('accessible tabs preserve the editor document across pane switches and Run'
     assert.equal(buttons[1].getAttribute('aria-selected'), undefined);
 });
 
-test('restoring resized panes always reserves at least sixty percent for code', () => {
-    const { panes, buttons, separators, style, dimensions, events } = fixture();
-    buttons[0].fire('click');
-    buttons[2].fire('click');
-    separators[1].fire('keydown', { key: 'End' });
-    buttons[0].fire('click');
-    assert.ok(parseInt(style['--brief-width']) + parseInt(style['--preview-width']) <= 40);
-    buttons[2].fire('click');
+test('resizing preserves a usable editor and never hides it', () => {
+    const { panes, separators, style, dimensions, events } = fixture();
+    separators[1].fire('pointerdown', { button: 0, pointerId: 1, clientX: 900 });
+    separators[1].fire('pointermove', { pointerId: 1, clientX: 0 });
+    assert.equal(separators[1].focused, true);
+    separators[1].fire('pointercancel');
     separators[0].fire('keydown', { key: 'End' });
-    buttons[2].fire('click');
+    separators[1].fire('keydown', { key: 'End' });
     dimensions.width = 1120;
     events.resize();
-    assert.ok(parseInt(style['--brief-width']) + parseInt(style['--preview-width']) <= 40);
     const editorWidth = dimensions.width * (1 - (parseInt(style['--brief-width']) + parseInt(style['--preview-width'])) / 100) - 16;
-    assert.ok(editorWidth >= dimensions.width * 0.6);
+    assert.ok(editorWidth >= 400);
     assert.deepEqual(panes.map((pane) => pane.hidden), [false, false, false]);
 });
