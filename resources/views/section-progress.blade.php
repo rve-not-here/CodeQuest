@@ -3,7 +3,7 @@
 @section('title', 'Section Progress')
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
                 <p class="eyebrow">Learning record</p>
@@ -14,7 +14,7 @@
         </header>
 
         @if ($tree->isEmpty())
-            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-sections-title">
+            <section class="atlas-record-empty" aria-labelledby="no-sections-title">
                 <h2 id="no-sections-title" class="text-lg font-semibold">NO COURSES</h2>
                 <p class="mt-2 text-sm text-fg-muted">No courses are available in your learning path yet.</p>
             </section>
@@ -34,16 +34,16 @@
                             <span class="font-mono text-xs text-fg-subtle">{{ $courseProgress['completed'] }}/{{ $courseProgress['total'] }} challenges complete</span>
                         </div>
                         @if ($courseRow['sections']->isEmpty())
-                            <div class="panel px-5 py-6 text-sm text-fg-muted">No sections have been added to this course.</div>
+                            <div class="border-t border-line py-6 text-sm text-fg-muted">No sections have been added to this course.</div>
                         @else
-                            <ol class="grid grid-cols-1 gap-3">
+                            <ol class="atlas-record-list">
                                 @foreach ($courseRow['sections'] as $sectionRow)
                                     @php
                                         $section = $sectionRow['section'];
                                         $sectionProgress = $sectionRow['progress'];
                                         $state = $sectionRow['state'];
                                     @endphp
-                                    <li class="panel min-w-0 px-5 py-4 md:px-6" data-section-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
+                                    <li class="atlas-section-record" data-section-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
                                         <div class="flex flex-wrap items-start justify-between gap-3">
                                             <div class="min-w-0">
                                                 <p class="eyebrow">{{ $section !== null ? 'Section '.str_pad((string) $section->order_num, 2, '0', STR_PAD_LEFT) : 'Course challenges' }}</p>

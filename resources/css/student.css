@@ -877,3 +877,48 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
     body.student-ui:has(.challenge-workspace) { height: auto; min-height: 100dvh; overflow: auto; }
     body.student-ui .challenge-workspace[data-workspace] { min-height: 360px; flex: none; }
 }
+
+/* Learning records: course context beside evidence, chronology in source order. */
+.atlas-record { width: 100%; max-width: 1200px; margin-inline: auto; overflow-wrap: anywhere; }
+.atlas-record-empty { border-block: 1px solid var(--color-line); padding-block: 40px; margin-top: 24px; }
+.atlas-record-list { border-top: 1px solid var(--color-line); }
+.atlas-record-list > li { border-bottom: 1px solid var(--color-line); }
+.atlas-course-record { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 32px; padding-block: 28px; }
+.atlas-course-context { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
+.atlas-course-evidence { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.atlas-evidence-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 16px; }
+.atlas-evidence-facts dt { font-size: 13px; color: var(--color-fg-muted); margin-bottom: 6px; }
+.atlas-evidence-facts dd { font-size: 14px; line-height: 22px; }
+.atlas-skill-record { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 24px; padding-block: 24px; }
+.atlas-skill-record .atlas-evidence-facts { max-width: 700px; }
+.atlas-action-sequence { border-top: 1px solid var(--color-line); }
+.atlas-action-sequence > li { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; align-items: start; gap: 24px; border-bottom: 1px solid var(--color-line); padding-block: 32px; }
+.atlas-action-sequence > li[data-next-action] { padding-block: 40px; }
+.atlas-action-sequence > li[data-next-action] h3 { font-size: 26px; line-height: 34px; }
+.atlas-timeline-day { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 32px; padding-block: 24px; border-top: 1px solid var(--color-line); }
+.atlas-timeline-events { min-width: 0; border-left: 1px solid var(--color-line); padding-left: 24px; }
+.atlas-timeline-event { display: flex; align-items: flex-start; gap: 12px; padding-block: 16px; border-bottom: 1px solid var(--color-line); }
+.atlas-timeline-event:first-child { padding-top: 0; }
+.atlas-timeline-event:last-child { border-bottom: 0; padding-bottom: 0; }
+.atlas-record-summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 32px; border-bottom: 1px solid var(--color-line); padding-block: 24px; }
+.atlas-record-summary > h2 { grid-row: 1 / 3; }
+.atlas-record-summary > p { margin-top: 0; }
+.atlas-award { padding-block: 24px; }
+.atlas-award > p { max-width: 68ch; }
+.atlas-section-record { padding-block: 20px; }
+.atlas-record .progress { height: 3px; border-radius: 0; }
+.atlas-record .progress > span { border-radius: 0; }
+@media (max-width: 767px) {
+    .atlas-course-record, .atlas-timeline-day, .atlas-record-summary { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .atlas-record-summary > h2 { grid-row: auto; }
+    .atlas-course-context { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .atlas-action-sequence > li { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .atlas-action-sequence .btn { justify-self: start; }
+    .atlas-timeline-events { padding-left: 16px; }
+    .atlas-timeline-event { flex-wrap: wrap; }
+    .atlas-skill-record { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .atlas-skill-record > .badge { justify-self: start; }
+}
+@media (max-width: 420px) {
+    .atlas-evidence-facts { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}

@@ -80,6 +80,19 @@ class TimelineTest extends TestCase
             ->assertSee('Mission completed: Alpha Protocol');
     }
 
+    public function test_timeline_groups_dates_without_merging_attempts(): void
+    {
+        $user = User::factory()->create();
+        foreach ([['2026-10-01 09:00:00', 'Earlier attempt'], ['2026-10-02 10:00:00', 'Later attempt'], ['2026-10-02 11:00:00', 'Latest attempt']] as [$at, $message]) {
+            $activity = new Activity(['user_id' => $user->id, 'type' => 'wrong_submission', 'message' => $message]);
+            $activity->forceFill(['created_at' => $at])->save();
+        }
+
+        $this->actingAs($user)->get(route('timeline'))
+            ->assertOk()
+            ->assertSeeInOrder(['October 2, 2026', 'Latest attempt', 'Later attempt', 'October 1, 2026', 'Earlier attempt']);
+    }
+
     public function test_wrong_submission_is_displayed(): void
     {
         $user = User::factory()->create();

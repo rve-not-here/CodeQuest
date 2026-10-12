@@ -3,7 +3,7 @@
 @section('title', 'Course Progress')
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
                 <p class="eyebrow">Learning record</p>
@@ -14,20 +14,20 @@
         </header>
 
         @if ($overview->isEmpty())
-            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-courses-title">
+            <section class="atlas-record-empty" aria-labelledby="no-courses-title">
                 <h2 id="no-courses-title" class="text-lg font-semibold">NO COURSES</h2>
                 <p class="mt-2 text-sm text-fg-muted">No courses are available in your learning path yet.</p>
             </section>
         @else
-            <ol class="mt-6 grid grid-cols-1 gap-4">
+            <ol class="atlas-record-list mt-8">
                 @foreach ($overview as $row)
                     @php
                         $course = $row['course'];
                         $progress = $row['progress'];
                         $state = $row['state'];
                     @endphp
-                    <li class="panel min-w-0 overflow-hidden" data-course-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
-                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4 md:px-6">
+                    <li class="atlas-course-record" data-course-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
+                        <div class="atlas-course-context">
                             <div class="min-w-0">
                                 <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
                                 <h2 class="mt-1 text-lg font-semibold text-balance">{{ $course->name }}</h2>
@@ -37,7 +37,7 @@
                             </div>
                             <span class="badge {{ $state === 'COMPLETED' || $state === 'READY' ? 'badge-accent' : ($state === 'IN PROGRESS' ? 'badge-warning' : 'badge-neutral') }}">{{ $state }}</span>
                         </div>
-                        <div class="grid grid-cols-1 gap-5 px-5 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:px-6">
+                        <div class="atlas-course-evidence">
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-baseline justify-between gap-2 text-sm">
                                     <p class="text-fg-muted"><span class="font-mono text-fg">{{ $progress['completed'] }}/{{ $progress['total'] }}</span> challenges complete</p>

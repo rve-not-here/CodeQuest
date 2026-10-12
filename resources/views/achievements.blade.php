@@ -3,7 +3,7 @@
 @section('title', 'Achievements')
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
                 <p class="eyebrow">Learning record</p>
@@ -13,23 +13,23 @@
             <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
         </header>
 
-        <section class="panel mt-6 px-5 py-5 md:px-6" aria-labelledby="achievement-summary-title">
+        <section class="atlas-record-summary" aria-labelledby="achievement-summary-title">
             <h2 id="achievement-summary-title" class="eyebrow">Your milestones</h2>
             <p class="mt-2 font-mono text-2xl font-semibold text-fg">{{ $earnedCount }}/{{ $totalCount }} UNLOCKED</p>
             <p class="mt-2 text-xs leading-5 text-fg-muted">Awards appear here when your learning record meets their criteria.</p>
         </section>
 
         @if ($catalog->isEmpty())
-            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-achievements-title">
+            <section class="atlas-record-empty" aria-labelledby="no-achievements-title">
                 <h2 id="no-achievements-title" class="text-lg font-semibold">NO ACHIEVEMENTS</h2>
                 <p class="mt-2 text-sm text-fg-muted">No achievement milestones are available yet.</p>
             </section>
         @else
             <section class="mt-8" aria-labelledby="milestones-title">
                 <h2 id="milestones-title" class="mb-3 text-lg font-semibold">Milestones</h2>
-                <ol class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <ol class="atlas-record-list">
                     @foreach ($catalog as $row)
-                        <li class="panel min-w-0 px-5 py-5 md:px-6" data-achievement-state="{{ $row['awarded'] ? 'unlocked' : 'discovered' }}">
+                        <li class="atlas-award" data-achievement-state="{{ $row['awarded'] ? 'unlocked' : 'discovered' }}">
                             <div class="flex flex-wrap items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="eyebrow">Achievement</p>
