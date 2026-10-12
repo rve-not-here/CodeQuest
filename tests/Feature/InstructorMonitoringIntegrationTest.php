@@ -109,9 +109,16 @@ class InstructorMonitoringIntegrationTest extends TestCase
         $dashboard = $this->actingAs($teacher)->get(route('students'));
         $dashboard->assertSee('Boss Challenge completed: '.$alphaChallenge->title);
         $dashboard->assertSee('PASS RATE 100%');
-        $summary = $this->panelBodyBetween($dashboard->getContent(), 'panel-title">Assessment Summary');
-        $this->assertStringContainsString('✔ 1 · ▸ 0 ·', $summary);
-        $this->assertStringContainsString('◈ 0 · ○ 0', $summary);
+        $content = $dashboard->getContent();
+        $from = strpos($content, '<h3>'.$alpha->name.'</h3>');
+        $this->assertNotFalse($from);
+        $to = strpos($content, '</article>', $from);
+        $this->assertNotFalse($to);
+        $summary = substr($content, $from, $to - $from);
+        $this->assertStringContainsString('<dt>Complete</dt><dd>1</dd>', $summary);
+        $this->assertStringContainsString('<dt>In progress</dt><dd>0</dd>', $summary);
+        $this->assertStringContainsString('<dt>Boss ready</dt><dd>0</dd>', $summary);
+        $this->assertStringContainsString('<dt>Not started</dt><dd>0</dd>', $summary);
 
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString($beta->name, $roster);
@@ -216,21 +223,12 @@ class InstructorMonitoringIntegrationTest extends TestCase
         return User::factory()->teacher()->create(['username' => 'cpu_teacher']);
     }
 
-    /**
-     * The /students page carries system-wide dashboard strips above the roster
-     * (US-609). Roster assertions run against this slice so a username or label
-     * echoed by the recent-activity or assessment-summary strips can never
-     * bleed into a roster assertion.
-     */
     private function rosterBody(string $content): string
     {
-        $from = strpos($content, '<form method="GET"');
+        $from = strpos($content, '<tbody');
+        $to = strpos($content, '</tbody>', $from === false ? 0 : $from);
 
-        if ($from === false) {
-            return '';
-        }
-
-        return substr($content, $from);
+        return $from === false || $to === false ? '' : substr($content, $from, $to - $from);
     }
 
     /**

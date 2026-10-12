@@ -88,7 +88,7 @@ class StudentOverviewTest extends TestCase
             ->assertSee('LOCKED')
             ->assertSee('PRACTICING 1')
             ->assertSee('Hint used on mission: alpha')
-            ->assertSee('ATTN');
+            ->assertSee('Needs attention');
     }
 
     public function test_student_overview_search_is_server_side_by_username_and_name(): void
@@ -362,21 +362,12 @@ class StudentOverviewTest extends TestCase
         return [$course, $missions];
     }
 
-    /**
-     * The /students page now carries system-wide dashboard strips above the
-     * roster (US-609). Roster assertions must run against this slice, anchored
-     * at the roster's filter form, so a username echoed by the recent-activity
-     * strip can never bleed into a roster-filter assertion.
-     */
     private function rosterBody(string $content): string
     {
-        $from = strpos($content, '<form method="GET"');
+        $from = strpos($content, '<tbody');
+        $to = strpos($content, '</tbody>', $from === false ? 0 : $from);
 
-        if ($from === false) {
-            return '';
-        }
-
-        return substr($content, $from);
+        return $from === false || $to === false ? '' : substr($content, $from, $to - $from);
     }
 
     private function complete(User $user, Mission $mission): void
