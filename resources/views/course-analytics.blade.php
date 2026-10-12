@@ -3,92 +3,52 @@
 @section('title', 'Course Analytics')
 
 @section('content')
-    <x-page-header
-        title="Course Analytics"
-        subtitle="Per-course aggregate summaries across the fleet. Every value is derived server-side from real records."
-        icon="Σ"
-    >
-        <x-slot:actions>
-            <x-badge tone="cyan">SYSTEM-WIDE</x-badge>
-        </x-slot:actions>
-    </x-page-header>
-
-    @forelse ($courses as $course)
-        @if ($role === 'teacher')
-        <a href="{{ route('reports.teacher-course', $course['course']) }}" class="btn btn-secondary mb-3">VIEW COURSE REPORT →</a>
-        @endif
-        <section class="panel p-4 mb-4">
-            <header class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-phosphor-dim/60">
-                <div class="flex items-center gap-2 min-w-0">
-                    <h2 class="panel-title truncate">{{ strtoupper($course['course']->name) }}</h2>
-                    <x-badge tone="cyan">{{ strtoupper($course['course']->type) }}</x-badge>
-                </div>
-                <span class="text-sm font-bold text-phosphor-dim shrink-0">
-                    COURSE&nbsp;{{ $course['course']->order_num }}
-                </span>
-            </header>
-
-            <div class="flex flex-wrap items-center gap-2 mb-4">
-                <span class="text-sm font-bold text-phosphor">
-                    STUDENTS {{ $course['engaged'] }}/{{ $course['fleet'] }}
-                </span>
-                <span class="inline-block text-xs font-bold border px-2 py-1 rounded-[2px] leading-none text-cyan border-cyan">
-                    ✔ COMPLETED {{ $course['buckets']['completed'] }}
-                </span>
-                <span class="inline-block text-xs font-bold border px-2 py-1 rounded-[2px] leading-none text-phosphor border-phosphor-dim">
-                    ▸ IN PROGRESS {{ $course['buckets']['in_progress'] }}
-                </span>
-                <span class="inline-block text-xs font-bold border px-2 py-1 rounded-[2px] leading-none text-amber border-amber">
-                    ◈ READY {{ $course['buckets']['assessment_ready'] }}
-                </span>
-                <span class="inline-block text-xs font-bold border px-2 py-1 rounded-[2px] leading-none text-phosphor-dim border-phosphor-dim/60">
-                    ○ NOT STARTED {{ $course['buckets']['not_started'] }}
-                </span>
+    <div class="teacher-operations">
+        <header class="teacher-context">
+            <div>
+                <h1>Course Analytics</h1>
+                <p>{{ $role === 'teacher' ? 'Classroom scope' : 'SYSTEM-WIDE' }} · Course evidence derived from recorded learning and assessments.</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                    <p class="text-xs font-bold text-phosphor-dim mb-1">Average challenge completion</p>
-                    <p class="font-display text-[16px] text-phosphor leading-none">
-                        {{ $course['avg_completion'] !== null ? $course['avg_completion'].'%' : '—' }}
-                    </p>
+            <a href="{{ route('students') }}" class="btn-ghost">Student roster →</a>
+        </header>
+        @forelse ($courses as $course)
+            <section class="teacher-record-section" aria-labelledby="analytics-course-{{ $course['course']->id }}">
+                <header class="teacher-section-heading">
+                    <div><h2 id="analytics-course-{{ $course['course']->id }}">{{ strtoupper($course['course']->name) }}</h2><p class="teacher-state">COURSE {{ $course['course']->order_num }} · {{ strtoupper($course['course']->type) }} · STUDENTS {{ $course['engaged'] }}/{{ $course['fleet'] }}</p></div>
+                    @if ($role === 'teacher')
+                        <a href="{{ route('reports.teacher-course', $course['course']) }}" class="btn-ghost">VIEW COURSE REPORT →</a>
+                    @endif
+                </header>
+                <dl class="teacher-evidence-strip" aria-label="Course lifecycle">
+                    <div><dt>Completed</dt><dd>{{ $course['buckets']['completed'] }}</dd></div>
+                    <div><dt>In progress</dt><dd>{{ $course['buckets']['in_progress'] }}</dd></div>
+                    <div><dt>Boss ready</dt><dd>{{ $course['buckets']['assessment_ready'] }}</dd></div>
+                    <div><dt>Not started</dt><dd>{{ $course['buckets']['not_started'] }}</dd></div>
+                </dl>
+                <div class="teacher-analytics-evidence">
+                    <dl class="teacher-evidence-measures">
+                        <div><dt>Average challenge completion</dt><dd>{{ $course['avg_completion'] !== null ? $course['avg_completion'].'%' : 'No evidence' }}</dd></div>
+                        <div><dt>Boss Challenge pass rate</dt><dd>{{ $course['pass_rate'] !== null ? $course['pass_rate'].'%' : 'No evidence' }}</dd></div>
+                    </dl>
+                    @if ($course['engaged'] > 0)
+                        @php($bands = \App\Services\CourseAnalyticsService::DISTRIBUTION_BANDS)
+                        <div>
+                            <p class="teacher-note">{{ $course['engaged'] }} engaged students, grouped by completed challenges.</p>
+                            <table class="table-stack teacher-evidence-table" role="table">
+                                <caption>Completion distribution</caption>
+                                <thead><tr><th scope="col">Challenge completion</th><th scope="col">Students</th></tr></thead>
+                                <tbody>
+                                    @foreach ($course['distribution'] as $index => $count)
+                                        <tr><th scope="row" data-label="Challenge completion">{{ $bands[$index] }}%</th><td data-label="Students">{{ $count }}</td></tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
-                <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                    <p class="text-xs font-bold text-phosphor-dim mb-1">Boss Challenge pass rate</p>
-                    <p class="font-display text-[16px] text-amber leading-none">
-                        {{ $course['pass_rate'] !== null ? $course['pass_rate'].'%' : '—' }}
-                    </p>
-                </div>
-            </div>
-
-            @if ($course['engaged'] > 0)
-                @php($bands = \App\Services\CourseAnalyticsService::DISTRIBUTION_BANDS)
-                <div>
-                    <p class="text-xs font-bold text-phosphor-dim mb-2">
-                        Completion distribution ({{ $course['engaged'] }} engaged)
-                    </p>
-                    <div class="space-y-1">
-                        @foreach ($course['distribution'] as $index => $count)
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-phosphor-dim w-14 shrink-0">{{ $bands[$index] }}%</span>
-                                <div class="flex-1 h-1.5 bg-void border border-phosphor-dim/40 rounded-[1px] overflow-hidden">
-                                    <div
-                                        class="h-full bg-cyan/70"
-                                        style="width: {{ $course['engaged'] > 0 ? round($count / $course['engaged'] * 100) : 0 }}%"
-                                    ></div>
-                                </div>
-                                <span class="font-display text-[9px] text-phosphor w-6 text-right shrink-0">{{ $count }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        </section>
-    @empty
-        <section class="panel p-4">
-            <x-status-message type="info" title="No courses">
-                No active course with missions is available to summarize.
-            </x-status-message>
-        </section>
-    @endforelse
+            </section>
+        @empty
+            <section class="teacher-empty"><h2>No courses</h2><p>No active course with missions is available to summarize.</p></section>
+        @endforelse
+    </div>
 @endsection

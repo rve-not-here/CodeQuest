@@ -21,6 +21,37 @@ class StudentProgressTest extends TestCase
     use RefreshDatabase;
     use WithClassroomScope;
 
+    public function test_monitoring_identifies_the_student_before_learning_evidence(): void
+    {
+        $student = User::factory()->create(['username' => 'evidence_learner']);
+        $teacher = User::factory()->teacher()->create();
+        $course = Course::factory()->create();
+        Mission::factory()->create(['course_id' => $course->id]);
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)->get(route('student-progress', $student))
+            ->assertSeeInOrder(['<h1', 'evidence_learner', 'Knowledge Check evidence'], false)
+            ->assertSee('Scores are formative and do not award XP.');
+    }
+
+    public function test_position_outside_teacher_scope_does_not_claim_all_courses_cleared(): void
+    {
+        [$shared, , $missions] = $this->createCourseWithSections(1, [1 => 1]);
+        [$private] = $this->createCourseWithSections(2, [1 => 1]);
+        $assessment = Assessment::factory()->create(['course_id' => $shared->id]);
+        $student = User::factory()->create();
+        $this->complete($student, $missions[0]);
+        $this->attempt($student, $assessment, 'passed');
+        $teacher = User::factory()->teacher()->create();
+        $this->classroomFor($teacher, [$student], [$shared]);
+
+        $this->actingAs($teacher)->get(route('student-progress', $student))
+            ->assertViewHas('position', null)
+            ->assertSee('No current learning position in this monitoring scope.')
+            ->assertDontSee('ALL COURSES CLEARED')
+            ->assertDontSee($private->name);
+    }
+
     public function test_student_progress_requires_teacher_authorization(): void
     {
         $student = User::factory()->create();
@@ -146,7 +177,7 @@ class StudentProgressTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('ALL COURSES CLEARED')
+            ->assertSee('No current learning position in this monitoring scope.')
             ->assertSee('COMPLETED')
             ->assertSee('BOSS CHALLENGE: PASSED');
     }
@@ -229,7 +260,7 @@ class StudentProgressTest extends TestCase
             ->get(route('student-progress', ['student' => $student->id]));
 
         $response->assertOk()->assertSee('Attempt log');
-        $panel = $this->panelBodyBetween($response->getContent(), 'panel-title">Assessment Performance');
+        $panel = $this->evidenceSection($response->getContent(), 'id="monitoring-assessment"');
         $this->assertSame(1, substr_count($panel, '50%'));
         $this->assertSame(1, substr_count($panel, '40%'));
         $this->assertSame(2, substr_count($panel, '90%'));
@@ -255,7 +286,7 @@ class StudentProgressTest extends TestCase
 
         $response->assertOk();
         $content = $response->getContent();
-        $panel = $this->panelBodyBetween($content, 'panel-title">Assessment Performance');
+        $panel = $this->evidenceSection($content, 'id="monitoring-assessment"');
         $this->assertSame(2, substr_count($panel, $assessed->name));
         $this->assertSame(0, substr_count($panel, $bare->name));
         $this->assertSame(1, substr_count($content, $bare->name));
@@ -301,7 +332,7 @@ class StudentProgressTest extends TestCase
 
         $response->assertOk()->assertSee('Competency');
 
-        $panel = $this->panelBodyBetween($response->getContent(), 'panel-title">Competency');
+        $panel = $this->evidenceSection($response->getContent(), 'id="monitoring-competency"');
         $this->assertSame(1, substr_count($panel, 'DEMONSTRATED'));
         $this->assertSame(1, substr_count($panel, 'DEVELOPING'));
         $this->assertSame(1, substr_count($panel, '2/2'));
@@ -310,13 +341,7 @@ class StudentProgressTest extends TestCase
         $this->assertSame(1, substr_count($panel, 'NOT ATTEMPTED'));
     }
 
-    /**
-     * Slice the body of a panel: from its title marker to the next panel
-     * section opening. Scope count-based content assertions here so a later
-     * panel added to the page (e.g. US-605's Competency panel) can never
-     * silently change a whole-page count.
-     */
-    private function panelBodyBetween(string $content, string $titleMarker): string
+    private function evidenceSection(string $content, string $titleMarker): string
     {
         $from = strpos($content, $titleMarker);
 
@@ -324,7 +349,7 @@ class StudentProgressTest extends TestCase
             return '';
         }
 
-        $to = strpos($content, '<section class="panel', $from + strlen($titleMarker));
+        $to = strpos($content, '</section>', $from + strlen($titleMarker));
 
         return $to === false ? substr($content, $from) : substr($content, $from, $to - $from);
     }

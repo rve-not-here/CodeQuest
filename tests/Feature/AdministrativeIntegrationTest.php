@@ -216,16 +216,16 @@ class AdministrativeIntegrationTest extends TestCase
         $this->assertStringContainsString('IN PROGRESS 0/1 · 0%', $roster);
         $this->assertStringContainsString('DEMONSTRATED 1', $roster);
 
-        $alphaPanel = $this->panelBodyBetween(
+        $alphaPanel = $this->evidenceSection(
             $this->actingAs($teacher)->get(route('course-analytics'))->getContent(),
-            'panel-title truncate">'.strtoupper($alpha->name),
+            'id="analytics-course-'.$alpha->id.'"',
         );
-        $this->assertStringContainsString('✔ COMPLETED 1', $alphaPanel);
+        $this->assertStringContainsString('<dt>Completed</dt><dd>1</dd>', $alphaPanel);
         $this->assertStringContainsString('100%', $alphaPanel);
 
         $detail = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]));
-        $performance = $this->panelBodyBetween($detail->getContent(), 'panel-title">Assessment Performance');
+        $performance = $this->evidenceSection($detail->getContent(), 'id="monitoring-assessment"');
         $this->assertStringContainsString('PASSED', $performance);
         $this->assertStringContainsString('The 404 Challenge', $performance);
     }
@@ -478,12 +478,7 @@ class AdministrativeIntegrationTest extends TestCase
         return substr($content, $from);
     }
 
-    /**
-     * Slice the body of a panel: from its title marker to the next panel section
-     * opening. Scope count-based content assertions here so a later panel added
-     * to the page can never silently change a whole-page count.
-     */
-    private function panelBodyBetween(string $content, string $titleMarker): string
+    private function evidenceSection(string $content, string $titleMarker): string
     {
         $from = strpos($content, $titleMarker);
 
@@ -491,7 +486,7 @@ class AdministrativeIntegrationTest extends TestCase
             return '';
         }
 
-        $to = strpos($content, '<section class="panel', $from + strlen($titleMarker));
+        $to = strpos($content, '</section>', $from + strlen($titleMarker));
 
         return $to === false ? substr($content, $from) : substr($content, $from, $to - $from);
     }
