@@ -3,16 +3,12 @@
 @section('title', 'Account '.$user->username)
 
 @section('content')
-    <x-page-header
-        title="{{ $user->username }}"
-        subtitle="Review account details, access, and recent activity."
-        icon="☷"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>
-            <a href="{{ route('admin.users.edit', $user) }}" class="btn-ghost">EDIT →</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>{{ $user->username }}</h1><p>Review account details, access, and recent activity.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>
+            <a href="{{ route('admin.users.edit', $user) }}" class="btn-ghost">EDIT →</a></div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -30,10 +26,10 @@
         $statusTone = $user->status === 'active' ? 'cyan' : 'amber';
     @endphp
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <section class="panel p-4 md:col-span-2">
+    <div class="admin-detail-layout">
+        <section class="admin-record-section">
             <h2 class="panel-title mb-3">Account</h2>
-            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 font-body text-lg">
+            <dl class="admin-property-list">
                 <div>
                     <dt class="text-xs font-bold text-phosphor-dim mb-1">Username</dt>
                     <dd class="text-ink">{{ $user->username }}</dd>
@@ -70,7 +66,7 @@
             </dl>
         </section>
 
-        <section class="panel p-4">
+        <section class="admin-record-section">
             <h2 class="panel-title mb-3">Recent Activity</h2>
 
             @forelse ($recentActivity as $beat)
@@ -84,5 +80,6 @@
                 <p class="font-body text-[15px] text-ink">No learning activity on record.</p>
             @endforelse
         </section>
+    </div>
     </div>
 @endsection

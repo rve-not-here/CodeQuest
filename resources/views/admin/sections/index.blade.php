@@ -3,16 +3,12 @@
 @section('title', $course->name.' Sections')
 
 @section('content')
-    <x-page-header
-        title="Section Management"
-        subtitle="{{ $course->name }} · Manage sections in learning order."
-        icon="▦"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
-            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Section Management</h1><p>{{ $course->name }} · Manage sections in learning order.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
+            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge></div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -26,42 +22,43 @@
 
     @if ($sections->isEmpty())
         <x-status-message type="info" title="NO SECTIONS">
-            No sections are defined for this course yet. Awaiting directives from Command.
+            No sections are defined for this course.
         </x-status-message>
     @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
+        <div class="admin-table-region">
+            <table class="table-stack admin-table" role="table">
+                <caption>Course sections</caption>
                 <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">Order</th>
-                        <th class="px-4 py-3">Section</th>
-                        <th class="px-4 py-3">Description</th>
-                        <th class="px-4 py-3">Missions</th>
-                        <th class="px-4 py-3">Edit</th>
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Section</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Missions</th>
+                        <th scope="col">Edit</th>
                     </tr>
                 </thead>
-                <tbody class="font-body text-lg">
+                <tbody>
                     @foreach ($sections as $section)
-                        <tr class="border-b border-phosphor-dim/40 align-top">
-                            <td class="px-4 py-3 font-display text-[10px] text-phosphor-dim" data-label="Order">
+                        <tr>
+                            <td data-label="Order">
                                 {{ $section->order_num }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Section">
+                            <th scope="row" data-label="Section">
                                 <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-phosphor hover:underline">
                                     {{ $section->title }}
                                 </a>
-                            </td>
+                            </th>
 
-                            <td class="px-4 py-3 text-[15px] text-ink truncate max-w-[320px]" data-label="Description">
+                            <td data-label="Description">
                                 {{ $section->description }}
                             </td>
 
-                            <td class="px-4 py-3 font-display text-[10px] text-phosphor-dim" data-label="Missions">
+                            <td data-label="Missions">
                                 {{ $section->missions_count }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Edit">
+                            <td data-label="Edit">
                                 <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-sm font-bold text-cyan hover:underline">
                                     EDIT →
                                 </a>
@@ -72,4 +69,5 @@
             </table>
         </div>
     @endif
+    </div>
 @endsection

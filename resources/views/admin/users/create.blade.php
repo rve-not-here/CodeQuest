@@ -3,25 +3,25 @@
 @section('title', 'Create User')
 
 @section('content')
-    <x-page-header
-        title="Create User"
-        subtitle="Create an account and choose its role."
-        icon="☷"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Create User</h1><p>Create an account and choose its role.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a></div>
+    </header>
 
     @if ($errors->any())
         <x-status-message type="error" title="INPUT REJECTED" class="mb-4">
-            @foreach ($errors->all() as $error)
-                {{ $error }}<br>
-            @endforeach
+            <ul>
+                @foreach ($errors->messages() as $field => $messages)
+                    @foreach ($messages as $error)
+                        <li><a href="#{{ Str::before($field, '.') }}">{{ $error }}</a></li>
+                    @endforeach
+                @endforeach
+            </ul>
         </x-status-message>
     @endif
 
-    <form method="POST" action="{{ route('admin.users.store') }}" class="panel p-4 max-w-2xl">
+    <form method="POST" action="{{ route('admin.users.store') }}" class="admin-form">
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -37,7 +37,8 @@
                     required
                     maxlength="64"
                     class="terminal-input"
-                >
+                 @if ($errors->has('username')) aria-invalid="true" aria-describedby="username-error" @endif>
+                @error('username')<p id="username-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -52,18 +53,20 @@
                     required
                     maxlength="128"
                     class="terminal-input"
-                >
+                 @if ($errors->has('name')) aria-invalid="true" aria-describedby="name-error" @endif>
+                @error('name')<p id="name-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="role" class="block text-sm font-bold text-phosphor-dim mb-1">
                     Role
                 </label>
-                <select id="role" name="role" class="terminal-input" required>
+                <select id="role" name="role" class="terminal-input" required @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
                     <option value="student" @selected(old('role') === 'student')>STUDENT</option>
                     <option value="teacher" @selected(old('role') === 'teacher')>TEACHER</option>
                     <option value="admin" @selected(old('role') === 'admin')>ADMIN</option>
                 </select>
+                @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -78,16 +81,18 @@
                     minlength="8"
                     autocomplete="new-password"
                     class="terminal-input"
-                >
-                <p class="text-xs font-bold text-phosphor-dim mt-1">
-                    MIN 8 CHARS · PLAINTEXT ONLY
+                 aria-describedby="{{ $errors->has('password') ? 'password-help password-error' : 'password-help' }}" @if ($errors->has('password')) aria-invalid="true" @endif>
+                @error('password')<p id="password-error" class="admin-field-error">{{ $message }}</p>@enderror
+                <p id="password-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                    At least 8 characters.
                 </p>
             </div>
         </div>
 
-        <div class="mt-4 flex items-center gap-2">
+        <div class="admin-form-actions">
             <button type="submit" class="btn-primary">CREATE ACCOUNT →</button>
             <a href="{{ route('admin.users') }}" class="btn-ghost">CANCEL</a>
         </div>
     </form>
+    </div>
 @endsection

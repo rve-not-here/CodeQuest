@@ -3,15 +3,11 @@
 @section('title', 'User Management')
 
 @section('content')
-    <x-page-header
-        title="User Management"
-        subtitle="Search accounts and manage roles and access."
-        icon="☷"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.users.create') }}" class="btn-primary">+ NEW USER</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>User Management</h1><p>Search accounts and manage roles and access.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.users.create') }}" class="btn-primary">+ NEW USER</a></div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -21,7 +17,7 @@
 
     <h2 class="text-sm font-bold text-phosphor mb-2">Account Directory</h2>
 
-    <form method="GET" action="{{ route('admin.users') }}" class="panel p-4 mb-4">
+    <form method="GET" action="{{ route('admin.users') }}" class="admin-filters">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
                 <label for="q" class="block text-sm font-bold text-phosphor-dim mb-1">
@@ -34,20 +30,22 @@
                     value="{{ $filters['q'] ?? '' }}"
                     placeholder="USERNAME / NAME"
                     class="terminal-input"
-                >
+                 @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
+                @error('q')<p id="q-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="role" class="block text-sm font-bold text-phosphor-dim mb-1">
                     Role
                 </label>
-                <select id="role" name="role" class="terminal-input">
+                <select id="role" name="role" class="terminal-input" @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
                     <option value="">ALL ROLES</option>
                     <option value="student" @selected(($filters['role'] ?? null) === 'student')>STUDENT</option>
                     <option value="teacher" @selected(($filters['role'] ?? null) === 'teacher')>TEACHER</option>
                     <option value="admin" @selected(($filters['role'] ?? null) === 'admin')>ADMIN</option>
                     <option value="operator" @selected(($filters['role'] ?? null) === 'operator')>OPERATOR</option>
                 </select>
+                @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div class="flex items-center gap-2">
@@ -71,22 +69,23 @@
 
     @if ($users->isEmpty())
         <x-status-message type="info" title="NO USERS">
-            No users match the current scan parameters.
+            No users match these filters.
         </x-status-message>
     @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
+        <div class="admin-table-region">
+            <table class="table-stack admin-table" role="table">
+                <caption>Account directory</caption>
                 <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">User</th>
-                        <th class="px-4 py-3">Role</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Created</th>
-                        <th class="px-4 py-3">Last activity</th>
-                        <th class="px-4 py-3">Record</th>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Last activity</th>
+                        <th scope="col">Record</th>
                     </tr>
                 </thead>
-                <tbody class="font-body text-lg">
+                <tbody>
                     @foreach ($users as $row)
                         @php
                             $roleTone = match ($row['role']) {
@@ -98,8 +97,8 @@
                             $statusTone = $row['status'] === 'active' ? 'cyan' : 'amber';
                         @endphp
 
-                        <tr class="border-b border-phosphor-dim/40 align-top">
-                            <td class="px-4 py-3" data-label="User">
+                        <tr>
+                            <th scope="row" data-label="User">
                                 <a
                                     href="{{ route('admin.users.show', $row['id']) }}"
                                     class="text-phosphor hover:underline"
@@ -107,21 +106,21 @@
                                 @if ($row['name'])
                                     <span class="block text-[15px] text-phosphor-dim">{{ $row['name'] }}</span>
                                 @endif
-                            </td>
+                            </th>
 
-                            <td class="px-4 py-3" data-label="Role">
+                            <td data-label="Role">
                                 <x-badge tone="{{ $roleTone }}">{{ strtoupper($row['role']) }}</x-badge>
                             </td>
 
-                            <td class="px-4 py-3" data-label="Status">
+                            <td data-label="Status">
                                 <x-badge tone="{{ $statusTone }}">{{ strtoupper($row['status']) }}</x-badge>
                             </td>
 
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Created">
+                            <td data-label="Created">
                                 {{ $row['createdAt']->format('Y-m-d') }}
                             </td>
 
-                            <td class="px-4 py-3 text-[15px]" data-label="Last activity">
+                            <td data-label="Last activity">
                                 @if ($row['lastActivity'] !== null)
                                     <span class="block text-ink">{{ $row['lastActivity']['message'] }}</span>
                                     <span class="block text-[13px] text-phosphor-dim">{{ $row['lastActivity']['at'] }}</span>
@@ -130,7 +129,7 @@
                                 @endif
                             </td>
 
-                            <td class="px-4 py-3" data-label="Record">
+                            <td data-label="Record">
                                 <a href="{{ route('admin.users.show', $row['id']) }}" class="text-sm font-bold text-cyan hover:underline">
                                     VIEW →
                                 </a>
@@ -162,4 +161,5 @@
             @endif
         </div>
     @endif
+    </div>
 @endsection

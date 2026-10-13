@@ -3,18 +3,14 @@
 @section('title', $course->name.' Boss Challenge')
 
 @section('content')
-    <x-page-header
-        title="Boss Challenge Management"
-        subtitle="{{ $course->name }} — the single Boss Challenge for this course. assessment.status is an access gate: locking or drafting seals the challenge but never rewrites recorded attempts. Grading rules are view-only in this story."
-        icon="◈"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Boss Challenge Management</h1><p>{{ $course->name }} — the single Boss Challenge for this course. Locking or drafting seals the challenge without rewriting recorded attempts. Grading rules are view-only.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
             @if ($assessment !== null)
                 <x-badge tone="{{ $assessment->status === 'active' ? 'cyan' : 'amber' }}">{{ strtoupper($assessment->status) }}</x-badge>
-            @endif
-        </x-slot:actions>
-    </x-page-header>
+            @endif</div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -26,37 +22,38 @@
 
     @if ($assessment === null)
         <x-status-message type="info" title="NO BOSS CHALLENGE">
-            No Boss Challenge is defined for this course yet. Grading authors shall author it through the AssessmentSeeder before it appears here.
+            No Boss Challenge is defined for this course.
         </x-status-message>
     @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
+        <div class="admin-table-region">
+            <table class="table-stack admin-table" role="table">
+                <caption>Course Boss Challenge</caption>
                 <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">Challenge</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Passing Score</th>
-                        <th class="px-4 py-3">Edit</th>
+                    <tr>
+                        <th scope="col">Challenge</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Passing Score</th>
+                        <th scope="col">Edit</th>
                     </tr>
                 </thead>
-                <tbody class="font-body text-lg">
-                    <tr class="border-b border-phosphor-dim/40 align-top">
-                        <td class="px-4 py-3" data-label="Challenge">
+                <tbody>
+                    <tr>
+                        <th scope="row" data-label="Challenge">
                             <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-phosphor hover:underline">
                                 {{ $assessment->title }}
                             </a>
                             <span class="block text-[15px] text-phosphor-dim">{{ $assessment->description }}</span>
-                        </td>
+                        </th>
 
-                        <td class="px-4 py-3" data-label="Status">
+                        <td data-label="Status">
                             <x-badge tone="{{ $assessment->status === 'active' ? 'cyan' : ($assessment->status === 'locked' ? 'amber' : 'dim') }}">{{ strtoupper($assessment->status) }}</x-badge>
                         </td>
 
-                        <td class="px-4 py-3 font-display text-[10px] text-phosphor-dim" data-label="Passing Score">
+                        <td data-label="Passing Score">
                             {{ $assessment->passing_score }}%
                         </td>
 
-                        <td class="px-4 py-3" data-label="Edit">
+                        <td data-label="Edit">
                             <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-sm font-bold text-cyan hover:underline">
                                 EDIT →
                             </a>
@@ -66,4 +63,5 @@
             </table>
         </div>
     @endif
+    </div>
 @endsection

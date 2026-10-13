@@ -3,15 +3,11 @@
 @section('title', 'Course Management')
 
 @section('content')
-    <x-page-header
-        title="Course Management"
-        subtitle="Manage course details, order, and availability. Recorded progress is preserved."
-        icon="▤"
-    >
-        <x-slot:actions>
-            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Course Management</h1><p>Manage course details, order, and availability. Recorded progress is preserved.</p></div>
+        <div class="admin-actions"><x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge></div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -25,24 +21,25 @@
 
     @if ($courses->isEmpty())
         <x-status-message type="info" title="NO COURSES">
-            No course directives are loaded. Awaiting new directives from Command.
+            No courses are available.
         </x-status-message>
     @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
+        <div class="admin-table-region">
+            <table class="table-stack admin-table" role="table">
+                <caption>Course catalog</caption>
                 <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">Order</th>
-                        <th class="px-4 py-3">Course</th>
-                        <th class="px-4 py-3">Type</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Sections</th>
-                        <th class="px-4 py-3">Missions</th>
-                        <th class="px-4 py-3">Challenge</th>
-                        <th class="px-4 py-3">Edit</th>
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Course</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Sections</th>
+                        <th scope="col">Missions</th>
+                        <th scope="col">Challenge</th>
+                        <th scope="col">Edit</th>
                     </tr>
                 </thead>
-                <tbody class="font-body text-lg">
+                <tbody>
                     @foreach ($courses as $course)
                         @php
                             $statusTone = match ($course->status) {
@@ -52,39 +49,39 @@
                             };
                         @endphp
 
-                        <tr class="border-b border-phosphor-dim/40 align-top">
-                            <td class="px-4 py-3 font-display text-[10px] text-phosphor-dim" data-label="Order">
+                        <tr>
+                            <td data-label="Order">
                                 {{ $course->order_num }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Course">
+                            <th scope="row" data-label="Course">
                                 <a href="{{ route('admin.courses.edit', $course) }}" class="text-phosphor hover:underline">
                                     {{ $course->name }}
                                 </a>
                                 <span class="block text-[15px] text-phosphor-dim">{{ $course->slug }}</span>
-                            </td>
+                            </th>
 
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Type">
+                            <td data-label="Type">
                                 {{ strtoupper($course->type) }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Status">
+                            <td data-label="Status">
                                 <x-badge tone="{{ $statusTone }}">{{ strtoupper($course->status) }}</x-badge>
                             </td>
 
-                            <td class="px-4 py-3" data-label="Sections">
+                            <td data-label="Sections">
                                 <a href="{{ route('admin.courses.sections', $course) }}" class="text-sm font-bold text-cyan hover:underline">
                                     {{ $course->sections_count }} ▸
                                 </a>
                             </td>
 
-                            <td class="px-4 py-3" data-label="Missions">
+                            <td data-label="Missions">
                                 <a href="{{ route('admin.courses.missions', $course) }}" class="text-sm font-bold text-cyan hover:underline">
                                     {{ $course->missions_count }} ▸
                                 </a>
                             </td>
 
-                            <td class="px-4 py-3" data-label="Challenge">
+                            <td data-label="Challenge">
                                 @if ($course->assessment_count > 0)
                                     <a href="{{ route('admin.courses.assessment', $course) }}" class="text-sm font-bold text-cyan hover:underline">
                                         1 ▸
@@ -94,7 +91,7 @@
                                 @endif
                             </td>
 
-                            <td class="px-4 py-3" data-label="Edit">
+                            <td data-label="Edit">
                                 <a href="{{ route('admin.courses.edit', $course) }}" class="text-sm font-bold text-cyan hover:underline">
                                     EDIT →
                                 </a>
@@ -105,4 +102,5 @@
             </table>
         </div>
     @endif
+    </div>
 @endsection
