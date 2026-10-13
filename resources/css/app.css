@@ -2481,3 +2481,37 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
     .admin-membership-layout { gap: 32px; }
     .admin-report-filters > div { flex-basis: 100%; }
 }
+
+/* Mission Atlas guest authentication */
+.guest-access { max-width: 1120px; margin-inline: auto; padding-inline: 48px; }
+.guest-access-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; border-bottom: 1px solid var(--color-line); }
+.guest-access-system { color: var(--color-fg-muted); font: 400 0.75rem / 1.5 var(--font-mono); letter-spacing: 0.04em; }
+.guest-access-layout { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 96px; padding-block: 64px 48px; }
+.guest-access-form { min-width: 0; scroll-margin-top: 24px; }
+.guest-access-form h1 { margin: 0; color: var(--color-fg); font-size: 2rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.03em; }
+.guest-access-intro { margin-top: 12px; color: var(--color-fg-muted); font-size: 1rem; line-height: 1.625; }
+.guest-access-form form { display: grid; gap: 24px; margin-top: 32px; }
+.guest-access-field { min-width: 0; }
+.guest-access-field label { display: block; margin-bottom: 8px; color: var(--color-fg); font-size: 0.875rem; font-weight: 500; }
+.guest-access-field .terminal-input { min-height: 48px; padding: 12px; font: 400 1rem / 1.5 var(--font-sans); background: var(--color-surface); border-radius: 2px; }
+.guest-access-field .terminal-input[aria-invalid="true"] { border-color: var(--color-danger); }
+.guest-access-field-error { margin-top: 8px; color: var(--color-danger); font-size: 0.875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.guest-access-form .btn-primary { width: 100%; min-height: 48px; margin-top: 8px; }
+.guest-access-record { margin-top: 16px; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.5; }
+.guest-access-errors { margin-top: 24px; overflow-wrap: anywhere; }
+.guest-access-errors ul { display: grid; gap: 8px; margin-top: 8px; }
+.guest-access-errors a { text-decoration: underline; text-underline-offset: 3px; }
+.guest-access-context { align-self: start; min-width: 0; padding-top: 24px; border-top: 1px solid var(--color-line); }
+.guest-access-context h2 { margin: 0; color: var(--color-fg); font-size: 1.5rem; font-weight: 500; line-height: 1.333; letter-spacing: -0.02em; }
+.guest-access-context p { max-width: 32ch; margin-top: 24px; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.6; }
+@media (max-width: 899.9px) {
+    .guest-access { padding-inline: 24px; }
+    .guest-access-layout { grid-template-columns: minmax(0, 1fr); gap: 40px; max-width: 440px; margin-inline: auto; padding-block: 40px; }
+    .guest-access-form h1 { font-size: 1.75rem; }
+    .guest-access-context p { max-width: none; margin-top: 16px; }
+}
+@media (max-width: 479.9px) {
+    .guest-access { padding-inline: 16px; }
+    .guest-access-header { min-height: 64px; gap: 12px; }
+    .guest-access-layout { padding-top: 32px; }
+}

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -15,10 +17,42 @@ class AuthTest extends TestCase
     {
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('Restore the system.')
+            ->assertSee('Access CodeQuest')
             ->assertSee('Sign in')
             ->assertDontSee('Remember me')
-            ->assertSee('Operators sign in to continue their mission.');
+            ->assertDontSee('Register')
+            ->assertDontSee('Forgot password')
+            ->assertSee('autocomplete="username"', false)
+            ->assertSee('autocomplete="current-password"', false);
+    }
+
+    public function test_login_associates_field_errors_with_their_inputs(): void
+    {
+        $errors = new ViewErrorBag;
+        $errors->put('default', new MessageBag([
+            'username' => 'The username field is required.',
+            'password' => 'The password field is required.',
+        ]));
+
+        $this->view('auth.login', ['errors' => $errors])
+            ->assertSee('href="#username"', false)
+            ->assertSee('href="#password"', false)
+            ->assertSee('aria-describedby="username-error"', false)
+            ->assertSee('aria-describedby="password-error"', false)
+            ->assertSee('id="username-error"', false)
+            ->assertSee('id="password-error"', false)
+            ->assertSee('aria-invalid="true"', false);
+    }
+
+    public function test_login_account_error_does_not_link_to_a_missing_field(): void
+    {
+        $errors = new ViewErrorBag;
+        $errors->put('default', new MessageBag(['account' => 'This account has been deactivated.']));
+
+        $this->view('auth.login', ['errors' => $errors])
+            ->assertSee('This account has been deactivated.')
+            ->assertDontSee('href="#account"', false)
+            ->assertDontSee('aria-invalid="true"', false);
     }
 
     public function test_guest_is_redirected_to_login_when_protecting_dashboard(): void
