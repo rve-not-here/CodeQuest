@@ -20,6 +20,36 @@ class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_dashboard_provides_management_destinations_in_its_main_content(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $content = $this->actingAs($admin)->get(route('admin.dashboard'))->getContent();
+        $start = strpos($content, '<main');
+        $end = strpos($content, '</main>');
+        $this->assertNotFalse($start);
+        $this->assertNotFalse($end);
+        $main = substr($content, $start, $end - $start);
+
+        foreach (['admin.users', 'admin.classrooms', 'admin.courses', 'admin.announcements', 'admin.activity', 'admin.analytics', 'admin.system'] as $route) {
+            $this->assertStringContainsString(route($route), $main);
+        }
+    }
+
+    public function test_dashboard_names_audit_columns_and_preserves_recorded_result(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->audit($admin, 'Refused account status change', now(), 'failed');
+
+        $this->actingAs($admin)->get(route('admin.dashboard'))
+            ->assertSee('<caption>Recent administrative actions</caption>', false)
+            ->assertSee('<th scope="col">Actor</th>', false)
+            ->assertSee('<th scope="col">Recorded action</th>', false)
+            ->assertSee('<th scope="col">Result</th>', false)
+            ->assertSee('Refused account status change')
+            ->assertSee('FAILED');
+    }
+
     public function test_dashboard_metrics_are_derived_from_live_records(): void
     {
         $admin = User::factory()->admin()->create();
@@ -47,7 +77,7 @@ class AdminDashboardTest extends TestCase
         $this->assertSame(1, $metrics['course_completions']);
     }
 
-    public function test_dashboard_page_renders_stat_panels_and_recent_system_activity(): void
+    public function test_dashboard_page_renders_counts_and_recent_system_activity(): void
     {
         $admin = User::factory()->admin()->create(['username' => 'chief_admin']);
         $student = User::factory()->create(['username' => 'dashboard_cadet']);
@@ -61,7 +91,7 @@ class AdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Admin Console')
-            ->assertSee('Accounts')
+            ->assertSee('Users')
             ->assertSee('Curriculum')
             ->assertSee('Assessments')
             ->assertSee('Learning')
@@ -177,7 +207,7 @@ class AdminDashboardTest extends TestCase
         ]);
     }
 
-    private function audit(User $admin, string $summary, Carbon $at): void
+    private function audit(User $admin, string $summary, Carbon $at, string $result = 'success'): void
     {
         (new AdminAudit)->forceFill([
             'admin_user_id' => $admin->id,
@@ -186,7 +216,7 @@ class AdminDashboardTest extends TestCase
             'target_type' => 'user',
             'target_id' => 1,
             'summary' => $summary,
-            'result' => 'success',
+            'result' => $result,
             'created_at' => $at,
         ])->save();
     }

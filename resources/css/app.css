@@ -2321,3 +2321,69 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
 @layer base {
     .teacher-operations .teacher-evidence-table td { border-bottom: 0 !important; }
 }
+
+/* Admin console: management destinations beside the recorded audit trail. */
+.atlas-admin { min-width: 0; color: var(--color-fg); overflow-wrap: anywhere; }
+.atlas-admin h1 { font: 600 2rem / 2.5rem var(--font-sans); }
+.atlas-admin h2 { font: 600 1.5rem / 2rem var(--font-sans); }
+.atlas-admin h3 { font: 600 1rem / 1.625rem var(--font-sans); }
+.admin-context { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 8px 20px; border-bottom: 1px solid var(--color-line); }
+.admin-context p { margin-top: 8px; color: var(--color-fg-muted); line-height: 1.625rem; }
+.admin-state { display: block; color: var(--color-fg-muted); font: 400 0.75rem / 1.25rem var(--font-mono); }
+.admin-context > .admin-state { flex-shrink: 0; }
+.admin-console-layout { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); gap: 40px; }
+.admin-console-layout > div { min-width: 0; }
+.admin-console-section { padding-block: 24px; border-bottom: 1px solid var(--color-line); }
+.admin-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 16px; }
+.admin-console-section > p { font-size: 0.875rem; line-height: 1.375rem; color: var(--color-fg-muted); }
+.admin-counts { display: flex; flex-wrap: wrap; gap: 12px 32px; }
+.admin-counts dt { font-size: 0.875rem; line-height: 1.375rem; color: var(--color-fg-muted); }
+.admin-counts dd { margin-top: 4px; font: 500 1rem / 1.5rem var(--font-mono); }
+.admin-console-section > .admin-note { margin-top: 16px; }
+.admin-console-section > h3 { margin-top: 24px; }
+.admin-record-counts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
+.admin-record-counts > div { display: flex; align-items: baseline; gap: 12px; }
+.admin-record-counts dt { font-size: 0.875rem; line-height: 1.375rem; color: var(--color-fg-muted); }
+.admin-record-counts dd { font: 500 0.875rem / 1.375rem var(--font-mono); }
+.admin-operations-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; margin-top: 12px; }
+.admin-operations-links a { display: flex; align-items: center; min-height: 44px; padding-block: 8px; color: var(--color-fg); font-size: 0.875rem; text-decoration: underline; text-decoration-color: var(--color-line-strong); text-underline-offset: 4px; }
+.admin-operations-links a:hover { color: var(--color-accent); }
+.admin-audit { min-width: 0; padding-block: 24px; }
+.admin-audit > .admin-section-heading { align-items: baseline; }
+.admin-empty { padding-block: 16px; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.375rem; }
+.atlas-admin .admin-audit-table { width: 100%; table-layout: fixed; text-align: left; }
+.admin-audit-table caption { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.atlas-admin .admin-audit-table thead th { padding: 12px; background: var(--color-surface); border-block: 1px solid var(--color-line); font: 500 0.75rem / 1.125rem var(--font-sans); color: var(--color-fg-muted); text-transform: none; letter-spacing: normal; }
+.atlas-admin .admin-audit-table thead th:nth-child(1) { width: 21%; }
+.atlas-admin .admin-audit-table thead th:nth-child(2) { width: 43%; }
+.atlas-admin .admin-audit-table thead th:nth-child(3) { width: 13%; }
+.atlas-admin .admin-audit-table thead th:nth-child(4) { width: 23%; }
+.atlas-admin .admin-audit-table tbody :is(th, td) { padding: 16px 12px; vertical-align: top; text-transform: none; font: 400 0.875rem / 1.375rem var(--font-sans); letter-spacing: normal; }
+.atlas-admin .admin-audit-table tbody tr { border-bottom: 1px solid var(--color-line); }
+.atlas-admin .admin-audit-table tbody tr:hover { background: var(--color-surface); }
+.admin-audit-summary { margin-block: 8px; line-height: 1.375rem; }
+.admin-audit-result[data-result="success"] { color: var(--color-success); }
+.admin-audit-result[data-result="failed"] { color: var(--color-danger); }
+@media (max-width: 1100px) {
+    .admin-console-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .admin-audit { padding-top: 32px; }
+}
+@media (max-width: 767.9px) {
+    .atlas-admin .admin-audit-table, .atlas-admin .admin-audit-table tbody { display: block; width: 100%; }
+    .atlas-admin .admin-audit-table thead { display: block; position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .atlas-admin .admin-audit-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; padding: 20px 0; margin: 0; border: 0; border-bottom: 1px solid var(--color-line); background: transparent; width: 100%; }
+    .atlas-admin .admin-audit-table tbody :is(th, td) { display: block; width: auto; padding: 0; }
+    .atlas-admin .admin-audit-table th[scope="row"], .atlas-admin .admin-audit-table td:nth-child(2) { grid-column: 1 / -1; }
+    .atlas-admin .admin-audit-table :is(th, td)::before { display: block; content: attr(data-label); margin-bottom: 4px; color: var(--color-fg-muted); font: 400 0.75rem / 1.25rem var(--font-sans); text-transform: none; letter-spacing: normal; }
+}
+@media (max-width: 599px) {
+    .atlas-admin h1 { font-size: 1.75rem; line-height: 2.25rem; }
+    .admin-context { align-items: flex-start; flex-direction: column; gap: 16px; }
+    .admin-counts { gap: 16px 24px; }
+    .admin-record-counts { display: block; }
+    .admin-record-counts > div { justify-content: space-between; padding-block: 4px; }
+    .admin-operations-links { grid-template-columns: minmax(0, 1fr); }
+}
+@layer base {
+    .atlas-admin .admin-audit-table td { border-bottom: 0 !important; }
+}
