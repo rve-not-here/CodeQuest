@@ -2242,6 +2242,7 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
 .teacher-operations .teacher-evidence-table th:first-child { width: 24%; }
 .teacher-attention-record { display: grid; grid-template-columns: minmax(200px, 0.65fr) minmax(0, 1.65fr); gap: 40px; padding-block: 28px; border-bottom: 1px solid var(--color-line); }
 .teacher-attention-record header p { margin-top: 8px; color: var(--color-fg-muted); }
+.teacher-attention-record header h2 a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; }
 .teacher-attention-record > div > p + p { margin-top: 8px; }
 .teacher-attention-record .teacher-record-list li { display: block; }
 .teacher-attention-record .teacher-record-list span { display: block; margin-top: 4px; }

@@ -74,6 +74,9 @@ try {
     const waitingForAttempt = ['boss-ready', 'boss-pending'].includes(mode);
     const readySelector = waitingForAttempt ? '[data-workspace-controls]' : '.cm-content';
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
+    if (!waitingForAttempt) {
+        assert.equal(await evaluate(`document.querySelector('.cm-content').getAttribute('aria-label')`), 'Code editor');
+    }
     if (mode === 'challenge-unavailable') {
         assert.equal(await evaluate(`document.querySelector('main').textContent.includes('Your code was not graded and no XP changed')`), true);
         assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')).state.doc.toString()`), '<h1>Try this</h1>');
@@ -106,6 +109,7 @@ try {
             await send('Emulation.setDeviceMetricsOverride', { width, height: 768, deviceScaleFactor: 1, mobile: false });
             await evaluate(`document.querySelector('[data-pane-toggle="brief"]').click(); document.querySelector('[data-workspace-reset]').click()`);
             assert.equal(await evaluate(`document.querySelector('.atlas-boss-state form button').getBoundingClientRect().height >= 44`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-boss > nav a').getBoundingClientRect().height >= 44`), true);
             assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
 
         }
