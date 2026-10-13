@@ -34,6 +34,7 @@ class ShellTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Design System')
+            ->assertSee('Component examples only')
             ->assertSee('CONTINUE LEARNING →')
             ->assertSee('MISSION NOT RESTORED');
     }

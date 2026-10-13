@@ -7,11 +7,36 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_welcome_has_a_real_sign_in_destination_without_invented_progress(): void
+    {
+        $this->get('/')
+            ->assertSee('href="'.route('login').'"', false)
+            ->assertSee('Knowledge Checks')
+            ->assertDontSee('24% complete')
+            ->assertDontSee('STATUS: ONLINE')
+            ->assertDontSee('Create account');
+    }
+
+    #[TestWith(['student', 'dashboard'])]
+    #[TestWith(['teacher', 'students'])]
+    #[TestWith(['admin', 'admin.dashboard'])]
+    #[TestWith(['operator', 'notifications'])]
+    public function test_welcome_links_to_the_existing_role_home(string $role, string $route): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+
+        $this->actingAs($user)->get('/')
+            ->assertSee('Open workspace')
+            ->assertSee('href="'.route($route).'"', false)
+            ->assertDontSee('Create account');
+    }
 
     public function test_guest_can_see_the_login_form(): void
     {

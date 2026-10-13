@@ -2515,3 +2515,20 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
     .guest-access-header { min-height: 64px; gap: 12px; }
     .guest-access-layout { padding-top: 32px; }
 }
+
+/* Public introduction and component catalogue retain the guest reading rhythm. */
+.guest-public-intro { min-width: 0; scroll-margin-top: 24px; }
+.guest-public-intro h1 { margin: 0; color: var(--color-fg); font-size: 2rem; font-weight: 600; line-height: 1.25; }
+.guest-public-intro p { max-width: 42ch; margin-top: 24px; color: var(--color-fg-muted); font-size: 1rem; line-height: 1.625; }
+.guest-public-intro .btn-primary { min-height: 48px; margin-top: 32px; }
+.guest-public-evidence { min-width: 0; border-top: 1px solid var(--color-line); padding-top: 24px; }
+.guest-public-evidence h2 { margin: 0; color: var(--color-fg); font-size: 1.5rem; font-weight: 500; line-height: 1.333; }
+.guest-public-evidence dl { margin-top: 8px; }
+.guest-public-evidence dl > div { padding-block: 20px; border-bottom: 1px solid var(--color-line); }
+.guest-public-evidence dt { color: var(--color-fg); font-size: 0.875rem; font-weight: 600; }
+.guest-public-evidence dd { margin: 8px 0 0; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.6; }
+.guest-public-footer { padding-block: 20px; border-top: 1px solid var(--color-line); color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.5; }
+.guest-catalogue { max-width: 68ch; }
+.guest-catalogue .panel { padding: 24px 0; border: 0; border-top: 1px solid var(--color-line); background: transparent; }
+.guest-catalogue .panel > header { border: 0; padding-bottom: 0; }
+@media (max-width: 899.9px) { .guest-public-intro h1 { font-size: 1.75rem; } }

@@ -113,7 +113,11 @@ class ErrorHandlingTest extends TestCase
         foreach ([403, 404, 419, 429, 500, 503] as $status) {
             $this->get('/_error-probe/'.$status)
                 ->assertStatus($status)
+                ->assertSee('Skip to error details')
+                ->assertSee('id="main" tabindex="-1"', false)
                 ->assertSee('Return to start')
+                ->assertSee('href="/"', false)
+                ->assertDontSee('/build/assets/', false)
                 ->assertDontSee('private runtime detail');
         }
     }
