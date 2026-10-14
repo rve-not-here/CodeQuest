@@ -306,7 +306,14 @@
 
     @media (max-width: 767.9px) {
         .table-stack thead {
-            display: none;
+            display: block;
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
         }
 
         .table-stack,

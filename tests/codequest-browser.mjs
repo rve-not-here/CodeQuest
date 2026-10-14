@@ -151,21 +151,26 @@ async function keyboardNavigation(page, student = false) {
         await page.mouse.click(8, 100);
         check('outside click closes account', await page.locator('.cq-account-menu').evaluate(element => !element.open));
     } else {
-        const trigger = page.getByRole('button', { name: 'Open navigation menu' });
+        const trigger = page.getByLabel('Open navigation menu', { exact: true });
         await trigger.focus();
         await trigger.press('Enter');
-        await page.waitForFunction(() => document.activeElement?.closest('#cq-sidebar'));
-        check('drawer opens by keyboard', await trigger.getAttribute('aria-expanded'), 'true');
+        check('navigation disclosure opens by keyboard', await trigger.evaluate(element => element.closest('details').open));
+        if (await page.locator('[data-navigation-disclosure] a').count()) {
+            await page.keyboard.press('Tab');
+            check('Tab enters navigation links', await page.evaluate(() => document.activeElement.closest('[data-shell-disclosure]') !== null && document.activeElement.tagName === 'A'));
+        }
         await page.keyboard.press('Escape');
-        check('Escape closes drawer', await trigger.getAttribute('aria-expanded'), 'false');
-        check('drawer restores trigger focus', await trigger.evaluate(element => element === document.activeElement));
+        check('Escape closes navigation disclosure', await trigger.evaluate(element => !element.closest('details').open));
+        check('navigation restores trigger focus', await trigger.evaluate(element => element === document.activeElement));
+        await page.getByLabel('Open account menu', { exact: true }).press('Enter');
         check('mobile logout has accessible name', await page.getByRole('button', { name: 'Sign out', exact: true }).count(), 1);
+        await page.keyboard.press('Escape');
     }
 }
 
 async function logout(context, page, student = false) {
     await page.setViewportSize({ width: 390, height: 900 });
-    if (student) await page.getByLabel('Open account menu', { exact: true }).press('Enter');
+    await page.getByLabel('Open account menu', { exact: true }).press('Enter');
     await Promise.all([page.waitForURL('**/login'), page.getByRole('button', { name: 'Sign out', exact: true }).press('Enter')]);
     check('logout returns to login', new URL(page.url()).pathname, '/login');
     const response = await context.request.get(local('/notifications'));
@@ -257,12 +262,14 @@ async function completeHtmlCourse(page) {
         check('HTML Boss preview uses submitted source', await page.locator('#preview-frame').getAttribute('srcdoc'), source);
         check('HTML Boss preview keeps opaque sandbox', await page.locator('#preview-frame').getAttribute('sandbox'), '');
         await inspectLayout(page, 'boss-workspace');
+        await page.locator('[data-pane-toggle="editor"]').press('Enter');
         await submit(page.getByRole('button', { name: 'SUBMIT', exact: true }));
     }
     check('real HTML Boss receives passing server verdict', await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
     check('real HTML course shows cleared confirmation', await page.getByText('COURSE CLEARED.', { exact: true }).count(), 1);
     report.htmlCourse.bossPassed = await page.getByText('VERDICT: PASSED.', { exact: true }).count() === 1;
     await page.locator('.cm-content').waitFor();
+    await page.locator('[data-pane-toggle="preview"]').press('Enter');
     const previewHeading = page.frameLocator('#preview-frame').getByRole('heading', { name: 'Emergency Broadcast', exact: true });
     await previewHeading.waitFor({ state: 'visible' });
     check('HTML Boss result renders saved source in isolated preview', await previewHeading.count(), 1);
@@ -414,7 +421,19 @@ try {
             report.blocked.push('First mission did not complete; inspect grader/configuration feedback. Full course/Boss success was not exercised.');
         }
         await completeHtmlCourse(page);
-        for (const path of ['/progress', '/competency', '/reports/progress']) await navigate(page, path);
+        for (const path of ['/progress', '/competency', '/reports/progress']) {
+            await navigate(page, path);
+            if (path === '/reports/progress') {
+                const accessibility = await page.context().newCDPSession(page);
+                for (const width of [390, 1366]) {
+                    await page.setViewportSize({ width, height: 900 });
+                    const expectedHeaders = await page.locator('thead th').count();
+                    const tree = await accessibility.send('Accessibility.getFullAXTree');
+                    check(`Student report ${width}px preserves column headers`, tree.nodes.filter(node => !node.ignored && node.role?.value === 'columnheader').length, expectedHeaders);
+                }
+                await accessibility.detach();
+            }
+        }
         for (const path of ['/students', '/admin', '/classrooms']) await denied(context, path);
         await logout(context, page, true);
     } catch (error) {

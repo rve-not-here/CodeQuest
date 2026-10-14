@@ -353,7 +353,9 @@ async function course(type) {
     await navigate('/learning-path');
     const rows = page.locator('article').filter({ has: page.getByRole('heading', { name, exact: true }) }).locator('li[data-state]');
     check(`${type} authoritative curriculum count`, await rows.count(), authored.length);
-    const completed = await rows.locator('[aria-label$=", completed"]').evaluateAll(links => links.map(link => link.getAttribute('aria-label').replace(/, completed$/, '')));
+    const completed = await rows.evaluateAll(entries => entries
+        .filter(entry => entry.dataset.domainState === 'COMPLETED')
+        .map(entry => entry.querySelector('h4').textContent.trim()));
     const firstRemaining = authored.find(mission => !completed.includes(mission.title));
     await navigate('/assessments');
     const assessment = page.locator('li[data-assessment-state]').filter({ has: page.getByRole('heading', { name, exact: true }) });
