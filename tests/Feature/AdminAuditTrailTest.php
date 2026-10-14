@@ -23,6 +23,8 @@ class AdminAuditTrailTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.activity'));
 
         $response->assertOk()
+            ->assertSee('<caption>Administrative audit records</caption>', false)
+            ->assertSee('<th scope="col">Recorded action</th>', false)
             ->assertSee('Administrative Audit Trail')
             ->assertSee('trail_admin')
             ->assertSee('Role changed: student → teacher')

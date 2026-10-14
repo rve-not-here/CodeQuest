@@ -109,9 +109,16 @@ class InstructorMonitoringIntegrationTest extends TestCase
         $dashboard = $this->actingAs($teacher)->get(route('students'));
         $dashboard->assertSee('Boss Challenge completed: '.$alphaChallenge->title);
         $dashboard->assertSee('PASS RATE 100%');
-        $summary = $this->panelBodyBetween($dashboard->getContent(), 'panel-title">Assessment Summary');
-        $this->assertStringContainsString('✔ 1 · ▸ 0 ·', $summary);
-        $this->assertStringContainsString('◈ 0 · ○ 0', $summary);
+        $content = $dashboard->getContent();
+        $from = strpos($content, '<h3>'.$alpha->name.'</h3>');
+        $this->assertNotFalse($from);
+        $to = strpos($content, '</article>', $from);
+        $this->assertNotFalse($to);
+        $summary = substr($content, $from, $to - $from);
+        $this->assertStringContainsString('<dt>Complete</dt><dd>1</dd>', $summary);
+        $this->assertStringContainsString('<dt>In progress</dt><dd>0</dd>', $summary);
+        $this->assertStringContainsString('<dt>Boss ready</dt><dd>0</dd>', $summary);
+        $this->assertStringContainsString('<dt>Not started</dt><dd>0</dd>', $summary);
 
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString($beta->name, $roster);
@@ -124,23 +131,23 @@ class InstructorMonitoringIntegrationTest extends TestCase
         $detail = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]));
 
-        $performance = $this->panelBodyBetween($detail->getContent(), 'panel-title">Assessment Performance');
+        $performance = $this->evidenceSection($detail->getContent(), 'id="monitoring-assessment"');
         $this->assertStringContainsString('PASSED', $performance);
         $this->assertStringContainsString('100%', $performance);
         $this->assertStringContainsString($alpha->name, $performance);
 
-        $competency = $this->panelBodyBetween($detail->getContent(), 'panel-title">Competency');
+        $competency = $this->evidenceSection($detail->getContent(), 'id="monitoring-competency"');
         $this->assertStringContainsString('DEMONSTRATED', $competency);
         $this->assertStringContainsString('2/2', $competency);
         $this->assertStringContainsString('PASSED', $competency);
 
         // Course analytics: alpha's panel counts the completed student and a 100% pass
         // rate, all derived from the same attempt and progress records.
-        $alphaPanel = $this->panelBodyBetween(
+        $alphaPanel = $this->evidenceSection(
             $this->actingAs($teacher)->get(route('course-analytics'))->getContent(),
-            'panel-title truncate">'.strtoupper($alpha->name),
+            'id="analytics-course-'.$alpha->id.'"',
         );
-        $this->assertStringContainsString('✔ COMPLETED 1', $alphaPanel);
+        $this->assertStringContainsString('<dt>Completed</dt><dd>1</dd>', $alphaPanel);
         $this->assertStringContainsString('100%', $alphaPanel);
     }
 
@@ -216,29 +223,15 @@ class InstructorMonitoringIntegrationTest extends TestCase
         return User::factory()->teacher()->create(['username' => 'cpu_teacher']);
     }
 
-    /**
-     * The /students page carries system-wide dashboard strips above the roster
-     * (US-609). Roster assertions run against this slice so a username or label
-     * echoed by the recent-activity or assessment-summary strips can never
-     * bleed into a roster assertion.
-     */
     private function rosterBody(string $content): string
     {
-        $from = strpos($content, '<form method="GET"');
+        $from = strpos($content, '<tbody');
+        $to = strpos($content, '</tbody>', $from === false ? 0 : $from);
 
-        if ($from === false) {
-            return '';
-        }
-
-        return substr($content, $from);
+        return $from === false || $to === false ? '' : substr($content, $from, $to - $from);
     }
 
-    /**
-     * Slice the body of a panel: from its title marker to the next panel section
-     * opening. Scope count-based content assertions here so a later panel added
-     * to the page can never silently change a whole-page count.
-     */
-    private function panelBodyBetween(string $content, string $titleMarker): string
+    private function evidenceSection(string $content, string $titleMarker): string
     {
         $from = strpos($content, $titleMarker);
 
@@ -246,7 +239,7 @@ class InstructorMonitoringIntegrationTest extends TestCase
             return '';
         }
 
-        $to = strpos($content, '<section class="panel', $from + strlen($titleMarker));
+        $to = strpos($content, '</section>', $from + strlen($titleMarker));
 
         return $to === false ? substr($content, $from) : substr($content, $from, $to - $from);
     }

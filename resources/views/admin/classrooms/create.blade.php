@@ -3,15 +3,11 @@
 @section('title', 'New Classroom')
 
 @section('content')
-    <x-page-header
-        title="New Classroom"
-        subtitle="Create a classroom, then assign teachers, students, and courses."
-        icon="▣"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>New Classroom</h1><p>Create a classroom, then assign teachers, students, and courses.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a></div>
+    </header>
 
     @if (session('error'))
         <x-status-message type="error" title="WRITE REFUSED" class="mb-4">
@@ -19,39 +15,46 @@
         </x-status-message>
     @endif
 
-    <form method="POST" action="{{ route('admin.classrooms.store') }}" class="panel p-4 max-w-xl">
+    @if ($errors->any())
+        <x-status-message type="error" title="INPUT REJECTED" class="mb-4">
+            <ul>
+                @foreach ($errors->messages() as $field => $messages)
+                    @foreach ($messages as $error)
+                        <li><a href="#{{ Str::before($field, '.') }}">{{ $error }}</a></li>
+                    @endforeach
+                @endforeach
+            </ul>
+        </x-status-message>
+    @endif
+
+    <form method="POST" action="{{ route('admin.classrooms.store') }}" class="admin-form">
         @csrf
 
         <div class="mb-4">
             <label for="name" class="block text-sm font-bold text-phosphor-dim mb-1">Name</label>
-            <input id="name" name="name" type="text" maxlength="128" value="{{ old('name') }}" required class="terminal-input">
-            @error('name')
-                <span class="text-[15px] text-red-600">{{ $message }}</span>
-            @enderror
+            <input id="name" name="name" type="text" maxlength="128" value="{{ old('name') }}" required class="terminal-input" @if ($errors->has('name')) aria-invalid="true" aria-describedby="name-error" @endif>
+                @error('name')<p id="name-error" class="admin-field-error">{{ $message }}</p>@enderror
         </div>
 
         <div class="mb-4">
             <label for="code" class="block text-sm font-bold text-phosphor-dim mb-1">Code (optional)</label>
-            <input id="code" name="code" type="text" maxlength="32" value="{{ old('code') }}" class="terminal-input">
-            @error('code')
-                <span class="text-[15px] text-red-600">{{ $message }}</span>
-            @enderror
+            <input id="code" name="code" type="text" maxlength="32" value="{{ old('code') }}" class="terminal-input" @if ($errors->has('code')) aria-invalid="true" aria-describedby="code-error" @endif>
+                @error('code')<p id="code-error" class="admin-field-error">{{ $message }}</p>@enderror
         </div>
 
         <div class="mb-6">
             <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">Status</label>
-            <select id="status" name="status" class="terminal-input">
+            <select id="status" name="status" class="terminal-input" aria-describedby="{{ $errors->has('status') ? 'status-help status-error' : 'status-help' }}" @if ($errors->has('status')) aria-invalid="true" @endif>
                 <option value="active" @selected(old('status', \App\Models\Classroom::STATUS_ACTIVE) === 'active')>ACTIVE</option>
                 <option value="inactive" @selected(old('status') === 'inactive')>INACTIVE</option>
             </select>
-            <p class="mt-2 text-[15px] text-phosphor-dim">
+                @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
+            <p id="status-help" class="mt-2 text-[15px] text-phosphor-dim">
                 Status is a visibility boundary: only ACTIVE classrooms are visible to their teachers.
             </p>
-            @error('status')
-                <span class="text-[15px] text-red-600">{{ $message }}</span>
-            @enderror
         </div>
 
         <button type="submit" class="btn-ghost">CREATE CLASSROOM →</button>
     </form>
+    </div>
 @endsection

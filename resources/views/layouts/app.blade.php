@@ -56,11 +56,22 @@
     };
 
     $activeRoute = request()->route()?->getName();
-    $topItems = array_values(array_filter(
-        $items,
-        fn ($item) => ! isset($item['heading'])
-            && ($role !== 'student' || in_array($item['route'] ?? null, ['dashboard', 'learning-path', 'notifications'], true)),
-    ));
+    $primaryRoutes = match ($role) {
+        'student' => ['dashboard', 'learning-path', 'assessments'],
+        'teacher', 'instructor' => ['students', 'classrooms', 'needs-attention', 'reports.teacher'],
+        'admin' => ['admin.dashboard', 'admin.users', 'admin.classrooms', 'admin.courses'],
+        default => [],
+    };
+    $topItems = array_values(array_filter($items, fn ($item) => in_array($item['route'] ?? null, $primaryRoutes, true)));
+    $secondaryItems = array_values(array_filter($items, fn ($item) => isset($item['route'])
+        && ! in_array($item['route'], [...$primaryRoutes, 'notifications'], true)
+        && ($authUser !== null || $item['route'] !== 'missions')));
+    $secondaryLabel = match ($role) {
+        'student' => 'Learning record',
+        'teacher', 'instructor' => 'Teaching tools',
+        'admin' => 'Operations',
+        default => 'Tools',
+    };
     $standalone = $standalone ?? false;
     $studentPrototype = ($authUser !== null && $role === 'student') || ($studentPrototype ?? false);
 @endphp
@@ -77,166 +88,22 @@
         @vite('resources/css/student.css')
     @endif
 </head>
-<body class="{{ $studentPrototype ? 'student-ui' : 'console-ui console-ui--'.$role.' bg-surface text-ink font-sans' }} min-h-screen">
+<body class="atlas-ui {{ $studentPrototype ? 'student-ui' : 'console-ui console-ui--'.$role.' bg-surface text-ink font-sans' }} min-h-screen">
     <div class="flex min-h-screen flex-col">
         @unless ($standalone)
-        @if ($studentPrototype)
             @include('components.student-header')
-        @else
-        <header class="cq-topnav sticky top-0 z-40" data-role="{{ $role }}" data-drawer-content>
-            <div class="cq-topnav-inner mx-auto flex max-w-[1536px] items-center gap-4 px-4 md:px-6">
-                @if ($role !== 'student' && ! ($workspace ?? false))
-                <button
-                    id="cq-menu-trigger"
-                    type="button"
-                    class="cq-icon-button cq-menu-trigger -ml-1"
-                    data-open
-                    aria-label="Open navigation menu"
-                    aria-controls="cq-sidebar"
-                    aria-expanded="false"
-                >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                        <path d="M3 6h18M3 12h18M3 18h18" />
-                    </svg>
-                </button>
-                @endif
-
-                <a href="{{ route($homeRoute) }}" class="cq-brand shrink-0" aria-label="CodeQuest home">
-                    <span class="cq-brand-mark" aria-hidden="true">404</span>
-                    <span>
-                        <span class="cq-brand-name">CodeQuest</span>
-                        <span class="cq-brand-subtitle">Learning terminal</span>
-                    </span>
-                </a>
-
-                <nav class="cq-primary-nav" aria-label="Primary">
-                    @foreach ($topItems as $item)
-                        @php
-                            $href = ! empty($item['route']) ? route($item['route']) : ($item['url'] ?? '#');
-                            $isActive = $activeRoute === ($item['route'] ?? null)
-                                || ($role === 'student'
-                                    && ($item['route'] ?? null) === 'learning-path'
-                                    && in_array($activeRoute, [
-                                        'mission.show',
-                                        'mission.challenge',
-                                        'knowledge-check.show',
-                                    ], true));
-                        @endphp
-                        <a
-                            href="{{ $href }}"
-                            class="cq-navlink {{ $isActive ? 'cq-navlink--active' : '' }}"
-                            @if ($isActive) aria-current="page" @endif
-                        >{{ $item['label'] }}</a>
-                    @endforeach
-                </nav>
-
-                <div class="cq-account-area ml-auto flex items-center gap-2 sm:gap-4">
-                    @if ($role !== 'student')
-                    <a href="{{ route('notifications') }}" class="cq-navbar-link" aria-label="Open notifications">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                            <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" />
-                            <path d="M9 19a3 3 0 0 0 6 0" />
-                        </svg>
-                        <span class="hidden sm:inline">Notifications</span>
-                    </a>
-                    @endif
-                    @auth
-                        @if ($role === 'student')
-                            <details class="cq-account-menu">
-                                <summary class="cq-account-trigger" aria-label="Open account menu">
-                                    <span class="cq-avatar" aria-hidden="true">
-                                        {{ strtoupper(substr($displayName, 0, 1)) }}
-                                    </span>
-                                    <span class="cq-account-label">Account</span>
-                                </summary>
-                                <div class="cq-account-popover">
-                                    <p class="truncate font-semibold text-ink">{{ $displayName }}</p>
-                                    <p class="mt-1 text-xs uppercase tracking-[0.1em] text-static">Student account</p>
-                                    <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                                        @csrf
-                                        <button type="submit" class="cq-account-action">Sign out</button>
-                                    </form>
-                                </div>
-                            </details>
-                        @else
-                            <div class="hidden sm:flex items-center gap-2 text-ink text-sm min-w-0">
-                                <span class="cq-avatar">
-                                    {{ strtoupper(substr($displayName, 0, 1)) }}
-                                </span>
-                                <span class="truncate">{{ $displayName }}</span>
-                            </div>
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
-                                @csrf
-                                <button type="submit" class="cq-navbar-link" aria-label="Sign out">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                        <path d="M16 17l5-5-5-5M21 12H9" />
-                                    </svg>
-                                    <span class="hidden md:inline">Sign out</span>
-                                </button>
-                            </form>
-                        @endif
-                    @endauth
-                </div>
-            </div>
-        </header>
-        @endif
         @endunless
 
         <div class="flex flex-1 min-w-0">
-            {{-- Mobile drawer --}}
-            @if (! $standalone && ! ($workspace ?? false) && $role !== 'student')
-            <div
-                id="cq-backdrop"
-                data-close
-                class="fixed inset-0 z-40 hidden bg-black/75 lg:hidden"
-                aria-hidden="true"
-            ></div>
-            <aside
-                id="cq-sidebar"
-                class="cq-sidebar fixed inset-y-0 left-0 z-50 flex w-[min(20rem,88vw)] -translate-x-full flex-col transition-transform duration-200 lg:hidden"
-                role="dialog"
-                aria-label="Navigation menu"
-                aria-modal="true"
-                aria-hidden="true"
-                tabindex="-1"
-                inert
-            >
-                <div class="flex items-center justify-between gap-2 border-b border-phosphor/20 px-5 py-5">
-                    <a href="{{ route($homeRoute) }}" class="cq-brand" aria-label="CodeQuest home">
-                        <span class="cq-brand-mark" aria-hidden="true">404</span>
-                        <span class="cq-brand-name">CodeQuest</span>
-                    </a>
-                    <button type="button" data-close data-drawer-initial-focus class="cq-icon-button" aria-label="Close menu">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
-                            <path d="M5 5l14 14M19 5L5 19" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex-1 overflow-y-auto px-3 py-4">
-                    <x-navigation :items="$items" />
-                </div>
-                <div class="mt-auto flex items-center gap-3 border-t border-phosphor/20 px-6 py-4">
-                    <span class="cq-avatar">
-                        {{ strtoupper(substr($displayName, 0, 1)) }}
-                    </span>
-                    <div class="min-w-0">
-                        <p class="truncate text-sm text-ink">{{ $displayName }}</p>
-                        <p class="text-xs uppercase tracking-[0.12em] text-static">{{ $role }} access</p>
-                    </div>
-                </div>
-            </aside>
-            @endif
-
-            <main @if ($studentPrototype) id="main" @endif class="min-w-0 flex-1 {{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}" data-drawer-content>
-                <div class="{{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'mx-auto w-full max-w-[1280px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1180px]')) }}">
+            <main id="main" tabindex="-1" class="min-w-0 flex-1 {{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}">
+                <div class="{{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'mx-auto w-full max-w-[1440px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1440px]')) }}">
                     @yield('content')
                 </div>
             </main>
         </div>
 
         @unless ($standalone || ($workspace ?? false) || $studentPrototype)
-        <footer class="manual-footer" data-drawer-content>
+        <footer class="manual-footer">
             <p>CODEQUEST // SYSTEM 404 LEARNING NETWORK</p>
             <p>STATUS: ONLINE · ACCESS: {{ strtoupper($role) }}</p>
         </footer>

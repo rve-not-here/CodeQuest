@@ -3,15 +3,11 @@
 @section('title', 'Classroom Management')
 
 @section('content')
-    <x-page-header
-        title="Classroom Management"
-        subtitle="Manage classrooms, teacher assignments, student enrollment, and course access."
-        icon="▣"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.classrooms.create') }}" class="btn-primary">+ NEW CLASSROOM</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Classroom Management</h1><p>Manage classrooms, teacher assignments, student enrollment, and course access.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.classrooms.create') }}" class="btn-primary">+ NEW CLASSROOM</a></div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -21,7 +17,7 @@
 
     <h2 class="text-sm font-bold text-phosphor mb-2">Classroom Directory</h2>
 
-    <form method="GET" action="{{ route('admin.classrooms') }}" class="panel p-4 mb-4">
+    <form method="GET" action="{{ route('admin.classrooms') }}" class="admin-filters">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
                 <label for="q" class="block text-sm font-bold text-phosphor-dim mb-1">
@@ -34,18 +30,20 @@
                     value="{{ $filters['q'] ?? '' }}"
                     placeholder="NAME / CODE"
                     class="terminal-input"
-                >
+                 @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
+                @error('q')<p id="q-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
                     Status
                 </label>
-                <select id="status" name="status" class="terminal-input">
+                <select id="status" name="status" class="terminal-input" @if ($errors->has('status')) aria-invalid="true" aria-describedby="status-error" @endif>
                     <option value="">ALL STATUSES</option>
                     <option value="active" @selected(($filters['status'] ?? null) === 'active')>ACTIVE</option>
                     <option value="inactive" @selected(($filters['status'] ?? null) === 'inactive')>INACTIVE</option>
                 </select>
+                @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div class="flex items-center gap-2">
@@ -69,54 +67,55 @@
 
     @if ($classrooms->isEmpty())
         <x-status-message type="info" title="NO CLASSROOMS">
-            No classrooms match the current scan parameters.
+            No classrooms match these filters.
         </x-status-message>
     @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
+        <div class="admin-table-region">
+            <table class="table-stack admin-table" role="table">
+                <caption>Classroom directory</caption>
                 <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">Classroom</th>
-                        <th class="px-4 py-3">Code</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Teachers</th>
-                        <th class="px-4 py-3">Students</th>
-                        <th class="px-4 py-3">Courses</th>
-                        <th class="px-4 py-3">Edit</th>
+                    <tr>
+                        <th scope="col">Classroom</th>
+                        <th scope="col">Code</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Teachers</th>
+                        <th scope="col">Students</th>
+                        <th scope="col">Courses</th>
+                        <th scope="col">Edit</th>
                     </tr>
                 </thead>
-                <tbody class="font-body text-lg">
+                <tbody>
                     @foreach ($classrooms as $classroom)
-                        <tr class="border-b border-phosphor-dim/40 align-top">
-                            <td class="px-4 py-3" data-label="Classroom">
+                        <tr>
+                            <th scope="row" data-label="Classroom">
                                 <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-phosphor hover:underline">
                                     {{ $classroom->name }}
                                 </a>
-                            </td>
+                            </th>
 
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Code">
+                            <td data-label="Code">
                                 {{ $classroom->code ?? '—' }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Status">
+                            <td data-label="Status">
                                 <x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">
                                     {{ $classroom->status }}
                                 </x-badge>
                             </td>
 
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Teachers">
+                            <td data-label="Teachers">
                                 {{ $classroom->teachers_count }}
                             </td>
 
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Students">
+                            <td data-label="Students">
                                 {{ $classroom->students_count }}
                             </td>
 
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Courses">
+                            <td data-label="Courses">
                                 {{ $classroom->courses_count }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Edit">
+                            <td data-label="Edit">
                                 <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-sm font-bold text-cyan hover:underline">
                                     EDIT →
                                 </a>
@@ -131,4 +130,5 @@
             {{ $classrooms->links() }}
         </div>
     @endif
+    </div>
 @endsection

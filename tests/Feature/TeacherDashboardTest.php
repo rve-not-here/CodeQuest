@@ -144,6 +144,41 @@ class TeacherDashboardTest extends TestCase
             ->assertSee('NO TRAINEES');
     }
 
+    public function test_attention_summary_is_distinct_from_the_filtered_roster(): void
+    {
+        $course = $this->course('Scope', 1, 2, 70);
+        $flagged = $this->student('flagged_student');
+        $focused = $this->student('focused_student');
+        $this->completeAll($flagged, $this->missions($course));
+        $this->attempt($flagged, $course->assessment, 'failed', 40);
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$flagged, $focused], [$course]);
+
+        $this->actingAs($teacher)->get(route('students', ['q' => 'focused_student']))
+            ->assertViewHas('dashboardMetrics', fn (array $metrics): bool => $metrics['total_students'] === 2 && $metrics['needs_attention'] === 1)
+            ->assertViewHas('students', fn ($students): bool => $students->total() === 1)
+            ->assertSee('Attention covers your classroom scope. Roster filters do not narrow this count.')
+            ->assertSee('1 student matches the current filters.')
+            ->assertSee(route('needs-attention'));
+    }
+
+    public function test_dashboard_names_roster_columns_and_assessment_buckets(): void
+    {
+        $course = $this->course('Evidence', 1, 1, 70);
+        $student = $this->student('evidence_student');
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)->get(route('students'))
+            ->assertSee('<caption>Current learning evidence</caption>', false)
+            ->assertSee('<th scope="col">Student</th>', false)
+            ->assertSee('<th scope="col">Boss Challenge</th>', false)
+            ->assertSee('<dt>Complete</dt>', false)
+            ->assertSee('<dt>In progress</dt>', false)
+            ->assertSee('<dt>Boss ready</dt>', false)
+            ->assertSee('<dt>Not started</dt>', false);
+    }
+
     public function test_roster_last_activity_matches_the_activity_strip_beat_vocabulary(): void
     {
         $course = $this->course('Alpha', 1, 2, 100);
@@ -182,17 +217,12 @@ class TeacherDashboardTest extends TestCase
         return now()->startOfDay()->subDays($days)->addHours(6);
     }
 
-    /**
-     * The /students page carries system-wide dashboard strips above the roster
-     * (US-609). Roster assertions run against this slice so a label echoed by
-     * the recent-activity or assessment-summary strips can never bleed into a
-     * roster-column assertion.
-     */
     private function rosterBody(string $content): string
     {
-        $from = strpos($content, '<form method="GET"');
+        $from = strpos($content, '<tbody');
+        $to = strpos($content, '</tbody>', $from === false ? 0 : $from);
 
-        return $from === false ? '' : substr($content, $from);
+        return $from === false || $to === false ? '' : substr($content, $from, $to - $from);
     }
 
     private function teacher(): User

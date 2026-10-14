@@ -10,12 +10,31 @@ class ShellTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_dismissible_status_messages_do_not_need_live_region_semantics(): void
+    {
+        $this->blade('<x-status-message dismissible>Draft saved</x-status-message>')
+            ->assertSee('data-status-message', false)
+            ->assertSee('data-dismiss', false)
+            ->assertDontSee('role=', false)
+            ->assertDontSee('aria-live=', false)
+            ->assertDontSee('aria-atomic=', false);
+    }
+
+    public function test_error_status_messages_retain_alert_semantics_and_dismiss_hook(): void
+    {
+        $this->blade('<x-status-message type="error" dismissible>Save failed</x-status-message>')
+            ->assertSee('role="alert"', false)
+            ->assertSee('data-status-message', false)
+            ->assertSee('data-dismiss', false);
+    }
+
     public function test_the_shell_renders_the_design_system(): void
     {
         $response = $this->get(route('shell'));
 
         $response->assertOk()
             ->assertSee('Design System')
+            ->assertSee('Component examples only')
             ->assertSee('CONTINUE LEARNING →')
             ->assertSee('MISSION NOT RESTORED');
     }

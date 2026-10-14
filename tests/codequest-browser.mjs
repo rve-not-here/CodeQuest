@@ -14,8 +14,31 @@ assert.ok(artifacts.startsWith('/tmp/'), 'Keep browser artifacts under /tmp.');
 await mkdir(artifacts, { recursive: true });
 const report = { assertions: [], layouts: [], screenshots: [], pageErrors: [], serverErrors: [], consoleErrors: [], blocked: [], failures: [], artifacts };
 const browser = await chromium.launch({ executablePath: process.env.CODEQUEST_CHROMIUM || undefined, args: ['--no-sandbox'] });
-const widths = [390, 768, 1280, 1920];
 let activeRole;
+
+if (process.env.CODEQUEST_BROWSER_SHELL_ONLY === '1') {
+    await inspectShells();
+    await browser.close();
+    await writeFile(join(artifacts, 'shell-report.json'), JSON.stringify(report, null, 2));
+    console.log(JSON.stringify(report));
+    process.exit(report.failures.length ? 1 : 0);
+}
+
+if (process.env.CODEQUEST_BROWSER_PATH_ONLY === '1') {
+    try {
+        await inspectLearningPath();
+    } catch (error) {
+        report.failures.push(error.message);
+    } finally {
+        await browser.close();
+    }
+    report.failures.push(...report.pageErrors.map(error => error.message), ...report.serverErrors.map(error => `HTTP ${error.status}`));
+    await writeFile(join(artifacts, 'path-report.json'), JSON.stringify(report, null, 2));
+    console.log(JSON.stringify({ assertions: report.assertions.length, failures: report.failures, screenshots: report.screenshots.length }));
+    process.exit(report.failures.length ? 1 : 0);
+}
+
+const widths = [390, 768, 1280, 1920];
 
 function check(name, actual, expected = true) {
     const passed = actual === expected;
@@ -86,6 +109,7 @@ async function login(role) {
     activeRole = role;
     const context = await browser.newContext({ viewport: { width: 390, height: 900 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
+    page.on('dialog', dialog => dialog.accept());
     page.setDefaultTimeout(12000);
     page.on('pageerror', error => {
         if (!report.pageErrors.some(item => item.role === role && item.url === page.url() && item.message === error.message)) {
@@ -127,21 +151,26 @@ async function keyboardNavigation(page, student = false) {
         await page.mouse.click(8, 100);
         check('outside click closes account', await page.locator('.cq-account-menu').evaluate(element => !element.open));
     } else {
-        const trigger = page.getByRole('button', { name: 'Open navigation menu' });
+        const trigger = page.getByLabel('Open navigation menu', { exact: true });
         await trigger.focus();
         await trigger.press('Enter');
-        await page.waitForFunction(() => document.activeElement?.closest('#cq-sidebar'));
-        check('drawer opens by keyboard', await trigger.getAttribute('aria-expanded'), 'true');
+        check('navigation disclosure opens by keyboard', await trigger.evaluate(element => element.closest('details').open));
+        if (await page.locator('[data-navigation-disclosure] a').count()) {
+            await page.keyboard.press('Tab');
+            check('Tab enters navigation links', await page.evaluate(() => document.activeElement.closest('[data-shell-disclosure]') !== null && document.activeElement.tagName === 'A'));
+        }
         await page.keyboard.press('Escape');
-        check('Escape closes drawer', await trigger.getAttribute('aria-expanded'), 'false');
-        check('drawer restores trigger focus', await trigger.evaluate(element => element === document.activeElement));
+        check('Escape closes navigation disclosure', await trigger.evaluate(element => !element.closest('details').open));
+        check('navigation restores trigger focus', await trigger.evaluate(element => element === document.activeElement));
+        await page.getByLabel('Open account menu', { exact: true }).press('Enter');
         check('mobile logout has accessible name', await page.getByRole('button', { name: 'Sign out', exact: true }).count(), 1);
+        await page.keyboard.press('Escape');
     }
 }
 
 async function logout(context, page, student = false) {
     await page.setViewportSize({ width: 390, height: 900 });
-    if (student) await page.getByLabel('Open account menu', { exact: true }).press('Enter');
+    await page.getByLabel('Open account menu', { exact: true }).press('Enter');
     await Promise.all([page.waitForURL('**/login'), page.getByRole('button', { name: 'Sign out', exact: true }).press('Enter')]);
     check('logout returns to login', new URL(page.url()).pathname, '/login');
     const response = await context.request.get(local('/notifications'));
@@ -168,7 +197,7 @@ async function completeHtmlCourse(page) {
     const missions = await htmlCourse().locator('li[data-state]').evaluateAll(rows => rows.map(row => {
         const anchor = row.querySelector('a[href]');
         return {
-            title: anchor?.getAttribute('aria-label')?.replace(/, (available|completed)$/, '') || row.querySelector('h3')?.textContent.trim(),
+            title: row.querySelector('h4')?.textContent.trim(),
             href: anchor?.href,
             completed: row.dataset.state === 'completed',
         };
@@ -233,12 +262,14 @@ async function completeHtmlCourse(page) {
         check('HTML Boss preview uses submitted source', await page.locator('#preview-frame').getAttribute('srcdoc'), source);
         check('HTML Boss preview keeps opaque sandbox', await page.locator('#preview-frame').getAttribute('sandbox'), '');
         await inspectLayout(page, 'boss-workspace');
+        await page.locator('[data-pane-toggle="editor"]').press('Enter');
         await submit(page.getByRole('button', { name: 'SUBMIT', exact: true }));
     }
     check('real HTML Boss receives passing server verdict', await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
     check('real HTML course shows cleared confirmation', await page.getByText('COURSE CLEARED.', { exact: true }).count(), 1);
     report.htmlCourse.bossPassed = await page.getByText('VERDICT: PASSED.', { exact: true }).count() === 1;
     await page.locator('.cm-content').waitFor();
+    await page.locator('[data-pane-toggle="preview"]').press('Enter');
     const previewHeading = page.frameLocator('#preview-frame').getByRole('heading', { name: 'Emergency Broadcast', exact: true });
     await previewHeading.waitFor({ state: 'visible' });
     check('HTML Boss result renders saved source in isolated preview', await previewHeading.count(), 1);
@@ -390,7 +421,19 @@ try {
             report.blocked.push('First mission did not complete; inspect grader/configuration feedback. Full course/Boss success was not exercised.');
         }
         await completeHtmlCourse(page);
-        for (const path of ['/progress', '/competency', '/reports/progress']) await navigate(page, path);
+        for (const path of ['/progress', '/competency', '/reports/progress']) {
+            await navigate(page, path);
+            if (path === '/reports/progress') {
+                const accessibility = await page.context().newCDPSession(page);
+                for (const width of [390, 1366]) {
+                    await page.setViewportSize({ width, height: 900 });
+                    const expectedHeaders = await page.locator('thead th').count();
+                    const tree = await accessibility.send('Accessibility.getFullAXTree');
+                    check(`Student report ${width}px preserves column headers`, tree.nodes.filter(node => !node.ignored && node.role?.value === 'columnheader').length, expectedHeaders);
+                }
+                await accessibility.detach();
+            }
+        }
         for (const path of ['/students', '/admin', '/classrooms']) await denied(context, path);
         await logout(context, page, true);
     } catch (error) {
@@ -451,4 +494,162 @@ try {
     await writeFile(join(artifacts, 'report.json'), output);
     process.stdout.write(`${output}\n`);
     if (report.failures.length) process.exitCode = 1;
+}
+
+async function inspectShells() {
+    for (const role of ['student', 'teacher', 'admin']) {
+        activeRole = role;
+        const context = await browser.newContext({ reducedMotion: 'reduce' });
+        await context.route('**/*', (route) => {
+            const request = route.request();
+            return request.resourceType() === 'font' || new URL(request.url()).origin !== new URL(base).origin
+                ? route.abort() : route.continue();
+        });
+        const page = await context.newPage();
+        const errors = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(local('/login'));
+        await page.locator('[name="username"]').fill(`demo.${role}`);
+        await page.locator('[name="password"]').fill(password);
+        await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+        await page.waitForLoadState('networkidle');
+        const home = page.url();
+        await context.setOffline(true);
+        for (const [width, height] of [[1920, 1080], [1366, 768], [768, 1024], [390, 844]]) {
+            await page.setViewportSize({ width, height });
+            const label = `${role}-${width}`;
+            const layout = await page.evaluate(() => ({
+                width: innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                canvas: getComputedStyle(document.body).backgroundColor,
+                mainCount: document.querySelectorAll('main').length,
+            }));
+            check(`${label} offline shell works`, await page.evaluate(() => !navigator.onLine));
+            check(`${label} no page overflow`, layout.scrollWidth <= width);
+            check(`${label} canvas`, layout.canvas, 'rgb(17, 20, 22)');
+            check(`${label} main landmark`, layout.mainCount, 1);
+            await page.screenshot({ path: join(artifacts, `${label}.png`), fullPage: true });
+            const account = page.locator('[data-account-disclosure]');
+            await account.locator('summary').focus();
+            await page.keyboard.press('Enter');
+            check(`${label} keyboard account opens`, await account.evaluate((node) => node.open));
+            await page.screenshot({ path: join(artifacts, `${label}-account.png`), fullPage: true });
+            await page.keyboard.press('Escape');
+            check(`${label} account closes`, await account.evaluate((node) => !node.open));
+            check(`${label} account restores focus`, await account.locator('summary').evaluate((node) => node === document.activeElement));
+            await account.locator('summary').click();
+            await page.locator('main').click({ position: { x: 4, y: 4 } });
+            check(`${label} outside click closes account`, await account.evaluate((node) => !node.open));
+            const navigation = page.locator('[data-navigation-disclosure]');
+            if (width < 1200) {
+                await navigation.locator('summary').focus();
+                await page.keyboard.press('Space');
+                check(`${label} keyboard navigation opens`, await navigation.evaluate((node) => node.open));
+                await page.screenshot({ path: join(artifacts, `${label}-navigation.png`), fullPage: true });
+                await page.keyboard.press('Tab');
+                check(`${label} Tab reaches navigation link`, await navigation.locator('a').first().evaluate((node) => node === document.activeElement));
+                await page.keyboard.press('Escape');
+                check(`${label} navigation returns focus`, await navigation.locator('summary').evaluate((node) => node === document.activeElement));
+                check(`${label} navigation closes`, await navigation.evaluate((node) => !node.open));
+            } else {
+                check(`${label} primary navigation visible`, await page.getByRole('navigation', { name: 'Primary', exact: true }).isVisible());
+                const secondary = page.locator('.atlas-secondary');
+                await secondary.locator('summary').focus();
+                await page.keyboard.press('Enter');
+                check(`${label} secondary disclosure opens`, await secondary.evaluate((node) => node.open));
+                await page.screenshot({ path: join(artifacts, `${label}-secondary.png`), fullPage: true });
+                await page.keyboard.press('Tab');
+                check(`${label} secondary links keyboard accessible`, await secondary.locator('a').first().evaluate((node) => node === document.activeElement));
+                await page.keyboard.press('Escape');
+                check(`${label} secondary closes`, await secondary.evaluate((node) => !node.open));
+                check(`${label} secondary focus restored`, await secondary.locator('summary').evaluate((node) => node === document.activeElement));
+            }
+            const shellColors = await page.locator('[data-atlas-shell]').evaluate((node) => {
+                const text = node.querySelector('summary');
+                return { background: getComputedStyle(node).backgroundColor, foreground: getComputedStyle(text).color };
+            });
+            const luminance = (rgb) => {
+                const channels = rgb.match(/[\d.]+/g).slice(0, 3).map((value) => {
+                    const channel = Number(value) / 255;
+                    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+                });
+                return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+            };
+            const contrast = (luminance(shellColors.foreground) + 0.05) / (luminance(shellColors.background) + 0.05);
+            check(`${label} shell text contrast`, contrast >= 4.5);
+            report.layouts.push({ role, width, shellTextContrast: contrast });
+            const controls = await page.locator('[data-atlas-shell] a, [data-atlas-shell] summary').evaluateAll((nodes) => nodes.filter((node) => node.getClientRects().length).map((node) => ({ label: node.textContent.trim(), height: node.getBoundingClientRect().height })));
+            check(`${label} shell controls reach 44px`, controls.every((control) => control.height >= 44));
+            report.layouts.push({ role, width, height, ...layout });
+        }
+        await context.setOffline(false);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await page.waitForLoadState('networkidle');
+        await context.setOffline(true);
+        await page.locator('[data-navigation-disclosure] summary').click();
+        check(`${role} offline navigation works`, await page.locator('[data-navigation-disclosure]').evaluate((node) => node.open));
+        await page.screenshot({ path: join(artifacts, `${role}-offline.png`), fullPage: true });
+        await page.keyboard.press('Escape');
+        const session = await context.newCDPSession(page);
+        await session.send('DOM.enable');
+        await session.send('CSS.enable');
+        const { root } = await session.send('DOM.getDocument');
+        const { nodeId } = await session.send('DOM.querySelector', { nodeId: root.nodeId, selector: '.atlas-brand' });
+        const { fonts } = await session.send('CSS.getPlatformFontsForNode', { nodeId });
+        check(`${role} local font fallback rendered`, fonts.length > 0 && fonts.every((font) => !font.isCustomFont));
+        report.layouts.push({ role, fonts });
+        await context.setOffline(false);
+        await page.setViewportSize({ width: 320, height: 768 });
+        check(`${role} 320px shell fits`, await page.locator('[data-atlas-shell]').evaluate((node) => node.scrollWidth <= innerWidth));
+        await session.send('Emulation.setDeviceMetricsOverride', { width: 683, height: 384, deviceScaleFactor: 2, mobile: false });
+        check(`${role} 200 percent equivalent reflow`, await page.locator('[data-atlas-shell]').evaluate((node) => node.scrollWidth <= innerWidth));
+        await page.screenshot({ path: join(artifacts, `${role}-200-percent-reflow.png`), fullPage: true });
+        await session.send('Emulation.clearDeviceMetricsOverride');
+        await page.goto(home);
+        await page.keyboard.press('Tab');
+        check(`${role} skip link first`, await page.locator('.atlas-skip').evaluate((node) => node === document.activeElement));
+        await page.keyboard.press('Enter');
+        check(`${role} skip link reaches main`, await page.locator('main').evaluate((node) => node === document.activeElement));
+        check(`${role} no page exceptions`, errors.length, 0);
+        await context.close();
+    }
+}
+
+async function inspectLearningPath() {
+    const { context, page } = await login('student');
+    try {
+        await navigate(page, '/learning-path');
+        const courses = page.locator('main article');
+        const missions = page.locator('main li[data-domain-state]');
+        check('catalog has missions', await missions.count() > 0);
+        check('sections are not hidden in accordions', await page.locator('main details[id^="section-"]').count(), 0);
+        check('one Boss endpoint per course', await page.locator('main section[aria-labelledby^="boss-"]').count(), await courses.count());
+        check('locked mission links absent', await page.locator('li[data-state="locked"] a').count(), 0);
+        check('current mission exists', await page.locator('li[aria-current="step"]').count(), 1);
+        for (const [width, height] of [[1920, 1080], [1366, 768], [768, 1024], [390, 844], [683, 768], [341, 768], [320, 844]]) {
+            await page.setViewportSize({ width, height });
+            check(`${width}px no page overflow`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+            check(`${width}px every mission visible`, await missions.locator('h4:visible').count(), await missions.count());
+            const current = page.locator('li[aria-current="step"] a');
+            await current.focus();
+            check(`${width}px primary focus visible`, await current.evaluate(node => node === document.activeElement && getComputedStyle(node).outlineStyle !== 'none'));
+            check(`${width}px primary touch target`, (await current.boundingBox()).height >= 44);
+            await page.keyboard.press('Tab');
+            check(`${width}px Tab reaches following mission`, await page.evaluate(() => document.activeElement.matches('li[data-domain-state] a')));
+            await page.evaluate(() => scrollTo(0, 0));
+            await screenshot(page, 'learning-path', width);
+        }
+        await page.locator('li[aria-current="step"] a').press('Enter');
+        await page.waitForLoadState('networkidle');
+        check('Continue opens the lesson', new URL(page.url()).pathname.startsWith('/missions/'));
+        await navigate(page, '/learning-path');
+        const textBefore = await page.locator('main').innerText();
+        await page.evaluate(() => { for (const sheet of document.styleSheets) sheet.disabled = true; });
+        check('CSS-free current label readable', (await page.locator('main').innerText()).includes('CURRENT'));
+        check('CSS-free locked reason readable', (await page.locator('main').innerText()).includes('Pass earlier courses before opening this course.'));
+        check('CSS-free course content preserved', (await page.locator('main').innerText()).replace(/\s+/g, ' ').trim(), textBefore.replace(/\s+/g, ' ').trim());
+    } finally {
+        await context.close();
+    }
 }

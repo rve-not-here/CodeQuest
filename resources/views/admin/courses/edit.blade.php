@@ -3,15 +3,11 @@
 @section('title', 'Edit '.$course->name)
 
 @section('content')
-    <x-page-header
-        title="Edit Course"
-        subtitle="{{ $course->name }} · Update course details and availability."
-        icon="▤"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ CANCEL</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Edit Course</h1><p>{{ $course->name }} · Update course details and availability.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.courses') }}" class="btn-ghost">◀ CANCEL</a></div>
+    </header>
 
     @if (session('error'))
         <x-status-message type="error" title="CHANGE REJECTED" class="mb-4">
@@ -21,13 +17,17 @@
 
     @if ($errors->any())
         <x-status-message type="error" title="INPUT REJECTED" class="mb-4">
-            @foreach ($errors->all() as $error)
-                {{ $error }}<br>
-            @endforeach
+            <ul>
+                @foreach ($errors->messages() as $field => $messages)
+                    @foreach ($messages as $error)
+                        <li><a href="#{{ Str::before($field, '.') }}">{{ $error }}</a></li>
+                    @endforeach
+                @endforeach
+            </ul>
         </x-status-message>
     @endif
 
-    <form method="POST" action="{{ route('admin.courses.update', $course) }}" class="panel p-4 max-w-2xl">
+    <form method="POST" action="{{ route('admin.courses.update', $course) }}" class="admin-form">
         @csrf
         @method('PUT')
 
@@ -44,7 +44,8 @@
                     required
                     maxlength="128"
                     class="terminal-input"
-                >
+                 @if ($errors->has('name')) aria-invalid="true" aria-describedby="name-error" @endif>
+                @error('name')<p id="name-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -60,8 +61,9 @@
                     maxlength="64"
                     pattern="[a-z0-9-]+"
                     class="terminal-input"
-                >
-                <p class="text-xs font-bold text-phosphor-dim mt-1">
+                 aria-describedby="{{ $errors->has('slug') ? 'slug-help slug-error' : 'slug-help' }}" @if ($errors->has('slug')) aria-invalid="true" @endif>
+                @error('slug')<p id="slug-error" class="admin-field-error">{{ $message }}</p>@enderror
+                <p id="slug-help" class="text-xs font-bold text-phosphor-dim mt-1">
                     KEBAB-CASE, UNIQUE ACROSS COURSES
                 </p>
             </div>
@@ -78,7 +80,8 @@
                     required
                     maxlength="16"
                     class="terminal-input"
-                >
+                 @if ($errors->has('type')) aria-invalid="true" aria-describedby="type-error" @endif>
+                @error('type')<p id="type-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -93,8 +96,9 @@
                     required
                     min="0"
                     class="terminal-input"
-                >
-                <p class="text-xs font-bold text-phosphor-dim mt-1">
+                 aria-describedby="{{ $errors->has('order_num') ? 'order_num-help order_num-error' : 'order_num-help' }}" @if ($errors->has('order_num')) aria-invalid="true" @endif>
+                @error('order_num')<p id="order_num-error" class="admin-field-error">{{ $message }}</p>@enderror
+                <p id="order_num-help" class="text-xs font-bold text-phosphor-dim mt-1">
                     THE SINGLE ORDERING KEY — LOWER RENDERS FIRST
                 </p>
             </div>
@@ -103,14 +107,15 @@
                 <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
                     Status
                 </label>
-                <select id="status" name="status" class="terminal-input">
+                <select id="status" name="status" class="terminal-input" aria-describedby="{{ $errors->has('status') ? 'status-help status-error' : 'status-help' }}" @if ($errors->has('status')) aria-invalid="true" @endif>
                     @foreach (['active', 'locked', 'draft'] as $candidate)
                         <option value="{{ $candidate }}" @selected(old('status', $course->status) === $candidate)>
                             {{ strtoupper($candidate) }}
                         </option>
                     @endforeach
                 </select>
-                <p class="text-xs font-bold text-phosphor-dim mt-1">
+                @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
+                <p id="status-help" class="text-xs font-bold text-phosphor-dim mt-1">
                     CATALOG-LEVEL — NEVER REWRITES STUDENT PROGRESS
                 </p>
             </div>
@@ -124,13 +129,15 @@
                     name="description"
                     rows="4"
                     class="terminal-input"
-                >{{ old('description', $course->description ?? '') }}</textarea>
+                 @if ($errors->has('description')) aria-invalid="true" aria-describedby="description-error" @endif>{{ old('description', $course->description ?? '') }}</textarea>
+                @error('description')<p id="description-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
         </div>
 
-        <div class="mt-4 flex items-center gap-2">
+        <div class="admin-form-actions">
             <button type="submit" class="btn-primary">SAVE COURSE →</button>
             <a href="{{ route('admin.courses') }}" class="btn-ghost">CANCEL</a>
         </div>
     </form>
+    </div>
 @endsection

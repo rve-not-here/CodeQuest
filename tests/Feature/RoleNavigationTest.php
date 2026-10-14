@@ -38,6 +38,23 @@ class RoleNavigationTest extends TestCase
     }
 
     #[DataProvider('roleHomes')]
+    public function test_role_shell_separates_navigation_and_account_disclosures(string $role, string $home): void
+    {
+        $response = $this->actingAs(User::factory()->create(['role' => $role]))
+            ->get(route($home))->assertOk();
+
+        $response->assertSee('href="#main"', false)
+            ->assertSee('id="main"', false)
+            ->assertSee('data-navigation-disclosure', false)
+            ->assertSee('data-account-disclosure', false)
+            ->assertDontSee('id="cq-sidebar"', false);
+
+        preg_match('/<details[^>]*data-account-disclosure[^>]*>(.*?)<\/details>/s', $response->getContent(), $account);
+        $this->assertStringContainsString(route('logout'), $account[1]);
+        $this->assertStringNotContainsString('<nav', $account[1]);
+    }
+
+    #[DataProvider('roleHomes')]
     public function test_role_home_brand_and_offered_navigation_are_authorized(string $role, string $home): void
     {
         $user = User::factory()->create(['role' => $role]);

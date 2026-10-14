@@ -24,6 +24,24 @@ class AdminAnnouncementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_edit_keeps_save_and_publication_forms_separate(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $announcement = Announcement::factory()->create(['created_by' => $admin->id]);
+
+        $content = $this->actingAs($admin)->get(route('admin.announcements.edit', $announcement))->getContent();
+        preg_match_all('/<form\b[^>]*>|<\/form>/', $content, $tags);
+        $depth = 0;
+
+        foreach ($tags[0] as $tag) {
+            $depth += str_starts_with($tag, '</') ? -1 : 1;
+            $this->assertLessThanOrEqual(1, $depth, 'Publication must not be nested inside Save.');
+        }
+
+        $this->assertSame(0, $depth);
+        $this->assertStringContainsString(route('admin.announcements.publish', $announcement), $content);
+    }
+
     public function test_index_lists_announcements_newest_first(): void
     {
         $admin = User::factory()->admin()->create();

@@ -16,126 +16,55 @@ if (editorHost) {
     });
 }
 
-const sidebar = document.getElementById('cq-sidebar');
-const backdrop = document.getElementById('cq-backdrop');
-const sidebarTrigger = document.querySelector('[data-open]');
-let sidebarReturnFocus = null;
+document.querySelectorAll('[data-dismiss]').forEach((button) => {
+    button.addEventListener('click', () => button.closest('[data-status-message]')?.remove());
+});
 
-function sidebarFocusableElements() {
-    return [...(sidebar?.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ) ?? [])];
+const disclosures = [...document.querySelectorAll('[data-shell-disclosure]')];
+
+function closeDisclosure(disclosure, restoreFocus = false) {
+    disclosure.open = false;
+    if (restoreFocus) {
+        disclosure.querySelector('summary')?.focus();
+    }
 }
 
-function setDrawerBackgroundInert(isInert) {
-    document.querySelectorAll('[data-drawer-content]').forEach((element) => {
-        if (isInert) {
-            element.setAttribute('inert', '');
-        } else {
-            element.removeAttribute('inert');
+disclosures.forEach((disclosure) => {
+    disclosure.addEventListener('toggle', () => {
+        if (disclosure.open) {
+            disclosures.filter((other) => other !== disclosure).forEach((other) => closeDisclosure(other));
         }
     });
-}
-
-function openSidebar(opener) {
-    if (!sidebar || !backdrop || !sidebarTrigger) {
-        return;
-    }
-
-    sidebarReturnFocus = opener;
-    sidebar.removeAttribute('inert');
-    sidebar.setAttribute('aria-hidden', 'false');
-    sidebar.classList.remove('-translate-x-full');
-    backdrop.classList.remove('hidden');
-    sidebarTrigger.setAttribute('aria-expanded', 'true');
-    setDrawerBackgroundInert(true);
-    document.documentElement.classList.add('drawer-open');
-
-    window.requestAnimationFrame(() => {
-        (sidebar.querySelector('[data-drawer-initial-focus]') ?? sidebar).focus();
+    disclosure.addEventListener('focusout', (event) => {
+        if (event.relatedTarget && !disclosure.contains(event.relatedTarget)) {
+            closeDisclosure(disclosure);
+        }
     });
-}
-
-function closeSidebar(restoreFocus = true) {
-    if (!sidebar || !backdrop || !sidebarTrigger) {
-        return;
-    }
-
-    sidebar.classList.add('-translate-x-full');
-    sidebar.setAttribute('aria-hidden', 'true');
-    sidebar.setAttribute('inert', '');
-    backdrop.classList.add('hidden');
-    sidebarTrigger.setAttribute('aria-expanded', 'false');
-    setDrawerBackgroundInert(false);
-    document.documentElement.classList.remove('drawer-open');
-
-    if (restoreFocus && sidebarReturnFocus instanceof HTMLElement) {
-        sidebarReturnFocus.focus();
-    }
-}
-
-sidebarTrigger?.addEventListener('click', () => openSidebar(sidebarTrigger));
-
-document.querySelectorAll('[data-close]').forEach((el) => {
-    el.addEventListener('click', closeSidebar);
 });
-
-document.addEventListener('keydown', (e) => {
-    if (sidebar?.getAttribute('aria-hidden') !== 'false') {
-        return;
-    }
-
-    if (e.key === 'Escape') {
-        e.preventDefault();
-        closeSidebar();
-        return;
-    }
-
-    if (e.key !== 'Tab') {
-        return;
-    }
-
-    const focusable = sidebarFocusableElements();
-
-    if (focusable.length === 0) {
-        e.preventDefault();
-        sidebar.focus();
-        return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-    }
-});
-
-window.matchMedia('(min-width: 1024px)').addEventListener('change', (event) => {
-    if (event.matches) {
-        closeSidebar(false);
-    }
-});
-
-document.querySelectorAll('[data-dismiss]').forEach((btn) => {
-    btn.addEventListener('click', () => btn.closest('[role="status"], [role="alert"]')?.remove());
-});
-
-const accountMenu = document.querySelector('.cq-account-menu');
 
 document.addEventListener('click', (event) => {
-    if (accountMenu?.open && !accountMenu.contains(event.target)) {
-        accountMenu.removeAttribute('open');
-    }
+    disclosures.filter((disclosure) => disclosure.open && !disclosure.contains(event.target))
+        .forEach((disclosure) => closeDisclosure(disclosure));
 });
 
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && accountMenu?.open) {
-        accountMenu.removeAttribute('open');
-        accountMenu.querySelector('summary')?.focus();
+    if (event.key === 'Escape') {
+        const openDisclosure = disclosures.find((disclosure) => disclosure.open);
+        if (openDisclosure) {
+            event.preventDefault();
+            closeDisclosure(openDisclosure, true);
+        }
     }
+});
+
+window.matchMedia('(min-width: 1200px)').addEventListener('change', () => {
+    disclosures.forEach((disclosure) => {
+        if (disclosure.open && !disclosure.getClientRects().length) {
+            const hadFocus = disclosure.contains(document.activeElement);
+            closeDisclosure(disclosure);
+            if (hadFocus) {
+                document.querySelector('.atlas-brand')?.focus();
+            }
+        }
+    });
 });

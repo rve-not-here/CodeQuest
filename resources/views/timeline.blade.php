@@ -3,7 +3,7 @@
 @section('title', 'Timeline')
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
                 <p class="eyebrow">Learning record</p>
@@ -17,36 +17,41 @@
         </header>
 
         @if ($events->isEmpty())
-            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-events-title">
+            <section class="atlas-record-empty" aria-labelledby="no-events-title">
                 <h2 id="no-events-title" class="text-lg font-semibold">NO LEARNING EVENTS</h2>
                 <p class="mt-2 text-sm text-fg-muted">Your completed learning activities will appear here.</p>
             </section>
         @else
             <section class="mt-6" aria-labelledby="events-title">
                 <h2 id="events-title" class="eyebrow mb-3">Recent learning activity</h2>
-                <ol class="panel divide-y divide-line">
-                    @foreach ($events as $event)
-                        @php
-                            [$marker, $markerTone] = match ($event['type']) {
-                                'mission_completed', 'assessment_completed', 'assessment_passed' => ['✓', 'text-accent'],
-                                'wrong_submission', 'assessment_failed' => ['×', 'text-danger'],
-                                'knowledge_check_completed' => ['?', 'text-accent'],
-                                'hint_used', 'solution_revealed', 'section_completed' => ['·', 'text-warning'],
-                                default => ['·', 'text-fg-subtle'],
-                            };
-                        @endphp
-                        <li class="flex min-w-0 flex-wrap items-start gap-3 px-5 py-4 md:flex-nowrap md:px-6" data-event-type="{{ $event['type'] }}">
-                            <span class="grid size-7 shrink-0 place-items-center rounded-sm border border-line font-mono text-xs {{ $markerTone }}" aria-hidden="true">{{ $marker }}</span>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm leading-6 text-fg text-pretty">{{ $event['label'] }}</p>
-                                <time class="mt-1 block font-mono text-xs text-fg-subtle" datetime="{{ $event['at']->toIso8601String() }}">{{ $event['at']->format('M d, Y · H:i') }}</time>
-                            </div>
-                            @if ($event['pts'] !== null && $event['pts'] !== 0)
-                                <span class="badge {{ $event['pts'] > 0 ? 'badge-accent' : 'badge-warning' }}">{{ $event['pts'] > 0 ? '+' : '' }}{{ $event['pts'] }} XP</span>
-                            @endif
-                        </li>
-                    @endforeach
-                </ol>
+                @foreach ($events->groupBy(fn ($event) => $event['at']->format('Y-m-d')) as $date => $dailyEvents)
+                    <section class="atlas-timeline-day" aria-labelledby="day-{{ $date }}">
+                        <h3 id="day-{{ $date }}" class="font-mono text-sm text-fg-muted"><time datetime="{{ $date }}">{{ $dailyEvents->first()['at']->format('F j, Y') }}</time></h3>
+                        <ol class="atlas-timeline-events">
+                            @foreach ($dailyEvents as $event)
+                                @php
+                                    [$marker, $markerTone] = match ($event['type']) {
+                                        'mission_completed', 'assessment_completed', 'assessment_passed' => ['✓', 'text-accent'],
+                                        'wrong_submission', 'assessment_failed' => ['×', 'text-danger'],
+                                        'knowledge_check_completed' => ['?', 'text-accent'],
+                                        'hint_used', 'solution_revealed', 'section_completed' => ['·', 'text-warning'],
+                                        default => ['·', 'text-fg-subtle'],
+                                    };
+                                @endphp
+                                <li class="atlas-timeline-event" data-event-type="{{ $event['type'] }}">
+                                    <span class="grid size-7 shrink-0 place-items-center rounded-sm border border-line font-mono text-xs {{ $markerTone }}" aria-hidden="true">{{ $marker }}</span>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm leading-6 text-fg text-pretty">{{ $event['label'] }}</p>
+                                        <time class="mt-1 block font-mono text-xs text-fg-subtle" datetime="{{ $event['at']->toIso8601String() }}">{{ $event['at']->format('M d, Y · H:i') }}</time>
+                                    </div>
+                                    @if ($event['pts'] !== null && $event['pts'] !== 0)
+                                        <span class="badge {{ $event['pts'] > 0 ? 'badge-accent' : 'badge-warning' }}">{{ $event['pts'] > 0 ? '+' : '' }}{{ $event['pts'] }} XP</span>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ol>
+                    </section>
+                @endforeach
             </section>
         @endif
     </div>

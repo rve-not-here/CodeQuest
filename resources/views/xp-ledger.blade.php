@@ -3,7 +3,7 @@
 @section('title', 'XP Ledger')
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
                 <p class="eyebrow">Learning record</p>
@@ -13,14 +13,14 @@
             <a href="{{ route('timeline') }}" class="btn btn-secondary btn-sm">View Timeline →</a>
         </header>
 
-        <section class="panel mt-6 px-5 py-5 md:px-6" aria-labelledby="balance-title">
+        <section class="atlas-record-summary" aria-labelledby="balance-title">
             <h2 id="balance-title" class="eyebrow">Current balance</h2>
             <p class="mt-2 font-mono text-3xl font-semibold tabular-nums text-fg">XP {{ number_format($balance) }}</p>
             <p class="mt-2 text-xs leading-5 text-fg-muted">Challenges and Boss Challenges can earn XP. Hints, solution reveals, and incorrect submissions can spend it.</p>
         </section>
 
         @if ($transactions->isEmpty())
-            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-transactions-title">
+            <section class="atlas-record-empty" aria-labelledby="no-transactions-title">
                 <h2 id="no-transactions-title" class="text-lg font-semibold">NO TRANSACTIONS</h2>
                 <p class="mt-2 text-sm text-fg-muted">Your XP activity will appear here when you complete or use an XP action.</p>
             </section>
@@ -30,7 +30,7 @@
                     <p class="eyebrow">Learning record</p>
                     <h2 id="transactions-title" class="mt-1 text-lg font-semibold">Transaction history</h2>
                 </div>
-                <ol class="panel divide-y divide-line">
+                <ol class="atlas-record-list">
                     @foreach ($transactions as $transaction)
                         @php
                             $credit = $transaction['direction'] === 'credit';

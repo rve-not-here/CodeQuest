@@ -133,7 +133,8 @@ class LearningPathRecommendationsTest extends TestCase
             ->assertSee('RECOMMENDED NEXT ACTIONS')
             ->assertSee('Hostile Takeover')
             ->assertSee('LOCKED')
-            ->assertSee('Course access is sealed.')
+            ->assertSee('This course is not currently active.')
+            ->assertViewHas('recommendations', fn ($cards): bool => $cards->firstWhere('href', route('mission.show', $mission))['locked_reason'] === 'This course is not currently active.')
             ->assertDontSee(route('mission.show', $mission))
             ->getContent();
 
@@ -268,9 +269,9 @@ class LearningPathRecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('CURRENT SIGNAL')
+            ->assertSee('CURRENT')
             ->assertSee('Next Up')
-            ->assertSee('Validated and recorded.');
+            ->assertSee('COMPLETE');
     }
 
     private function course(string $name): Course

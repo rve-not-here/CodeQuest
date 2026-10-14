@@ -54,6 +54,7 @@ class LearningPathController extends Controller
         $tree = $tree->map(function (array $courseNode) use ($states): array {
             $courseNode['boss'] = $this->bossNode($courseNode, $states[$courseNode['course']->id]);
             $courseNode['accessible'] = $courseNode['course']->status === 'active' && $states[$courseNode['course']->id]['reached'];
+            $courseNode['locked_reason'] = $courseNode['accessible'] ? null : $states[$courseNode['course']->id]['reason'];
 
             return $courseNode;
         });
@@ -81,7 +82,7 @@ class LearningPathController extends Controller
      * accessible. An href with no known target defaults to inaccessible
      * rather than rendering a hopeful link.
      *
-     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>, boss: array{assessment: ?Assessment, state: string, reason: string, accessible: bool}, accessible: bool}>  $tree
+     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>, boss: array{assessment: ?Assessment, state: string, reason: string, accessible: bool}, accessible: bool, locked_reason: ?string}>  $tree
      * @return Collection<int, array{slot: int, title: string, subtitle: string, href: string, cta: string, accessible: bool, locked_reason: ?string}>
      */
     private function accessibleRecommendations(User $user, Collection $tree): Collection
@@ -95,9 +96,7 @@ class LearningPathController extends Controller
                 foreach ($sectionNode['missions'] as $row) {
                     $access[route('mission.show', $row['mission'])] = [
                         'accessible' => ! $locked,
-                        'locked_reason' => $locked
-                            ? 'Course access is sealed. Return when Command restores this course.'
-                            : null,
+                        'locked_reason' => $courseNode['locked_reason'],
                     ];
                 }
             }

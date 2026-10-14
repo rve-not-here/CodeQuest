@@ -78,6 +78,8 @@ JS]);
         $this->actingAs($student)->get(route('mission.show', $mission))->assertSee(route('mission.experiment', $mission));
         $this->get(route('mission.experiment', $mission))
             ->assertOk()->assertSee('Ungraded experiment')->assertSee('RESET EXAMPLE')
+            ->assertSee('data-practice-mode="code"', false)
+            ->assertSee('data-practice-mode="output"', false)
             ->assertDontSee('PRIVATE SOLUTION')->assertDontSee('SUBMIT CHALLENGE');
         $this->post(route('mission.experiment', $mission), ['code' => 'valid', 'passed' => true, 'xp' => 10000])->assertStatus(405);
         $this->get(route('mission.challenge', $mission))->assertRedirect(route('mission.show', $mission));

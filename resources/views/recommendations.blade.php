@@ -3,7 +3,7 @@
 @section('title', 'Recommendations')
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
                 <p class="eyebrow">Next steps</p>
@@ -14,7 +14,7 @@
         </header>
 
         @if ($recommendations->isEmpty())
-            <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="no-recommendations-title">
+            <section class="atlas-record-empty" aria-labelledby="no-recommendations-title">
                 <h2 id="no-recommendations-title" class="text-lg font-semibold">NO RECOMMENDATIONS</h2>
                 <p class="mt-2 text-sm text-fg-muted">Your next steps will appear here as your learning record grows.</p>
             </section>
@@ -24,8 +24,8 @@
                     <p class="eyebrow">Your learning path</p>
                     <h2 id="next-actions-title" class="mt-1 text-lg font-semibold">Next actions</h2>
                 </div>
-                <div class="panel px-5 py-1 md:px-6">
-                    <x-recommendation-cards :recommendations="$recommendations" variant="student" />
+                <div>
+                    <x-recommendation-cards :recommendations="$recommendations" variant="evidence" />
                 </div>
             </section>
         @endif

@@ -3,16 +3,12 @@
 @section('title', $course->name.' Missions')
 
 @section('content')
-    <x-page-header
-        title="Mission Management"
-        subtitle="{{ $course->name }} · Manage challenge content and learning order."
-        icon="⚑"
-    >
-        <x-slot:actions>
-            <a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
-            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>Mission Management</h1><p>{{ $course->name }} · Manage challenge content and learning order.</p></div>
+        <div class="admin-actions"><a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
+            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge></div>
+    </header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -26,35 +22,36 @@
 
     @if ($missions->isEmpty())
         <x-status-message type="info" title="NO MISSIONS">
-            No missions are defined for this course yet. Awaiting directives from Command.
+            No missions are defined for this course.
         </x-status-message>
     @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
+        <div class="admin-table-region">
+            <table class="table-stack admin-table" role="table">
+                <caption>Course missions</caption>
                 <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">Order</th>
-                        <th class="px-4 py-3">Mission</th>
-                        <th class="px-4 py-3">Difficulty</th>
-                        <th class="px-4 py-3">Points</th>
-                        <th class="px-4 py-3">Section</th>
-                        <th class="px-4 py-3">Edit</th>
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Mission</th>
+                        <th scope="col">Difficulty</th>
+                        <th scope="col">Points</th>
+                        <th scope="col">Section</th>
+                        <th scope="col">Edit</th>
                     </tr>
                 </thead>
-                <tbody class="font-body text-lg">
+                <tbody>
                     @foreach ($missions as $mission)
-                        <tr class="border-b border-phosphor-dim/40 align-top">
-                            <td class="px-4 py-3 font-display text-[10px] text-phosphor-dim" data-label="Order">
+                        <tr>
+                            <td data-label="Order">
                                 {{ $mission->order_num }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Mission">
+                            <th scope="row" data-label="Mission">
                                 <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}" class="text-phosphor hover:underline">
                                     {{ $mission->title }}
                                 </a>
-                            </td>
+                            </th>
 
-                            <td class="px-4 py-3 font-display text-[10px]" data-label="Difficulty">
+                            <td data-label="Difficulty">
                                 <x-badge tone="{{ match ($mission->difficulty) {
                                     'HARD' => 'amber',
                                     'MEDIUM' => 'cyan',
@@ -62,15 +59,15 @@
                                 } }}">{{ $mission->difficulty }}</x-badge>
                             </td>
 
-                            <td class="px-4 py-3 font-display text-[10px] text-phosphor-dim" data-label="Points">
+                            <td data-label="Points">
                                 {{ $mission->points }}
                             </td>
 
-                            <td class="px-4 py-3 text-[15px] text-ink truncate max-w-[220px]" data-label="Section">
+                            <td data-label="Section">
                                 {{ $mission->section?->title ?? '—' }}
                             </td>
 
-                            <td class="px-4 py-3" data-label="Edit">
+                            <td data-label="Edit">
                                 <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}" class="text-sm font-bold text-cyan hover:underline">
                                     EDIT →
                                 </a>
@@ -81,4 +78,5 @@
             </table>
         </div>
     @endif
+    </div>
 @endsection

@@ -3,284 +3,215 @@
 @section('title', 'Teacher Dashboard')
 
 @section('content')
-    <x-page-header
-        title="Teacher Dashboard"
-        :subtitle="$role === 'teacher' ? 'Monitor students and assigned courses in your active classrooms.' : 'Monitor student progress across all courses.'"
-        icon="⌂"
-    >
-        <x-slot:actions>
+    <div class="atlas-teacher">
+        <header class="teacher-context">
+            <div>
+                <h1>Teacher Dashboard</h1>
+                <p>{{ $role === 'teacher' ? 'Monitor students and assigned courses in your active classrooms.' : 'Monitor student progress across all courses.' }}</p>
+            </div>
             @if ($role === 'teacher')
                 <a href="{{ route('classrooms') }}" class="btn-ghost">My classrooms →</a>
             @else
-                <x-badge tone="cyan">SYSTEM-WIDE</x-badge>
+                <span class="teacher-state">SYSTEM-WIDE</span>
             @endif
-        </x-slot:actions>
-    </x-page-header>
+        </header>
 
-    @php
-        $links = [
-            'active_students' => route('activity'),
-            'courses_in_progress' => route('course-analytics'),
-            'assessments_passed' => route('course-analytics'),
-            'needs_attention' => route('needs-attention'),
-        ];
-    @endphp
+        <section class="teacher-scope" aria-labelledby="scope-title">
+            <h2 id="scope-title">{{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</h2>
+            <dl>
+                <div><dt>Total students</dt><dd>{{ $dashboardMetrics['total_students'] }}</dd></div>
+                <div><dt>Active (14d)</dt><dd><a href="{{ route('activity') }}">{{ $dashboardMetrics['active_students'] }}<span class="sr-only"> active students, view learning activity</span></a></dd></div>
+                <div><dt>Courses in progress</dt><dd><a href="{{ route('course-analytics') }}">{{ $dashboardMetrics['courses_in_progress'] }}<span class="sr-only"> courses in progress, view course analytics</span></a></dd></div>
+                <div><dt>Assessments passed</dt><dd><a href="{{ route('course-analytics') }}">{{ $dashboardMetrics['assessments_passed'] }}<span class="sr-only"> assessments passed, view course analytics</span></a></dd></div>
+            </dl>
+        </section>
 
-    <div class="console-summary grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-        @foreach ([
-            ['key' => 'total_students', 'label' => 'Total students'],
-            ['key' => 'active_students', 'label' => 'Active (14d)'],
-            ['key' => 'courses_in_progress', 'label' => 'Courses in progress'],
-            ['key' => 'assessments_passed', 'label' => 'Assessments passed'],
-            ['key' => 'needs_attention', 'label' => 'Needs attention'],
-        ] as $tile)
-            @php
-                $tone = $tile['key'] === 'needs_attention' ? 'text-amber' : 'text-phosphor';
-                $href = $links[$tile['key']] ?? null;
-            @endphp
-            <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt hover:border-phosphor-dim/80 transition-colors">
-                <p class="text-xs font-bold text-phosphor-dim mb-1">{{ $tile['label'] }}</p>
-                @if ($href)
-                    <a href="{{ $href }}" class="font-mono text-[22px] leading-none {{ $tone }} hover:underline">
-                        {{ $dashboardMetrics[$tile['key']] }} →
-                    </a>
-                @else
-                    <p class="font-mono text-[22px] leading-none {{ $tone }}">{{ $dashboardMetrics[$tile['key']] }}</p>
-                @endif
-            </div>
-        @endforeach
-    </div>
-
-    <h2 class="text-sm font-bold text-phosphor mb-2">Student Roster</h2>
-
-    <form method="GET" action="{{ route('students') }}" class="panel p-4 mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-            <div>
-                <label for="q" class="block text-sm font-bold text-phosphor-dim mb-1">
-                    Search
-                </label>
-                <input
-                    id="q"
-                    name="q"
-                    type="search"
-                    value="{{ $filters['q'] ?? '' }}"
-                    placeholder="USERNAME / NAME"
-                    class="terminal-input"
-                >
-            </div>
-
-            <div>
-                <label for="course" class="block text-sm font-bold text-phosphor-dim mb-1">
-                    Current course
-                </label>
-                <select id="course" name="course" class="terminal-input">
-                    <option value="">ALL COURSES</option>
-                    @foreach ($filterCourses as $course)
-                        <option
-                            value="{{ $course->id }}"
-                            @selected(($filters['course'] ?? null) == $course->id)
-                        >{{ $course->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
-                    Progress
-                </label>
-                <select id="status" name="status" class="terminal-input">
-                    <option value="">ANY</option>
-                    <option value="in_progress" @selected(($filters['status'] ?? null) === 'in_progress')>IN PROGRESS</option>
-                    <option value="ready" @selected(($filters['status'] ?? null) === 'ready')>READY</option>
-                    <option value="completed" @selected(($filters['status'] ?? null) === 'completed')>ALL CLEARED</option>
-                </select>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button type="submit" class="btn-ghost">FILTER →</button>
-                @if (! empty($filters['q']) || ! empty($filters['course']) || ! empty($filters['status']))
-                    <a href="{{ route('students') }}" class="btn-ghost">CLEAR</a>
-                @endif
-            </div>
+        <div class="teacher-overview">
+            <section class="teacher-attention" aria-labelledby="attention-title">
+                <h2 id="attention-title">Needs attention</h2>
+                <p class="teacher-attention-count"><span>{{ $dashboardMetrics['needs_attention'] }}</span> {{ Str::plural('student', $dashboardMetrics['needs_attention']) }} flagged</p>
+                <p>Review the complete list for recorded signals and learning evidence.</p>
+                <a href="{{ route('needs-attention') }}" class="btn-primary">View Needs Attention →</a>
+                <p class="teacher-scope-note">{{ $role === 'teacher' ? 'Attention covers your classroom scope. Roster filters do not narrow this count.' : 'Attention covers the platform scope. Roster filters do not narrow this count.' }}</p>
+            </section>
+            <section class="teacher-assessments" aria-labelledby="summary-title">
+                <header class="teacher-section-heading">
+                    <h2 id="summary-title">Assessment Summary</h2>
+                    <a href="{{ route('course-analytics') }}" class="btn-ghost">FULL ANALYTICS →</a>
+                </header>
+                @forelse ($dashboardSummary as $row)
+                    <article class="teacher-course-evidence">
+                        <div>
+                            <h3>{{ $row['course']->name }}</h3>
+                            <p>PASS RATE {{ $row['pass_rate'] !== null ? $row['pass_rate'].'%' : '—' }}</p>
+                        </div>
+                        <dl>
+                            <div><dt>Complete</dt><dd>{{ $row['buckets']['completed'] }}</dd></div>
+                            <div><dt>In progress</dt><dd>{{ $row['buckets']['in_progress'] }}</dd></div>
+                            <div><dt>Boss ready</dt><dd>{{ $row['buckets']['assessment_ready'] }}</dd></div>
+                            <div><dt>Not started</dt><dd>{{ $row['buckets']['not_started'] }}</dd></div>
+                        </dl>
+                    </article>
+                @empty
+                    <p class="teacher-empty">No active course with missions to summarize.</p>
+                @endforelse
+            </section>
         </div>
 
-        @if ($errors->any())
-            <x-status-message type="error" title="QUERY REJECTED" class="mt-3">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </x-status-message>
-        @endif
-    </form>
+        <section class="teacher-roster" aria-labelledby="roster-title">
+            <header class="teacher-section-heading">
+                <h2 id="roster-title">Student Roster</h2>
+                <p class="result-count">{{ $students->total() }} {{ Str::plural('student', $students->total()) }} {{ $students->total() === 1 ? 'matches' : 'match' }} the current filters.</p>
+            </header>
+            <form method="GET" action="{{ route('students') }}" class="teacher-filters">
+                <div class="teacher-filter-fields">
+                    <div>
+                        <label for="q">Search</label>
+                        <input id="q" name="q" type="search" value="{{ $filters['q'] ?? '' }}" placeholder="Username or name" class="terminal-input">
+                    </div>
+                    <div>
+                        <label for="course">Current course</label>
+                        <select id="course" name="course" class="terminal-input">
+                            <option value="">ALL COURSES</option>
+                            @foreach ($filterCourses as $course)
+                                <option value="{{ $course->id }}" @selected(($filters['course'] ?? null) == $course->id)>{{ $course->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="status">Progress</label>
+                        <select id="status" name="status" class="terminal-input">
+                            <option value="">ANY</option>
+                            <option value="in_progress" @selected(($filters['status'] ?? null) === 'in_progress')>IN PROGRESS</option>
+                            <option value="ready" @selected(($filters['status'] ?? null) === 'ready')>READY</option>
+                            <option value="completed" @selected(($filters['status'] ?? null) === 'completed')>ALL CLEARED</option>
+                        </select>
+                    </div>
+                    <div class="teacher-filter-actions">
+                        <button type="submit" class="btn-ghost">FILTER →</button>
+                        @if (! empty($filters['q']) || ! empty($filters['course']) || ! empty($filters['status']))
+                            <a href="{{ route('students') }}" class="btn-ghost">CLEAR</a>
+                        @endif
+                    </div>
+                </div>
+                @if ($errors->any())
+                    <x-status-message type="error" title="QUERY REJECTED" class="mt-3">
+                        @foreach ($errors->all() as $error)
+                            {{ $error }}<br>
+                        @endforeach
+                    </x-status-message>
+                @endif
+            </form>
 
-    <p class="result-count mb-3 text-sm text-ink">{{ $students->total() }} {{ Str::plural('student', $students->total()) }} match the current filters.</p>
-
-    @if ($students->isEmpty())
-        <x-status-message type="info" title="NO TRAINEES">
-            No trainees match the current scan parameters.
-        </x-status-message>
-    @else
-        <div class="panel p-0 overflow-x-auto">
-            <table class="table-stack w-full text-left">
-                <thead>
-                    <tr class="border-b border-phosphor-dim/60 text-sm font-bold text-phosphor-dim">
-                        <th class="px-4 py-3">Trainee</th>
-                        <th class="px-4 py-3">Course</th>
-                        <th class="px-4 py-3">Progress</th>
-                        <th class="px-4 py-3">Assessment</th>
-                        <th class="px-4 py-3">Competency</th>
-                        <th class="px-4 py-3">Last activity</th>
-                        <th class="px-4 py-3">ATTN</th>
-                    </tr>
-                </thead>
-                <tbody class="font-body text-lg">
-                    @foreach ($students as $row)
-                        @php
-                            $stateLabel = strtoupper(str_replace('_', ' ', $row['state']));
-                            $courseTone = match ($row['state']) {
-                                'ready' => 'amber',
-                                'completed' => 'phosphor',
-                                default => 'cyan',
-                            };
-                            $assessmentTone = match ($row['assessment']) {
-                                'ALL CLEARED' => 'phosphor',
-                                'READY' => 'amber',
-                                default => 'dim',
-                            };
-                            $counts = $row['competency'];
-                            $competencyParts = [];
-                            if ($counts['demonstrated'] > 0) {
-                                $competencyParts[] = 'DEMONSTRATED '.$counts['demonstrated'];
-                            }
-                            if ($counts['practicing'] > 0) {
-                                $competencyParts[] = 'PRACTICING '.$counts['practicing'];
-                            }
-                            if ($counts['developing'] > 0) {
-                                $competencyParts[] = 'DEVELOPING '.$counts['developing'];
-                            }
-                            if ($counts['not_started'] > 0) {
-                                $competencyParts[] = 'STARTING '.$counts['not_started'];
-                            }
-                            $competencyLabel = $competencyParts === [] ? '—' : implode(' · ', $competencyParts);
-                        @endphp
-
-                        <tr class="border-b border-phosphor-dim/40 align-top">
-                            <td class="px-4 py-3" data-label="Trainee">
-                                <a
-                                    href="{{ route('student-progress', ['student' => $row['id']]) }}"
-                                    class="text-phosphor hover:underline"
-                                >{{ $row['username'] }}</a>
-                                @if ($row['name'])
-                                    <span class="block text-[15px] text-phosphor-dim">{{ $row['name'] }}</span>
-                                @endif
-                            </td>
-
-                            <td class="px-4 py-3 text-ink" data-label="Course">{{ $row['currentCourse']['name'] ?? '—' }}</td>
-
-                            <td class="px-4 py-3" data-label="Progress">
-                                @if ($row['progress'] !== null)
-                                    <x-badge tone="{{ $courseTone }}">
-                                        {{ $stateLabel }} {{ $row['progress']['completed'] }}/{{ $row['progress']['total'] }} · {{ $row['progress']['percent'] }}%
-                                    </x-badge>
-                                @else
-                                    <span class="text-xs font-bold text-phosphor-dim">ALL CLEARED</span>
-                                @endif
-                            </td>
-
-                            <td class="px-4 py-3" data-label="Assessment">
-                                <x-badge tone="{{ $assessmentTone }}">{{ $row['assessment'] }}</x-badge>
-                            </td>
-
-                            <td class="px-4 py-3 text-[15px] text-ink" data-label="Competency">{{ $competencyLabel }}</td>
-
-                            <td class="px-4 py-3 text-[15px]" data-label="Last activity">
-                                @if ($row['lastActivity'] !== null)
-                                    <span class="block text-ink">{{ $row['lastActivity']['message'] }}</span>
-                                    <span class="block text-[13px] text-phosphor-dim">{{ $row['lastActivity']['at'] }}</span>
-                                @else
-                                    <span class="text-phosphor-dim">—</span>
-                                @endif
-                            </td>
-
-                            <td class="px-4 py-3 text-phosphor-dim" data-label="Attn">—</td>
+            @if ($students->isEmpty())
+                <section class="teacher-empty" aria-labelledby="empty-roster-title">
+                    <h3 id="empty-roster-title">NO TRAINEES</h3>
+                    <p>No students match the current filters in your authorized scope.</p>
+                    @if (! empty($filters['q']) || ! empty($filters['course']) || ! empty($filters['status']))
+                        <a href="{{ route('students') }}" class="btn-ghost">Clear filters →</a>
+                    @elseif ($role === 'teacher')
+                        <a href="{{ route('classrooms') }}" class="btn-ghost">View My Classrooms →</a>
+                    @endif
+                </section>
+            @else
+                <table class="table-stack" role="table">
+                    <caption>Current learning evidence</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Student</th>
+                            <th scope="col">Course</th>
+                            <th scope="col">Progress</th>
+                            <th scope="col">Boss Challenge</th>
+                            <th scope="col">Competency</th>
+                            <th scope="col">Last activity</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            @if ($students->hasPages())
-                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-phosphor-dim/60">
-                    <p class="text-sm font-bold text-phosphor-dim">
-                        SHOWING PAGE {{ $students->currentPage() }} OF {{ $students->lastPage() }}
-                    </p>
-                    <div class="flex items-center gap-2">
-                        @if ($students->onFirstPage())
-                            <span class="btn-ghost opacity-50 pointer-events-none">◀ PREV</span>
-                        @else
-                            <a href="{{ $students->previousPageUrl() }}" class="btn-ghost">◀ PREV</a>
-                        @endif
-
-                        @if ($students->hasMorePages())
-                            <a href="{{ $students->nextPageUrl() }}" class="btn-ghost">NEXT ▶</a>
-                        @else
-                            <span class="btn-ghost opacity-50 pointer-events-none">NEXT ▶</span>
-                        @endif
-                    </div>
-                </div>
+                    </thead>
+                    <tbody>
+                        @foreach ($students as $row)
+                            @php
+                                $stateLabel = strtoupper(str_replace('_', ' ', $row['state']));
+                                $counts = $row['competency'];
+                                $competencyParts = [];
+                                if ($counts['demonstrated'] > 0) {
+                                    $competencyParts[] = 'DEMONSTRATED '.$counts['demonstrated'];
+                                }
+                                if ($counts['practicing'] > 0) {
+                                    $competencyParts[] = 'PRACTICING '.$counts['practicing'];
+                                }
+                                if ($counts['developing'] > 0) {
+                                    $competencyParts[] = 'DEVELOPING '.$counts['developing'];
+                                }
+                                if ($counts['not_started'] > 0) {
+                                    $competencyParts[] = 'STARTING '.$counts['not_started'];
+                                }
+                                $competencyLabel = $competencyParts === [] ? '—' : implode(' · ', $competencyParts);
+                            @endphp
+                            <tr>
+                                <th scope="row" data-label="Student">
+                                    <a href="{{ route('student-progress', ['student' => $row['id']]) }}">{{ $row['username'] }}</a>
+                                    @if ($row['name'])
+                                        <span class="teacher-student-name">{{ $row['name'] }}</span>
+                                    @endif
+                                </th>
+                                <td data-label="Course">{{ $row['currentCourse']['name'] ?? '—' }}</td>
+                                <td data-label="Progress">
+                                    @if ($row['progress'] !== null)
+                                        <span class="teacher-state" data-state="{{ $row['state'] }}">{{ $stateLabel }} {{ $row['progress']['completed'] }}/{{ $row['progress']['total'] }} · {{ $row['progress']['percent'] }}%</span>
+                                    @else
+                                        <span class="teacher-state" data-state="completed">ALL CLEARED</span>
+                                    @endif
+                                </td>
+                                <td data-label="Boss Challenge"><span class="teacher-state" data-state="{{ strtolower(str_replace(' ', '-', $row['assessment'])) }}">{{ $row['assessment'] }}</span></td>
+                                <td data-label="Competency">{{ $competencyLabel }}</td>
+                                <td data-label="Last activity">
+                                    @if ($row['lastActivity'] !== null)
+                                        <span>{{ $row['lastActivity']['message'] }}</span>
+                                        <span class="teacher-activity-time">{{ $row['lastActivity']['at'] }}</span>
+                                    @else
+                                        <span class="text-static">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <nav class="teacher-pagination" aria-label="Student roster pagination">
+                    <p>Showing {{ $students->firstItem() }}–{{ $students->lastItem() }} of {{ $students->total() }} matching students</p>
+                    @if ($students->hasPages())
+                        <div>
+                            <span>SHOWING PAGE {{ $students->currentPage() }} OF {{ $students->lastPage() }}</span>
+                            @if ($students->onFirstPage())
+                                <span class="teacher-page-disabled">◀ PREV</span>
+                            @else
+                                <a href="{{ $students->previousPageUrl() }}" class="btn-ghost">◀ PREV</a>
+                            @endif
+                            @if ($students->hasMorePages())
+                                <a href="{{ $students->nextPageUrl() }}" class="btn-ghost">NEXT ▶</a>
+                            @else
+                                <span class="teacher-page-disabled">NEXT ▶</span>
+                            @endif
+                        </div>
+                    @endif
+                </nav>
             @endif
-        </div>
-    @endif
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
-        <section class="panel p-4">
-            <header class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-phosphor-dim/60">
-                <h2 class="panel-title">Recent Activity</h2>
-                <a href="{{ route('activity') }}" class="text-sm font-bold text-cyan hover:underline">
-                    VIEW ALL →
-                </a>
-            </header>
-
-            @forelse ($dashboardActivity as $beat)
-                <div class="flex items-baseline gap-3 border-b border-phosphor-dim/40 py-1 last:border-0">
-                    <span class="text-sm font-bold text-phosphor shrink-0">
-                        {{ strtoupper($beat['user']['username']) }}
-                    </span>
-                    <span class="font-body text-[15px] text-ink truncate">{{ $beat['label'] }}</span>
-                    <span class="text-xs font-bold text-phosphor-dim shrink-0">
-                        {{ $beat['at']->diffForHumans() }}
-                    </span>
-                </div>
-            @empty
-                <p class="font-body text-[15px] text-ink">No learning activity in the last 14 days.</p>
-            @endforelse
         </section>
 
-        <section class="panel p-4">
-            <header class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-phosphor-dim/60">
-                <h2 class="panel-title">Assessment Summary</h2>
-                <a href="{{ route('course-analytics') }}" class="text-sm font-bold text-cyan hover:underline">
-                    FULL ANALYTICS →
-                </a>
+        <section class="teacher-activity" aria-labelledby="activity-title">
+            <header class="teacher-section-heading">
+                <div><h2 id="activity-title">Recent Activity</h2><p>Recorded learning activity in the last 14 days.</p></div>
+                <a href="{{ route('activity') }}" class="btn-ghost">VIEW ALL →</a>
             </header>
-
-            @forelse ($dashboardSummary as $row)
-                <div class="border-b border-phosphor-dim/40 py-2 last:border-0">
-                    <div class="flex items-baseline justify-between gap-3">
-                        <span class="text-sm font-bold text-phosphor truncate">
-                            {{ strtoupper($row['course']->name) }}
-                        </span>
-                        <span class="text-xs font-bold text-phosphor-dim shrink-0">
-                            PASS RATE {{ $row['pass_rate'] !== null ? $row['pass_rate'].'%' : '—' }}
-                        </span>
-                    </div>
-                    <p class="font-body text-[13px] text-ink mt-1">
-                        ✔ {{ $row['buckets']['completed'] }} · ▸ {{ $row['buckets']['in_progress'] }} ·
-                        ◈ {{ $row['buckets']['assessment_ready'] }} · ○ {{ $row['buckets']['not_started'] }}
-                    </p>
-                </div>
-            @empty
-                <p class="font-body text-[15px] text-ink">No active course with missions to summarize.</p>
-            @endforelse
+            <ol>
+                @forelse ($dashboardActivity as $beat)
+                    <li>
+                        <span class="teacher-activity-student">{{ $beat['user']['username'] }}</span>
+                        <span>{{ $beat['label'] }}</span>
+                        <time datetime="{{ $beat['at']->toIso8601String() }}">{{ $beat['at']->diffForHumans() }}</time>
+                    </li>
+                @empty
+                    <li class="teacher-empty">No learning activity in the last 14 days.</li>
+                @endforelse
+            </ol>
         </section>
     </div>
-
 @endsection

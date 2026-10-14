@@ -46,10 +46,24 @@ class RecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('recommendations'))
             ->assertOk()
+            ->assertSee('<ol aria-label="Recommended actions"', false)
             ->assertSee('PRIORITY 1')
             ->assertSee('Continue Learning')
             ->assertSee('Rusty Lockbox')
             ->assertSee(route('mission.show', $mission));
+    }
+
+    public function test_recommendations_identify_the_first_available_action_after_a_locked_item(): void
+    {
+        $recommendations = collect([
+            ['slot' => 3, 'title' => 'Locked review', 'subtitle' => 'Earlier work', 'href' => '/locked-review', 'cta' => 'REVIEW', 'accessible' => false, 'locked_reason' => 'Course unavailable'],
+            ['slot' => 4, 'title' => 'Next course', 'subtitle' => 'Available course', 'href' => '/learning-path', 'cta' => 'VIEW'],
+        ]);
+
+        $this->blade('<x-recommendation-cards :recommendations="$recommendations" variant="evidence" />', compact('recommendations'))
+            ->assertSeeInOrder(['Locked review', 'LOCKED', 'Next available action', 'Next course'])
+            ->assertDontSee('href="/locked-review"', false)
+            ->assertSee('href="/learning-path"', false);
     }
 
     public function test_the_page_suggests_a_review_for_a_completed_struggled_mission(): void

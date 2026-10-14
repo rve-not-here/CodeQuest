@@ -4,7 +4,7 @@
 
 @section('content')
     @if ($role === 'student')
-        <div class="mx-auto w-full max-w-[1080px]">
+        <div class="atlas-record">
             <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
                 <div>
                     <p class="eyebrow">Your account</p>
@@ -27,7 +27,7 @@
             @endif
 
             @if ($notifications->isEmpty())
-                <section class="panel mt-6 px-6 py-10 text-center" aria-labelledby="empty-inbox-title">
+                <section class="atlas-record-empty" aria-labelledby="empty-inbox-title">
                     <h2 id="empty-inbox-title" class="text-lg font-semibold">INBOX EMPTY</h2>
                     <p class="mt-2 text-sm text-fg-muted">Your learning updates and announcements will appear here.</p>
                 </section>
@@ -42,15 +42,15 @@
                             </form>
                         @endif
                     </div>
-                    <ol class="panel divide-y divide-line">
+                    <ol class="atlas-record-list">
                         @foreach ($notifications as $notification)
                             @php($href = $links[$notification->id] ?? null)
-                            <li class="flex min-w-0 flex-wrap items-start gap-3 px-5 py-4 md:flex-nowrap md:px-6 {{ $notification->read_at !== null ? 'opacity-70' : '' }}">
+                            <li class="flex min-w-0 flex-wrap items-start gap-3 px-5 py-4 md:flex-nowrap md:px-6">
                                 <span class="mt-1 size-2 shrink-0 rounded-full {{ $notification->read_at === null ? 'bg-accent' : 'bg-line-strong' }}" aria-hidden="true"></span>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2">
                                         @if ($href !== null)
-                                            <a href="{{ $href }}" class="text-sm font-semibold text-fg hover:text-accent hover:underline">{{ $notification->title }}</a>
+                                            <a href="{{ $href }}" class="inline-flex min-h-11 items-center text-sm font-semibold text-fg hover:text-accent hover:underline">{{ $notification->title }}</a>
                                         @else
                                             <p class="text-sm font-semibold text-fg">{{ $notification->title }}</p>
                                         @endif

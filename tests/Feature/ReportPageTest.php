@@ -111,7 +111,9 @@ class ReportPageTest extends TestCase
         foreach (['student', 'teacher', 'operator'] as $role) {
             $this->actingAs(User::factory()->create(['role' => $role]))->get(route('reports.admin-system'))->assertForbidden();
         }
-        $this->actingAs(User::factory()->admin()->create())->get(route('reports.admin-system'))->assertOk()->assertSee(route('export.admin-system'))->assertSee('DOWNLOAD PDF');
+        $this->actingAs(User::factory()->admin()->create())->get(route('reports.admin-system'))->assertOk()->assertSee(route('export.admin-system'))->assertSee('DOWNLOAD PDF')
+            ->assertSee('<caption>', false)
+            ->assertSee('<th scope="row"', false);
         $this->get(route('reports.progress'))->assertForbidden();
     }
 }

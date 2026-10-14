@@ -15,6 +15,59 @@ class LearningPathTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_course_lock_reasons_are_independent_of_boss_eligibility(): void
+    {
+        $user = User::factory()->create();
+        $current = Course::factory()->create(['status' => 'active', 'order_num' => 1]);
+        $mission = Mission::factory()->create(['course_id' => $current->id]);
+        Assessment::factory()->create(['course_id' => $current->id, 'status' => 'active']);
+        $later = Course::factory()->create(['status' => 'active', 'order_num' => 2]);
+        Mission::factory()->create(['course_id' => $later->id]);
+        $inactive = Course::factory()->create(['status' => 'locked', 'order_num' => 3]);
+
+        $tree = $this->actingAs($user)->get(route('learning-path'))->assertOk()->viewData('tree')->keyBy('course.id');
+
+        $this->assertArrayHasKey('locked_reason', $tree[$current->id]);
+        $this->assertTrue($tree[$current->id]['accessible']);
+        $this->assertNull($tree[$current->id]['locked_reason']);
+        $this->assertFalse($tree[$current->id]['boss']['accessible']);
+        $this->assertSame('LOCKED', $tree[$current->id]['boss']['state']);
+        $this->assertFalse($tree[$later->id]['accessible']);
+        $this->assertSame('Pass earlier courses before opening this course.', $tree[$later->id]['locked_reason']);
+        $this->assertSame('No Boss Challenge is configured for this course.', $tree[$later->id]['boss']['reason']);
+        $this->assertFalse($tree[$inactive->id]['accessible']);
+        $this->assertSame('This course is not currently active.', $tree[$inactive->id]['locked_reason']);
+
+        Progress::factory()->create(['user_id' => $user->id, 'mission_id' => $mission->id]);
+        $tree = $this->get(route('learning-path'))->assertOk()->viewData('tree')->keyBy('course.id');
+        $this->assertNull($tree[$current->id]['locked_reason']);
+        $this->assertTrue($tree[$current->id]['boss']['accessible']);
+        $this->assertSame('AVAILABLE', $tree[$current->id]['boss']['state']);
+        $this->assertFalse($tree[$later->id]['accessible']);
+        $this->assertSame('Pass earlier courses before opening this course.', $tree[$later->id]['locked_reason']);
+    }
+
+    public function test_sections_and_lock_reasons_remain_visible_in_learning_order(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['name' => 'JavaScript Foundations', 'status' => 'active', 'order_num' => 1]);
+        $first = Section::factory()->create(['course_id' => $course->id, 'title' => 'Values and expressions', 'order_num' => 1]);
+        $second = Section::factory()->create(['course_id' => $course->id, 'title' => 'Functions and events', 'order_num' => 2]);
+        $complete = Mission::factory()->create(['course_id' => $course->id, 'section_id' => $first->id, 'title' => 'Declare a variable', 'order_num' => 1]);
+        Mission::factory()->create(['course_id' => $course->id, 'section_id' => $second->id, 'title' => 'Handle user interaction with accessible event listeners', 'order_num' => 2]);
+        Mission::factory()->create(['course_id' => $course->id, 'section_id' => $second->id, 'title' => 'Update the document', 'order_num' => 3]);
+        Mission::factory()->create(['course_id' => $course->id, 'section_id' => null, 'title' => 'Additional practice', 'order_num' => 4]);
+        Progress::factory()->create(['user_id' => $user->id, 'mission_id' => $complete->id]);
+        Assessment::factory()->create(['course_id' => $course->id, 'title' => 'JavaScript Boss Challenge', 'status' => 'active']);
+        $later = Course::factory()->create(['name' => 'Next course', 'status' => 'active', 'order_num' => 2]);
+        Mission::factory()->create(['course_id' => $later->id, 'title' => 'Next course mission']);
+
+        $this->actingAs($user)->get(route('learning-path'))->assertOk()
+            ->assertDontSee('<details id="section-', false)
+            ->assertSeeInOrder(['Values and expressions', 'Declare a variable', 'Functions and events', 'Update the document', 'Additional practice', 'JavaScript Boss Challenge'])
+            ->assertSee('Pass earlier courses before opening this course.');
+    }
+
     public function test_learning_path_requires_authentication(): void
     {
         $this->get(route('learning-path'))->assertRedirect(route('login'));
@@ -164,7 +217,7 @@ class LearningPathTest extends TestCase
             ->get(route('learning-path'))
             ->assertOk()
             ->assertSee('LOCKED')
-            ->assertSee('Course access is sealed. Return when Command restores this course.')
+            ->assertSee('This course is not currently active.')
             ->assertDontSee(route('mission.show', $mission));
     }
 

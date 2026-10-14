@@ -21,6 +21,21 @@ class CourseAnalyticsTest extends TestCase
     use RefreshDatabase;
     use WithClassroomScope;
 
+    public function test_completion_distribution_has_named_columns(): void
+    {
+        $course = Course::factory()->create(['status' => 'active']);
+        $mission = Mission::factory()->create(['course_id' => $course->id]);
+        $student = User::factory()->create();
+        Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $mission->id]);
+        $teacher = $this->teacher();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        $this->actingAs($teacher)->get(route('course-analytics'))
+            ->assertSee('<caption>Completion distribution</caption>', false)
+            ->assertSee('<th scope="col">Challenge completion</th>', false)
+            ->assertSee('<th scope="col">Students</th>', false);
+    }
+
     public function test_course_analytics_requires_authentication(): void
     {
         $this->get(route('course-analytics'))->assertRedirect(route('login'));
@@ -183,10 +198,10 @@ class CourseAnalyticsTest extends TestCase
             ->assertOk()
             ->assertSee('ALPHA ANALYTICS')
             ->assertSee('STUDENTS 5/6')
-            ->assertSee('COMPLETED 3')
-            ->assertSee('IN PROGRESS 1')
-            ->assertSee('READY 1')
-            ->assertSee('NOT STARTED 1')
+            ->assertSee('<dt>Completed</dt><dd>3</dd>', false)
+            ->assertSee('<dt>In progress</dt><dd>1</dd>', false)
+            ->assertSee('<dt>Boss ready</dt><dd>1</dd>', false)
+            ->assertSee('<dt>Not started</dt><dd>1</dd>', false)
             ->assertSee('Average challenge completion')
             ->assertSee('87%')
             ->assertSeeInOrder(['Boss Challenge pass rate', '75%'])

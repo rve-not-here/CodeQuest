@@ -3,24 +3,15 @@
 @section('title', 'System Analytics')
 
 @section('content')
-    <x-page-header
-        title="System Analytics"
-        subtitle="Fleet-wide statistics across accounts, curriculum, learning, and the XP ledger. Every figure is computed server-side at request time; the page is strictly read-only."
-        icon="Σ"
-    >
-        <x-slot:actions>
-            <x-badge tone="cyan">SYSTEM-WIDE</x-badge>
-            <x-badge tone="amber">READ-ONLY</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="admin-management">
+    <header class="admin-management-context">
+        <div><h1>System Analytics</h1><p>Recorded account, curriculum, learning, and XP evidence. Read-only, system-wide.</p></div>
+        <span class="admin-state">SYSTEM-WIDE · READ-ONLY</span>
+    </header>
 
-    <section class="panel p-4 mb-4">
-        <header class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-phosphor-dim/60">
-            <h2 class="panel-title">XP Administration</h2>
-            <x-badge tone="amber">VIEW ONLY</x-badge>
-        </header>
-
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+    <section class="admin-record-section" aria-labelledby="xp-heading">
+        <div class="admin-section-heading"><h2 id="xp-heading">XP Administration</h2><span class="admin-state">VIEW ONLY</span></div>
+        <dl class="admin-evidence-totals">
             @foreach ([
                 'xp_awarded' => ['Awarded', $xp['awarded']],
                 'xp_spent' => ['Spent', $xp['spent']],
@@ -28,102 +19,67 @@
                 'xp_outstanding' => ['Outstanding', $xp['outstanding']],
                 'xp_accounts' => ['Accounts', $xp['accounts']],
             ] as $key => [$label, $value])
-                <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                    <p class="text-xs font-bold text-phosphor-dim mb-1">{{ $label }}</p>
-                    <p data-metric="{{ $key }}" class="font-display text-[26px] leading-none text-phosphor">{{ $value }}</p>
-                </div>
+                <div><dt>{{ $label }}</dt><dd data-metric="{{ $key }}">{{ $value }}</dd></div>
             @endforeach
-        </div>
-
-        @forelse ($xp['by_type'] as $row)
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="text-xs font-bold text-phosphor-dim border-b border-phosphor-dim/60">
-                        <th class="py-2 pr-3 font-normal">Source</th>
-                        <th class="py-2 pr-3 font-normal">Direction</th>
-                        <th class="py-2 pr-3 font-normal text-right">Entries</th>
-                        <th class="py-2 font-normal text-right">Total</th>
-                    </tr>
-                </thead>
+        </dl>
+        @if ($xp['by_type'] === [])
+            <x-status-message type="info" title="Empty ledger">No XP transactions have been recorded yet.</x-status-message>
+        @else
+            <table class="table-stack admin-table" role="table">
+                <caption>XP ledger sources</caption>
+                <thead><tr><th scope="col">Source</th><th scope="col">Direction</th><th scope="col">Entries</th><th scope="col">Total</th></tr></thead>
                 <tbody>
-                    <tr class="border-b border-phosphor-dim/40 last:border-0">
-                        <td class="py-2 pr-3 font-body text-[15px] text-ink">{{ $row['label'] }}</td>
-                        <td class="py-2 pr-3">
-                            @if ($row['direction'] === 'award')
-                                <x-badge tone="phosphor">CREDIT</x-badge>
-                            @elseif ($row['direction'] === 'spend')
-                                <x-badge tone="cyan">SPEND</x-badge>
-                            @else
-                                <x-badge tone="alert">DEDUCT</x-badge>
-                            @endif
-                        </td>
-                        <td data-metric="xp_entries_{{ $row['type'] }}" class="py-2 pr-3 font-display text-[14px] text-ink text-right">{{ $row['entries'] }}</td>
-                        <td data-metric="xp_total_{{ $row['type'] }}" class="py-2 font-display text-[14px] text-phosphor text-right">{{ $row['total'] }}</td>
-                    </tr>
+                    @foreach ($xp['by_type'] as $row)
+                        <tr>
+                            <th scope="row" data-label="Source">{{ $row['label'] }}</th>
+                            <td data-label="Direction">@if ($row['direction'] === 'award') CREDIT @elseif ($row['direction'] === 'spend') SPEND @else DEDUCT @endif</td>
+                            <td data-label="Entries" data-metric="xp_entries_{{ $row['type'] }}">{{ $row['entries'] }}</td>
+                            <td data-label="Total" data-metric="xp_total_{{ $row['type'] }}">{{ $row['total'] }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
-        @empty
-            <x-status-message type="info" title="Empty ledger">
-                No XP transactions have been recorded yet.
-            </x-status-message>
-        @endforelse
+        @endif
     </section>
 
-    <section class="panel p-4 mb-4">
-        <h2 class="panel-title mb-3">Fleet by Role</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <section class="admin-record-section"><h2>Fleet by Role</h2>
+        <dl class="admin-evidence-totals">
             @foreach ([
                 'role_student' => ['Students', $roles['student'] ?? 0],
                 'role_teacher' => ['Teachers', $roles['teacher'] ?? 0],
                 'role_admin' => ['Admins', $roles['admin'] ?? 0],
                 'role_operator' => ['Operators', $roles['operator'] ?? 0],
             ] as $key => [$label, $value])
-                <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                    <p class="text-xs font-bold text-phosphor-dim mb-1">{{ $label }}</p>
-                    <p data-metric="{{ $key }}" class="font-display text-[26px] leading-none text-phosphor">{{ $value }}</p>
-                </div>
+                <div><dt>{{ $label }}</dt><dd data-metric="{{ $key }}">{{ $value }}</dd></div>
             @endforeach
-        </div>
+        </dl>
     </section>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <section class="panel p-4">
-            <h2 class="panel-title mb-3">Users</h2>
-            <div class="grid grid-cols-2 gap-3">
-                @foreach ([
+    <section class="admin-record-section"><h2>Users</h2>
+        <dl class="admin-evidence-totals">
+            @foreach ([
                     'users_total' => 'Total',
                     'users_active' => 'Active',
                     'users_inactive' => 'Inactive',
                 ] as $key => $label)
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">{{ $label }}</p>
-                        <p data-metric="{{ $key }}" class="font-display text-[26px] leading-none text-phosphor">{{ $system[$key] }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="panel p-4">
-            <h2 class="panel-title mb-3">Curriculum</h2>
-            <div class="grid grid-cols-2 gap-3">
-                @foreach ([
+                <div><dt>{{ $label }}</dt><dd data-metric="{{ $key }}">{{ $system[$key] !== null ? $system[$key].($key === 'pass_rate' ? '%' : '') : '-' }}</dd></div>
+            @endforeach
+        </dl>
+    </section>
+    <section class="admin-record-section"><h2>Curriculum</h2>
+        <dl class="admin-evidence-totals">
+            @foreach ([
                     'courses' => 'Courses',
                     'sections' => 'Sections',
                     'challenges' => 'Missions',
                     'boss_challenges' => 'Assessments',
                 ] as $key => $label)
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">{{ $label }}</p>
-                        <p data-metric="{{ $key }}" class="font-display text-[26px] leading-none text-phosphor">{{ $system[$key] }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="panel p-4">
-            <h2 class="panel-title mb-3">Learning</h2>
-            <div class="grid grid-cols-2 gap-3">
-                @foreach ([
+                <div><dt>{{ $label }}</dt><dd data-metric="{{ $key }}">{{ $system[$key] !== null ? $system[$key].($key === 'pass_rate' ? '%' : '') : '-' }}</dd></div>
+            @endforeach
+        </dl>
+    </section>
+    <section class="admin-record-section"><h2>Learning</h2>
+        <dl class="admin-evidence-totals">
+            @foreach ([
                     'active_students' => 'Active students (14d)',
                     'completed_challenges' => 'Completed challenges',
                     'course_completions' => 'Course completions',
@@ -131,56 +87,33 @@
                     'passed_attempts' => 'Attempts passed',
                     'pass_rate' => 'Assessment pass rate',
                 ] as $key => $label)
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">{{ $label }}</p>
-                        <p data-metric="{{ $key }}" class="font-display text-[26px] leading-none text-phosphor">{{ $system[$key] !== null ? $system[$key].($key === 'pass_rate' ? '%' : '') : '-' }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-    </div>
-
-    <section class="panel p-4">
-        <header class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-phosphor-dim/60">
-            <h2 class="panel-title">Per-Course Analysis</h2>
-            <x-badge tone="cyan">REUSED FROM COURSE ANALYTICS</x-badge>
-        </header>
-
-        @forelse ($courses as $row)
-            <div class="border-b border-phosphor-dim/40 py-3 last:border-0">
-                <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-base font-bold text-phosphor truncate">{{ $row['course']->name }}</h3>
-                    <span class="text-xs font-bold text-phosphor-dim">
-                        STUDENTS {{ $row['engaged'] }}/{{ $row['fleet'] }}
-                    </span>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">Completed</p>
-                        <p data-course-metric="completed" class="font-display text-[18px] leading-none text-phosphor">{{ $row['buckets']['completed'] }}</p>
-                    </div>
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">In progress</p>
-                        <p class="font-display text-[18px] leading-none text-phosphor">{{ $row['buckets']['in_progress'] }}</p>
-                    </div>
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">Ready</p>
-                        <p class="font-display text-[18px] leading-none text-amber">{{ $row['buckets']['assessment_ready'] }}</p>
-                    </div>
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">Avg completion</p>
-                        <p class="font-display text-[18px] leading-none text-ink">{{ $row['avg_completion'] !== null ? $row['avg_completion'].'%' : '-' }}</p>
-                    </div>
-                    <div class="border border-phosphor-dim/40 rounded-[2px] px-3 py-2 bg-surface-alt">
-                        <p class="text-xs font-bold text-phosphor-dim mb-1">Pass rate</p>
-                        <p class="font-display text-[18px] leading-none text-amber">{{ $row['pass_rate'] !== null ? $row['pass_rate'].'%' : '-' }}</p>
-                    </div>
-                </div>
-            </div>
-        @empty
-            <x-status-message type="info" title="No courses">
-                No active course with missions is available to summarize.
-            </x-status-message>
-        @endforelse
+                <div><dt>{{ $label }}</dt><dd data-metric="{{ $key }}">{{ $system[$key] !== null ? $system[$key].($key === 'pass_rate' ? '%' : '') : '-' }}</dd></div>
+            @endforeach
+        </dl>
     </section>
+    <section class="admin-record-section" aria-labelledby="course-evidence-heading">
+        <div class="admin-section-heading"><h2 id="course-evidence-heading">Per-Course Analysis</h2><span class="admin-state">REUSED FROM COURSE ANALYTICS</span></div>
+        @if ($courses->isEmpty())
+            <x-status-message type="info" title="No courses">No active course with missions is available to summarize.</x-status-message>
+        @else
+            <table class="table-stack admin-table" role="table">
+                <caption>Course learning evidence</caption>
+                <thead><tr><th scope="col">Course</th><th scope="col">Engaged / Students</th><th scope="col">Completed</th><th scope="col">In progress</th><th scope="col">Ready</th><th scope="col">Avg completion</th><th scope="col">Pass rate</th></tr></thead>
+                <tbody>
+                    @foreach ($courses as $row)
+                        <tr>
+                            <th scope="row" data-label="Course">{{ $row['course']->name }}</th>
+                            <td data-label="Engaged / Students">{{ $row['engaged'] }}/{{ $row['fleet'] }}</td>
+                            <td data-label="Completed" data-course-metric="completed">{{ $row['buckets']['completed'] }}</td>
+                            <td data-label="In progress">{{ $row['buckets']['in_progress'] }}</td>
+                            <td data-label="Ready">{{ $row['buckets']['assessment_ready'] }}</td>
+                            <td data-label="Avg completion">{{ $row['avg_completion'] !== null ? $row['avg_completion'].'%' : '-' }}</td>
+                            <td data-label="Pass rate">{{ $row['pass_rate'] !== null ? $row['pass_rate'].'%' : '-' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+    </section>
+    </div>
 @endsection

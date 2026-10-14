@@ -12,12 +12,51 @@ use App\Services\UserService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 use InvalidArgumentException;
 use Tests\TestCase;
 
 class AdminUserTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_directory_identifies_accounts_with_table_headers(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->get(route('admin.users'))
+            ->assertSee('<caption>Account directory</caption>', false)
+            ->assertSee('<th scope="col">User</th>', false)
+            ->assertSee('<th scope="row" data-label="User">', false);
+    }
+
+    public function test_edit_associates_username_error_with_input(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+
+        $errors = new ViewErrorBag;
+        $errors->put('default', new MessageBag(['username' => 'The username has already been taken.']));
+
+        $this->actingAs($admin);
+
+        $this->view('admin.users.edit', ['role' => 'admin', 'user' => $student, 'errors' => $errors])
+            ->assertSee('value="'.$student->username.'"', false)
+            ->assertSee('aria-invalid="true"', false)
+            ->assertSee('aria-describedby="username-error"', false)
+            ->assertSee('id="username-error"', false);
+    }
+
+    public function test_edit_associates_role_help_with_the_role_control(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+
+        $this->actingAs($admin)->get(route('admin.users.edit', $student))
+            ->assertSee('aria-describedby="role-help"', false)
+            ->assertSee('id="role-help"', false);
+    }
 
     public function test_admin_can_list_all_users_with_role_status_and_created_date(): void
     {

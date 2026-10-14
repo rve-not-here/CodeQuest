@@ -26,7 +26,7 @@
 @endphp
 
 @section('content')
-    <div class="mx-auto w-full max-w-[1080px]">
+    <div class="atlas-assessments">
         <header class="border-b border-line pb-6">
             <p class="eyebrow">Course milestones</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Boss Challenges</h1>
@@ -63,7 +63,7 @@
                         $completedMissions = $row['missionProgress']['completed'];
                         $totalMissions = $row['missionProgress']['total'];
                     @endphp
-                    <li class="panel min-w-0 overflow-hidden" data-assessment-state="{{ $state }}">
+                    <li class="atlas-assessment-entry" data-assessment-state="{{ $state }}">
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4 md:px-6">
                             <div class="min-w-0">
                                 <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>

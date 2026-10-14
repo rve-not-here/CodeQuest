@@ -6,7 +6,14 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import { previewDocument, previewSandbox } from './preview.js';
 
 window.CodeQuest = window.CodeQuest || {};
-window.CodeQuest.CodeMirror = { EditorView, basicSetup, html, css, javascript, oneDark };
+window.CodeQuest.CodeMirror = {
+    EditorView,
+    basicSetup: [basicSetup, EditorView.contentAttributes.of({ 'aria-label': 'Code editor' })],
+    html,
+    css,
+    javascript,
+    oneDark,
+};
 window.CodeQuest.previewDocument = previewDocument;
 window.CodeQuest.previewSandbox = previewSandbox;
 

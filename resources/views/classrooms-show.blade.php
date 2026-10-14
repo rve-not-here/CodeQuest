@@ -3,74 +3,59 @@
 @section('title', $classroom->name)
 
 @section('content')
-    <x-page-header
-        title="{{ $classroom->name }}"
-        subtitle="The enrollment container behind your monitoring scope. The students enrolled and courses assigned here are exactly what the teacher-area pages can surface while this classroom is ACTIVE."
-        icon="▣"
-    >
-        <x-slot:actions>
-            <x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">
-                {{ $classroom->status }}
-            </x-badge>
-            <a href="{{ route('classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a>
-            @if ($role === 'admin')
-                <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="btn-ghost">ADMIN EDIT →</a>
-            @endif
-        </x-slot:actions>
-    </x-page-header>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <section class="panel p-4">
-            <h2 class="text-sm font-bold text-phosphor mb-3">ASSIGNED TEACHERS</h2>
-
-            @if ($classroom->teachers->isEmpty())
-                <x-status-message type="info" title="NO TEACHERS">No teachers are assigned to this classroom.</x-status-message>
-            @else
-                <ul class="font-body text-lg space-y-1">
-                    @foreach ($classroom->teachers as $teacher)
-                        <li class="flex items-center justify-between border-b border-phosphor-dim/40 py-2">
-                            <span class="text-phosphor">{{ $teacher->username }}</span>
-                            <span class="text-[15px] text-phosphor-dim">{{ $teacher->name }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </section>
-
-        <section class="panel p-4">
-            <h2 class="text-sm font-bold text-phosphor mb-3">ENROLLED STUDENTS</h2>
-
-            @if ($classroom->students->isEmpty())
-                <x-status-message type="info" title="NO STUDENTS">No students are enrolled in this classroom.</x-status-message>
-            @else
-                <ul class="font-body text-lg space-y-1">
-                    @foreach ($classroom->students as $student)
-                        <li class="flex items-center justify-between border-b border-phosphor-dim/40 py-2">
-                            <a href="{{ route('student-progress', $student) }}" class="text-cyan hover:underline">
-                                {{ $student->username }} →
-                            </a>
-                            <span class="text-[15px] text-phosphor-dim">{{ $student->name }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </section>
-
-        <section class="panel p-4">
-            <h2 class="text-sm font-bold text-phosphor mb-3">ASSIGNED COURSES</h2>
-
-            @if ($classroom->courses->isEmpty())
-                <x-status-message type="info" title="NO COURSES">No courses are assigned to this classroom.</x-status-message>
-            @else
-                <ul class="font-body text-lg space-y-1">
-                    @foreach ($classroom->courses as $course)
-                        <li class="flex items-center justify-between border-b border-phosphor-dim/40 py-2">
-                            <span class="text-phosphor">{{ $course->name }}</span>
-                            <x-badge tone="{{ $course->status === 'active' ? 'cyan' : 'dim' }}" class="uppercase">{{ $course->status }}</x-badge>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </section>
+    <div class="teacher-operations">
+        <header class="teacher-context">
+            <div>
+                <h1>{{ $classroom->name }}</h1>
+                <p><span class="teacher-state">{{ $classroom->code ?? '—' }} · {{ strtoupper($classroom->status) }}</span></p>
+                <p>Students and course assignments in this classroom. Teacher visibility requires an active classroom.</p>
+            </div>
+            <div class="teacher-context-actions">
+                <a href="{{ route('classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a>
+                @if ($role === 'admin')
+                    <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="btn-ghost">ADMIN EDIT →</a>
+                @endif
+            </div>
+        </header>
+        <div class="teacher-classroom-layout">
+            <div>
+                <section class="teacher-record-section" aria-labelledby="assigned-courses">
+                    <h2 id="assigned-courses">ASSIGNED COURSES</h2>
+                    <ul class="teacher-record-list">
+                        @forelse ($classroom->courses as $course)
+                            <li><strong>{{ $course->name }}</strong><span class="teacher-state">{{ strtoupper($course->status) }}</span></li>
+                        @empty
+                            <li class="teacher-note">NO COURSES · No courses are assigned to this classroom.</li>
+                        @endforelse
+                    </ul>
+                </section>
+                <section class="teacher-record-section" aria-labelledby="assigned-teachers">
+                    <h2 id="assigned-teachers">ASSIGNED TEACHERS</h2>
+                    <ul class="teacher-record-list">
+                        @forelse ($classroom->teachers as $teacher)
+                            <li><strong>{{ $teacher->username }}</strong><span>{{ $teacher->name }}</span></li>
+                        @empty
+                            <li class="teacher-note">NO TEACHERS · No teachers are assigned to this classroom.</li>
+                        @endforelse
+                    </ul>
+                </section>
+            </div>
+            <section class="teacher-record-section" aria-labelledby="enrolled-students">
+                <div class="teacher-section-heading"><h2 id="enrolled-students">ENROLLED STUDENTS</h2><p class="teacher-state">{{ $classroom->students->count() }} students</p></div>
+                @if ($classroom->students->isEmpty())
+                    <p class="teacher-note">NO STUDENTS · No students are enrolled in this classroom.</p>
+                @else
+                    <table class="table-stack teacher-evidence-table" role="table">
+                        <caption>Students enrolled in {{ $classroom->name }}</caption>
+                        <thead><tr><th scope="col">Student</th><th scope="col">Name</th></tr></thead>
+                        <tbody>
+                            @foreach ($classroom->students as $student)
+                                <tr><th scope="row" data-label="Student"><a href="{{ route('student-progress', $student) }}">{{ $student->username }} →</a></th><td data-label="Name">{{ $student->name }}</td></tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            </section>
+        </div>
     </div>
 @endsection

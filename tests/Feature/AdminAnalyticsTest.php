@@ -43,6 +43,7 @@ class AdminAnalyticsTest extends TestCase
 
         $response->assertOk()
             ->assertSee('System Analytics')
+            ->assertSee('<caption>XP ledger sources</caption>', false)
             ->assertSee('XP Administration')
             ->assertSee('Fleet by Role')
             ->assertSee('Users')

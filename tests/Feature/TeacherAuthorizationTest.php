@@ -14,6 +14,17 @@ class TeacherAuthorizationTest extends TestCase
     use RefreshDatabase;
     use WithClassroomScope;
 
+    public function test_teacher_operational_pages_identify_classroom_scope(): void
+    {
+        $teacher = User::factory()->teacher()->create();
+
+        foreach (['needs-attention', 'activity', 'course-analytics'] as $route) {
+            $this->actingAs($teacher)->get(route($route))
+                ->assertSee('Classroom scope')
+                ->assertDontSee('SYSTEM-WIDE');
+        }
+    }
+
     /**
      * Every teacher-gated route added across the phase (US-602..US-610 plus
      * the Classroom / Enrollment Authorization surface). The gate is one

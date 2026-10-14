@@ -446,6 +446,9 @@ class SkillCompetencyTest extends TestCase
 
         $this->actingAs($user)->get(route('competency'))
             ->assertOk()
+            ->assertSee('Learning Performance')
+            ->assertSee('Knowledge Check and Coding Challenge evidence')
+            ->assertDontSee('Boss Challenge evidence')
             ->assertSee('HTML Headings')
             ->assertSee('ON TRACK')
             ->assertSee('HTML Links')
