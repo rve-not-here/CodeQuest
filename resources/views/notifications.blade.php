@@ -7,7 +7,6 @@
         <div class="atlas-record">
             <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
                 <div>
-                    <p class="eyebrow">Your account</p>
                     <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Notifications</h1>
                     <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Challenge updates, Boss Challenge results, and system announcements.</p>
                 </div>
@@ -94,7 +93,7 @@
         </div>
     @else
     <x-page-header
-        title="Notifications"
+        title="Notifications" code="NF-01"
         subtitle="Your inbox. Challenge completions, Boss Challenge results, and system announcements land here."
         icon="✉"
     >
@@ -128,7 +127,7 @@
             <div class="divide-y divide-phosphor-dim/40">
                 @foreach ($notifications as $notification)
                     <div class="flex items-start gap-3 py-3 {{ $notification->read_at !== null ? 'opacity-60' : '' }}">
-                        <span class="font-display text-[14px] leading-none {{ $notification->read_at === null ? 'text-phosphor' : 'text-phosphor-dim' }} w-4 shrink-0 text-center">▸</span>
+                        <span class="mt-[5px] inline-block w-2 h-2 shrink-0 {{ $notification->read_at === null ? 'bg-accent' : 'bg-line-strong' }}"></span>
                         <div class="min-w-0 flex-1">
                             @php($href = $links[$notification->id] ?? null)
                             <div class="flex flex-wrap items-center gap-2">

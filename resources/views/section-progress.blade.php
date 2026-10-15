@@ -6,7 +6,6 @@
     <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
-                <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Section Progress</h1>
                 <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Track challenge completion within each course section.</p>
             </div>
@@ -28,7 +27,6 @@
                     <section aria-labelledby="course-{{ $course->id }}-sections">
                         <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
                             <div>
-                                <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
                                 <h2 id="course-{{ $course->id }}-sections" class="mt-1 text-lg font-semibold">{{ $course->name }}</h2>
                             </div>
                             <span class="font-mono text-xs text-fg-subtle">{{ $courseProgress['completed'] }}/{{ $courseProgress['total'] }} challenges complete</span>
@@ -46,7 +44,6 @@
                                     <li class="atlas-section-record" data-section-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
                                         <div class="flex flex-wrap items-start justify-between gap-3">
                                             <div class="min-w-0">
-                                                <p class="eyebrow">{{ $section !== null ? 'Section '.str_pad((string) $section->order_num, 2, '0', STR_PAD_LEFT) : 'Course challenges' }}</p>
                                                 <h3 class="mt-1 text-[15px] font-semibold text-balance">{{ $section?->title ?? 'Additional challenges' }}</h3>
                                             </div>
                                             <span class="badge {{ $state === 'DONE' ? 'badge-accent' : ($state === 'IN PROGRESS' ? 'badge-warning' : 'badge-neutral') }}">{{ $state }}</span>

@@ -60,7 +60,7 @@
             <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-title" tabindex="0">
                 <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="BACK TO LESSON"><x-workspace-icon name="arrow-left" />Back to lesson</a></header>
                 <div class="challenge-pane-body cq-lesson-reading">
-                    <h2 id="instructions-title">Lesson context</h2>
+                    <div class="flex items-center gap-3 flex-wrap"><h2 id="instructions-title">Lesson context</h2><span class="sort-code">CTX-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span></div>
                     @if ($mission->description)<div class="cq-lesson-context whitespace-pre-line">{{ $mission->description }}</div>@else<p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>@endif
                     @if ($mission->target_html)
                         <h3>Example</h3>
@@ -77,7 +77,7 @@
                 </div>
                 @if ($hasWorkspaceMessages)
                     <section class="cq-feedback" aria-labelledby="workspace-feedback-title">
-                        <h2 id="workspace-feedback-title">{{ session('mission_error') ? 'Submission feedback' : 'Workspace messages' }}</h2>
+                        <div class="flex items-center gap-3 flex-wrap"><h2 id="workspace-feedback-title">{{ session('mission_error') ? 'Submission feedback' : 'Workspace messages' }}</h2><span class="sort-code">MSG-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span></div>
     <div class="challenge-toast-stack" aria-label="Challenge messages">
     @if (session('mission_info'))
         <x-student-toast type="info" title="{{ session('mission_info')['title'] }}">
@@ -172,7 +172,6 @@
                 data-completion-dialog
                 tabindex="-1"
             >
-                <p class="eyebrow text-accent">Validation passed</p>
                 <h2 id="completion-title">Challenge complete</h2>
                 <p id="completion-summary" class="completion-summary">
                     {{ $mission->title }} passed server validation. Your progress is recorded.
@@ -262,7 +261,7 @@
                     extensions: [
                         CM.basicSetup,
                         lang,
-                        CM.oneDark,
+                        CM.foundry,
                         CM.EditorView.updateListener.of(function (u) {
                             if (u.docChanged) {
                                 syncPayloads(view);

@@ -6,7 +6,6 @@
     <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
-                <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Learning Performance</h1>
                 <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Integrated Competency Analysis. Read the recorded evidence behind your course and skill states.</p>
             </div>
@@ -21,7 +20,6 @@
         @else
             <section class="mt-6" aria-labelledby="course-competencies-title">
                 <div class="mb-3">
-                    <p class="eyebrow">Course evidence</p>
                     <h2 id="course-competencies-title" class="mt-1 text-lg font-semibold">Competency by course</h2>
                 </div>
                 <ol class="atlas-record-list">
@@ -66,8 +64,8 @@
         @if ($skills->isNotEmpty())
             <section class="mt-8" aria-labelledby="skill-competency-title">
                 <div class="mb-3">
-                    <p class="eyebrow">Knowledge Check and Coding Challenge evidence</p>
                     <h2 id="skill-competency-title" class="mt-1 text-lg font-semibold">Skill Competency</h2>
+                    <p class="mt-1 text-xs leading-5 text-fg-subtle">Knowledge Check and Coding Challenge evidence</p>
                 </div>
                 <ul class="atlas-record-list">
                     @foreach ($skills as $skill)

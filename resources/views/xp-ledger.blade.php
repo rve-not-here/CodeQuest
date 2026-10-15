@@ -6,7 +6,6 @@
     <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
-                <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">XP Ledger</h1>
                 <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Your current balance and the actions that earned or spent XP.</p>
             </div>
@@ -14,7 +13,7 @@
         </header>
 
         <section class="atlas-record-summary" aria-labelledby="balance-title">
-            <h2 id="balance-title" class="eyebrow">Current balance</h2>
+            <h2 id="balance-title" class="text-sm font-semibold tracking-wide text-fg-muted">Current balance</h2>
             <p class="mt-2 font-mono text-3xl font-semibold tabular-nums text-fg">XP {{ number_format($balance) }}</p>
             <p class="mt-2 text-xs leading-5 text-fg-muted">Challenges and Boss Challenges can earn XP. Hints, solution reveals, and incorrect submissions can spend it.</p>
         </section>
@@ -27,7 +26,6 @@
         @else
             <section class="mt-8" aria-labelledby="transactions-title">
                 <div class="mb-3">
-                    <p class="eyebrow">Learning record</p>
                     <h2 id="transactions-title" class="mt-1 text-lg font-semibold">Transaction history</h2>
                 </div>
                 <ol class="atlas-record-list">

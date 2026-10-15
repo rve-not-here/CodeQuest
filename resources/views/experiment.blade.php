@@ -6,8 +6,8 @@
     <div class="atlas-practice">
         <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost">← BACK TO LESSON</a>
         <header class="atlas-reading-heading">
-            <p class="eyebrow text-accent">Ungraded experiment</p>
             <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
+             <p class="text-xs text-fg-subtle mt-1">Ungraded experiment</p>
             <p class="mt-2 text-sm text-fg-muted">Try changes and preview the result. Experiments do not submit answers, award XP, or change your progress.</p>
         </header>
         @if ($mission->description)
@@ -44,7 +44,7 @@
                 var editor = new CM.EditorView({
                     doc: initial,
                     parent: document.getElementById('editor-host'),
-                    extensions: [CM.basicSetup, language, CM.oneDark],
+                    extensions: [CM.basicSetup, language, CM.foundry],
                 });
                 var preview = document.getElementById('experiment-preview');
                 preview.sandbox.value = cq.previewSandbox(type, initial);

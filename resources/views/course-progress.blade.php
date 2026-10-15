@@ -6,7 +6,6 @@
     <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
-                <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Course Progress</h1>
                 <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">See challenge completion and the Boss Challenge milestone for each course.</p>
             </div>
@@ -29,7 +28,6 @@
                     <li class="atlas-course-record" data-course-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
                         <div class="atlas-course-context">
                             <div class="min-w-0">
-                                <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
                                 <h2 class="mt-1 text-lg font-semibold text-balance">{{ $course->name }}</h2>
                                 @if ($course->description)
                                     <p class="mt-1 max-w-[68ch] text-sm leading-6 text-fg-muted">{{ $course->description }}</p>

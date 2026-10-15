@@ -6,7 +6,6 @@
     <div class="atlas-record">
         <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
             <div>
-                <p class="eyebrow">Learning record</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Learning Timeline</h1>
                 <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Your challenges, Knowledge Checks, and Boss Challenges in the order they happened.</p>
             </div>
@@ -23,7 +22,7 @@
             </section>
         @else
             <section class="mt-6" aria-labelledby="events-title">
-                <h2 id="events-title" class="eyebrow mb-3">Recent learning activity</h2>
+                <h2 id="events-title" class="text-sm font-semibold tracking-wide text-fg-muted">Recent learning activity</h2>
                 @foreach ($events->groupBy(fn ($event) => $event['at']->format('Y-m-d')) as $date => $dailyEvents)
                     <section class="atlas-timeline-day" aria-labelledby="day-{{ $date }}">
                         <h3 id="day-{{ $date }}" class="font-mono text-sm text-fg-muted"><time datetime="{{ $date }}">{{ $dailyEvents->first()['at']->format('F j, Y') }}</time></h3>

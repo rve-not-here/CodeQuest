@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
+use App\Models\Course;
 use App\Models\Mission;
 use App\Models\MissionBehaviorTest;
 use App\Models\MissionDraft;
 use App\Models\Progress;
+use App\Models\Section;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
@@ -91,6 +93,42 @@ class WorkspaceBrowserTest extends TestCase
             'boss-ready' => ['boss-ready', 'assessment.show'],
             'boss-pending' => ['boss-pending', 'assessment.show'],
             'boss-passed' => ['boss-passed', 'assessment.show'],
+        ];
+    }
+
+    #[DataProvider('readOnlyScreens')]
+    public function test_read_only_surfaces_in_chromium(string $mode, string $route): void
+    {
+        if (getenv('CODEQUEST_REQUIRE_BROWSER_TESTS') !== '1') {
+            $this->markTestSkipped('Browser checks run in the required Chromium integration job.');
+        }
+        $student = User::factory()->create();
+        Vite::useHotFile(storage_path('framework/testing-browser-no-hot'));
+
+        // Build a course tree: two sections, three missions, progress on the
+        // first so the dashboard resolves a current course and a next mission.
+        $course = Course::factory()->create(['status' => 'active', 'order_num' => 1]);
+        $sectionA = Section::factory()->create(['course_id' => $course->id, 'order_num' => 1, 'title' => 'Structure and text']);
+        $sectionB = Section::factory()->create(['course_id' => $course->id, 'order_num' => 2, 'title' => 'Links and media']);
+        $m1 = Mission::factory()->create(['course_id' => $course->id, 'section_id' => $sectionA->id, 'order_num' => 1, 'title' => 'Heading restoration', 'difficulty' => 'easy', 'points' => 50]);
+        $m2 = Mission::factory()->create(['course_id' => $course->id, 'section_id' => $sectionA->id, 'order_num' => 2, 'title' => 'Paragraph reflow', 'difficulty' => 'easy', 'points' => 60]);
+        $m3 = Mission::factory()->create(['course_id' => $course->id, 'section_id' => $sectionB->id, 'order_num' => 3, 'title' => 'Image fallback', 'difficulty' => 'medium', 'points' => 90]);
+        Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $m1->id, 'pts_earned' => 50]);
+
+        $response = $this->actingAs($student)->get(route($route))->assertOk();
+        $html = $response->getContent();
+        $result = Process::timeout(30)->input(json_encode(['html' => $html, 'mode' => $mode], JSON_THROW_ON_ERROR))
+            ->run(['node', base_path('tests/workspace-browser.mjs')]);
+        $this->assertTrue($result->successful(), $result->errorOutput());
+        $this->assertStringContainsString('checks passed', $result->output());
+    }
+
+    /** @return array<string, array{0: string, 1: string}> */
+    public static function readOnlyScreens(): array
+    {
+        return [
+            'dashboard' => ['dashboard', 'dashboard'],
+            'learning-path' => ['learning-path', 'learning-path'],
         ];
     }
 }

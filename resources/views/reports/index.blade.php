@@ -16,7 +16,7 @@
             </section>
         </div>
     @else
-    <x-page-header title="Reports" subtitle="Choose a student or course from your current classroom scope." icon="Σ" />
+    <x-page-header title="Reports" code="RP-01" subtitle="Choose a student or course from your current classroom scope." icon="table-2" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <section class="panel p-5">
             <h2 class="text-lg font-semibold">Student reports</h2>

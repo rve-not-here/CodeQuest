@@ -36,7 +36,7 @@ class ShellTest extends TestCase
             ->assertSee('Design System')
             ->assertSee('Component examples only')
             ->assertSee('CONTINUE LEARNING →')
-            ->assertSee('MISSION NOT RESTORED');
+            ->assertSee('RULE FAILED');
     }
 
     public function test_teacher_cannot_open_the_student_achievement_page(): void

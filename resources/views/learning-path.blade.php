@@ -28,7 +28,10 @@
             @endphp
             <article id="course-{{ $pathCourse->id }}" class="atlas-path-course" aria-labelledby="course-{{ $pathCourse->id }}-title">
                 <header class="atlas-path-course-heading">
-                    <h2 id="course-{{ $pathCourse->id }}-title">{{ $pathCourse->name }}</h2>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h2 id="course-{{ $pathCourse->id }}-title">{{ $pathCourse->name }}</h2>
+                        <span class="sort-code">CRS-{{ strtoupper(substr(sha1($pathCourse->id), 0, 4)) }}</span>
+                    </div>
                     <p class="atlas-path-meta">Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseLocked ? 'LOCKED' : ($boss['state'] === 'PASSED' ? 'COMPLETE' : ($isCurrentCourse ? 'CURRENT' : 'AVAILABLE')) }}</p>
                     @if ($pathCourse->description)<p class="atlas-path-description">{{ $pathCourse->description }}</p>@endif
                     @if ($courseLocked)<p class="atlas-path-lock-reason">{{ $courseNode['locked_reason'] }}</p>@endif
@@ -48,6 +51,7 @@
                                     <header class="atlas-path-checkpoint">
                                         <span class="atlas-path-marker {{ $sectionCurrent ? 'is-current' : ($sectionComplete ? 'is-complete' : '') }}" aria-hidden="true">@if ($sectionComplete)<svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10" /></svg>@endif</span>
                                         <h3>{{ $sectionTitle }}</h3>
+                                        <span class="sort-code">SEC-{{ strtoupper(substr(sha1($sectionKey), 0, 4)) }}</span>
                                         <p class="atlas-path-meta">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }} challenges complete @if ($sectionComplete) · COMPLETE @elseif ($sectionCurrent) · CURRENT @elseif ($courseLocked) · LOCKED @endif</p>
                                     </header>
                                     <ol class="atlas-path-missions" aria-label="{{ $sectionTitle }} challenges">

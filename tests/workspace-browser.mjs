@@ -72,10 +72,55 @@ try {
     }
     await send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/` });
     const waitingForAttempt = ['boss-ready', 'boss-pending'].includes(mode);
-    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : '.cm-content';
+    const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
+    const readOnlyModes = ['dashboard', 'learning-path'];
+    const isReadOnly = readOnlyModes.includes(mode);
+    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : '.cm-content');
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
-    if (!waitingForAttempt) {
+    if (!waitingForAttempt && !isReadOnly) {
         assert.equal(await evaluate(`document.querySelector('.cm-content').getAttribute('aria-label')`), 'Code editor');
+    }
+    if (isReadOnly) {
+        const heading = mode === 'dashboard' ? 'Current Objective' : 'Learning Path';
+        assert.equal(await evaluate(`document.querySelector('h1').textContent.trim()`), heading);
+        if (mode === 'dashboard') {
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta') !== null`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('Coding challenge')`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('Easy')`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('60')`), true);
+            // SIGNATURE: sort codes render on the dashboard compartments
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-dashboard .sort-code').length`), 4);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard .sort-code').textContent.startsWith('OBJ-')`), true);
+            // display voice: the objective heading carries a display size, not body text
+            const objectiveSize = await evaluate(`getComputedStyle(document.querySelector('.atlas-dashboard-objective h2')).fontSize`);
+            assert.equal(parseFloat(objectiveSize) >= 28, true);
+        }
+        if (mode === 'learning-path') {
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-course').length`), 1);
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-mission').length`), 3);
+            // SIGNATURE: sort codes render on courses and sections
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-path .sort-code').length`), 3);
+            assert.equal(await evaluate(`document.querySelector('.atlas-path-course .sort-code').textContent.startsWith('CRS-')`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-path-section .sort-code').textContent.startsWith('SEC-')`), true);
+        }
+        for (const [width, height] of [[1920, 1080], [1366, 768], [768, 1024], [390, 844]]) {
+            await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
+            await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+            assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
+            if (capture) {
+                await mkdir(capture, { recursive: true });
+                const shot = await send('Page.captureScreenshot', { format: 'png' });
+                await writeFile(join(capture, `${mode}-${width}.png`), Buffer.from(shot.data, 'base64'));
+            }
+        }
+        process.stdout.write(`Chromium ${mode} checks passed
+`);
+        socket?.close();
+        browser.kill('SIGTERM');
+        await new Promise((resolve) => { if (browser.exitCode !== null) resolve(); else browser.once('exit', resolve); });
+        await new Promise((resolve) => server.close(resolve));
+        await rm(directory, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+        process.exit(0);
     }
     if (mode === 'challenge-unavailable') {
         assert.equal(await evaluate(`document.querySelector('main').textContent.includes('Your code was not graded and no XP changed')`), true);
@@ -90,7 +135,6 @@ try {
     assert.equal(await evaluate(`document.querySelector('[data-status-message]').getAttribute('role')`), 'alert');
     await evaluate(`document.querySelector('[data-status-message] [data-dismiss]').click()`);
     assert.equal(await evaluate(`document.querySelectorAll('[data-status-message]').length`), 0);
-    const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
     if (capture) {
         assert.ok(['mission-atlas-phase5-review', 'approved-challenge-ui-review'].some(name => capture.startsWith(join(process.cwd(), `storage/app/private/${name}/`))));
         await mkdir(capture, { recursive: true });

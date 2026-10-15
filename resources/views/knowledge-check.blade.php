@@ -22,7 +22,6 @@
             <div class="flex flex-wrap items-start gap-3">
                 <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost btn-sm shrink-0" aria-label="Return to {{ $mission->title }} lesson">← Return</a>
                 <div class="min-w-0 flex-1">
-                    <p class="eyebrow text-info">Knowledge Check @if ($section) · {{ $section->title }} @endif</p>
                     <h1 class="atlas-reading-title">{{ $knowledgeCheck->title }}</h1>
                     <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">{{ $knowledgeCheck->instructions ?: 'Answer each question, then submit your answers for feedback.' }}</p>
                 </div>
@@ -45,7 +44,6 @@
             <section class="atlas-check-result" data-check-completed-key="cq:check:{{ auth()->id() }}:{{ $attempt->id }}" aria-labelledby="knowledge-check-result-title">
                 <div class="flex flex-wrap items-start justify-between gap-5 px-5 py-5 md:px-6">
                     <div class="min-w-0">
-                        <p class="eyebrow text-accent">Check recorded</p>
                         <h2 id="knowledge-check-result-title" class="mt-1 text-xl font-semibold tracking-tight">{{ $attempt->score }} / {{ $attempt->total_questions }} correct</h2>
                         <p class="mt-2 text-sm leading-6 text-fg-muted">Attempt {{ $attempt->attempt_number }} is saved in your learning history. Review your answers below.</p>
                     </div>
@@ -73,7 +71,6 @@
                     @foreach ($responses as $index => $response)
                         <li class="atlas-check-review">
                             <div class="flex flex-wrap items-center justify-between gap-2">
-                                <p class="eyebrow">Question {{ $index + 1 }}</p>
                                 <span class="badge {{ $response['isCorrect'] ? 'badge-accent' : 'badge-warning' }}">{{ $response['isCorrect'] ? 'Correct' : 'Review needed' }}</span>
                             </div>
                             <h3 class="mt-2 text-[15px] font-medium leading-6">{{ $response['prompt'] }}</h3>
@@ -113,7 +110,6 @@
                         @endforeach
                     </div>
                     <section class="atlas-check-submit" aria-labelledby="knowledge-check-progress-title">
-                        <p class="eyebrow text-info">Your check</p>
                         <h2 id="knowledge-check-progress-title" class="mt-1 text-lg font-semibold">{{ $questions->count() }} questions</h2>
                         <p class="mt-2 text-sm leading-6 text-fg-muted">Answer every question before submitting. Your answers are scored together.</p>
                         <div class="mt-4" data-check-summary hidden>

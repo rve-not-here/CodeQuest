@@ -103,5 +103,19 @@ SOFTWARE.
             <path d="M9 3v18" />
             <path d="m14 9 3 3-3 3" />
             @break
+        @case('table-2')
+            <path d="M12 3v18" />
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M12 9v12" />
+            @break
+        @case('lock')
+            <rect width="18" height="11" x="3" y="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            @break
+        @case('layout')
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M3 9h18" />
+            <path d="M9 21V9" />
+            @break
     @endswitch
 </svg>

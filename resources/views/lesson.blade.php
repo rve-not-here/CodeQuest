@@ -17,8 +17,10 @@
         </nav>
 
         <header class="atlas-reading-heading">
-            <p class="eyebrow">Lesson @if ($section) · {{ $section->title }} @endif</p>
-            <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
+            <div class="flex items-center gap-3 flex-wrap">
+                <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
+                <span class="sort-code">LSS-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
+            </div>
             <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">Read the brief and inspect the starter, then apply what you learned in the coding challenge.</p>
             <div class="atlas-reading-meta">
                 <span class="atlas-reading-metadata">{{ $mission->difficulty }}</span>
@@ -49,7 +51,10 @@
             <div class="atlas-lesson-document">
                 <section class="atlas-lesson-section" aria-labelledby="lesson-objective">
                     <div class="atlas-lesson-section-heading">
-                        <h2 id="lesson-objective" class="mt-1 text-lg font-semibold">What you will build</h2>
+                        <div class="flex items-center gap-3 mt-1 flex-wrap">
+                            <h2 id="lesson-objective" class="text-lg font-semibold">What you will build</h2>
+                            <span class="sort-code">OBJ-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
+                        </div>
                     </div>
                     <div class="atlas-lesson-prose">
                         @if ($mission->description)
@@ -63,7 +68,10 @@
                 @if ($mission->target_html)
                     <section class="atlas-lesson-section" aria-labelledby="lesson-output">
                         <div class="atlas-lesson-section-heading">
-                            <h2 id="lesson-output" class="mt-1 text-lg font-semibold">Expected output</h2>
+                            <div class="flex items-center gap-3 mt-1 flex-wrap">
+                            <h2 id="lesson-output" class="text-lg font-semibold">Expected output</h2>
+                            <span class="sort-code">OUT-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
+                        </div>
                             <p class="mt-1 text-sm text-fg-muted">Use this reference to understand the intended result.</p>
                         </div>
                         <div class="atlas-lesson-example">
@@ -75,7 +83,10 @@
                 @if ($mission->broken_code)
                     <section class="atlas-lesson-section" aria-labelledby="lesson-starter">
                         <div class="atlas-lesson-section-heading">
-                            <h2 id="lesson-starter" class="mt-1 text-lg font-semibold">Start from this code</h2>
+                            <div class="flex items-center gap-3 mt-1 flex-wrap">
+                            <h2 id="lesson-starter" class="text-lg font-semibold">Start from this code</h2>
+                            <span class="sort-code">STR-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
+                        </div>
                             <p class="mt-1 text-sm text-fg-muted">This is a read-only example. The editor and preview are in the coding challenge.</p>
                         </div>
                         <div class="atlas-lesson-example">
@@ -87,7 +98,6 @@
                 @if ($knowledgeChecks->isNotEmpty())
                     <section class="atlas-lesson-section" aria-labelledby="lesson-checks">
                         <div class="atlas-lesson-section-heading">
-                            <p class="eyebrow text-info">Check your understanding</p>
                             <h2 id="lesson-checks" class="mt-1 text-lg font-semibold">Knowledge Check</h2>
                             <p class="mt-1 text-sm leading-6 text-fg-muted">Your result guides review and does not replace the coding challenge.</p>
                         </div>
@@ -129,7 +139,6 @@
 
             <section class="atlas-lesson-next" aria-labelledby="lesson-next">
                 <div class="atlas-lesson-next-heading">
-                    <p class="eyebrow text-accent">Next step</p>
                     <h2 id="lesson-next" class="mt-1 text-lg font-semibold">{{ $outstandingRequiredCheck ? 'Complete the required check' : 'Apply what you learned' }}</h2>
                     <p class="mt-2 text-sm leading-6 text-fg-muted">
                         {{ $outstandingRequiredCheck ? 'This check must be submitted before the coding challenge opens.' : 'Open the editor to run a preview and complete this challenge.' }}

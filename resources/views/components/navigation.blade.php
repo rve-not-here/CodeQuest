@@ -23,7 +23,6 @@
             class="cq-side-link {{ $isActive ? 'cq-side-link--active' : '' }}"
             @if ($isActive) aria-current="page" @endif
         >
-            <span class="navigation-index" aria-hidden="true">{{ str_pad((string) $position, 2, '0', STR_PAD_LEFT) }}</span>
             <span class="truncate">{{ $item['label'] }}</span>
         </a>
     @endif

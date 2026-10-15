@@ -16,7 +16,7 @@
     @elseif ($adminReport)
         <header class="admin-management-context"><div><h1>{{ $document['title'] }}</h1><p>Server-generated evidence within your authorized scope. Each section names its time window.</p></div><a href="{{ route('admin.system') }}" class="btn-ghost">System status →</a></header>
     @else
-        <x-page-header :title="$document['title']" subtitle="Server-generated evidence within your authorized scope. Each section names its time window." icon="Σ" />
+        <x-page-header :title="$document['title']" subtitle="Server-generated evidence within your authorized scope. Each section names its time window." icon="table-2" code="RP-02" />
     @endif
     @if ($errors->any())
         <x-status-message type="error" title="Check report filters">{{ $errors->first() }}</x-status-message>

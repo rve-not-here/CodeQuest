@@ -28,7 +28,6 @@
 @section('content')
     <div class="atlas-assessments">
         <header class="border-b border-line pb-6">
-            <p class="eyebrow">Course milestones</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Boss Challenges</h1>
             <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Complete the challenges in each course to open its final Boss Challenge. Your challenge status comes from your recorded work.</p>
             <a href="{{ route('learning-path') }}" class="btn btn-ghost btn-sm mt-4">← View Learning Path</a>
@@ -66,7 +65,6 @@
                     <li class="atlas-assessment-entry" data-assessment-state="{{ $state }}">
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4 md:px-6">
                             <div class="min-w-0">
-                                <p class="eyebrow">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
                                 <h2 class="mt-1 text-lg font-semibold text-balance">{{ $course->name }}</h2>
                                 <p class="mt-1 text-sm text-fg-muted">{{ $assessment?->title ?? 'No Boss Challenge authored for this course.' }}</p>
                             </div>

@@ -71,20 +71,20 @@
 
                             <td data-label="Sections">
                                 <a href="{{ route('admin.courses.sections', $course) }}" class="text-sm font-bold text-cyan hover:underline">
-                                    {{ $course->sections_count }} ▸
+                                    {{ $course->sections_count }} <x-workspace-icon name="chevron-right" class="inline-icon" />
                                 </a>
                             </td>
 
                             <td data-label="Missions">
                                 <a href="{{ route('admin.courses.missions', $course) }}" class="text-sm font-bold text-cyan hover:underline">
-                                    {{ $course->missions_count }} ▸
+                                    {{ $course->missions_count }} <x-workspace-icon name="chevron-right" class="inline-icon" />
                                 </a>
                             </td>
 
                             <td data-label="Challenge">
                                 @if ($course->assessment_count > 0)
                                     <a href="{{ route('admin.courses.assessment', $course) }}" class="text-sm font-bold text-cyan hover:underline">
-                                        1 ▸
+                                        1 <x-workspace-icon name="chevron-right" class="inline-icon" />
                                     </a>
                                 @else
                                     <span class="text-sm font-bold text-phosphor-dim">—</span>

@@ -5,12 +5,10 @@
 @section('content')
     <header class="grid grid-cols-1 gap-6 border-b border-line pb-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
         <div>
-            <p class="eyebrow">Learn / Challenges</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Challenges</h1>
             <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Practice concepts and track your coding challenges across courses.</p>
         </div>
         <div class="lg:text-right">
-            <p class="eyebrow">Your learning record</p>
             <p class="mt-1 font-mono text-sm text-fg">{{ $rows->count() }} {{ $rows->count() === 1 ? 'mission' : 'missions' }} shown · XP {{ number_format($totalXp) }}</p>
             <a href="{{ route('learning-path') }}" class="btn btn-quiet btn-sm mt-3">View Learning Path →</a>
         </div>
@@ -76,7 +74,6 @@
                     <section aria-labelledby="course-{{ $courseId }}-missions">
                         <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                             <div>
-                                <p class="eyebrow">Course {{ str_pad((string) $listedCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseAccessible ? 'AVAILABLE' : 'LOCKED' }}</p>
                                 <h2 id="course-{{ $courseId }}-missions" class="mt-1 text-lg font-semibold">{{ $listedCourse->name }}</h2>
                             </div>
                             <span class="font-mono text-xs text-fg-subtle">{{ $courseRows->count() }} shown</span>
@@ -90,7 +87,6 @@
                                     <div class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3.5 md:px-5">
                                         <span class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-fg-muted" aria-hidden="true">{{ $courseAccessible ? '○' : '×' }}</span>
                                         <div class="min-w-0 flex-1">
-                                            <p class="eyebrow">Section {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
                                             <h3 id="mission-section-{{ $sectionId }}-title" class="text-[15px] font-medium">{{ $listedSection?->title ?? 'Additional challenges' }}</h3>
                                         </div>
                                         <span class="font-mono text-xs text-fg-subtle">{{ $sectionRows->count() }} shown</span>
@@ -135,7 +131,7 @@
             </div>
             <aside class="hidden lg:block" aria-label="Challenge overview">
                 <nav class="sticky top-20" aria-labelledby="mission-overview-heading">
-                    <h2 id="mission-overview-heading" class="eyebrow mb-2">Courses</h2>
+                    <h2 id="mission-overview-heading" class="text-sm font-semibold tracking-wide text-fg-muted">Courses</h2>
                     <ul class="border-l border-line text-sm">
                         @foreach ($courseGroups as $courseId => $courseRows)
                             <li><a href="#course-{{ $courseId }}-missions" class="-ml-px flex justify-between gap-2 border-l border-transparent py-1.5 pr-1 pl-3 text-fg-muted hover:border-accent hover:text-fg"><span class="truncate">{{ $courseRows->first()['course']->name }}</span><span class="shrink-0 font-mono text-2xs">{{ $courseRows->count() }}</span></a></li>

@@ -19,6 +19,7 @@
 
         <div class="atlas-dashboard-learning">
             <section class="atlas-dashboard-objective" aria-labelledby="objective-title">
+                <span class="sort-code">OBJ-{{ strtoupper(substr(sha1(($mission ?? $course)?->id ?? 'none'), 0, 4)) }}</span>
                 @if ($course !== null)
                     <p class="atlas-dashboard-context">{{ $course->name }}@if ($section !== null)<span aria-hidden="true"> / </span>{{ $section->title }}@endif</p>
                 @endif
@@ -51,7 +52,10 @@
             </section>
 
             <section class="atlas-dashboard-position" aria-labelledby="position-heading">
-                <h2 id="position-heading">Course position</h2>
+                <div class="flex items-center gap-3">
+                    <h2 id="position-heading">Course position</h2>
+                    <span class="sort-code">POS-{{ strtoupper(substr(sha1($course?->id ?? 'none'), 0, 4)) }}</span>
+                </div>
                 @if ($courseProgress !== null)
                     <div class="atlas-dashboard-track">
                         <div class="atlas-dashboard-track-stop">
@@ -76,7 +80,10 @@
         <div class="atlas-dashboard-record">
             <section class="atlas-dashboard-evidence" aria-labelledby="evidence-heading">
                 <div class="atlas-dashboard-section-heading">
-                    <h2 id="evidence-heading">Recent learning evidence</h2>
+                    <div class="flex items-center gap-3">
+                        <h2 id="evidence-heading">Recent learning evidence</h2>
+                        <span class="sort-code">EVD-{{ strtoupper(substr(sha1('evidence'), 0, 4)) }}</span>
+                    </div>
                     <a href="{{ route('timeline') }}" class="atlas-dashboard-link">View timeline →</a>
                 </div>
                 @if ($recentActivity->isNotEmpty())
@@ -91,7 +98,10 @@
                 <p class="atlas-dashboard-history"><span>{{ $learnerStats['boss_challenges_passed'] }} {{ $learnerStats['boss_challenges_passed'] === 1 ? 'Boss Challenge' : 'Boss Challenges' }} passed</span><a href="{{ route('achievements') }}">{{ $learnerStats['achievements'] }} {{ $learnerStats['achievements'] === 1 ? 'achievement' : 'achievements' }} →</a></p>
             </section>
             <section class="atlas-dashboard-reflection" aria-labelledby="reflection-heading">
-                <h2 id="reflection-heading">Learning performance</h2>
+                <div class="flex items-center gap-3">
+                    <h2 id="reflection-heading">Learning performance</h2>
+                    <span class="sort-code">LPR-{{ strtoupper(substr(sha1($competencySummary['name'] ?? 'none'), 0, 4)) }}</span>
+                </div>
                 <p>{{ $competencySummary['name'] ?? 'No active skill area' }}</p>
                 <p class="atlas-dashboard-state">{{ $competencyState }}</p>
                 <a href="{{ route('competency') }}" class="atlas-dashboard-link">View competency evidence →</a>

@@ -49,6 +49,9 @@
     .eyebrow {
         @apply font-mono text-2xs font-medium tracking-[0.08em] text-fg-subtle uppercase;
     }
+    .sort-code {
+        @apply inline-flex items-center gap-1 border border-line-strong px-2 py-0.5 font-mono text-2xs font-medium tracking-[0.12em] text-fg uppercase bg-canvas;
+    }
     .badge {
         @apply inline-flex h-5 items-center gap-1 rounded-xs border px-1.5 font-mono text-2xs font-medium tracking-[0.04em] whitespace-nowrap uppercase;
     }
@@ -953,8 +956,11 @@ body.student-ui .cq-workspace .editor-pane { display: flex; flex: 1; min-height:
 .cq-code-pane #editor-host { flex: 1; min-width: 0; min-height: 0; height: 100%; }
 body.student-ui .cq-code-pane #editor-host .cm-editor { height: 100%; min-height: 0; font-size: 15px; background: var(--color-surface); }
 .cq-code-pane .cm-scroller { font-family: var(--font-mono); }
-body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0; padding: 0; }
-.cq-preview-pane iframe { flex: 1; width: 100%; height: 100%; min-height: 0; border: 0; background: white; }
+body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0; padding: 0; border: 1px solid var(--color-line-strong); }
+/* The preview is the student's own render, so its white ground is truthful and is never
+   darkened. It is bounded as a sheet instead: edge, inset and label make it read as a page
+   resting on the terminal rather than a hole cut through it. */
+.cq-preview-pane iframe { flex: 1; width: 100%; height: 100%; min-height: 0; background: white; box-shadow: inset 0 0 0 1px var(--color-line-strong); }
 .cq-preview-note { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--color-line); color: var(--color-fg-muted); font-size: 12px; line-height: 20px; }
 .cq-workspace-actions, .cq-help-actions, .cq-evaluation-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .cq-workspace-actions { gap: 12px; }

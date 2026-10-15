@@ -18,7 +18,6 @@
 
         <header class="atlas-boss-heading">
             <div class="min-w-0">
-                <p class="eyebrow">{{ $course->name }} · Boss Challenge</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">{{ $assessment->title }}</h1>
             </div>
             <div class="flex flex-wrap gap-2">
@@ -60,7 +59,6 @@
                 <div class="challenge-pane-body">
                     <section class="atlas-boss-brief" aria-labelledby="boss-briefing-title">
                         <div class="border-b border-line px-5 py-4">
-                            <p class="eyebrow text-accent">Your task</p>
                             <h2 id="boss-briefing-title" class="mt-1 text-lg font-semibold">Briefing</h2>
                         </div>
                         <div class="space-y-4 px-5 py-5 text-[15px] leading-7 text-fg-muted">
@@ -79,7 +77,6 @@
                     </section>
 
                     <section class="atlas-boss-details" aria-labelledby="boss-details-title">
-                        <p class="eyebrow text-accent">Boss Challenge details</p>
                         <h2 id="boss-details-title" class="mt-1 text-lg font-semibold">What to expect</h2>
                         <dl class="mt-4 space-y-3 border-t border-line pt-4 text-sm">
                             <div class="flex justify-between gap-4"><dt class="text-fg-subtle">Passing score</dt><dd class="font-mono text-fg">{{ $assessment->passing_score }}%</dd></div>
@@ -203,7 +200,7 @@
                     extensions: [
                         CM.basicSetup,
                         lang,
-                        CM.oneDark,
+                        CM.foundry,
                         CM.EditorView.updateListener.of(function (u) {
                             if (u.docChanged) syncPayloads(view);
                         }),
