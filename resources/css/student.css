@@ -624,7 +624,6 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     body.student-ui .challenge-context-meta { width: auto; margin-left: auto; }
 }
 body.student-ui { --color-ink: var(--color-fg); --color-phosphor-dim: var(--color-fg-muted); --color-surface-alt: var(--color-raised); --color-static: var(--color-fg-muted); --color-phosphor: var(--color-accent); --color-amber: var(--color-warning); --color-alert: var(--color-danger); --color-cyan: var(--color-info); }
-body.student-ui .terminal-kicker { font-family: var(--font-mono); }
 
 .atlas-dashboard { min-width: 0; }
 .atlas-dashboard-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-block: 8px 24px; border-bottom: 1px solid var(--color-line); }
