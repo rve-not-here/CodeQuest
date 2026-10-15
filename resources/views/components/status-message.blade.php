@@ -2,10 +2,10 @@
 
 @php
     $map = [
-        'success' => ['dot' => 'bg-phosphor', 'text' => 'text-phosphor', 'border' => 'border-phosphor/30'],
-        'info' => ['dot' => 'bg-cyan', 'text' => 'text-cyan', 'border' => 'border-cyan/30'],
-        'warning' => ['dot' => 'bg-amber', 'text' => 'text-amber', 'border' => 'border-amber/30'],
-        'error' => ['dot' => 'bg-alert', 'text' => 'text-alert', 'border' => 'border-alert/30'],
+        'success' => ['dot' => 'bg-accent', 'text' => 'text-accent', 'border' => 'border-accent-line/30'],
+        'info' => ['dot' => 'bg-info', 'text' => 'text-info', 'border' => 'border-info/30'],
+        'warning' => ['dot' => 'bg-warning', 'text' => 'text-warning', 'border' => 'border-warning/30'],
+        'error' => ['dot' => 'bg-danger', 'text' => 'text-danger', 'border' => 'border-danger/30'],
     ];
     $cfg = $map[$type] ?? $map['info'];
 @endphp

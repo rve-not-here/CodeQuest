@@ -33,7 +33,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="name" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="name" class="block text-sm font-bold text-fg-muted mb-1">
                     Name
                 </label>
                 <input
@@ -49,7 +49,7 @@
             </div>
 
             <div>
-                <label for="slug" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="slug" class="block text-sm font-bold text-fg-muted mb-1">
                     Slug
                 </label>
                 <input
@@ -63,13 +63,13 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('slug') ? 'slug-help slug-error' : 'slug-help' }}" @if ($errors->has('slug')) aria-invalid="true" @endif>
                 @error('slug')<p id="slug-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="slug-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="slug-help" class="text-xs font-bold text-fg-muted mt-1">
                     KEBAB-CASE, UNIQUE ACROSS COURSES
                 </p>
             </div>
 
             <div>
-                <label for="type" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="type" class="block text-sm font-bold text-fg-muted mb-1">
                     Type
                 </label>
                 <input
@@ -85,7 +85,7 @@
             </div>
 
             <div>
-                <label for="order_num" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="order_num" class="block text-sm font-bold text-fg-muted mb-1">
                     Order
                 </label>
                 <input
@@ -98,13 +98,13 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('order_num') ? 'order_num-help order_num-error' : 'order_num-help' }}" @if ($errors->has('order_num')) aria-invalid="true" @endif>
                 @error('order_num')<p id="order_num-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="order_num-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="order_num-help" class="text-xs font-bold text-fg-muted mt-1">
                     THE SINGLE ORDERING KEY — LOWER RENDERS FIRST
                 </p>
             </div>
 
             <div>
-                <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="status" class="block text-sm font-bold text-fg-muted mb-1">
                     Status
                 </label>
                 <select id="status" name="status" class="terminal-input" aria-describedby="{{ $errors->has('status') ? 'status-help status-error' : 'status-help' }}" @if ($errors->has('status')) aria-invalid="true" @endif>
@@ -115,13 +115,13 @@
                     @endforeach
                 </select>
                 @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="status-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="status-help" class="text-xs font-bold text-fg-muted mt-1">
                     CATALOG-LEVEL — NEVER REWRITES STUDENT PROGRESS
                 </p>
             </div>
 
             <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="description" class="block text-sm font-bold text-fg-muted mb-1">
                     Description
                 </label>
                 <textarea

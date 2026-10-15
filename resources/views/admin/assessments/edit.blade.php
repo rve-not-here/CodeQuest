@@ -33,7 +33,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
-                <label for="title" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="title" class="block text-sm font-bold text-fg-muted mb-1">
                     Title
                 </label>
                 <input
@@ -49,7 +49,7 @@
             </div>
 
             <div>
-                <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="status" class="block text-sm font-bold text-fg-muted mb-1">
                     Status
                 </label>
                 <select id="status" name="status" class="terminal-input" aria-describedby="{{ $errors->has('status') ? 'status-help status-error' : 'status-help' }}" @if ($errors->has('status')) aria-invalid="true" @endif>
@@ -60,13 +60,13 @@
                     @endforeach
                 </select>
                 @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="status-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="status-help" class="text-xs font-bold text-fg-muted mt-1">
                     ACCESS GATE — LOCKED/DRAFT SEALS THE CHALLENGE, NEVER REWRITES RECORDED ATTEMPTS
                 </p>
             </div>
 
             <div>
-                <label for="passing_score" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="passing_score" class="block text-sm font-bold text-fg-muted mb-1">
                     Passing Score
                 </label>
                 <input
@@ -79,13 +79,13 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('passing_score') ? 'passing_score-help passing_score-error' : 'passing_score-help' }}" @if ($errors->has('passing_score')) aria-invalid="true" @endif>
                 @error('passing_score')<p id="passing_score-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="passing_score-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="passing_score-help" class="text-xs font-bold text-fg-muted mt-1">
                     AFFECTS FUTURE EVALUATIONS ONLY — RECORDED VERDICTS ARE NEVER REWRITTEN
                 </p>
             </div>
 
             <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="description" class="block text-sm font-bold text-fg-muted mb-1">
                     Description
                 </label>
                 <textarea
@@ -98,7 +98,7 @@
             </div>
 
             <div class="md:col-span-2">
-                <label for="instructions" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="instructions" class="block text-sm font-bold text-fg-muted mb-1">
                     Instructions
                 </label>
                 <textarea
@@ -112,7 +112,7 @@
 
             <div class="md:col-span-2">
                 <div class="mb-2 flex items-center gap-2">
-                    <span class="text-sm font-bold text-phosphor-dim">GRADING RULES (VIEW-ONLY)</span>
+                    <span class="text-sm font-bold text-fg-muted">GRADING RULES (VIEW-ONLY)</span>
                     <x-badge tone="dim">VIEW ONLY</x-badge>
                 </div>
                 <pre class="terminal-input whitespace-pre-wrap break-words p-3 text-[14px] text-ink">{{ $assessment->grading_rule ?? '(none)' }}</pre>

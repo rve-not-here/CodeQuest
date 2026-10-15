@@ -21,7 +21,7 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-phosphor mb-2">Draft → Published → Archived</h2>
+    <h2 class="text-sm font-bold text-accent mb-2">Draft → Published → Archived</h2>
 
     <p class="result-count mb-3 text-sm text-ink">{{ $announcements->count() }} {{ Str::plural('announcement', $announcements->count()) }}</p>
 
@@ -61,10 +61,10 @@
 
                         <tr>
                             <th scope="row" data-label="Announcement">
-                                <a href="{{ route('admin.announcements.edit', $announcement) }}" class="text-phosphor hover:underline">
+                                <a href="{{ route('admin.announcements.edit', $announcement) }}" class="text-accent hover:underline">
                                     {{ $announcement->title }}
                                 </a>
-                                <span class="block text-[13px] text-phosphor-dim">{{ \Illuminate\Support\Str::limit($announcement->message, 90) }}</span>
+                                <span class="block text-[13px] text-fg-muted">{{ \Illuminate\Support\Str::limit($announcement->message, 90) }}</span>
                             </th>
 
                             <td data-label="Audience">
@@ -79,7 +79,7 @@
                                 @if ($announcement->published_at !== null)
                                     {{ $announcement->published_at->format('M d, H:i') }}
                                 @else
-                                    <span class="text-phosphor-dim">—</span>
+                                    <span class="text-fg-muted">—</span>
                                 @endif
                             </td>
 
@@ -89,13 +89,13 @@
 
                             <td data-label="Actions">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <a href="{{ route('admin.announcements.edit', $announcement) }}" class="text-sm font-bold text-cyan hover:underline">
+                                    <a href="{{ route('admin.announcements.edit', $announcement) }}" class="text-sm font-bold text-info hover:underline">
                                         EDIT →
                                     </a>
                                     @if ($announcement->status === 'draft')
                                         <form method="POST" action="{{ route('admin.announcements.publish', $announcement) }}">
                                             @csrf
-                                            <button type="submit" class="text-sm font-bold text-phosphor hover:underline">
+                                            <button type="submit" class="text-sm font-bold text-accent hover:underline">
                                                 PUBLISH →
                                             </button>
                                         </form>
@@ -103,7 +103,7 @@
                                     @if ($announcement->status === 'published')
                                         <form method="POST" action="{{ route('admin.announcements.archive', $announcement) }}">
                                             @csrf
-                                            <button type="submit" class="text-sm font-bold text-alert hover:underline">
+                                            <button type="submit" class="text-sm font-bold text-danger hover:underline">
                                                 ARCHIVE →
                                             </button>
                                         </form>

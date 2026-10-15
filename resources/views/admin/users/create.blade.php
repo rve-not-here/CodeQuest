@@ -26,7 +26,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="username" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="username" class="block text-sm font-bold text-fg-muted mb-1">
                     Username
                 </label>
                 <input
@@ -42,7 +42,7 @@
             </div>
 
             <div>
-                <label for="name" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="name" class="block text-sm font-bold text-fg-muted mb-1">
                     Name
                 </label>
                 <input
@@ -58,7 +58,7 @@
             </div>
 
             <div>
-                <label for="role" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="role" class="block text-sm font-bold text-fg-muted mb-1">
                     Role
                 </label>
                 <select id="role" name="role" class="terminal-input" required @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
@@ -70,7 +70,7 @@
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="password" class="block text-sm font-bold text-fg-muted mb-1">
                     Initial password
                 </label>
                 <input
@@ -83,7 +83,7 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('password') ? 'password-help password-error' : 'password-help' }}" @if ($errors->has('password')) aria-invalid="true" @endif>
                 @error('password')<p id="password-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="password-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="password-help" class="text-xs font-bold text-fg-muted mt-1">
                     At least 8 characters.
                 </p>
             </div>

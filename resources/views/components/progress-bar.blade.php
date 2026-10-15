@@ -4,12 +4,12 @@
     $pct = $total > 0 ? max(0, min(100, round(($current / $total) * 100))) : 0;
 
     $bar = match ($tone) {
-        'amber' => 'bg-amber',
-        'alert' => 'bg-alert',
-        'cyan' => 'bg-cyan',
-        'phosphor' => 'bg-phosphor',
-        'dim' => 'bg-phosphor-dim',
-        default => 'bg-phosphor',
+        'amber' => 'bg-warning',
+        'alert' => 'bg-danger',
+        'cyan' => 'bg-info',
+        'phosphor' => 'bg-accent',
+        'dim' => 'bg-fg-muted',
+        default => 'bg-accent',
     };
 @endphp
 
@@ -21,7 +21,7 @@
         </div>
     @endif
 
-    <div class="h-2.5 w-full overflow-hidden border border-phosphor/15 bg-void">
+    <div class="h-2.5 w-full overflow-hidden border border-accent-line/15 bg-void">
         <div
             class="h-full {{ $bar }} transition-all duration-500"
             style="width: {{ $pct }}%"

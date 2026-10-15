@@ -18,7 +18,7 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-phosphor mb-2">Boss Challenge of {{ $course->name }}</h2>
+    <h2 class="text-sm font-bold text-accent mb-2">Boss Challenge of {{ $course->name }}</h2>
 
     @if ($assessment === null)
         <x-status-message type="info" title="NO BOSS CHALLENGE">
@@ -39,10 +39,10 @@
                 <tbody>
                     <tr>
                         <th scope="row" data-label="Challenge">
-                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-phosphor hover:underline">
+                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-accent hover:underline">
                                 {{ $assessment->title }}
                             </a>
-                            <span class="block text-[15px] text-phosphor-dim">{{ $assessment->description }}</span>
+                            <span class="block text-[15px] text-fg-muted">{{ $assessment->description }}</span>
                         </th>
 
                         <td data-label="Status">
@@ -54,7 +54,7 @@
                         </td>
 
                         <td data-label="Edit">
-                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-sm font-bold text-cyan hover:underline">
+                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-sm font-bold text-info hover:underline">
                                 EDIT →
                             </a>
                         </td>

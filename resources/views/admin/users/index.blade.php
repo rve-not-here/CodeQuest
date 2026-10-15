@@ -15,12 +15,12 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-phosphor mb-2">Account Directory</h2>
+    <h2 class="text-sm font-bold text-accent mb-2">Account Directory</h2>
 
     <form method="GET" action="{{ route('admin.users') }}" class="admin-filters">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
-                <label for="q" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="q" class="block text-sm font-bold text-fg-muted mb-1">
                     Search
                 </label>
                 <input
@@ -35,7 +35,7 @@
             </div>
 
             <div>
-                <label for="role" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="role" class="block text-sm font-bold text-fg-muted mb-1">
                     Role
                 </label>
                 <select id="role" name="role" class="terminal-input" @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
@@ -101,10 +101,10 @@
                             <th scope="row" data-label="User">
                                 <a
                                     href="{{ route('admin.users.show', $row['id']) }}"
-                                    class="text-phosphor hover:underline"
+                                    class="text-accent hover:underline"
                                 >{{ $row['username'] }}</a>
                                 @if ($row['name'])
-                                    <span class="block text-[15px] text-phosphor-dim">{{ $row['name'] }}</span>
+                                    <span class="block text-[15px] text-fg-muted">{{ $row['name'] }}</span>
                                 @endif
                             </th>
 
@@ -123,14 +123,14 @@
                             <td data-label="Last activity">
                                 @if ($row['lastActivity'] !== null)
                                     <span class="block text-ink">{{ $row['lastActivity']['message'] }}</span>
-                                    <span class="block text-[13px] text-phosphor-dim">{{ $row['lastActivity']['at'] }}</span>
+                                    <span class="block text-[13px] text-fg-muted">{{ $row['lastActivity']['at'] }}</span>
                                 @else
-                                    <span class="text-phosphor-dim">—</span>
+                                    <span class="text-fg-muted">—</span>
                                 @endif
                             </td>
 
                             <td data-label="Record">
-                                <a href="{{ route('admin.users.show', $row['id']) }}" class="text-sm font-bold text-cyan hover:underline">
+                                <a href="{{ route('admin.users.show', $row['id']) }}" class="text-sm font-bold text-info hover:underline">
                                     VIEW →
                                 </a>
                             </td>
@@ -140,8 +140,8 @@
             </table>
 
             @if ($users->hasPages())
-                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-phosphor-dim/60">
-                    <p class="text-sm font-bold text-phosphor-dim">
+                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-fg-muted/60">
+                    <p class="text-sm font-bold text-fg-muted">
                         SHOWING PAGE {{ $users->currentPage() }} OF {{ $users->lastPage() }}
                     </p>
                     <div class="flex items-center gap-2">

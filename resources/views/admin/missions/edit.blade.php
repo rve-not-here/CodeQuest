@@ -33,7 +33,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
-                <label for="title" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="title" class="block text-sm font-bold text-fg-muted mb-1">
                     Title
                 </label>
                 <input
@@ -49,7 +49,7 @@
             </div>
 
             <div>
-                <label for="difficulty" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="difficulty" class="block text-sm font-bold text-fg-muted mb-1">
                     Difficulty
                 </label>
                 <select id="difficulty" name="difficulty" class="terminal-input" @if ($errors->has('difficulty')) aria-invalid="true" aria-describedby="difficulty-error" @endif>
@@ -63,7 +63,7 @@
             </div>
 
             <div>
-                <label for="points" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="points" class="block text-sm font-bold text-fg-muted mb-1">
                     Points
                 </label>
                 <input
@@ -76,13 +76,13 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('points') ? 'points-help points-error' : 'points-help' }}" @if ($errors->has('points')) aria-invalid="true" @endif>
                 @error('points')<p id="points-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="points-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="points-help" class="text-xs font-bold text-fg-muted mt-1">
                     AFFECTS FUTURE COMPLETIONS ONLY — RECORDED XP IS NEVER REWRITTEN
                 </p>
             </div>
 
             <div>
-                <label for="order_num" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="order_num" class="block text-sm font-bold text-fg-muted mb-1">
                     Order
                 </label>
                 <input
@@ -95,13 +95,13 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('order_num') ? 'order_num-help order_num-error' : 'order_num-help' }}" @if ($errors->has('order_num')) aria-invalid="true" @endif>
                 @error('order_num')<p id="order_num-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="order_num-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="order_num-help" class="text-xs font-bold text-fg-muted mt-1">
                     THE SINGLE ORDERING KEY — LOWER RENDERS FIRST
                 </p>
             </div>
 
             <div>
-                <label for="section_id" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="section_id" class="block text-sm font-bold text-fg-muted mb-1">
                     Section
                 </label>
                 <select id="section_id" name="section_id" class="terminal-input" aria-describedby="{{ $errors->has('section_id') ? 'section_id-help section_id-error' : 'section_id-help' }}" @if ($errors->has('section_id')) aria-invalid="true" @endif>
@@ -116,13 +116,13 @@
                     @endforeach
                 </select>
                 @error('section_id')<p id="section_id-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="section_id-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="section_id-help" class="text-xs font-bold text-fg-muted mt-1">
                     MAY ONLY BE A SECTION OF THIS COURSE
                 </p>
             </div>
 
             <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="description" class="block text-sm font-bold text-fg-muted mb-1">
                     Description
                 </label>
                 <textarea
@@ -135,7 +135,7 @@
             </div>
 
             <div class="md:col-span-2">
-                <label for="broken_code" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="broken_code" class="block text-sm font-bold text-fg-muted mb-1">
                     Broken Code
                 </label>
                 <textarea
@@ -148,7 +148,7 @@
             </div>
 
             <div class="md:col-span-2">
-                <label for="target_html" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="target_html" class="block text-sm font-bold text-fg-muted mb-1">
                     Target HTML
                 </label>
                 <textarea
@@ -161,7 +161,7 @@
             </div>
 
             <div class="md:col-span-2">
-                <label for="hints" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="hints" class="block text-sm font-bold text-fg-muted mb-1">
                     Hints
                 </label>
                 <textarea
@@ -175,7 +175,7 @@
 
             <div class="md:col-span-2">
                 <div class="mb-2 flex items-center gap-2">
-                    <span class="text-sm font-bold text-phosphor-dim">SOLUTION CODE (VIEW-ONLY)</span>
+                    <span class="text-sm font-bold text-fg-muted">SOLUTION CODE (VIEW-ONLY)</span>
                     <x-badge tone="dim">VIEW ONLY</x-badge>
                 </div>
                 <pre class="terminal-input whitespace-pre-wrap break-words p-3 text-[14px] text-ink">{{ $mission->solution_code ?? '(none)' }}</pre>
@@ -183,7 +183,7 @@
 
             <div class="md:col-span-2">
                 <div class="mb-2 flex items-center gap-2">
-                    <span class="text-sm font-bold text-phosphor-dim">VALIDATION RULES (VIEW-ONLY)</span>
+                    <span class="text-sm font-bold text-fg-muted">VALIDATION RULES (VIEW-ONLY)</span>
                     <x-badge tone="dim">VIEW ONLY</x-badge>
                 </div>
                 <pre class="terminal-input whitespace-pre-wrap break-words p-3 text-[14px] text-ink">{{ $mission->validate_rule ?? '(none)' }}</pre>

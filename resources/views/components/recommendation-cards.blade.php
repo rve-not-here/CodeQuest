@@ -36,15 +36,15 @@
                 @endif
                 <div class="min-w-0">
                     <p class="truncate text-[15px] {{ $variant === 'student' ? 'text-fg' : 'font-body text-ink' }}">{{ $recommendation['title'] }}</p>
-                    <p class="truncate text-xs {{ $variant === 'student' ? 'text-fg-muted' : 'font-bold text-phosphor-dim' }}">{{ $recommendation['subtitle'] }}</p>
+                    <p class="truncate text-xs {{ $variant === 'student' ? 'text-fg-muted' : 'font-bold text-fg-muted' }}">{{ $recommendation['subtitle'] }}</p>
                     @if (! ($recommendation['accessible'] ?? true) && ($recommendation['locked_reason'] ?? null))
-                        <p class="truncate text-xs {{ $variant === 'student' ? 'text-warning' : 'text-amber' }}">{{ $recommendation['locked_reason'] }}</p>
+                        <p class="truncate text-xs {{ $variant === 'student' ? 'text-warning' : 'text-warning' }}">{{ $recommendation['locked_reason'] }}</p>
                     @endif
                 </div>
                 @if ($actionable && ($recommendation['accessible'] ?? true))
                     <a
                         href="{{ $recommendation['href'] }}"
-                        class="ml-auto shrink-0 {{ $variant === 'student' ? 'btn btn-secondary btn-sm' : 'rounded-[2px] border border-phosphor-dim px-3 py-1 text-sm font-bold text-phosphor hover:bg-phosphor hover:text-void' }}"
+                        class="ml-auto shrink-0 {{ $variant === 'student' ? 'btn btn-secondary btn-sm' : 'rounded-[2px] border border-fg-muted px-3 py-1 text-sm font-bold text-accent hover:bg-accent hover:text-void' }}"
                     >
                         {{ $recommendation['cta'] }} →
                     </a>

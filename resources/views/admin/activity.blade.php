@@ -12,7 +12,7 @@
     <form method="GET" action="{{ route('admin.activity') }}" class="admin-filters">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
-                <label for="actor" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="actor" class="block text-sm font-bold text-fg-muted mb-1">
                     Actor
                 </label>
                 <select id="actor" name="actor" class="terminal-input" @if ($errors->has('actor')) aria-invalid="true" aria-describedby="actor-error" @endif>
@@ -28,7 +28,7 @@
             </div>
 
             <div>
-                <label for="action" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="action" class="block text-sm font-bold text-fg-muted mb-1">
                     Action
                 </label>
                 <select id="action" name="action" class="terminal-input" @if ($errors->has('action')) aria-invalid="true" aria-describedby="action-error" @endif>
@@ -44,7 +44,7 @@
             </div>
 
             <div>
-                <label for="result" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="result" class="block text-sm font-bold text-fg-muted mb-1">
                     Result
                 </label>
                 <select id="result" name="result" class="terminal-input" @if ($errors->has('result')) aria-invalid="true" aria-describedby="result-error" @endif>
@@ -61,14 +61,14 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label for="from" class="block text-sm font-bold text-phosphor-dim mb-1">
+                    <label for="from" class="block text-sm font-bold text-fg-muted mb-1">
                         From
                     </label>
                     <input id="from" name="from" type="date" value="{{ $filters['from'] ?? '' }}" class="terminal-input" @if ($errors->has('from')) aria-invalid="true" aria-describedby="from-error" @endif>
                 @error('from')<p id="from-error" class="admin-field-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="to" class="block text-sm font-bold text-phosphor-dim mb-1">
+                    <label for="to" class="block text-sm font-bold text-fg-muted mb-1">
                         To
                     </label>
                     <input id="to" name="to" type="date" value="{{ $filters['to'] ?? '' }}" class="terminal-input" @if ($errors->has('to')) aria-invalid="true" aria-describedby="to-error" @endif>
@@ -129,8 +129,8 @@
                 </tbody>
             </table>
             @if ($events->hasPages())
-                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-phosphor-dim/60">
-                    <p class="text-sm font-bold text-phosphor-dim">
+                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-fg-muted/60">
+                    <p class="text-sm font-bold text-fg-muted">
                         SHOWING PAGE {{ $events->currentPage() }} OF {{ $events->lastPage() }}
                     </p>
                     <div class="flex items-center gap-2">

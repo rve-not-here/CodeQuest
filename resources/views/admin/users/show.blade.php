@@ -31,31 +31,31 @@
             <h2 class="panel-title mb-3">Account</h2>
             <dl class="admin-property-list">
                 <div>
-                    <dt class="text-xs font-bold text-phosphor-dim mb-1">Username</dt>
+                    <dt class="text-xs font-bold text-fg-muted mb-1">Username</dt>
                     <dd class="text-ink">{{ $user->username }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-bold text-phosphor-dim mb-1">Name</dt>
+                    <dt class="text-xs font-bold text-fg-muted mb-1">Name</dt>
                     <dd class="text-ink">{{ $user->name ?: '—' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-bold text-phosphor-dim mb-1">Role</dt>
+                    <dt class="text-xs font-bold text-fg-muted mb-1">Role</dt>
                     <dd class="mt-1"><x-badge tone="{{ $roleTone }}">{{ strtoupper($user->role) }}</x-badge></dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-bold text-phosphor-dim mb-1">Status</dt>
+                    <dt class="text-xs font-bold text-fg-muted mb-1">Status</dt>
                     <dd class="mt-1"><x-badge tone="{{ $statusTone }}">{{ strtoupper($user->status) }}</x-badge></dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-bold text-phosphor-dim mb-1">Account created</dt>
+                    <dt class="text-xs font-bold text-fg-muted mb-1">Account created</dt>
                     <dd class="text-ink">{{ $user->created_at->format('Y-m-d H:i') }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-bold text-phosphor-dim mb-1">Last activity</dt>
+                    <dt class="text-xs font-bold text-fg-muted mb-1">Last activity</dt>
                     <dd class="text-ink">
                         @if ($recentActivity->isNotEmpty())
                             {{ $recentActivity->first()['label'] }}
-                            <span class="block text-[13px] text-phosphor-dim">
+                            <span class="block text-[13px] text-fg-muted">
                                 {{ $recentActivity->first()['at']->diffForHumans() }}
                             </span>
                         @else
@@ -70,9 +70,9 @@
             <h2 class="panel-title mb-3">Recent Activity</h2>
 
             @forelse ($recentActivity as $beat)
-                <div class="border-b border-phosphor-dim/40 py-1 last:border-0">
+                <div class="border-b border-fg-muted/40 py-1 last:border-0">
                     <p class="font-body text-[15px] text-ink leading-snug">{{ $beat['label'] }}</p>
-                    <p class="text-xs font-bold text-phosphor-dim mt-0.5">
+                    <p class="text-xs font-bold text-fg-muted mt-0.5">
                         {{ $beat['at']->diffForHumans() }} · {{ $beat['type'] }}
                     </p>
                 </div>

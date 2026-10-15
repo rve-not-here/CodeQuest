@@ -132,7 +132,7 @@
                             @php($href = $links[$notification->id] ?? null)
                             <div class="flex flex-wrap items-center gap-2">
                                 @if ($href !== null)
-                                    <a href="{{ $href }}" class="font-body text-[15px] text-ink hover:text-phosphor hover:underline">
+                                    <a href="{{ $href }}" class="font-body text-[15px] text-ink hover:text-accent hover:underline">
                                         {{ $notification->title }}
                                     </a>
                                 @else
@@ -142,7 +142,7 @@
                                     <x-badge tone="amber">SYSTEM</x-badge>
                                 @endif
                             </div>
-                            <p class="font-body text-[13px] text-phosphor-dim mt-0.5">{{ $notification->message }}</p>
+                            <p class="font-body text-[13px] text-fg-muted mt-0.5">{{ $notification->message }}</p>
                         </div>
                         @if ($notification->read_at === null)
                             <form method="POST" action="{{ route('notifications.read', $notification) }}" class="shrink-0">
@@ -152,7 +152,7 @@
                         @else
                             <x-badge tone="dim" class="shrink-0">READ</x-badge>
                         @endif
-                        <span class="text-xs font-bold text-phosphor-dim shrink-0 ml-auto">
+                        <span class="text-xs font-bold text-fg-muted shrink-0 ml-auto">
                             {{ $notification->created_at->format('M d, H:i') }}
                         </span>
                     </div>
@@ -160,8 +160,8 @@
             </div>
 
             @if ($notifications->hasPages())
-                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-phosphor-dim/60">
-                    <p class="text-sm font-bold text-phosphor-dim">
+                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-fg-muted/60">
+                    <p class="text-sm font-bold text-fg-muted">
                         SHOWING PAGE {{ $notifications->currentPage() }} OF {{ $notifications->lastPage() }}
                     </p>
                     <div class="flex items-center gap-2">

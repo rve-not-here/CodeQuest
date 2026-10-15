@@ -2,10 +2,10 @@
 
 @php
     $map = [
-        'phosphor' => 'border border-phosphor/45 bg-phosphor/10 text-phosphor',
-        'amber' => 'border border-amber/45 bg-amber/10 text-amber',
-        'alert' => 'border border-alert/45 bg-alert/10 text-alert',
-        'cyan' => 'border border-cyan/45 bg-cyan/10 text-cyan',
+        'phosphor' => 'border border-accent-line/45 bg-accent/10 text-accent',
+        'amber' => 'border border-warning/45 bg-warning/10 text-warning',
+        'alert' => 'border border-danger/45 bg-danger/10 text-danger',
+        'cyan' => 'border border-info/45 bg-info/10 text-info',
         'dim' => 'border border-static/35 bg-static/10 text-static',
     ];
     $cls = $map[$tone] ?? $map['phosphor'];

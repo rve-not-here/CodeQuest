@@ -326,10 +326,6 @@
         outline-offset: 2px;
     }
 
-    .text-phosphor-dim {
-        color: var(--color-phosphor-dim);
-    }
-
     .navigation-index {
         display: inline-flex;
         width: 2rem;

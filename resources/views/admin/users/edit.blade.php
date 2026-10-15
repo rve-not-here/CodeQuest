@@ -33,7 +33,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="role" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="role" class="block text-sm font-bold text-fg-muted mb-1">
                     Role
                 </label>
                 <select id="role" name="role" class="terminal-input" aria-describedby="{{ $errors->has('role') ? 'role-help role-error' : 'role-help' }}" @if ($errors->has('role')) aria-invalid="true" @endif>
@@ -44,13 +44,13 @@
                     @endforeach
                 </select>
                 @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="role-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="role-help" class="text-xs font-bold text-fg-muted mt-1">
                     FULL SET — OPERATOR ASSIGNABLE ON EXISTING ACCOUNTS
                 </p>
             </div>
 
             <div>
-                <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="status" class="block text-sm font-bold text-fg-muted mb-1">
                     Status
                 </label>
                 <select id="status" name="status" class="terminal-input" aria-describedby="{{ $errors->has('status') ? 'status-help status-error' : 'status-help' }}" @if ($errors->has('status')) aria-invalid="true" @endif>
@@ -58,7 +58,7 @@
                     <option value="inactive" @selected(old('status', $user->status) === 'inactive')>INACTIVE</option>
                 </select>
                 @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="status-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="status-help" class="text-xs font-bold text-fg-muted mt-1">
                     @if ($user->role === 'admin' && $user->status === 'active')
                         ADMIN — THE ACTIVE-ADMIN FLEET MUST STAY ≥ 2
                     @else
@@ -68,7 +68,7 @@
             </div>
 
             <div>
-                <label for="username" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="username" class="block text-sm font-bold text-fg-muted mb-1">
                     Username
                 </label>
                 <input
@@ -84,7 +84,7 @@
             </div>
 
             <div>
-                <label for="name" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="name" class="block text-sm font-bold text-fg-muted mb-1">
                     Name
                 </label>
                 <input
@@ -100,7 +100,7 @@
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="password" class="block text-sm font-bold text-fg-muted mb-1">
                     New password
                 </label>
                 <input
@@ -112,7 +112,7 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('password') ? 'password-help password-error' : 'password-help' }}" @if ($errors->has('password')) aria-invalid="true" @endif>
                 @error('password')<p id="password-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="password-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="password-help" class="text-xs font-bold text-fg-muted mt-1">
                     Leave blank to keep the current password.
                 </p>
             </div>

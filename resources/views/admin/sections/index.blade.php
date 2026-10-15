@@ -16,7 +16,7 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-phosphor mb-2">Sections in {{ $course->name }}</h2>
+    <h2 class="text-sm font-bold text-accent mb-2">Sections in {{ $course->name }}</h2>
 
     <p class="result-count mb-3 text-sm text-ink">{{ $sections->count() }} {{ Str::plural('section', $sections->count()) }}</p>
 
@@ -45,7 +45,7 @@
                             </td>
 
                             <th scope="row" data-label="Section">
-                                <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-phosphor hover:underline">
+                                <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-accent hover:underline">
                                     {{ $section->title }}
                                 </a>
                             </th>
@@ -59,7 +59,7 @@
                             </td>
 
                             <td data-label="Edit">
-                                <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-sm font-bold text-cyan hover:underline">
+                                <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-sm font-bold text-info hover:underline">
                                     EDIT →
                                 </a>
                             </td>

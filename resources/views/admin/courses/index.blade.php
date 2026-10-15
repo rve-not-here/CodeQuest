@@ -15,7 +15,7 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-phosphor mb-2">Course Catalog</h2>
+    <h2 class="text-sm font-bold text-accent mb-2">Course Catalog</h2>
 
     <p class="result-count mb-3 text-sm text-ink">{{ $courses->count() }} {{ Str::plural('course', $courses->count()) }}</p>
 
@@ -55,10 +55,10 @@
                             </td>
 
                             <th scope="row" data-label="Course">
-                                <a href="{{ route('admin.courses.edit', $course) }}" class="text-phosphor hover:underline">
+                                <a href="{{ route('admin.courses.edit', $course) }}" class="text-accent hover:underline">
                                     {{ $course->name }}
                                 </a>
-                                <span class="block text-[15px] text-phosphor-dim">{{ $course->slug }}</span>
+                                <span class="block text-[15px] text-fg-muted">{{ $course->slug }}</span>
                             </th>
 
                             <td data-label="Type">
@@ -70,29 +70,29 @@
                             </td>
 
                             <td data-label="Sections">
-                                <a href="{{ route('admin.courses.sections', $course) }}" class="text-sm font-bold text-cyan hover:underline">
+                                <a href="{{ route('admin.courses.sections', $course) }}" class="text-sm font-bold text-info hover:underline">
                                     {{ $course->sections_count }} <x-workspace-icon name="chevron-right" class="inline-icon" />
                                 </a>
                             </td>
 
                             <td data-label="Missions">
-                                <a href="{{ route('admin.courses.missions', $course) }}" class="text-sm font-bold text-cyan hover:underline">
+                                <a href="{{ route('admin.courses.missions', $course) }}" class="text-sm font-bold text-info hover:underline">
                                     {{ $course->missions_count }} <x-workspace-icon name="chevron-right" class="inline-icon" />
                                 </a>
                             </td>
 
                             <td data-label="Challenge">
                                 @if ($course->assessment_count > 0)
-                                    <a href="{{ route('admin.courses.assessment', $course) }}" class="text-sm font-bold text-cyan hover:underline">
+                                    <a href="{{ route('admin.courses.assessment', $course) }}" class="text-sm font-bold text-info hover:underline">
                                         1 <x-workspace-icon name="chevron-right" class="inline-icon" />
                                     </a>
                                 @else
-                                    <span class="text-sm font-bold text-phosphor-dim">—</span>
+                                    <span class="text-sm font-bold text-fg-muted">—</span>
                                 @endif
                             </td>
 
                             <td data-label="Edit">
-                                <a href="{{ route('admin.courses.edit', $course) }}" class="text-sm font-bold text-cyan hover:underline">
+                                <a href="{{ route('admin.courses.edit', $course) }}" class="text-sm font-bold text-info hover:underline">
                                     EDIT →
                                 </a>
                             </td>

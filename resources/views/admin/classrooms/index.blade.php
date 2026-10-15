@@ -15,12 +15,12 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-phosphor mb-2">Classroom Directory</h2>
+    <h2 class="text-sm font-bold text-accent mb-2">Classroom Directory</h2>
 
     <form method="GET" action="{{ route('admin.classrooms') }}" class="admin-filters">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
-                <label for="q" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="q" class="block text-sm font-bold text-fg-muted mb-1">
                     Search
                 </label>
                 <input
@@ -35,7 +35,7 @@
             </div>
 
             <div>
-                <label for="status" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="status" class="block text-sm font-bold text-fg-muted mb-1">
                     Status
                 </label>
                 <select id="status" name="status" class="terminal-input" @if ($errors->has('status')) aria-invalid="true" aria-describedby="status-error" @endif>
@@ -88,7 +88,7 @@
                     @foreach ($classrooms as $classroom)
                         <tr>
                             <th scope="row" data-label="Classroom">
-                                <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-phosphor hover:underline">
+                                <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-accent hover:underline">
                                     {{ $classroom->name }}
                                 </a>
                             </th>
@@ -116,7 +116,7 @@
                             </td>
 
                             <td data-label="Edit">
-                                <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-sm font-bold text-cyan hover:underline">
+                                <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-sm font-bold text-info hover:underline">
                                     EDIT →
                                 </a>
                             </td>

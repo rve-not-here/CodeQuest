@@ -33,7 +33,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
-                <label for="title" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="title" class="block text-sm font-bold text-fg-muted mb-1">
                     Title
                 </label>
                 <input
@@ -49,7 +49,7 @@
             </div>
 
             <div>
-                <label for="order_num" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="order_num" class="block text-sm font-bold text-fg-muted mb-1">
                     Order
                 </label>
                 <input
@@ -62,13 +62,13 @@
                     class="terminal-input"
                  aria-describedby="{{ $errors->has('order_num') ? 'order_num-help order_num-error' : 'order_num-help' }}" @if ($errors->has('order_num')) aria-invalid="true" @endif>
                 @error('order_num')<p id="order_num-error" class="admin-field-error">{{ $message }}</p>@enderror
-                <p id="order_num-help" class="text-xs font-bold text-phosphor-dim mt-1">
+                <p id="order_num-help" class="text-xs font-bold text-fg-muted mt-1">
                     THE SINGLE ORDERING KEY — LOWER RENDERS FIRST
                 </p>
             </div>
 
             <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-bold text-phosphor-dim mb-1">
+                <label for="description" class="block text-sm font-bold text-fg-muted mb-1">
                     Description
                 </label>
                 <textarea

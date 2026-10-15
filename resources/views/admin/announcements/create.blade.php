@@ -25,7 +25,7 @@
         @csrf
 
         <div>
-            <label for="title" class="block text-sm font-bold text-phosphor-dim mb-1">
+            <label for="title" class="block text-sm font-bold text-fg-muted mb-1">
                 Title
             </label>
             <input
@@ -41,7 +41,7 @@
         </div>
 
         <div class="mt-4">
-            <label for="message" class="block text-sm font-bold text-phosphor-dim mb-1">
+            <label for="message" class="block text-sm font-bold text-fg-muted mb-1">
                 Message
             </label>
             <textarea
@@ -55,7 +55,7 @@
         </div>
 
         <div class="mt-4 max-w-xs">
-            <label for="audience" class="block text-sm font-bold text-phosphor-dim mb-1">
+            <label for="audience" class="block text-sm font-bold text-fg-muted mb-1">
                 Audience
             </label>
             <select id="audience" name="audience" class="terminal-input" required aria-describedby="{{ $errors->has('audience') ? 'audience-help audience-error' : 'audience-help' }}" @if ($errors->has('audience')) aria-invalid="true" @endif>
@@ -65,7 +65,7 @@
                 <option value="admins" @selected(old('audience') === 'admins')>ADMINS</option>
             </select>
                 @error('audience')<p id="audience-error" class="admin-field-error">{{ $message }}</p>@enderror
-            <p id="audience-help" class="text-xs font-bold text-phosphor-dim mt-1">
+            <p id="audience-help" class="text-xs font-bold text-fg-muted mt-1">
                 SERVER-DETERMINED · OPERATORS NEVER DELIVERED
             </p>
         </div>

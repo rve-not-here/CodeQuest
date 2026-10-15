@@ -10,7 +10,7 @@
 
 <section {{ $attributes->merge(['class' => 'panel p-4 sm:p-5']) }}>
     @if ($title || $actions || $code)
-        <header class="mb-4 flex items-center justify-between gap-4 border-b border-phosphor/15 pb-3">
+        <header class="mb-4 flex items-center justify-between gap-4 border-b border-accent-line/15 pb-3">
             <div class="min-w-0 flex items-center gap-3">
                 @if ($code)
                     <span class="sort-code">{{ $code }}</span>
