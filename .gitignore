@@ -30,3 +30,11 @@ Thumbs.db
 /storage/phpstan/cache/
 /storage/phpstan/resultCache.php
 /storage/phpstan/larastan_migrations_*.cache
+
+# Impeccable: native engines are platform-specific and re-fetched by `npx impeccable install`.
+# The markdown skills stay tracked so the team shares them.
+/.claude/agents/
+/.claude/settings.local.json
+/.github/agents/
+/.grok/hooks/
+*/skills/impeccable/scripts/bin/
