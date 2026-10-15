@@ -15,9 +15,17 @@
 - responsive behavior
 - QA requirements
 
-## Challenge Workspace Reference
+## Approved focused workspace prototype
 
-`docs/design/references/challenge-workspace-reference.html` is a visual and interaction reference for the CodeQuest Challenge Workspace.
+The owner approved the [focused Coding Challenge prototype](coding-workspace-preview/README.md) on 2026-10-15.
+
+Its runnable source is in `docs/design/coding-workspace-preview/`. It retains Mission Atlas and uses Code / Preview tabs sharing one full-width work area. Lesson context and the example are directly visible; mobile adds an Instructions tab. It has compact controls, a separate Hint action, no footer toolbar or Save button, and confirmation before Run / Submit.
+
+This is the current approved visual reference for that focused workspace. It is not production application code. Authentication, scoring, draft persistence, progression, sandbox rules and other domain behavior remain governed by the master specification and implemented backend. The research and document review are recorded in [the system UI review](2026-10-14-system-ui-review.md) and [reference research](2026-10-14-reference-project-research.md).
+
+## Earlier Challenge Workspace Reference
+
+`docs/design/references/challenge-workspace-reference.html` is an earlier visual and interaction reference. Its sidebar preview and persistent footer arrangement are superseded by the approved focused prototype above. The list below describes historical reference coverage, not the newly approved composition.
 
 It is a reference for:
 

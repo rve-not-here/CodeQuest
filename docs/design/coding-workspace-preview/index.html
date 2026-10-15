@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CodeQuest · Focused Challenge UX preview</title><link rel="stylesheet" href="/preview-assets/app.css"><link rel="stylesheet" href="/preview-assets/student.css"><link rel="stylesheet" href="workspace.css"></head>
+<body class="atlas-ui student-ui">
+<a href="#main" class="atlas-skip">Skip to content</a>
+<header class="atlas-shell" data-role="student"><div class="atlas-shell-inner">
+<a class="atlas-brand" href="#main"><span class="atlas-mark" aria-hidden="true">404</span><span>CodeQuest</span></a>
+<nav class="atlas-primary" aria-label="Primary"><a href="#" data-existing-route="/dashboard">Dashboard</a><a href="#" data-existing-route="/learning-path" aria-current="page">Learning Path</a><a href="#" data-existing-route="/assessments">Boss Challenges</a></nav>
+<details class="atlas-disclosure atlas-secondary" data-shell-disclosure><summary>Learning record</summary><nav class="atlas-popover" aria-label="Learning record"><a href="#" data-existing-route="/competency">Learning Performance</a><a href="#" data-existing-route="/timeline">Timeline</a><a href="#" data-existing-route="/recommendations">Recommendations</a></nav></details>
+<div class="atlas-shell-actions"><span class="atlas-xp">0 XP</span><details class="atlas-disclosure atlas-mobile" data-shell-disclosure><summary aria-label="Open navigation menu">Menu</summary><nav class="atlas-popover" aria-label="Mobile navigation"><a href="#" data-existing-route="/dashboard">Dashboard</a><a href="#" data-existing-route="/learning-path">Learning Path</a><a href="#" data-existing-route="/assessments">Boss Challenges</a></nav></details><details class="atlas-disclosure" data-shell-disclosure><summary aria-label="Open account menu"><span class="atlas-avatar" aria-hidden="true">D</span>Account</summary><div class="atlas-popover"><p>demo.student</p><p>Student account</p><button type="button" data-existing-route="/logout">Sign out</button></div></details></div>
+</div></header>
+<main id="main" tabindex="-1">
+<article id="focused-workspace">
+<h1 class="sr-only">Header_Reconstruction coding challenge</h1>
+<div class="focus-grid">
+<header class="focus-editor-heading">
+<div class="focus-tabs" role="tablist" aria-label="Workspace views">
+<button type="button" role="tab" id="tab-task" data-work-tab="task" aria-controls="task" aria-selected="false" tabindex="-1" hidden>Instructions</button>
+<button type="button" role="tab" id="tab-code" data-work-tab="code" aria-controls="code" aria-selected="true" tabindex="0">Code</button>
+<button type="button" role="tab" id="tab-output" data-work-tab="output" aria-controls="output" aria-selected="false" tabindex="-1"><i class="cq-icon" data-icon="eye" aria-hidden="true"></i>Preview</button>
+</div>
+<div class="focus-action-row"><button class="btn btn-secondary" type="button" data-hint>Hint · 5 XP</button><div class="focus-work-actions"><button class="btn btn-secondary" type="button" data-run aria-label="Run preview"><i class="cq-icon" data-icon="play" aria-hidden="true"></i>Run</button><button class="btn btn-primary" type="button" data-submit aria-label="Submit challenge"><i class="cq-icon" data-icon="send" aria-hidden="true"></i>Submit</button></div></div>
+
+<details class="focus-options" data-shell-disclosure data-workspace-options><summary aria-label="Workspace options" title="Workspace options"><i class="cq-icon" data-icon="sliders-horizontal" aria-hidden="true"></i></summary><div class="focus-options-menu"><button class="btn btn-ghost" type="button" data-collapse="task" aria-controls="task" aria-expanded="true"><i class="cq-icon" data-instructions-icon data-icon="panel-left-close" aria-hidden="true"></i><span data-collapse-label>Hide instructions</span></button><label class="focus-resize">Instructions width<input type="range" min="280" max="420" value="340" data-width="task"></label><button class="btn btn-ghost" type="button" data-reset>Reset layout</button><button class="btn btn-ghost" type="button" data-fullscreen><i class="cq-icon" data-fullscreen-icon data-icon="maximize" aria-hidden="true"></i><span data-fullscreen-label>Fullscreen</span></button></div></details>
+</header>
+<section class="focus-pane focus-instructions" id="task" data-pane="task" aria-labelledby="instruction-title">
+<header class="focus-pane-heading"><span class="focus-pane-label">Instructions</span><a href="#" class="focus-return" data-existing-route="/missions/1"><i class="cq-icon" data-icon="arrow-left" aria-hidden="true"></i>Back to lesson</a></header>
+<div class="focus-reading">
+<h2 id="instruction-title" class="focus-lesson-title">Lesson context</h2>
+<p>A heading tells the browser how important a line of text is. HTML offers six levels, h1 down to h6, and h1 marks the single most important headline on the page.</p>
+<p>Search engines and screen readers both use it to understand page structure, so every page should have exactly one clear h1.</p>
+<p>Syntax: an opening tag, the headline text, then a matching closing tag with a forward slash.</p>
+<h3>Example</h3>
+<pre class="focus-example"><code>&lt;h1&gt;Emergency Broadcast&lt;/h1&gt;</code></pre>
+<p class="focus-example-note">Renders as the largest headline on the page.</p>
+</div></section>
+<section class="focus-pane focus-code" id="code" data-pane="code" role="tabpanel" aria-labelledby="tab-code"><div id="editor-host"></div><section class="focus-results" data-submission-feedback aria-labelledby="feedback-title" hidden><header><h2 id="feedback-title">Submission feedback</h2><button class="btn btn-ghost" data-feedback-toggle aria-controls="feedback-body" aria-expanded="true">Collapse</button></header><div id="feedback-body"><p data-feedback>No submission yet.</p><p class="focus-small">Run previews your code. Submit sends it for server evaluation.</p></div></section></section>
+<section class="focus-pane focus-output" id="output" data-pane="output" role="tabpanel" aria-labelledby="tab-output" hidden><p class="focus-preview-note"><span>Preview only. No result is recorded.</span><span data-preview-state>Not run</span></p><iframe id="preview" title="Ungraded HTML preview" sandbox=""></iframe></section>
+</div>
+<p id="workspace-status" class="sr-only" role="status" aria-atomic="true"></p>
+</article></main>
+<dialog id="preview-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy"><h2 id="dialog-title">Confirm action</h2><p id="dialog-copy" data-dialog-copy></p><form method="dialog" class="focus-dialog-actions"><button class="btn btn-secondary" type="submit" value="cancel" data-dialog-cancel autofocus>Cancel</button><button class="btn btn-primary" type="submit" value="confirm" data-dialog-confirm hidden>Confirm</button></form></dialog>
+<script type="module" src="workspace.js"></script></body></html>
