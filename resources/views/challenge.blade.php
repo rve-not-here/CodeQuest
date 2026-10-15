@@ -25,7 +25,7 @@
                             <form method="POST" action="{{ route('mission.hint', $mission) }}" data-challenge-action="hint" data-confirm-title="Reveal hint?" data-confirm-copy="This hint costs {{ $nextHintCost }} XP." data-confirm-label="Reveal hint">
                                 @csrf
                                 <input type="hidden" name="code" class="code-payload">
-                                <button type="submit" class="btn btn-secondary">Hint · {{ $nextHintCost }} XP</button>
+                                <button type="submit" class="btn btn-secondary"><x-workspace-icon name="lightbulb" />Hint · {{ $nextHintCost }} XP</button>
                             </form>
                         @endif
                         @if ($hints)
@@ -49,11 +49,11 @@
                         <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP @if ($completed) · Complete @endif</p>
                         <p id="draft-status" class="challenge-draft-status" aria-live="polite">Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
                         @if (! $completed)<p class="cq-workspace-help">Save draft: <kbd>Ctrl/⌘ + S</kbd> within the workspace.</p>@endif
-                        <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-label>Hide instructions</span></button>
+                        <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-icon="closed"><x-workspace-icon name="panel-left-close" /></span><span data-workspace-hide-icon="open" hidden><x-workspace-icon name="panel-left-open" /></span><span data-workspace-hide-label>Hide instructions</span></button>
                         <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="340" data-workspace-width></label>
                         <button type="button" class="btn btn-ghost" data-workspace-reset>Reset panes</button>
                         @if ($hints || (! $completed && $hasSolution))<button type="button" class="btn btn-ghost" data-workspace-assistance-open>Assistance</button>@endif
-                        <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><x-workspace-icon name="maximize" /><span data-workspace-fullscreen-label>Fullscreen</span></button>
+                        <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><span data-workspace-fullscreen-icon="enter"><x-workspace-icon name="maximize" /></span><span data-workspace-fullscreen-icon="exit" hidden><x-workspace-icon name="minimize" /></span><span data-workspace-fullscreen-label>Fullscreen</span></button>
                     </div>
                 </details>
             </header>

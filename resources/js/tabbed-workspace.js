@@ -45,6 +45,9 @@ export function initializeTabbedWorkspace(root, workspace) {
         hideBrief?.setAttribute('aria-expanded', String(!briefHidden));
         const hideLabel = hideBrief?.querySelector('[data-workspace-hide-label]');
         if (hideLabel) hideLabel.textContent = briefHidden ? 'Show instructions' : 'Hide instructions';
+        for (const icon of root.querySelectorAll('[data-workspace-hide-icon]')) {
+            icon.hidden = icon.dataset.workspaceHideIcon !== (briefHidden ? 'open' : 'closed');
+        }
         if (widthInput) {
             widthInput.value = String(Math.round(width));
             widthInput.setAttribute('max', String(maximumWidth()));
@@ -124,6 +127,9 @@ export function initializeTabbedWorkspace(root, workspace) {
         root.addEventListener('fullscreenchange', () => {
             fullscreenButton.setAttribute('aria-pressed', String(Boolean(root.fullscreenElement)));
             fullscreenButton.querySelector('[data-workspace-fullscreen-label]').textContent = root.fullscreenElement ? 'Exit fullscreen' : 'Fullscreen';
+            for (const icon of fullscreenButton.querySelectorAll('[data-workspace-fullscreen-icon]')) {
+                icon.hidden = icon.dataset.workspaceFullscreenIcon !== (root.fullscreenElement ? 'exit' : 'enter');
+            }
             render();
         });
     }

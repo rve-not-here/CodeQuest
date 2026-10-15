@@ -55,10 +55,10 @@
                     @if ($nextCheck)
                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $nextCheck]) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary">Continue to next check →</button>
+                            <button type="submit" class="btn btn-primary">Continue to next check <x-workspace-icon name="chevron-right" /></button>
                         </form>
                     @else
-                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary">Continue to challenge →</a>
+                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary">Continue to challenge <x-workspace-icon name="chevron-right" /></a>
                     @endif
                     <form method="POST" action="{{ route('knowledge-check.retry', [$mission, $knowledgeCheck]) }}">
                         @csrf
@@ -124,7 +124,7 @@
                             <p class="mt-3 text-xs text-fg-subtle">Unanswered questions</p>
                             <ul class="mt-1 flex flex-wrap gap-2 text-sm text-info" data-check-unanswered></ul>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-5 w-full">Submit answers →</button>
+                        <button type="submit" class="btn btn-primary mt-5 w-full">Submit answers <x-workspace-icon name="chevron-right" /></button>
                         <p class="mt-3 text-xs leading-5 text-fg-subtle">Results and explanations appear after submission.</p>
                     </section>
                 </div>

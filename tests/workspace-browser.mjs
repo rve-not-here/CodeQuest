@@ -248,8 +248,10 @@ try {
         await settle();
         await evaluate(`document.querySelector('[data-workspace-options] summary').click(); document.querySelector('[data-workspace-hide-brief]').click()`);
         await check(`document.querySelector('[data-workspace-pane="brief"]').hidden`);
+        await check(`document.querySelector('[data-workspace-hide-icon="open"]').hidden === false && document.querySelector('[data-workspace-hide-icon="closed"]').hidden === true`);
         await evaluate(`document.querySelector('[data-workspace-reset]').click()`);
         await check(`!document.querySelector('[data-workspace-pane="brief"]').hidden && document.querySelector('[data-workspace-pane="preview"]').hidden`);
+        await check(`document.querySelector('[data-workspace-hide-icon="closed"]').hidden === false && document.querySelector('[data-workspace-hide-icon="open"]').hidden === true`);
         await key('Escape','Escape',27);
         await check(`document.activeElement === document.querySelector('[data-workspace-options] summary')`);
         assert.equal(submissions, 0);
@@ -262,9 +264,12 @@ try {
         await send('Runtime.evaluate', {expression:`document.querySelector('[data-workspace-fullscreen]').click()`, userGesture:true});
         await evaluate(`new Promise((resolve,reject) => {const deadline=Date.now()+3000;const timer=setInterval(() => {if(document.fullscreenElement){clearInterval(timer);resolve(true);}else if(Date.now()>deadline){clearInterval(timer);reject(new Error('Fullscreen did not open'));}},30);})`);
         await check(`Boolean(document.fullscreenElement)`);
+        await check(`document.querySelector('[data-workspace-fullscreen-icon="exit"]').hidden === false && document.querySelector('[data-workspace-fullscreen-icon="enter"]').hidden === true`);
+        await check(`document.querySelector('[data-workspace-fullscreen-label]').textContent`, 'Exit fullscreen');
         await evaluate(`document.querySelector('[data-workspace-options] summary').click(); document.querySelector('[data-workspace-fullscreen]').click()`);
         await evaluate(`new Promise((resolve,reject) => {const deadline=Date.now()+3000;const timer=setInterval(() => {if(!document.fullscreenElement){clearInterval(timer);resolve(true);}else if(Date.now()>deadline){clearInterval(timer);reject(new Error('Fullscreen did not exit'));}},30);})`);
         await check(`!document.fullscreenElement && CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === originalEditor`);
+        await check(`document.querySelector('[data-workspace-fullscreen-icon="enter"]').hidden === false && document.querySelector('[data-workspace-fullscreen-icon="exit"]').hidden === true`);
         process.stdout.write(`Challenge ${mode}: ${checks} tabbed-workspace checks passed\n`);
     } else {
         await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });

@@ -17,6 +17,8 @@ class Element {
     focus() { this.focused = true; }
     setPointerCapture(pointer) { this.pointer = pointer; }
     fire(name, fields = {}) { this.events[name]({ preventDefault() {}, ...fields }); }
+    querySelector() { return null; }
+    querySelectorAll() { return []; }
 }
 
 function fixture(width = 1200, layout = 'panes') {
@@ -38,6 +40,7 @@ function fixture(width = 1200, layout = 'panes') {
     const hideBrief = new Element();
     const hideLabel = new Element();
     hideBrief.querySelector = () => hideLabel;
+    const hideIcons = ['closed', 'open'].map((state) => new Element({ workspaceHideIcon: state }));
     const widthInput = new Element();
     widthInput.value = '340';
     const style = {};
@@ -59,8 +62,9 @@ function fixture(width = 1200, layout = 'panes') {
         '[data-workspace-hide-brief]': hideBrief,
         '[data-workspace-width]': widthInput,
     })[selector] ?? null;
+    root.querySelectorAll = (selector) => selector === '[data-workspace-hide-icon]' ? hideIcons : [];
     initializeWorkspace(root);
-    return { media, panes, buttons, separators, reset, style, dimensions, events, root, controls, hideBrief };
+    return { media, panes, buttons, separators, reset, style, dimensions, events, root, controls, hideBrief, hideIcons };
 }
 
 test('tabbed Challenge shares Code and Preview while keeping desktop instructions visible', () => {
@@ -95,8 +99,10 @@ test('tabbed Challenge supports keyboard tabs and mobile Instructions without re
 });
 
 test('tabbed Challenge resets to Code and restores hidden Instructions', () => {
-    const { panes, buttons, reset, hideBrief, root } = fixture(1366, 'tabs');
+    const { panes, buttons, reset, hideBrief, hideIcons, root } = fixture(1366, 'tabs');
+    assert.deepEqual(hideIcons.map(icon => icon.hidden), [false, true]);
     hideBrief.fire('click');
+    assert.deepEqual(hideIcons.map(icon => icon.hidden), [true, false]);
     assert.equal(panes[0].hidden, true);
     root.fire('cq:workspace-pane', { detail: 'preview' });
     assert.equal(buttons[2].getAttribute('aria-selected'), 'true');

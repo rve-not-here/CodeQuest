@@ -113,11 +113,11 @@
                                         </p>
                                     </div>
                                     @if ($latestAttempt)
-                                        <a href="{{ route('knowledge-check.show', [$mission, $check, $latestAttempt]) }}" class="btn btn-ghost btn-sm">{{ $latestAttempt->status === 'submitted' ? 'Review result' : 'Resume check' }} →</a>
+                                        <a href="{{ route('knowledge-check.show', [$mission, $check, $latestAttempt]) }}" class="btn btn-ghost btn-sm">{{ $latestAttempt->status === 'submitted' ? 'Review result' : 'Resume check' }} <x-workspace-icon name="chevron-right" /></a>
                                     @else
                                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $check]) }}">
                                             @csrf
-                                            <button type="submit" class="btn btn-ghost btn-sm">Start check →</button>
+                                            <button type="submit" class="btn btn-ghost btn-sm">Start check <x-workspace-icon name="chevron-right" /></button>
                                         </form>
                                     @endif
                                 </article>
@@ -136,14 +136,14 @@
                     </p>
                 </div>
                 <div class="atlas-lesson-next-actions">
-                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">TRY IT YOURSELF →</a>
+                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">TRY IT YOURSELF <x-workspace-icon name="chevron-right" /></a>
                     @if ($outstandingRequiredCheck)
                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary w-full">START REQUIRED CHECK →</button>
+                            <button type="submit" class="btn btn-primary w-full">START REQUIRED CHECK <x-workspace-icon name="chevron-right" /></button>
                         </form>
                     @else
-                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">START CHALLENGE →</a>
+                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">START CHALLENGE <x-workspace-icon name="chevron-right" /></a>
                     @endif
                     <dl class="space-y-2 border-t border-line pt-4 text-sm">
                         <div class="flex justify-between gap-3"><dt class="text-fg-subtle">First pass</dt><dd class="font-mono text-accent">+{{ $mission->points }} XP</dd></div>
