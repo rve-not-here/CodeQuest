@@ -92,7 +92,7 @@ try {
     assert.equal(await evaluate(`document.querySelectorAll('[data-status-message]').length`), 0);
     const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
     if (capture) {
-        assert.ok(capture.startsWith(join(process.cwd(), 'storage/app/private/mission-atlas-phase5-review/')));
+        assert.ok(['mission-atlas-phase5-review', 'approved-challenge-ui-review'].some(name => capture.startsWith(join(process.cwd(), `storage/app/private/${name}/`))));
         await mkdir(capture, { recursive: true });
         for (const [width, height] of [[1920,1080],[1366,768],[768,1024],[390,844]]) {
             await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
@@ -133,6 +133,139 @@ try {
 
         assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Try this</h1>');
         assert.equal(await evaluate(`document.querySelectorAll('form[action*="/missions/"]').length`), 0);
+    } else if (mode.startsWith('challenge')) {
+        let checks = 0;
+        async function check(expression, expected = true) {
+            assert.deepEqual(await evaluate(expression), expected, expression);
+            checks++;
+        }
+        async function key(key, code, virtual, modifiers = 0) {
+            await send('Input.dispatchKeyEvent', { type: 'keyDown', key, code, modifiers, windowsVirtualKeyCode: virtual, ...(key === 'Enter' ? {text:'\r'} : {}) });
+            await send('Input.dispatchKeyEvent', { type: 'keyUp', key, code, modifiers, windowsVirtualKeyCode: virtual });
+        }
+        async function settle() {
+            await evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+        }
+        await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+        await settle();
+        await check(`document.querySelector('[data-workspace]').dataset.workspaceLayout`, 'tabs');
+        await check(`document.querySelector('[data-workspace-pane="preview"]').hidden`);
+        await check(`document.querySelector('[data-pane-toggle="brief"]').hidden`);
+        await check(`document.querySelector('[data-pane-toggle="editor"]').getAttribute('aria-selected')`, 'true');
+        await check(`document.querySelectorAll('.cm-editor').length`, 1);
+        await check(`!window.lessonLeak && !document.body.textContent.includes('Private reference solution')`);
+        await check(`!document.querySelector('.workspace-actions') && ![...document.querySelectorAll('button')].some(button => button.textContent.trim() === 'Save draft')`);
+        await evaluate(`window.originalEditor = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); originalEditor.dispatch({changes: {from: 0, to: originalEditor.state.doc.length, insert: 'unsaved 日本語\\nsecond line'}}); document.querySelector('[data-workspace-resize="brief"]').dispatchEvent(new KeyboardEvent('keydown', {key:'Home', bubbles:true}));`);
+        await check(`document.querySelector('[data-workspace-resize="brief"]').getAttribute('aria-valuenow')`, '240');
+        await new Promise(resolve => setTimeout(resolve, 600));
+        await evaluate(`originalEditor.dispatch({selection: {anchor:3, head:8}}); originalEditor.focus(); window.savedWorkspaceFeedback = document.querySelector('#draft-status').textContent;`);
+        await send('Input.insertText', { text: 'changed' });
+        const editedSource = await evaluate(`originalEditor.state.doc.toString()`);
+        const editedSelection = await evaluate(`({anchor:originalEditor.state.selection.main.anchor, head:originalEditor.state.selection.main.head})`);
+        for (const [width,height] of [[1920,1080],[1366,768],[1101,768],[1100,768],[768,1024],[390,844],[320,844],[683,384],[1366,600]]) {
+            await send('Emulation.setDeviceMetricsOverride', {width,height,deviceScaleFactor:1,mobile:false});
+            await settle();
+            await evaluate(`document.querySelector('[data-pane-toggle="editor"]').click(); window.codeBox = document.querySelector('[data-workspace-pane="editor"]').getBoundingClientRect().toJSON(); document.querySelector('[data-pane-toggle="preview"]').click();`);
+            await check(`document.querySelector('[data-workspace-pane="preview"]').getBoundingClientRect().width >= 280 && document.querySelector('[data-workspace-pane="preview"]').getBoundingClientRect().height >= 100`);
+            await check(`document.querySelector('[data-workspace-pane="editor"]').hidden && !document.querySelector('[data-workspace-pane="preview"]').hidden`);
+            await check(`['x','y','width','height'].every(key => Math.abs(codeBox[key] - document.querySelector('[data-workspace-pane="preview"]').getBoundingClientRect()[key]) <= 1)`);
+            await check(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === originalEditor`);
+            await check(`originalEditor.state.doc.toString()`, editedSource);
+            await check(`({anchor:originalEditor.state.selection.main.anchor, head:originalEditor.state.selection.main.head})`, editedSelection);
+            await check(`document.querySelector('#draft-status').textContent === savedWorkspaceFeedback`);
+            await check(`document.documentElement.scrollWidth <= innerWidth`);
+            if (width > 1100) await check(`!document.querySelector('[data-workspace-pane="brief"]').hidden`);
+            await evaluate(`document.querySelector('[data-pane-toggle="editor"]').click()`);
+        }
+        await evaluate(`originalEditor.focus()`);
+        await key('z', 'KeyZ', 90, 2);
+        await check(`originalEditor.state.doc.toString()`, 'unsaved 日本語\nsecond line');
+        await check(`({anchor:originalEditor.state.selection.main.anchor,head:originalEditor.state.selection.main.head})`, {anchor:3,head:8});
+        await evaluate(`document.querySelector('[data-pane-toggle="editor"]').focus()`);
+        await key('ArrowRight', 'ArrowRight', 39);
+        await check(`document.activeElement.id`, 'workspace-tab-preview');
+        await check(`document.querySelector('[data-pane-toggle="preview"]').getAttribute('aria-selected')`, 'true');
+        await key('Home', 'Home', 36);
+        await check(`document.activeElement.id`, 'workspace-tab-editor');
+        await send('Emulation.setDeviceMetricsOverride', {width:390,height:844,deviceScaleFactor:1,mobile:false});
+        await settle();
+        await evaluate(`document.querySelector('[data-pane-toggle="editor"]').focus()`);
+        await key('Home', 'Home', 36);
+        await check(`document.activeElement.id`, 'workspace-tab-brief');
+        await check(`!document.querySelector('[data-workspace-pane="brief"]').hidden`);
+        await check(`document.querySelector('#instructions-title').textContent`, 'Lesson context');
+        await key('End', 'End', 35);
+        await check(`document.activeElement.id`, 'workspace-tab-preview');
+        await evaluate(`document.querySelector('[data-pane-toggle="editor"]').click(); originalEditor.dispatch({changes:{from:0,to:originalEditor.state.doc.length,insert:'<h1>Live preview</h1>'}}); window.beforeRun = document.querySelector('#preview-frame').srcdoc; document.querySelector('#run').focus();`);
+        await check(`document.activeElement.id`, 'run');
+        await key('Enter', 'Enter', 13);
+        await check(`document.querySelector('[data-challenge-confirm]').open`);
+        await check(`document.activeElement.value`, 'cancel');
+        await check(`document.querySelector('#preview-frame').srcdoc === beforeRun`);
+        await evaluate(`document.querySelector('[data-challenge-confirm] button[value="cancel"]').click()`);
+        await settle();
+        await check(`document.activeElement.id`, 'run');
+        await check(`document.querySelector('#preview-frame').srcdoc === beforeRun`);
+        await evaluate(`document.querySelector('#run').click()`);
+        await key('Escape', 'Escape', 27);
+        await settle();
+        await check(`!document.querySelector('[data-challenge-confirm]').open && document.querySelector('#preview-frame').srcdoc === beforeRun`);
+        await evaluate(`document.querySelector('#run').click(); document.querySelector('[data-confirm-action]').click()`);
+        await settle();
+        await check(`!document.querySelector('[data-workspace-pane="preview"]').hidden`);
+        await check(`document.querySelector('#preview-frame').srcdoc.includes('<h1>Live preview</h1>')`);
+        await check(`document.querySelector('#preview-frame').getAttribute('sandbox')`, '');
+        if (capture) {
+            for (const [width,height] of [[1920,1080],[1366,768],[768,1024],[390,844]]) {
+                await send('Emulation.setDeviceMetricsOverride', {width,height,deviceScaleFactor:1,mobile:false});
+                await settle();
+                const shot = await send('Page.captureScreenshot', {format:'png'});
+                await writeFile(join(capture, `${mode}-preview-${width}.png`), Buffer.from(shot.data,'base64'));
+            }
+        }
+        await evaluate(`document.querySelector('[data-challenge-action="submit"] button').click()`);
+        await check(`document.querySelector('[data-challenge-confirm]').open`);
+        await check(`document.querySelector('#challenge-confirm-copy').textContent.includes('XP')`);
+        await check(`document.querySelector('[data-challenge-action="submit"] .code-payload').value`, '<h1>Live preview</h1>');
+        await evaluate(`document.querySelector('[data-challenge-confirm] button[value="cancel"]').click()`);
+        await settle();
+        assert.equal(submissions, 0);
+        if (await evaluate(`Boolean(document.querySelector('[data-challenge-action="hint"]'))`)) {
+            await evaluate(`document.querySelector('[data-challenge-action="hint"] button').click()`);
+            await check(`document.querySelector('[data-challenge-confirm]').open`);
+            await evaluate(`document.querySelector('[data-challenge-confirm] button[value="cancel"]').click()`);
+            await settle();
+        }
+        await evaluate(`document.querySelector('[data-pane-toggle="editor"]').click(); document.querySelector('#draft-form').addEventListener('submit', event => {event.preventDefault(); window.shortcutPayload = new FormData(event.target).get('code');}); originalEditor.focus();`);
+        await key('s', 'KeyS', 83, 2);
+        await check(`window.shortcutPayload`, '<h1>Live preview</h1>');
+        await check(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === originalEditor`);
+        await evaluate(`originalEditor.focus()`);
+        await key('Escape','Escape',27);
+        await key('Tab','Tab',9);
+        await check(`!document.querySelector('.cm-editor').contains(document.activeElement)`);
+        await send('Emulation.setDeviceMetricsOverride', {width:1366,height:768,deviceScaleFactor:1,mobile:false});
+        await settle();
+        await evaluate(`document.querySelector('[data-workspace-options] summary').click(); document.querySelector('[data-workspace-hide-brief]').click()`);
+        await check(`document.querySelector('[data-workspace-pane="brief"]').hidden`);
+        await evaluate(`document.querySelector('[data-workspace-reset]').click()`);
+        await check(`!document.querySelector('[data-workspace-pane="brief"]').hidden && document.querySelector('[data-workspace-pane="preview"]').hidden`);
+        await key('Escape','Escape',27);
+        await check(`document.activeElement === document.querySelector('[data-workspace-options] summary')`);
+        assert.equal(submissions, 0);
+        await evaluate(`document.querySelector('[data-workspace-options] summary').click(); document.querySelector('[data-workspace-assistance-open]').click()`);
+        await check(`document.querySelector('[data-challenge-assistance]').open`);
+        await evaluate(`document.querySelector('[data-challenge-assistance] form[method="dialog"] button').click()`);
+        await settle();
+        await check(`document.activeElement === document.querySelector('[data-workspace-options] summary')`);
+        await evaluate(`document.querySelector('[data-workspace-options] summary').click()`);
+        await send('Runtime.evaluate', {expression:`document.querySelector('[data-workspace-fullscreen]').click()`, userGesture:true});
+        await evaluate(`new Promise((resolve,reject) => {const deadline=Date.now()+3000;const timer=setInterval(() => {if(document.fullscreenElement){clearInterval(timer);resolve(true);}else if(Date.now()>deadline){clearInterval(timer);reject(new Error('Fullscreen did not open'));}},30);})`);
+        await check(`Boolean(document.fullscreenElement)`);
+        await evaluate(`document.querySelector('[data-workspace-options] summary').click(); document.querySelector('[data-workspace-fullscreen]').click()`);
+        await evaluate(`new Promise((resolve,reject) => {const deadline=Date.now()+3000;const timer=setInterval(() => {if(!document.fullscreenElement){clearInterval(timer);resolve(true);}else if(Date.now()>deadline){clearInterval(timer);reject(new Error('Fullscreen did not exit'));}},30);})`);
+        await check(`!document.fullscreenElement && CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === originalEditor`);
+        process.stdout.write(`Challenge ${mode}: ${checks} tabbed-workspace checks passed\n`);
     } else {
         await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
         assert.equal(await evaluate(`document.querySelectorAll('[data-workspace-pane]').length`), 3);

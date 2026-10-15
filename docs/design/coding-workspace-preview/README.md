@@ -1,6 +1,6 @@
 # Approved Coding Challenge workspace prototype
 
-Approved by the product owner on 2026-10-15. This is a static, interactive design reference. Laravel product files and backend behavior are unchanged.
+Approved by the product owner on 2026-10-15. This directory keeps the historical static, interactive design reference only. The approved workspace has since been implemented in the real Laravel Coding Challenge; the application code lives in `resources/views/challenge.blade.php`, `resources/js/tabbed-workspace.js` and `resources/css/student.css`, not here. Grading, submissions, drafts, unlock rules, XP and progression remain backend-authoritative and are unchanged by that adoption.
 
 ## Run locally
 
@@ -33,7 +33,11 @@ The sample lesson and example came from the inspected CodeQuest fixture. No new 
 
 Submit and Hint demonstrate interactions only. They cannot grade, spend or award XP, record a submission, persist a draft, or change academic progress. The HTML preview retains an empty iframe sandbox. Existing application draft behavior and backend actions remain unchanged; removing a prototype control does not remove an application endpoint.
 
-Production adoption requires a separate implementation pass against the real Blade views and workspace integration, followed by application regression coverage. Prototype approval is not a full-system release verdict.
+## Production adoption
+
+The real Laravel Coding Challenge adopted this design on 2026-10-15 through `docs/superpowers/plans/2026-10-15-approved-challenge-workspace.md`. That pass kept the Boss Challenge and Try It Yourself on the original three-pane controller, so only `mission.challenge` opts in through `data-workspace-layout="tabs"`. Server-authoritative behavior is unchanged: the preview iframe still uses `srcdoc` and an empty sandbox for HTML/CSS courses, Run performs no academic mutation, and the real draft, hint and submit endpoints still require their own confirmation.
+
+Adoption is covered by `tests/Feature/WorkspaceControlsTest.php`, `tests/workspace.test.js` and the Challenge branch of `tests/workspace-browser.mjs`, driven by `tests/Feature/WorkspaceBrowserTest.php` with `CODEQUEST_REQUIRE_BROWSER_TESTS=1`. Prototype approval alone was not a release verdict; the release verdict comes from the application regression run recorded in the commit that adopted it.
 
 ## Verification and attribution
 

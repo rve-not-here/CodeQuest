@@ -6,6 +6,7 @@ use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Mission;
 use App\Models\MissionBehaviorTest;
+use App\Models\MissionDraft;
 use App\Models\Progress;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,6 +31,15 @@ class WorkspaceBrowserTest extends TestCase
         $student = User::factory()->create();
         Vite::useHotFile(storage_path('framework/testing-browser-no-hot'));
         $mission = Mission::factory()->create(['broken_code' => '<h1>Try this</h1>']);
+        if (str_starts_with($mode, 'challenge')) {
+            $mission->update([
+                'description' => "Authored lesson context.\n\nExample: <h1>A heading</h1>.\n\n<script>window.lessonLeak = true</script>",
+                'target_html' => '<h1>Reference output</h1>',
+                'solution_code' => '<h1>Private reference solution</h1>',
+                'hints' => json_encode(['Use the authored heading syntax.']),
+            ]);
+            MissionDraft::factory()->create(['user_id' => $student->id, 'mission_id' => $mission->id, 'code' => '<h1>Restored draft</h1>']);
+        }
         $resource = $mission;
         if (str_starts_with($mode, 'boss')) {
             Progress::factory()->create(['user_id' => $student->id, 'mission_id' => $mission->id]);

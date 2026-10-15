@@ -19,7 +19,7 @@ class Element {
     fire(name, fields = {}) { this.events[name]({ preventDefault() {}, ...fields }); }
 }
 
-function fixture(width = 1200) {
+function fixture(width = 1200, layout = 'panes') {
     const media = { matches: false, addEventListener(name, callback) { this.change = callback; } };
     const events = {};
     globalThis.window = {
@@ -35,8 +35,14 @@ function fixture(width = 1200) {
         'aria-valuemax': name === 'brief' ? '35' : '40',
     }));
     const reset = new Element();
+    const hideBrief = new Element();
+    const hideLabel = new Element();
+    hideBrief.querySelector = () => hideLabel;
+    const widthInput = new Element();
+    widthInput.value = '340';
     const style = {};
     const workspace = {
+        dataset: { workspaceLayout: layout },
         ownerDocument: { documentElement: {} },
         querySelectorAll: (selector) => selector === '[data-workspace-pane]' ? panes : separators,
         style: { setProperty: (name, value) => { style[name] = value; } },
@@ -46,10 +52,58 @@ function fixture(width = 1200) {
     controls.querySelectorAll = () => buttons;
     controls.querySelector = () => reset;
     const root = new Element();
-    root.querySelector = (selector) => selector === '[data-workspace]' ? workspace : controls;
+    root.querySelector = (selector) => ({
+        '[data-workspace]': workspace,
+        '[data-workspace-controls]': controls,
+        '[data-workspace-reset]': reset,
+        '[data-workspace-hide-brief]': hideBrief,
+        '[data-workspace-width]': widthInput,
+    })[selector] ?? null;
     initializeWorkspace(root);
-    return { media, panes, buttons, separators, reset, style, dimensions, events, root, controls };
+    return { media, panes, buttons, separators, reset, style, dimensions, events, root, controls, hideBrief };
 }
+
+test('tabbed Challenge shares Code and Preview while keeping desktop instructions visible', () => {
+    const { panes, buttons, controls } = fixture(1366, 'tabs');
+    assert.deepEqual(panes.map(pane => pane.hidden), [false, false, true]);
+    assert.equal(controls.getAttribute('role'), 'tablist');
+    assert.equal(buttons[0].hidden, true);
+    buttons[2].fire('click');
+    assert.deepEqual(panes.map(pane => pane.hidden), [false, true, false]);
+    assert.equal(buttons[2].getAttribute('aria-selected'), 'true');
+    buttons[1].fire('click');
+    assert.deepEqual(panes.map(pane => pane.hidden), [false, false, true]);
+});
+
+test('tabbed Challenge supports keyboard tabs and mobile Instructions without replacing content', () => {
+    const { panes, buttons, media } = fixture(1366, 'tabs');
+    const editor = panes[1];
+    editor.document = 'unsaved 日本語';
+    buttons[1].fire('keydown', { key: 'ArrowRight' });
+    assert.equal(buttons[2].getAttribute('aria-selected'), 'true');
+    buttons[2].fire('keydown', { key: 'Home' });
+    assert.equal(buttons[1].getAttribute('aria-selected'), 'true');
+    media.matches = true;
+    media.change();
+    buttons[1].fire('keydown', { key: 'ArrowLeft' });
+    assert.deepEqual(panes.map(pane => pane.hidden), [false, true, true]);
+    buttons[0].fire('keydown', { key: 'End' });
+    assert.deepEqual(panes.map(pane => pane.hidden), [true, true, false]);
+    buttons[1].fire('click');
+    assert.equal(panes[1], editor);
+    assert.equal(editor.document, 'unsaved 日本語');
+});
+
+test('tabbed Challenge resets to Code and restores hidden Instructions', () => {
+    const { panes, buttons, reset, hideBrief, root } = fixture(1366, 'tabs');
+    hideBrief.fire('click');
+    assert.equal(panes[0].hidden, true);
+    root.fire('cq:workspace-pane', { detail: 'preview' });
+    assert.equal(buttons[2].getAttribute('aria-selected'), 'true');
+    reset.fire('click');
+    assert.deepEqual(panes.map(pane => pane.hidden), [false, false, true]);
+    assert.equal(buttons[1].getAttribute('aria-selected'), 'true');
+});
 
 test('desktop shows task, code and output and reset restores all three', () => {
     const { panes, buttons, separators, reset } = fixture();

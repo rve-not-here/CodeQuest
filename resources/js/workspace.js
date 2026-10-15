@@ -1,6 +1,12 @@
+import { initializeTabbedWorkspace } from './tabbed-workspace.js';
+
 export function initializeWorkspace(root) {
     const workspace = root.querySelector('[data-workspace]');
     if (!workspace) return;
+    if (workspace.dataset?.workspaceLayout === 'tabs') {
+        initializeTabbedWorkspace(root, workspace);
+        return;
+    }
     const controls = root.querySelector('[data-workspace-controls]');
     const panes = [...workspace.querySelectorAll('[data-workspace-pane]')];
     const separators = [...workspace.querySelectorAll('[data-workspace-resize]')];

@@ -6,24 +6,78 @@
     @php
         $initialCode = old('code', $code);
         $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
+        $hasWorkspaceMessages = $errors->any() || session('mission_info') || session('mission_error')
+            || session('hint_error') || session('reveal_error') || session('hint_revealed')
+            || session('hint_flat') || session('reveal_flat') || session('solution_revealed') || session('draft_saved');
     @endphp
-    <header class="challenge-context-bar atlas-workbench-context">
-        <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost btn-sm shrink-0">← BACK TO LESSON</a>
-        <div class="min-w-0 flex-1">
-            <h1 class="text-sm font-semibold">{{ $mission->title }}</h1>
-            @if ($course)
-                <p class="truncate text-xs text-fg-subtle">{{ $course->name }}@if ($section) · {{ $section->title }}@endif</p>
-            @endif
-        </div>
-        <div class="challenge-context-meta">
-            @if ($completed)
-                <span class="badge badge-accent">CHALLENGE COMPLETE</span>
-            @endif
-            <span class="badge badge-neutral">{{ $mission->difficulty }}</span>
-            <span class="badge badge-accent">+{{ $mission->points }} XP</span>
-        </div>
-    </header>
-
+    <article class="cq-challenge" data-workspace-fullscreen-root>
+        <h1 class="sr-only">{{ $mission->title }}</h1>
+        <div class="challenge-workspace cq-workspace" data-workspace data-workspace-layout="tabs">
+            <header class="cq-workspace-heading">
+                <nav class="cq-workspace-tabs" role="tablist" aria-label="Workspace views" data-workspace-controls>
+                    <button type="button" role="tab" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-selected="false" tabindex="-1" hidden>Instructions</button>
+                    <button type="button" role="tab" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-selected="true" tabindex="0">Code</button>
+                    <button type="button" role="tab" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-selected="false" tabindex="-1"><x-workspace-icon name="eye" />Preview</button>
+                </nav>
+                <div class="cq-workspace-actions" role="group" aria-label="Challenge actions">
+                    <div class="cq-help-actions">
+                        @if (! $completed && $totalHintCount > 0 && $revealedHintCount < $totalHintCount)
+                            <form method="POST" action="{{ route('mission.hint', $mission) }}" data-challenge-action="hint" data-confirm-title="Reveal hint?" data-confirm-copy="This hint costs {{ $nextHintCost }} XP." data-confirm-label="Reveal hint">
+                                @csrf
+                                <input type="hidden" name="code" class="code-payload">
+                                <button type="submit" class="btn btn-secondary">Hint · {{ $nextHintCost }} XP</button>
+                            </form>
+                        @endif
+                        @if ($hints)
+                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>View hints</button>
+                        @endif
+                    </div>
+                    <div class="cq-evaluation-actions">
+                        <button type="button" id="run" class="btn btn-secondary"><x-workspace-icon name="play" />Run</button>
+                        <form method="POST" action="{{ route('mission.submit', $mission) }}" class="workspace-submit" data-challenge-action="submit" data-confirm-title="Submit for evaluation?" data-confirm-copy="Submit sends your code for academic evaluation. A failed submission costs {{ $wrongPenalty }} XP. Run only updates the preview." data-confirm-label="Submit challenge">
+                            @csrf
+                            <input type="hidden" name="submission_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
+                            <input type="hidden" name="code" class="code-payload">
+                            <button type="submit" class="btn btn-primary" aria-label="Submit challenge"><x-workspace-icon name="send" />Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <details class="cq-workspace-options" data-shell-disclosure data-workspace-options>
+                    <summary aria-label="Workspace options" title="Workspace options"><x-workspace-icon name="sliders-horizontal" /></summary>
+                    <div class="cq-workspace-menu">
+                        <p class="cq-workspace-context">{{ $mission->title }}@if ($course)<span>{{ $course->name }}@if ($section) · {{ $section->title }}@endif</span>@endif</p>
+                        <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP @if ($completed) · Complete @endif</p>
+                        <p id="draft-status" class="challenge-draft-status" aria-live="polite">Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
+                        @if (! $completed)<p class="cq-workspace-help">Save draft: <kbd>Ctrl/⌘ + S</kbd> within the workspace.</p>@endif
+                        <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-label>Hide instructions</span></button>
+                        <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="340" data-workspace-width></label>
+                        <button type="button" class="btn btn-ghost" data-workspace-reset>Reset panes</button>
+                        @if ($hints || (! $completed && $hasSolution))<button type="button" class="btn btn-ghost" data-workspace-assistance-open>Assistance</button>@endif
+                        <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><x-workspace-icon name="maximize" /><span data-workspace-fullscreen-label>Fullscreen</span></button>
+                    </div>
+                </details>
+            </header>
+            <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-title" tabindex="0">
+                <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="BACK TO LESSON"><x-workspace-icon name="arrow-left" />Back to lesson</a></header>
+                <div class="challenge-pane-body cq-lesson-reading">
+                    <h2 id="instructions-title">Lesson context</h2>
+                    @if ($mission->description)<div class="cq-lesson-context whitespace-pre-line">{{ $mission->description }}</div>@else<p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>@endif
+                    @if ($mission->target_html)
+                        <h3>Example</h3>
+                        <pre class="cq-lesson-example" tabindex="0" aria-label="Reference output"><code>{{ $mission->target_html }}</code></pre>
+                    @endif
+                </div>
+            </section>
+            <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize instructions" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="240" aria-valuemax="480" aria-valuenow="340" data-workspace-resize="brief"></div>
+            <section class="challenge-pane cq-code-pane" id="workspace-editor" data-workspace-pane="editor" role="tabpanel" aria-labelledby="workspace-tab-editor" tabindex="0">
+                <h2 class="sr-only">Code editor</h2>
+                <div class="challenge-pane-body editor-pane">
+                    <div id="editor-host" class="challenge-pane-editor"></div>
+                    <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
+                </div>
+                @if ($hasWorkspaceMessages)
+                    <section class="cq-feedback" aria-labelledby="workspace-feedback-title">
+                        <h2 id="workspace-feedback-title">{{ session('mission_error') ? 'Submission feedback' : 'Workspace messages' }}</h2>
     <div class="challenge-toast-stack" aria-label="Challenge messages">
     @if (session('mission_info'))
         <x-student-toast type="info" title="{{ session('mission_info')['title'] }}">
@@ -47,7 +101,7 @@
     @endif
     @if (session('hint_revealed'))
         <x-student-toast type="warning" title="HINT {{ session('hint_revealed') }} REVEALED">
-            Read it in Assistance below.
+            Open View hints to read it.
         </x-student-toast>
     @endif
     @if (session('hint_flat'))
@@ -77,108 +131,35 @@
     @endif
     </div>
 
-    <nav class="atlas-workbench-controls" aria-label="Workspace panes" data-workspace-controls>
-        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Task</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Code</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Output</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-workspace-reset>Reset panes</button>
-    </nav>
-    <div class="challenge-workspace" data-workspace>
-        <section class="challenge-pane" id="workspace-brief" data-workspace-pane="brief" tabindex="0">
-            <h2 class="challenge-pane-header">Challenge brief</h2>
-            <div class="challenge-pane-body">
-                <div class="space-y-4 text-sm leading-6 text-fg-muted">
-                    <div>
-                        <p class="eyebrow text-accent">Objective</p>
-                        <p class="mt-2 text-fg">{{ $mission->description ?: 'Read the lesson, then build your solution in the editor.' }}</p>
-                    </div>
-                    <p class="text-xs text-fg-subtle">A failed submission costs {{ $wrongPenalty }} XP.</p>
-                </div>
-                @if (! $completed || $hints)
-                <section class="challenge-assistance" aria-labelledby="assistance-title">
-                    <div class="challenge-assistance-heading">
-                        <div>
-                            <h3 id="assistance-title">Assistance</h3>
-                            <p>Optional help uses XP and never changes validation rules.</p>
-                        </div>
-
-                        @if (! $completed && $hasSolution)
-                        <div class="challenge-assistance-actions">
-                            <form method="POST" action="{{ route('mission.reveal', $mission) }}" class="inline">
-                                @csrf
-                                <input type="hidden" name="code" class="code-payload">
-                                <button type="submit" class="btn btn-ghost btn-sm">SHOW SOLUTION · {{ $revealCost }} XP</button>
-                            </form>
-                        </div>
-                        @endif
-                    </div>
-
-                    @if ($hints)
-                    <div class="challenge-hints">
-                        @foreach ($hints as $index => $hintText)
-                            <x-status-message type="warning" title="HINT {{ $index + 1 }}">
-                                {{ $hintText }}
-                            </x-status-message>
-                        @endforeach
-                    </div>
-                    @endif
-                </section>
+                    </section>
                 @endif
-            </div>
-        </section>
-
-        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize brief pane" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="15" aria-valuemax="35" aria-valuenow="25" data-workspace-resize="brief"></div>
-        <section class="challenge-pane" id="workspace-editor" data-workspace-pane="editor" tabindex="0">
-            <div class="challenge-pane-header">
-                <h2>Code editor</h2>
-                <p id="draft-status" class="challenge-draft-status" aria-live="polite">
-                    Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span>
-                </p>
-            </div>
-            <div class="challenge-pane-body editor-pane">
-                <div id="editor-host" class="challenge-pane-editor"></div>
-                <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
-            </div>
-        </section>
-
-        <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize preview pane" aria-controls="workspace-preview" aria-orientation="vertical" aria-valuemin="20" aria-valuemax="40" aria-valuenow="25" data-workspace-resize="preview"></div>
-        <section class="challenge-pane" id="workspace-preview" data-workspace-pane="preview" tabindex="0">
-            <div class="challenge-pane-header"><h2>Preview output</h2><p class="atlas-workbench-note">Run previews only. Submit evaluates your code.</p></div>
-            <div class="challenge-pane-body is-frame">
-                <iframe
-                    id="preview-frame"
-                    sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"
-                    title="Live preview"
-                ></iframe>
-            </div>
-        </section>
-    </div>
-
-    <div class="challenge-toolbar workspace-actions" role="region" aria-label="Challenge actions">
-        @if (! $completed && $totalHintCount > 0 && $revealedHintCount < $totalHintCount)
-        <form method="POST" action="{{ route('mission.hint', $mission) }}" class="inline">
-            @csrf
-            <input type="hidden" name="code" class="code-payload">
-            <button type="submit" class="btn btn-ghost">Hint · {{ $nextHintCost }} XP</button>
-        </form>
-        @endif
+            </section>
+            <section class="challenge-pane cq-preview-pane" id="workspace-preview" data-workspace-pane="preview" role="tabpanel" aria-labelledby="workspace-tab-preview" tabindex="0" hidden>
+                <p class="cq-preview-note"><span>Preview only. No result is recorded.</span><span data-preview-state>{{ $hasDraft ? 'Restored draft' : 'Not run' }}</span></p>
+                <div class="challenge-pane-body is-frame"><iframe id="preview-frame" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}" title="Live preview"></iframe></div>
+            </section>
+        </div>
         @if (! $completed)
-        <form method="POST" action="{{ route('mission.draft', $mission) }}" class="inline" id="draft-form">
-            @csrf
-            <input type="hidden" name="code" class="code-payload">
-            <button type="submit" class="btn btn-ghost">Save draft</button>
-        </form>
+            <form method="POST" action="{{ route('mission.draft', $mission) }}" id="draft-form" hidden>@csrf<input type="hidden" name="code" class="code-payload"></form>
         @endif
-        <button type="button" id="run" class="btn btn-secondary ml-auto">Run</button>
-
-        <form method="POST" action="{{ route('mission.submit', $mission) }}" class="inline workspace-submit">
-            @csrf
-            <input type="hidden" name="submission_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
-            <input type="hidden" name="code" class="code-payload">
-            <button type="submit" class="btn btn-primary">Submit challenge</button>
-        </form>
-    </div>
-
+        <p class="sr-only" role="status" aria-atomic="true" id="workspace-status"></p>
+        <dialog class="cq-confirm" data-challenge-confirm aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-copy">
+            <h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-copy"></p>
+            <form method="dialog" class="cq-dialog-actions"><button type="submit" value="cancel" class="btn btn-secondary" autofocus>Cancel</button><button type="submit" value="confirm" class="btn btn-primary" data-confirm-action>Confirm</button></form>
+        </dialog>
+        @if ($hints || (! $completed && $hasSolution))
+            <dialog class="cq-assistance" data-challenge-assistance aria-labelledby="assistance-title">
+                <header><h2 id="assistance-title">Assistance</h2><form method="dialog"><button type="submit" class="btn btn-ghost" autofocus>Close</button></form></header>
+                @if ($hints)
+                    <div class="challenge-hints">@foreach ($hints as $index => $hintText)<x-status-message type="warning" title="HINT {{ $index + 1 }}">{{ $hintText }}</x-status-message>@endforeach</div>
+                @else<p>No hints have been revealed.</p>@endif
+                @if (! $completed && $hasSolution)
+                    <form method="POST" action="{{ route('mission.reveal', $mission) }}" data-challenge-action="reveal" data-confirm-title="Reveal reference solution?" data-confirm-copy="Revealing the reference solution costs {{ $revealCost }} XP." data-confirm-label="Reveal solution">
+                        @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">SHOW SOLUTION · {{ $revealCost }} XP</button>
+                    </form>
+                @endif
+            </dialog>
+        @endif
     @if (session('mission_success'))
         @php($completion = session('mission_success'))
         <div class="completion-overlay" data-completion-overlay>
@@ -188,6 +169,7 @@
                 aria-modal="true"
                 aria-labelledby="completion-title"
                 aria-describedby="completion-summary"
+                data-completion-dialog
                 tabindex="-1"
             >
                 <p class="eyebrow text-accent">Validation passed</p>
@@ -231,6 +213,8 @@
             </section>
         </div>
     @endif
+
+    </article>
 
     @push('scripts')
     <script>
@@ -282,7 +266,9 @@
                         CM.EditorView.updateListener.of(function (u) {
                             if (u.docChanged) {
                                 syncPayloads(view);
-                                if (draftStatus) draftStatus.textContent = 'Unsaved changes';
+                                if (draftStatus && draftStatus.textContent !== 'Unsaved changes') draftStatus.textContent = 'Unsaved changes';
+                                var previewState = document.querySelector('[data-preview-state]');
+                                if (previewState) previewState.textContent = 'Source changed. Run to update.';
                             }
                         }),
                     ],
@@ -291,21 +277,85 @@
                 syncPayloads(view);
                 frame.sandbox.value = cq.previewSandbox(type, starter);
 
+                var confirmationDialog = document.querySelector('[data-challenge-confirm]');
+                var pendingAction = null;
+                var confirmedForm = null;
+
+                function confirmAction(title, copy, action, label, consequential) {
+                    document.getElementById('challenge-confirm-title').textContent = title;
+                    document.getElementById('challenge-confirm-copy').textContent = copy;
+                    var confirmButton = confirmationDialog.querySelector('[data-confirm-action]');
+                    confirmButton.textContent = label;
+                    confirmButton.className = consequential ? 'btn btn-primary' : 'btn btn-secondary';
+                    pendingAction = action;
+                    confirmationDialog.returnValue = '';
+                    confirmationDialog.showModal();
+                }
+
+                confirmationDialog.addEventListener('close', function () {
+                    var action = pendingAction;
+                    pendingAction = null;
+                    if (confirmationDialog.returnValue === 'confirm' && action) action();
+                });
+
                 runBtn.addEventListener('click', function () {
-                    frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
-                    document.dispatchEvent(new CustomEvent('cq:workspace-pane', { detail: 'preview' }));
+                    confirmAction('Run preview?', 'Run displays your code in the preview. It does not grade, award XP or record a submission.', function () {
+                        frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
+                        document.querySelector('[data-preview-state]').textContent = 'Updated locally';
+                        document.getElementById('workspace-status').textContent = 'Preview updated. Your code was not graded.';
+                        document.dispatchEvent(new CustomEvent('cq:workspace-pane', { detail: 'preview' }));
+                    }, 'Run preview', false);
                 });
 
                 // Initial preview reflects any restored draft.
                 frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
 
+                document.querySelectorAll('[data-challenge-action]').forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (confirmedForm === form) {
+                            confirmedForm = null;
+                            return;
+                        }
+                        event.preventDefault();
+                        confirmAction(form.dataset.confirmTitle, form.dataset.confirmCopy, function () {
+                            syncPayloads(view);
+                            confirmedForm = form;
+                            form.requestSubmit();
+                        }, form.dataset.confirmLabel, true);
+                    });
+                });
+
+                document.addEventListener('cq:workspace-layout', function () { view.requestMeasure(); });
                 draftForm?.addEventListener('submit', function () {
                     if (draftStatus) draftStatus.textContent = 'Saving...';
                 });
 
+                var assistanceDialog = document.querySelector('[data-challenge-assistance]');
+                var assistanceReturn = null;
+                document.querySelectorAll('[data-workspace-assistance-open]').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        assistanceReturn = button.closest('[data-workspace-options]')?.querySelector('summary') || button;
+                        assistanceDialog.showModal();
+                    });
+                });
+                assistanceDialog?.addEventListener('close', function () { assistanceReturn?.focus(); });
+                if (assistanceDialog && {{ Illuminate\Support\Js::from((bool) session('hint_revealed')) }} && !completionOverlay) {
+                    assistanceReturn = document.querySelector('[data-workspace-options] summary');
+                    assistanceDialog.showModal();
+                }
+
+                document.querySelector('[data-workspace-fullscreen-root]').addEventListener('keydown', function (event) {
+                    if (!draftForm || confirmationDialog.open || assistanceDialog?.open || event.defaultPrevented) return;
+                    if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 's') {
+                        event.preventDefault();
+                        syncPayloads(view);
+                        draftForm.requestSubmit();
+                    }
+                });
+
                 if (completionOverlay) {
                     document.documentElement.classList.add('completion-open');
-                    var dialog = completionOverlay.querySelector('[role="dialog"]');
+                    var dialog = completionOverlay.querySelector('[data-completion-dialog]');
                     var closeButton = completionOverlay.querySelector('[data-completion-close]');
                     var focusable = Array.from(completionOverlay.querySelectorAll('a[href], button:not([disabled])'));
 
