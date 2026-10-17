@@ -30,3 +30,6 @@ US-810: the 'Incoming Transmissions' panel is the last item in the dashboard gri
 
 ## Grant preview scripts only for JavaScript courses
 Student code previews use srcdoc in a sandboxed iframe. Grant allow-scripts only when the authoritative course type is js/javascript; HTML and CSS previews use an empty sandbox. Never add allow-same-origin, parent navigation, forms, popups, or downloads without a verified lesson requirement and a parent-access regression.
+
+## SaaS design direction (2026-10)
+Student/teacher/admin surfaces use SaaS classes: btn btn-primary/btn-secondary/btn-ghost, panel, badge, terminal-input, page-header. Student shell has no specimen stamp/ruler. Teacher and admin get a persistent left sidebar (console-sidebar). Empty states must be populated with real content, never placeholder-only panels. See DESIGN.md.
