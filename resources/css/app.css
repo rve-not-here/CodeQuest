@@ -255,28 +255,28 @@
         font-variant-numeric: tabular-nums;
     }
 
-    /* The panel action chip: a compact specimen-label link for panel headers. */
+    /* The panel action chip: a compact link for panel headers. */
     .panel-action {
         display: inline-flex;
-        min-height: 2.25rem;
+        min-height: 2rem;
         align-items: center;
-        border: 1px solid var(--color-line-strong);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
         background: transparent;
         color: var(--color-fg);
-        padding: 0 0.6rem;
-        font-family: var(--font-mono);
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.09em;
+        padding: 0 0.75rem;
+        font-family: var(--font-sans);
+        font-size: 0.8125rem;
+        font-weight: 500;
         line-height: 1;
         text-decoration: none;
-        text-transform: uppercase;
+        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
     }
 
     .panel-action:hover {
-        border-color: var(--color-accent);
-        background: var(--color-accent-soft);
-        color: var(--color-accent-strong);
+        border-color: var(--color-primary);
+        background: var(--color-primary-soft);
+        color: var(--color-primary);
     }
 
     .terminal-link {
@@ -2602,7 +2602,7 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
     body.console-ui--instructor .console-sidebar { display: block; flex-shrink: 0; width: 15.5rem; border-right: 1px solid var(--color-border); background: var(--color-surface); }
 }
 .console-sidebar-inner { position: sticky; top: 64px; display: flex; flex-direction: column; max-height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain; padding: 20px 0 32px; }
-.console-sidebar-heading { margin-top: 20px; padding: 0 20px 6px; color: var(--color-fg-muted); font: 500 0.6875rem / 1.25 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.console-sidebar-heading { margin-top: 20px; padding: 0 20px 6px; color: var(--color-fg-muted); font: 600 0.75rem / 1.25 var(--font-sans); letter-spacing: normal; text-transform: none; }
 .console-sidebar-heading:first-child { margin-top: 0; }
 .console-sidebar a { display: flex; align-items: center; min-height: 2.75rem; padding: 6px 20px; border-left: 2px solid transparent; color: var(--color-fg-muted); font: 400 0.875rem / 1.375 var(--font-sans); overflow-wrap: anywhere; }
 .console-sidebar a:hover { background: var(--color-accent-soft); color: var(--color-accent); }
@@ -2623,7 +2623,7 @@ body.console-ui--instructor .atlas-primary, body.console-ui--instructor .atlas-s
 .admin-toolbar-field { flex: 1 1 12rem; max-width: 20rem; min-width: 0; }
 .admin-toolbar-field--wide { flex-basis: 18rem; max-width: 30rem; }
 .admin-toolbar-field--date { flex: 0 1 9.5rem; min-width: 8.5rem; }
-.admin-toolbar label { display: block; margin-bottom: 6px; color: var(--color-fg-muted); font: 500 0.6875rem / 1.25 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.admin-toolbar label { display: block; margin-bottom: 6px; color: var(--color-fg-muted); font: 500 0.75rem / 1.25 var(--font-sans); letter-spacing: normal; text-transform: none; }
 .admin-toolbar .terminal-input { min-height: 2.75rem; font-size: 0.875rem; }
 .admin-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .admin-toolbar-count { margin-left: auto; padding-bottom: 12px; color: var(--color-static); font: 400 0.75rem / 1.25 var(--font-mono); font-variant-numeric: tabular-nums; }
@@ -2640,7 +2640,7 @@ body.console-ui--instructor .atlas-primary, body.console-ui--instructor .atlas-s
 .admin-beat { padding-block: 10px; border-bottom: 1px solid var(--color-line); min-width: 0; }
 .admin-beat:last-child { border-bottom: 0; }
 .admin-beat-label { color: var(--color-fg); font-size: 0.875rem; line-height: 1.375rem; overflow-wrap: anywhere; }
-.admin-beat-meta { margin-top: 2px; color: var(--color-fg-muted); font: 500 0.6875rem / 1.25 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.admin-beat-meta { margin-top: 2px; color: var(--color-fg-muted); font: 500 0.75rem / 1.25 var(--font-sans); letter-spacing: normal; text-transform: none; }
 
 /* Drill-down breadcrumbs above the page header. */
 .admin-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 12px; color: var(--color-fg-muted); font: 400 0.75rem / 1.25 var(--font-mono); }
