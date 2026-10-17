@@ -116,7 +116,7 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('CURRENT');
+            ->assertSee('Current');
     }
 
     public function test_learning_path_shows_completed_state(): void
@@ -140,7 +140,7 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('COMPLETED');
+            ->assertSee('Completed');
     }
 
     public function test_learning_path_empty_when_no_courses(): void
@@ -150,7 +150,7 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('NO COURSES');
+            ->assertSee('No courses');
     }
 
     public function test_learning_path_shows_difficulty_badges(): void
@@ -198,9 +198,9 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('COMPLETED')
-            ->assertSee('CURRENT')
-            ->assertSee('AVAILABLE');
+            ->assertSee('Completed')
+            ->assertSee('Current')
+            ->assertSee('Available');
     }
 
     public function test_learning_path_explains_server_sealed_course_nodes_without_linking_them(): void
@@ -216,7 +216,7 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('LOCKED')
+            ->assertSee('Locked')
             ->assertSee('This course is not currently active.')
             ->assertDontSee(route('mission.show', $mission));
     }
@@ -242,8 +242,8 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('FINAL COURSE MILESTONE')
-            ->assertSee('BOSS AVAILABLE')
+            ->assertSee('Final course milestone')
+            ->assertSee('Boss Available')
             ->assertSee(route('assessment.show', $assessment));
     }
 }

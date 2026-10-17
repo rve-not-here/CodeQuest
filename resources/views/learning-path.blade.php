@@ -21,7 +21,7 @@
 
         @if ($nextMission !== null)
             <section class="atlas-path-continue" aria-labelledby="continue-heading">
-                <p class="atlas-path-meta">CONTINUE WHERE YOU LEFT OFF</p>
+                <p class="atlas-path-meta">Continue where you left off</p>
                 <h2 id="continue-heading">@foreach (explode('_', $nextMission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h2>
                 <p class="atlas-path-meta">{{ $nextMission->difficulty }} · +{{ $nextMission->points }} XP</p>
                 <a href="{{ route('mission.show', $nextMission) }}" class="btn btn-primary">Continue →</a>
@@ -36,7 +36,7 @@
         @endif
 
         @if ($tree->isEmpty())
-            <section class="atlas-path-empty" aria-label="No courses"><h2>NO COURSES</h2><p>No courses are available yet.</p></section>
+            <section class="atlas-path-empty" aria-label="No courses"><h2>No courses</h2><p>No courses are available yet.</p></section>
         @else
             <nav class="atlas-path-courses" aria-label="Courses">
                 @foreach ($tree as $courseNode)
@@ -57,7 +57,7 @@
                 <details class="atlas-path-course-details" open>
                     <summary class="atlas-path-course-heading">
                         <div class="atlas-path-course-title">
-                            <p class="atlas-path-meta">Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseLocked ? 'LOCKED' : ($boss['state'] === 'PASSED' ? 'COMPLETE' : ($isCurrentCourse ? 'CURRENT' : 'AVAILABLE')) }}</p>
+                            <p class="atlas-path-meta">Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseLocked ? 'Locked' : ($boss['state'] === 'PASSED' ? 'Complete' : ($isCurrentCourse ? 'Current' : 'Available')) }}</p>
                             <h2 id="course-{{ $pathCourse->id }}-title">{{ $pathCourse->name }}</h2>
                             @if ($pathCourse->description)<p class="atlas-path-description">{{ $pathCourse->description }}</p>@endif
                         </div>
@@ -85,30 +85,30 @@
                                         <summary class="atlas-path-checkpoint">
                                             <span class="atlas-path-marker {{ $sectionCurrent ? 'is-current' : ($sectionComplete ? 'is-complete' : '') }}" aria-hidden="true">@if ($sectionComplete)<svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10" /></svg>@endif</span>
                                             <h3>{{ $sectionTitle }}</h3>
-                                            <p class="atlas-path-meta">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }} challenges complete @if ($sectionComplete) · COMPLETE @elseif ($sectionCurrent) · CURRENT @elseif ($courseLocked) · LOCKED @endif</p>
+                                            <p class="atlas-path-meta">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }} challenges complete @if ($sectionComplete) · Complete @elseif ($sectionCurrent) · Current @elseif ($courseLocked) · Locked @endif</p>
                                         </summary>
                                         <ol class="atlas-path-missions" aria-label="{{ $sectionTitle }} challenges">
                                             @foreach ($sectionNode['missions'] as $row)
                                                 @php
                                                     $mission = $row['mission'];
                                                     $isCurrent = ! $courseLocked && $nextMission !== null && $nextMission->id === $mission->id;
-                                                    $state = $courseLocked ? 'LOCKED' : ($row['state'] === 'COMPLETED' ? 'COMPLETED' : ($isCurrent ? 'CURRENT' : 'AVAILABLE'));
+                                                    $state = $courseLocked ? 'Locked' : ($row['state'] === 'COMPLETED' ? 'Completed' : ($isCurrent ? 'Current' : 'Available'));
                                                 @endphp
                                                 <li class="atlas-path-mission" data-state="{{ strtolower($state) }}" data-domain-state="{{ $row['state'] }}" @if ($isCurrent) aria-current="step" @endif>
                                                     <span class="atlas-path-marker" aria-hidden="true">
-                                                        @if ($state === 'COMPLETED')<svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10" /></svg>@elseif ($state === 'LOCKED')<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>@endif
+                                                        @if ($state === 'Completed')<svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10" /></svg>@elseif ($state === 'Locked')<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>@endif
                                                     </span>
                                                     <div class="atlas-path-mission-content">
-                                                        <p class="atlas-path-meta">{{ $state === 'COMPLETED' ? 'COMPLETE' : $state }}@if ($isCurrent) · You are here @endif</p>
+                                                        <p class="atlas-path-meta">{{ $state }}@if ($isCurrent) · You are here @endif</p>
                                                         <h4>@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h4>
-                                                        @if ($state === 'LOCKED')
+                                                        @if ($state === 'Locked')
                                                             <p class="atlas-path-note">{{ $courseNode['locked_reason'] }}</p>
                                                             @if ($row['state'] === 'COMPLETED')<p class="atlas-path-note">Completed work remains recorded.</p>@endif
                                                         @elseif ($isCurrent)
                                                             <p class="atlas-path-note">{{ $row['state'] === 'IN PROGRESS' ? 'Saved draft detected. Resume this lesson.' : 'Open the lesson, then work through the coding challenge.' }}</p>
                                                             <div class="atlas-path-actions"><a href="{{ route('mission.show', $mission) }}" class="btn btn-primary">Continue →</a> <span class="atlas-path-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span></div>
                                                         @else
-                                                            <div class="atlas-path-actions"><a href="{{ route('mission.show', $mission) }}" class="atlas-path-link" aria-label="{{ $state === 'COMPLETED' ? 'Review' : 'Open lesson' }}: {{ $mission->title }}">{{ $state === 'COMPLETED' ? 'Review' : 'Open lesson' }} →</a> <span class="atlas-path-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span></div>
+                                                            <div class="atlas-path-actions"><a href="{{ route('mission.show', $mission) }}" class="atlas-path-link" aria-label="{{ $state === 'Completed' ? 'Review' : 'Open lesson' }}: {{ $mission->title }}">{{ $state === 'Completed' ? 'Review' : 'Open lesson' }} →</a> <span class="atlas-path-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span></div>
                                                         @endif
                                                     </div>
                                                 </li>
@@ -120,7 +120,7 @@
                         </ol>
                         <section class="atlas-path-boss" aria-labelledby="boss-{{ $pathCourse->id }}-title">
                             <span class="atlas-path-marker" aria-hidden="true"></span>
-                            <p class="atlas-path-meta">FINAL COURSE MILESTONE · BOSS {{ $boss['state'] }}</p>
+                            <p class="atlas-path-meta">Final course milestone · Boss {{ ucfirst(strtolower($boss['state'])) }}</p>
                             <h3 id="boss-{{ $pathCourse->id }}-title">{{ $boss['assessment']?->title ?? 'Boss Challenge' }}</h3>
                             <p class="atlas-path-note">{{ $boss['reason'] }}</p>
                             @if ($boss['assessment'] !== null && $boss['accessible'])
@@ -133,7 +133,7 @@
         @endforeach
         @if ($recommendations->isNotEmpty())
             <section class="atlas-path-recommendations" aria-labelledby="recommendations-heading">
-                <h2 id="recommendations-heading">RECOMMENDED NEXT ACTIONS</h2>
+                <h2 id="recommendations-heading">Recommended next actions</h2>
                 <x-recommendation-cards :recommendations="$recommendations" variant="student" />
             </section>
         @endif

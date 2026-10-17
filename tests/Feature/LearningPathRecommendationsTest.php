@@ -41,7 +41,7 @@ class LearningPathRecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('RECOMMENDED NEXT ACTIONS')
+            ->assertSee('Recommended next actions')
             ->assertSee('PRIORITY 1')
             ->assertSee('Continue Learning')
             ->assertSee('Rusty Lockbox')
@@ -97,7 +97,7 @@ class LearningPathRecommendationsTest extends TestCase
         $content = $this->actingAs($viewer)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('RECOMMENDED NEXT ACTIONS')
+            ->assertSee('Recommended next actions')
             ->assertSee('Viewers Next')
             ->getContent();
 
@@ -130,9 +130,9 @@ class LearningPathRecommendationsTest extends TestCase
         $content = $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('RECOMMENDED NEXT ACTIONS')
+            ->assertSee('Recommended next actions')
             ->assertSee('Hostile Takeover')
-            ->assertSee('LOCKED')
+            ->assertSee('Locked')
             ->assertSee('This course is not currently active.')
             ->assertViewHas('recommendations', fn ($cards): bool => $cards->firstWhere('href', route('mission.show', $mission))['locked_reason'] === 'This course is not currently active.')
             ->assertDontSee(route('mission.show', $mission))
@@ -170,9 +170,9 @@ class LearningPathRecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('RECOMMENDED NEXT ACTIONS')
+            ->assertSee('Recommended next actions')
             ->assertSee('Boss Challenge')
-            ->assertSee('LOCKED')
+            ->assertSee('Locked')
             ->assertDontSee(route('assessment.show', $assessment));
     }
 
@@ -241,9 +241,9 @@ class LearningPathRecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertDontSee('RECOMMENDED NEXT ACTIONS')
+            ->assertDontSee('Recommended next actions')
             ->assertSee('Cleared Signal')
-            ->assertSee('BOSS PASSED');
+            ->assertSee('Boss Passed');
     }
 
     public function test_learning_path_states_survive_the_recommendation_panel(): void
@@ -269,9 +269,9 @@ class LearningPathRecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('CURRENT')
+            ->assertSee('Current')
             ->assertSee('Next Up')
-            ->assertSee('COMPLETE');
+            ->assertSee('Completed');
     }
 
     private function course(string $name): Course

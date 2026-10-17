@@ -36,7 +36,7 @@ class SectionProgressTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('section-progress'))
             ->assertOk()
-            ->assertSee('NO COURSES');
+            ->assertSee('No courses');
     }
 
     public function test_section_progress_untouched_section_is_not_started(): void

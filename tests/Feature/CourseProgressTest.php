@@ -38,7 +38,7 @@ class CourseProgressTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('progress'))
             ->assertOk()
-            ->assertSee('NO COURSES');
+            ->assertSee('No courses');
     }
 
     public function test_progress_shows_untouched_active_course_as_in_progress(): void
