@@ -9,7 +9,23 @@
   },
   "detector": {
     "extensions": [
-      { "ext": ".blade.php", "engine": "html" }
+      {
+        "ext": ".blade.php",
+        "engine": "html"
+      }
+    ],
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "resources/css/student.css"
+        ],
+        "createdAt": "2026-10-15T09:45:55.970Z",
+        "reason": "Agent review: existing Knowledge Check answer-option checked/correct/incorrect state markers, not decorative card tabs; git blame attributes them to e867281, outside the floating-notification change."
+      }
     ]
   }
 }

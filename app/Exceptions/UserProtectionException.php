@@ -28,4 +28,14 @@ class UserProtectionException extends RuntimeException
     {
         return new self('This change would leave fewer than two active admins.');
     }
+
+    public static function selfDeletion(): self
+    {
+        return new self('You cannot delete your own account.');
+    }
+
+    public static function hasProtectedRecords(): self
+    {
+        return new self('This account has learning or classroom records. Deactivate the account instead.');
+    }
 }

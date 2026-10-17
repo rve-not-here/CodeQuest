@@ -1,11 +1,8 @@
-@props(['title' => '', 'subtitle' => '', 'icon' => null, 'code' => null])
+@props(['title' => '', 'subtitle' => '', 'icon' => null])
 
 <header class="page-header">
     <div class="min-w-0">
         @if ($title)
-            @if ($code)
-                <p class="mb-2"><span class="sort-code">{{ $code }}</span></p>
-            @endif
             {{-- No kicker above the heading: the craft floor bans the device outright. The
                  heading carries its own weight, and the role is already stated in the shell. --}}
             <h1 class="font-sans text-2xl font-semibold tracking-[-0.025em] text-ink md:text-3xl">

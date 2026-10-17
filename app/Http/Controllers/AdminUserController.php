@@ -108,4 +108,19 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.show', $user)
             ->with('status', 'Account updated.');
     }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        /** @var User $actor */
+        $actor = auth()->user();
+
+        try {
+            $this->users->delete($actor, $user);
+        } catch (UserProtectionException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('admin.users')
+            ->with('status', 'Account deleted.');
+    }
 }

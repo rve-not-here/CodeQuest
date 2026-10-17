@@ -4,11 +4,19 @@
 
 @section('content')
     <div class="admin-management">
-    <header class="admin-management-context">
-        <div><h1>Section Management</h1><p>{{ $course->name }} · Manage sections in learning order.</p></div>
-        <div class="admin-actions"><a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
-            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge></div>
-    </header>
+    <nav class="admin-crumbs" aria-label="Breadcrumb">
+        <a href="{{ route('admin.courses') }}">Courses</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('admin.courses.edit', $course) }}">{{ $course->name }}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Sections</span>
+    </nav>
+
+    <x-page-header title="Section Management" subtitle="{{ $course->name }} · Manage sections in learning order.">
+        <x-slot:actions>
+            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -16,58 +24,60 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-accent mb-2">Sections in {{ $course->name }}</h2>
+    <x-panel title="Sections in {{ $course->name }}">
+        <x-slot:status>
+            <x-badge tone="dim">{{ $sections->count() }} {{ Str::plural('section', $sections->count()) }}</x-badge>
+        </x-slot:status>
 
-    <p class="result-count mb-3 text-sm text-ink">{{ $sections->count() }} {{ Str::plural('section', $sections->count()) }}</p>
-
-    @if ($sections->isEmpty())
-        <x-status-message type="info" title="NO SECTIONS">
-            No sections are defined for this course.
-        </x-status-message>
-    @else
-        <div class="admin-table-region">
-            <table class="table-stack admin-table" role="table">
-                <caption>Course sections</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Order</th>
-                        <th scope="col">Section</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Missions</th>
-                        <th scope="col">Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($sections as $section)
+        @if ($sections->isEmpty())
+            <x-status-message type="info" title="NO SECTIONS">
+                No sections are defined for this course.
+            </x-status-message>
+        @else
+            <div class="admin-table-region">
+                <table class="table-stack admin-table" role="table">
+                    <caption>Course sections</caption>
+                    <thead>
                         <tr>
-                            <td data-label="Order">
-                                {{ $section->order_num }}
-                            </td>
-
-                            <th scope="row" data-label="Section">
-                                <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-accent hover:underline">
-                                    {{ $section->title }}
-                                </a>
-                            </th>
-
-                            <td data-label="Description">
-                                {{ $section->description }}
-                            </td>
-
-                            <td data-label="Missions">
-                                {{ $section->missions_count }}
-                            </td>
-
-                            <td data-label="Edit">
-                                <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-sm font-bold text-info hover:underline">
-                                    EDIT →
-                                </a>
-                            </td>
+                            <th scope="col">Order</th>
+                            <th scope="col">Section</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Missions</th>
+                            <th scope="col">Actions</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
+                    </thead>
+                    <tbody>
+                        @foreach ($sections as $section)
+                            <tr>
+                                <td data-label="Order">
+                                    {{ $section->order_num }}
+                                </td>
+
+                                <th scope="row" data-label="Section">
+                                    <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="text-accent hover:underline">
+                                        {{ $section->title }}
+                                    </a>
+                                </th>
+
+                                <td data-label="Description">
+                                    {{ $section->description }}
+                                </td>
+
+                                <td data-label="Missions">
+                                    {{ $section->missions_count }}
+                                </td>
+
+                                <td data-label="Actions">
+                                    <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="admin-row-link">
+                                        EDIT →
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </x-panel>
     </div>
 @endsection

@@ -19,7 +19,6 @@
         <header class="atlas-reading-heading">
             <div class="flex items-center gap-3 flex-wrap">
                 <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
-                <span class="sort-code">LSS-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
             </div>
             <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">Read the brief and inspect the starter, then apply what you learned in the coding challenge.</p>
             <div class="atlas-reading-meta">
@@ -53,7 +52,6 @@
                     <div class="atlas-lesson-section-heading">
                         <div class="flex items-center gap-3 mt-1 flex-wrap">
                             <h2 id="lesson-objective" class="text-lg font-semibold">What you will build</h2>
-                            <span class="sort-code">OBJ-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
                         </div>
                     </div>
                     <div class="atlas-lesson-prose">
@@ -70,7 +68,6 @@
                         <div class="atlas-lesson-section-heading">
                             <div class="flex items-center gap-3 mt-1 flex-wrap">
                             <h2 id="lesson-output" class="text-lg font-semibold">Expected output</h2>
-                            <span class="sort-code">OUT-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
                         </div>
                             <p class="mt-1 text-sm text-fg-muted">Use this reference to understand the intended result.</p>
                         </div>
@@ -85,7 +82,6 @@
                         <div class="atlas-lesson-section-heading">
                             <div class="flex items-center gap-3 mt-1 flex-wrap">
                             <h2 id="lesson-starter" class="text-lg font-semibold">Start from this code</h2>
-                            <span class="sort-code">STR-{{ strtoupper(substr(sha1($mission->id), 0, 4)) }}</span>
                         </div>
                             <p class="mt-1 text-sm text-fg-muted">This is a read-only example. The editor and preview are in the coding challenge.</p>
                         </div>

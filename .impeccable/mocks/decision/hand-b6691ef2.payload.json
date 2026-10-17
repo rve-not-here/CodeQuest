@@ -1,0 +1,129 @@
+{
+  "title": "CodeQuest — choose the visual world",
+  "question": "The roll assigned Foundry Specimen & Type Case. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Foundry Specimen & Type Case",
+      "kicker": "THE ROLL",
+      "lineage": "letterpress type cases and foundry specimen sheets",
+      "thesis": "CodeQuest is a classified system: every mission, skill, record and alert is a sort in a labelled compartment, and each screen is the specimen sheet that shows what the set can say.",
+      "palette": ["#F2F1EC", "#16181B", "#1E4FD8", "#C6362A"],
+      "materials": ["cast type alloy", "brass rules", "proof marks"],
+      "viewport": "The student Dashboard as one specimen sheet: a foundry title stamped with its optical size, the current directive in the sheet's widest compartment, missions as a specimen list, a type-case column of learning records.",
+      "risk": "A compartment grid is one nudge away from being ornament — if the codes carry no meaning the sheet is only boxes. It also lands far from a dark terminal world.",
+      "raised": [
+        { "from": "challenger-zoo-gardens-guide-map", "raise": "Committed colour owns whole regions: each work-area family fills its region with one flat, unmodulated colour, so the shell reads as blocks before any text is parsed." },
+        { "from": "challenger-cassette-j-card", "raise": "Running time is a first-class number: every lesson, mission and challenge carries its expected minutes in tabular figures, right-aligned in its column, never folded into prose." },
+        { "from": "challenger-monochrome-product-marketing", "raise": "Proof beside the number: every headline figure is one click from the record behind it, so nothing on the screen is unbacked." }
+      ],
+      "html": ".impeccable/mocks/decision/assigned.html"
+    },
+    {
+      "id": "model-pick",
+      "label": "The Mark-Sense Sheet",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "optical mark-recognition exam papers and mark-recognition ballots",
+      "thesis": "CodeQuest is graded by a machine that believes only ink, so every screen behaves like a sheet you scan for marks.",
+      "palette": ["#F6F6F2", "#14140F", "#C8322B", "#1F4FA8"],
+      "materials": ["machine-printed form", "tab perforations", "red overprint"],
+      "viewport": "The Dashboard as one scanned form: a heavy black instruction band naming the directive, one mark row per course section with fills and blank cells, a signature strip carrying XP and the next mission.",
+      "risk": "Also where most runs in this category land, and mark-sense paper reads as drudgery unless the hierarchy is ruthless.",
+      "html": ".impeccable/mocks/decision/model-pick.html"
+    },
+    {
+      "id": "challenger-star-atlas",
+      "label": "The Star Atlas Plates",
+      "verdict": "competitive",
+      "lineage": "celestial star atlas charts",
+      "thesis": "A course is a plate: competencies are magnitudes, and a class is a field you scan for the dots that have moved.",
+      "palette": ["#0E1A33", "#F2F4F8", "#E0A24A", "#C6493F"],
+      "materials": ["chart ink", "coordinate ruling", "red-filter annotation"],
+      "viewport": "The teacher's attention queue as a plate: one dot per learner sized by stalled days, ringed red when a deadline has passed, over a ruled coordinate field.",
+      "case": "Holds audience identification: students and teachers both read charts, and finding the outlier is exactly the teacher's job. Loses product clarity — a coordinate field is ornament on a working screen.",
+      "risk": "Rides close to the dark register the fresh round was meant to leave, and dot plots hide the row-level detail a teacher must act on.",
+      "hero": "https://impeccable.style/worlds/cards/notation-diagram-systems-star-atlas-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/notation-diagram-systems-star-atlas.webp",
+      "html": ".impeccable/mocks/decision/challenger-star-atlas.html"
+    },
+    {
+      "id": "challenger-cast-catalogue",
+      "label": "The Cast Catalogue",
+      "verdict": "competitive",
+      "lineage": "Factory Records catalogue sleeve identities",
+      "thesis": "Every learner is a cast number, and state speaks in code that decodes only when you ask.",
+      "palette": ["#101113", "#F4F4F1", "#9AA0A6", "#E4E24A"],
+      "materials": ["matte sleeve board", "white hairline plot", "colour-code strips"],
+      "viewport": "The admin console as a catalogue: cast numbers down the index, each record a pulse plot with a colour strip that decodes to text on hover.",
+      "case": "Holds product clarity: nothing labelled twice, strict sequence, index as the only map is superb working discipline. Loses audience identification — it lives in design culture, not in the learner's work.",
+      "risk": "Near-black ground puts it beside the incumbent it was meant to replace, and a code that only experts can read is a wall to the teacher.",
+      "hero": "https://impeccable.style/worlds/cards/brand-identity-canon-saville-catalog-sleeve-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/brand-identity-canon-saville-catalog-sleeve.webp",
+      "html": ".impeccable/mocks/decision/challenger-cast-catalogue.html"
+    },
+    {
+      "id": "challenger-concourse-board",
+      "label": "The Concourse Board",
+      "verdict": "competitive",
+      "lineage": "rail concourse split-flap boards",
+      "thesis": "Attention is a departure board: live rows ranked by time, columns that never move, and state that restyles without breaking the grid.",
+      "palette": ["#15171A", "#F5F5F2", "#E8A33D", "#D2503F"],
+      "materials": ["matte flap faces", "brushed steel frame", "row lamps"],
+      "viewport": "The teacher's Needs Attention queue as a board: learners as rows ranked by stalled days, columns locked, delay and overdue restyling the row in place.",
+      "case": "Holds audience identification: a glanceable ranked board is the teacher's real job. Loses the student's half — a mission list as departures is a costume, and the cascade would trespass on the calm Challenge workspace.",
+      "risk": "Splits the product into two worlds, one dark and animated for staff and one pale for students.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse.webp",
+      "html": ".impeccable/mocks/decision/challenger-concourse-board.html"
+    },
+    {
+      "id": "challenger-zoo-gardens-guide-map",
+      "label": "The Headland Map",
+      "verdict": "declined",
+      "lineage": "zoo and gardens guide maps",
+      "thesis": "Each course is a swelling lobe of flat colour, and the coastline between lobes does all the dividing.",
+      "palette": ["#8ED462", "#F5F1E4", "#FF705D", "#2BA0FF"],
+      "materials": ["flat unmodulated colour", "photographic lobes", "capsule controls"],
+      "case": "Fuses into the Path, but lobes become work areas and the world starts supplying the layout.",
+      "kept": "Committed colour owns whole regions.",
+      "hero": "https://impeccable.style/worlds/cards/aww2-zoo-gardens-guide-map-hero.webp"
+    },
+    {
+      "id": "challenger-cassette-j-card",
+      "label": "The Folded J-Card",
+      "verdict": "declined",
+      "lineage": "hand-lettered cassette inserts",
+      "thesis": "Each course is one side of a tape: tracks ruled in ballpoint, running times tight against the margin.",
+      "palette": ["#FFFFFF", "#1B3F8B", "#8C8C8C", "#D8342B"],
+      "materials": ["lined inlay stock", "ballpoint ink", "pencil"],
+      "case": "Fuses the budget beautifully, but a folding flip topology fights a fixed coding workspace and handwritten caps cannot carry dense records.",
+      "kept": "Running time as a first-class number.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-cassette-j-card-hero.webp"
+    },
+    {
+      "id": "challenger-monochrome-product-marketing",
+      "label": "Monochrome Product Canon",
+      "verdict": "declined",
+      "lineage": "software marketing surfaces built in one neutral scale",
+      "thesis": "Almost no colour, one restrained accent, every claim paired with the interface detail that proves it.",
+      "palette": ["#FAFAFA", "#111827", "#4B5563", "#2563EB"],
+      "materials": ["neutral scale", "framed screenshots", "hairline borders"],
+      "case": "Defines the floor, not a world — a grey screen with one accent is the category default — and it is already the standing exit below.",
+      "kept": "Proof beside the number.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-monochrome-product-marketing-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code" },
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "What this category ships, executed impeccably: sidebar, progress rings, lesson cards.",
+    "palette": ["#FFFFFF", "#111827", "#2563EB", "#F3F4F6"],
+    "materials": ["clean grid", "soft shadows", "standard web controls"],
+    "viewport": "The arrangement every course platform uses, at full craft, with nothing distinctive added.",
+    "risk": "Indistinguishable from the competition by design.",
+    "html": ".impeccable/mocks/decision/canon.html"
+  },
+  "steer": true
+}

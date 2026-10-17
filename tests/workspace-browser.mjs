@@ -77,6 +77,7 @@ try {
     const isReadOnly = readOnlyModes.includes(mode);
     const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : '.cm-content');
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
+    assert.equal(await evaluate(`document.querySelectorAll('.sort-code').length`), 0);
     if (!waitingForAttempt && !isReadOnly) {
         assert.equal(await evaluate(`document.querySelector('.cm-content').getAttribute('aria-label')`), 'Code editor');
     }
@@ -84,13 +85,11 @@ try {
         const heading = mode === 'dashboard' ? 'Current Objective' : 'Learning Path';
         assert.equal(await evaluate(`document.querySelector('h1').textContent.trim()`), heading);
         if (mode === 'dashboard') {
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-heading') === null`), true);
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta') !== null`), true);
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('Coding challenge')`), true);
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('Easy')`), true);
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('60')`), true);
-            // SIGNATURE: sort codes render on the dashboard compartments
-            assert.equal(await evaluate(`document.querySelectorAll('.atlas-dashboard .sort-code').length`), 4);
-            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard .sort-code').textContent.startsWith('OBJ-')`), true);
             // display voice: the objective heading carries a display size, not body text
             const objectiveSize = await evaluate(`getComputedStyle(document.querySelector('.atlas-dashboard-objective h2')).fontSize`);
             assert.equal(parseFloat(objectiveSize) >= 28, true);
@@ -98,10 +97,6 @@ try {
         if (mode === 'learning-path') {
             assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-course').length`), 1);
             assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-mission').length`), 3);
-            // SIGNATURE: sort codes render on courses and sections
-            assert.equal(await evaluate(`document.querySelectorAll('.atlas-path .sort-code').length`), 3);
-            assert.equal(await evaluate(`document.querySelector('.atlas-path-course .sort-code').textContent.startsWith('CRS-')`), true);
-            assert.equal(await evaluate(`document.querySelector('.atlas-path-section .sort-code').textContent.startsWith('SEC-')`), true);
         }
         for (const [width, height] of [[1920, 1080], [1366, 768], [768, 1024], [390, 844]]) {
             await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });

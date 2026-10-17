@@ -35,9 +35,10 @@ use Symfony\Component\HttpFoundation\Response;
  * app, e.g. http://[::1]:5173 vs http://127.0.0.1:8000), so strict 'self'-only
  * script/style/connect would block the dev stylesheet, dev scripts, and the
  * HMR websocket — the page loads but appears unstyled. In that case only, the
- * loopback Vite origins (localhost, 127.0.0.1, [::1] on port 5173, http + ws)
- * are appended to script-src, style-src, and connect-src. Production (no hot
- * file) keeps the strict 'self'-only policy. 'unsafe-eval' is never granted.
+ * loopback Vite origins (localhost, 127.0.0.1 on port 5173, http + ws)
+ * are appended to script-src, style-src, font-src, and connect-src. Production
+ * (no hot file) keeps the strict 'self'-only policy. 'unsafe-eval' is never
+ * granted.
  */
 class SecurityHeaders
 {
@@ -55,11 +56,16 @@ class SecurityHeaders
             ."object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
 
         if (Vite::isRunningHot()) {
-            $viteHttp = 'http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173';
-            $viteWs = 'ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173';
+            $hotOrigin = rtrim(trim((string) @file_get_contents(Vite::hotFile())), '/');
+            if ($hotOrigin === '') {
+                $hotOrigin = 'http://127.0.0.1:5173';
+            }
+            $port = parse_url($hotOrigin, PHP_URL_PORT) ?: 5173;
+            $viteHttp = "http://localhost:{$port} http://127.0.0.1:{$port}";
+            $viteWs = "ws://localhost:{$port} ws://127.0.0.1:{$port}";
             $csp = "default-src 'self'; script-src 'self' 'unsafe-inline' {$viteHttp}; "
                 ."style-src 'self' 'unsafe-inline' {$viteHttp}; "
-                ."img-src 'self' data:; font-src 'self'; connect-src 'self' {$viteHttp} {$viteWs}; "
+                ."img-src 'self' data:; font-src 'self' {$viteHttp}; connect-src 'self' {$viteHttp} {$viteWs}; "
                 ."object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
         }
 

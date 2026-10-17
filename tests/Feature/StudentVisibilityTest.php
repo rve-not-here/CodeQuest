@@ -18,6 +18,7 @@ use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
 use App\Services\XpService;
+use App\Support\AssessmentAttemptView;
 use App\Support\AssessmentView;
 use App\Support\KnowledgeCheckView;
 use App\Support\MissionView;
@@ -114,6 +115,7 @@ class StudentVisibilityTest extends TestCase
             $response = $this->actingAs($student)->get($url);
 
             $response->assertOk();
+            $response->assertDontSee('class="sort-code"', false);
             $this->assertHidesSecrets($response->getContent(), $page);
         }
     }
@@ -254,6 +256,49 @@ class StudentVisibilityTest extends TestCase
         $this->assertHidesSecrets($page->getContent(), 'assessment.show after failed submission');
     }
 
+    public function test_assessment_pages_never_expose_the_attempt_grading_rule_snapshot(): void
+    {
+        ['student' => $student, 'mission' => $mission, 'assessment' => $assessment] = $this->fixture();
+        $this->unlockBoss($student, $mission);
+
+        $this->actingAs($student)->post(route('assessment.start', $assessment))->assertRedirect();
+        $attempt = AssessmentAttempt::query()->where('user_id', $student->id)->sole();
+        $attempt->forceFill(['grading_rule_snapshot' => self::BOSS_RULE_SENTINEL])->save();
+
+        foreach (['assessments', 'assessment.show'] as $page) {
+            $response = $page === 'assessments'
+                ? $this->actingAs($student)->get(route('assessments'))
+                : $this->actingAs($student)->get(route('assessment.show', $assessment));
+            $response->assertOk();
+            $this->assertStringNotContainsString(self::BOSS_RULE_SENTINEL, $response->getContent());
+        }
+
+        $this->actingAs($student)->post(
+            route('assessment.submit', $assessment),
+            ['code' => '<p>WRONG BOSS ANSWER</p>'],
+        )->assertRedirect();
+
+        foreach (['assessments', 'assessment.show'] as $page) {
+            $response = $page === 'assessments'
+                ? $this->actingAs($student)->get(route('assessments'))
+                : $this->actingAs($student)->get(route('assessment.show', $assessment));
+            $response->assertOk();
+            $this->assertStringNotContainsString(self::BOSS_RULE_SENTINEL, $response->getContent());
+        }
+
+        $this->actingAs($student)->post(route('assessment.retry', $assessment))->assertRedirect();
+        $retry = AssessmentAttempt::query()->where('user_id', $student->id)->latest('id')->firstOrFail();
+        $retry->forceFill(['grading_rule_snapshot' => self::BOSS_RULE_SENTINEL])->save();
+
+        foreach (['assessments', 'assessment.show'] as $page) {
+            $response = $page === 'assessments'
+                ? $this->actingAs($student)->get(route('assessments'))
+                : $this->actingAs($student)->get(route('assessment.show', $assessment));
+            $response->assertOk();
+            $this->assertStringNotContainsString(self::BOSS_RULE_SENTINEL, $response->getContent());
+        }
+    }
+
     public function test_another_students_records_are_neither_rendered_nor_reachable(): void
     {
         [
@@ -293,10 +338,18 @@ class StudentVisibilityTest extends TestCase
     {
         $mission = Mission::factory()->create();
         $assessment = Assessment::factory()->create();
+        $attempt = AssessmentAttempt::factory()->create([
+            'assessment_id' => $assessment->id,
+            'status' => 'failed',
+            'score' => 42,
+            'code' => 'student draft',
+            'grading_rule_snapshot' => self::BOSS_RULE_SENTINEL,
+        ]);
         $check = KnowledgeCheck::factory()->create();
 
         $missionView = MissionView::from($mission);
         $assessmentView = AssessmentView::from($assessment);
+        $attemptView = AssessmentAttemptView::from($attempt);
         $checkView = KnowledgeCheckView::from($check);
 
         $this->assertSame(
@@ -312,6 +365,9 @@ class StudentVisibilityTest extends TestCase
             array_keys(get_object_vars($assessmentView)),
         );
         $this->assertNotContains('grading_rule', array_keys(get_object_vars($assessmentView)));
+
+        $this->assertSame(['status', 'score', 'code'], array_keys(get_object_vars($attemptView)));
+        $this->assertNotContains('grading_rule_snapshot', array_keys(get_object_vars($attemptView)));
 
         $this->assertSame(
             ['id', 'title', 'instructions', 'is_required'],

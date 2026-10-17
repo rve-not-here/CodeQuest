@@ -4,14 +4,20 @@
 
 @section('content')
     <div class="admin-management">
-    <header class="admin-management-context">
-        <div><h1>Edit — {{ $classroom->name }}</h1><p>Manage classroom details and memberships. Save each membership group separately.</p></div>
-        <div class="admin-actions"><x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">
+    <nav class="admin-crumbs" aria-label="Breadcrumb">
+        <a href="{{ route('admin.classrooms') }}">Classrooms</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ $classroom->name }}</span>
+    </nav>
+
+    <x-page-header title="Edit — {{ $classroom->name }}" subtitle="Manage classroom details and memberships. Save each membership group separately.">
+        <x-slot:actions>
+            <x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">
                 {{ $classroom->status }}
             </x-badge>
             <a href="{{ route('classrooms.show', $classroom) }}" class="btn-ghost">VIEW →</a>
-            <a href="{{ route('admin.classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a></div>
-    </header>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -38,9 +44,7 @@
     @endif
 
     <div class="admin-membership-layout">
-        <section>
-            <h2 class="text-sm font-bold text-accent mb-3">BASE FIELDS</h2>
-
+        <x-panel title="Base Fields">
             <form method="POST" action="{{ route('admin.classrooms.update', $classroom) }}" class="admin-form">
                 @csrf
                 @method('PUT')
@@ -48,13 +52,13 @@
                 <div class="mb-4">
                     <label for="name" class="block text-sm font-bold text-fg-muted mb-1">Name</label>
                     <input id="name" name="name" type="text" maxlength="128" value="{{ old('name', $classroom->name) }}" required class="terminal-input" @if ($errors->has('name')) aria-invalid="true" aria-describedby="name-error" @endif>
-                @error('name')<p id="name-error" class="admin-field-error">{{ $message }}</p>@enderror
+                    @error('name')<p id="name-error" class="admin-field-error">{{ $message }}</p>@enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="code" class="block text-sm font-bold text-fg-muted mb-1">Code (optional)</label>
                     <input id="code" name="code" type="text" maxlength="32" value="{{ old('code', $classroom->code) }}" class="terminal-input" @if ($errors->has('code')) aria-invalid="true" aria-describedby="code-error" @endif>
-                @error('code')<p id="code-error" class="admin-field-error">{{ $message }}</p>@enderror
+                    @error('code')<p id="code-error" class="admin-field-error">{{ $message }}</p>@enderror
                 </div>
 
                 <div class="mb-6">
@@ -63,20 +67,20 @@
                         <option value="active" @selected(old('status', $classroom->status) === 'active')>ACTIVE</option>
                         <option value="inactive" @selected(old('status', $classroom->status) === 'inactive')>INACTIVE</option>
                     </select>
-                @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
-                    <p id="status-help" class="mt-2 text-[15px] text-fg-muted">
+                    @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
+                    <p id="status-help" class="admin-field-help">
                         Deactivating removes teacher visibility immediately, without touching the memberships or any learning history.
                     </p>
                 </div>
 
-                <button type="submit" class="btn-ghost">SAVE BASE FIELDS →</button>
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn-primary">SAVE BASE FIELDS →</button>
+                </div>
             </form>
-        </section>
+        </x-panel>
 
-        <section class="admin-membership-groups">
-            <div>
-                <h2 class="text-sm font-bold text-accent mb-3">ASSIGNED TEACHERS</h2>
-
+        <div class="admin-ledger">
+            <x-panel title="Assigned Teachers">
                 <form method="POST" action="{{ route('admin.classrooms.teachers', $classroom) }}" class="admin-form">
                     @csrf
 
@@ -98,13 +102,13 @@
                         @endforelse
                     </fieldset>
 
-                    <button type="submit" class="btn-ghost">REPLACE TEACHERS →</button>
+                    <div class="admin-form-actions">
+                        <button type="submit" class="btn-ghost">REPLACE TEACHERS →</button>
+                    </div>
                 </form>
-            </div>
+            </x-panel>
 
-            <div>
-                <h2 class="text-sm font-bold text-accent mb-3">ENROLLED STUDENTS</h2>
-
+            <x-panel title="Enrolled Students">
                 <form method="POST" action="{{ route('admin.classrooms.students', $classroom) }}" class="admin-form">
                     @csrf
 
@@ -126,13 +130,13 @@
                         @endforelse
                     </fieldset>
 
-                    <button type="submit" class="btn-ghost">REPLACE STUDENTS →</button>
+                    <div class="admin-form-actions">
+                        <button type="submit" class="btn-ghost">REPLACE STUDENTS →</button>
+                    </div>
                 </form>
-            </div>
+            </x-panel>
 
-            <div>
-                <h2 class="text-sm font-bold text-accent mb-3">ASSIGNED COURSES</h2>
-
+            <x-panel title="Assigned Courses">
                 <form method="POST" action="{{ route('admin.classrooms.courses', $classroom) }}" class="admin-form">
                     @csrf
 
@@ -153,10 +157,12 @@
                         @endforelse
                     </fieldset>
 
-                    <button type="submit" class="btn-ghost">REPLACE COURSES →</button>
+                    <div class="admin-form-actions">
+                        <button type="submit" class="btn-ghost">REPLACE COURSES →</button>
+                    </div>
                 </form>
-            </div>
-        </section>
+            </x-panel>
+        </div>
     </div>
     </div>
 @endsection

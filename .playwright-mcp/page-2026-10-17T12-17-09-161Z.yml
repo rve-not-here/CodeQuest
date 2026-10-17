@@ -1,0 +1,276 @@
+- generic [ref=f25e2]:
+  - link "Skip to content" [ref=f25e3] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f25e4]:
+    - generic [ref=f25e5]:
+      - link "CodeQuest home" [ref=f25e6] [cursor=pointer]:
+        - /url: http://localhost:8000/dashboard
+        - generic [aria-hidden] [ref=f25e7]: "404"
+        - generic [ref=f25e8]: CodeQuest
+      - navigation "Primary" [ref=f25e9]:
+        - link "Dashboard" [ref=f25e10] [cursor=pointer]:
+          - /url: http://localhost:8000/dashboard
+        - link "Learning Path" [ref=f25e11] [cursor=pointer]:
+          - /url: http://localhost:8000/learning-path
+        - link "Boss Challenges" [ref=f25e12] [cursor=pointer]:
+          - /url: http://localhost:8000/assessments
+      - group [ref=f25e13]:
+        - generic "Learning record" [ref=f25e14] [cursor=pointer]:
+          - text: Learning record
+          - generic [aria-hidden] [ref=f25e15]: ⌄
+      - generic [ref=f25e16]:
+        - link "XP balance 0. Open XP ledger" [ref=f25e17] [cursor=pointer]:
+          - /url: http://localhost:8000/xp-ledger
+          - text: "0"
+          - generic [ref=f25e18]: XP
+        - link "Notifications" [ref=f25e19] [cursor=pointer]:
+          - /url: http://localhost:8000/notifications
+        - group [ref=f25e22]:
+          - generic "Open account menu" [ref=f25e23] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f25e24]: S
+            - generic [ref=f25e25]: Account
+            - generic [aria-hidden] [ref=f25e26]: ⌄
+    - generic [aria-hidden] [ref=f25e27]:
+      - generic [ref=f25e28]: Specimen sheet · optical size 11–46
+      - generic [ref=f25e29]:
+        - generic [ref=f25e30]: "11"
+        - generic [ref=f25e32]: "13"
+        - generic [ref=f25e34]: "16"
+        - generic [ref=f25e36]: "22"
+        - generic [ref=f25e38]: "28"
+        - generic [ref=f25e40]: "36"
+        - generic [ref=f25e42]: "46"
+  - main [ref=f25e45]:
+    - generic [ref=f25e47]:
+      - generic [ref=f25e48]:
+        - heading "Current Objective" [level=1] [ref=f25e49]
+        - generic [ref=f25e50]:
+          - paragraph [ref=f25e51]: HTML Fundamentals · Text and Structure
+          - link "View Learning Path →" [ref=f25e52] [cursor=pointer]:
+            - /url: http://localhost:8000/learning-path
+      - region [ref=f25e53]:
+        - generic [ref=f25e54]:
+          - heading "Challenge wall" [level=2] [ref=f25e55]
+          - generic [ref=f25e56]: 0 / 30 complete
+        - list [ref=f25e57]:
+          - listitem [ref=f25e58]:
+            - link "Challenge 1, current" [ref=f25e59] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/1/challenge
+              - generic [ref=f25e60]: "01"
+              - generic [ref=f25e61]: "+50"
+          - listitem [ref=f25e62]:
+            - link "Challenge 2" [ref=f25e63] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/2
+              - generic [ref=f25e64]: "02"
+              - generic [ref=f25e65]: "+60"
+          - listitem [ref=f25e66]:
+            - link "Challenge 3" [ref=f25e67] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/3
+              - generic [ref=f25e68]: "03"
+              - generic [ref=f25e69]: "+60"
+          - listitem [ref=f25e70]:
+            - link "Challenge 4" [ref=f25e71] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/4
+              - generic [ref=f25e72]: "04"
+              - generic [ref=f25e73]: "+50"
+          - listitem [ref=f25e74]:
+            - link "Challenge 5" [ref=f25e75] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/5
+              - generic [ref=f25e76]: "05"
+              - generic [ref=f25e77]: "+80"
+          - listitem [ref=f25e78]:
+            - link "Challenge 6" [ref=f25e79] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/6
+              - generic [ref=f25e80]: "06"
+              - generic [ref=f25e81]: "+90"
+          - listitem [ref=f25e82]:
+            - link "Challenge 7" [ref=f25e83] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/7
+              - generic [ref=f25e84]: "07"
+              - generic [ref=f25e85]: "+80"
+          - listitem [ref=f25e86]:
+            - link "Challenge 8" [ref=f25e87] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/8
+              - generic [ref=f25e88]: "08"
+              - generic [ref=f25e89]: "+120"
+          - listitem [ref=f25e90]:
+            - link "Challenge 9" [ref=f25e91] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/9
+              - generic [ref=f25e92]: "09"
+              - generic [ref=f25e93]: "+100"
+          - listitem [ref=f25e94]:
+            - link "Challenge 10" [ref=f25e95] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/10
+              - generic [ref=f25e96]: "10"
+              - generic [ref=f25e97]: "+150"
+          - listitem [ref=f25e98]:
+            - link "Challenge 11" [ref=f25e99] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/11
+              - generic [ref=f25e100]: "11"
+              - generic [ref=f25e101]: "+60"
+          - listitem [ref=f25e102]:
+            - link "Challenge 12" [ref=f25e103] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/12
+              - generic [ref=f25e104]: "12"
+              - generic [ref=f25e105]: "+60"
+          - listitem [ref=f25e106]:
+            - link "Challenge 13" [ref=f25e107] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/13
+              - generic [ref=f25e108]: "13"
+              - generic [ref=f25e109]: "+90"
+          - listitem [ref=f25e110]:
+            - link "Challenge 14" [ref=f25e111] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/14
+              - generic [ref=f25e112]: "14"
+              - generic [ref=f25e113]: "+80"
+          - listitem [ref=f25e114]:
+            - link "Challenge 15" [ref=f25e115] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/15
+              - generic [ref=f25e116]: "15"
+              - generic [ref=f25e117]: "+90"
+          - listitem [ref=f25e118]:
+            - link "Challenge 16" [ref=f25e119] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/16
+              - generic [ref=f25e120]: "16"
+              - generic [ref=f25e121]: "+90"
+          - listitem [ref=f25e122]:
+            - link "Challenge 17" [ref=f25e123] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/17
+              - generic [ref=f25e124]: "17"
+              - generic [ref=f25e125]: "+100"
+          - listitem [ref=f25e126]:
+            - link "Challenge 18" [ref=f25e127] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/18
+              - generic [ref=f25e128]: "18"
+              - generic [ref=f25e129]: "+80"
+          - listitem [ref=f25e130]:
+            - link "Challenge 19" [ref=f25e131] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/19
+              - generic [ref=f25e132]: "19"
+              - generic [ref=f25e133]: "+90"
+          - listitem [ref=f25e134]:
+            - link "Challenge 20" [ref=f25e135] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/20
+              - generic [ref=f25e136]: "20"
+              - generic [ref=f25e137]: "+90"
+          - listitem [ref=f25e138]:
+            - link "Challenge 21" [ref=f25e139] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/21
+              - generic [ref=f25e140]: "21"
+              - generic [ref=f25e141]: "+90"
+          - listitem [ref=f25e142]:
+            - link "Challenge 22" [ref=f25e143] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/22
+              - generic [ref=f25e144]: "22"
+              - generic [ref=f25e145]: "+60"
+          - listitem [ref=f25e146]:
+            - link "Challenge 23" [ref=f25e147] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/23
+              - generic [ref=f25e148]: "23"
+              - generic [ref=f25e149]: "+80"
+          - listitem [ref=f25e150]:
+            - link "Challenge 24" [ref=f25e151] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/24
+              - generic [ref=f25e152]: "24"
+              - generic [ref=f25e153]: "+90"
+          - listitem [ref=f25e154]:
+            - link "Challenge 25" [ref=f25e155] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/25
+              - generic [ref=f25e156]: "25"
+              - generic [ref=f25e157]: "+60"
+          - listitem [ref=f25e158]:
+            - link "Challenge 26" [ref=f25e159] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/26
+              - generic [ref=f25e160]: "26"
+              - generic [ref=f25e161]: "+60"
+          - listitem [ref=f25e162]:
+            - link "Challenge 27" [ref=f25e163] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/27
+              - generic [ref=f25e164]: "27"
+              - generic [ref=f25e165]: "+80"
+          - listitem [ref=f25e166]:
+            - link "Challenge 28" [ref=f25e167] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/28
+              - generic [ref=f25e168]: "28"
+              - generic [ref=f25e169]: "+90"
+          - listitem [ref=f25e170]:
+            - link "Challenge 29" [ref=f25e171] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/29
+              - generic [ref=f25e172]: "29"
+              - generic [ref=f25e173]: "+80"
+          - listitem [ref=f25e174]:
+            - link "Challenge 30" [ref=f25e175] [cursor=pointer]:
+              - /url: http://localhost:8000/missions/30
+              - generic [ref=f25e176]: "30"
+              - generic [ref=f25e177]: "+80"
+      - region [ref=f25e178]:
+        - generic [ref=f25e179]:
+          - heading "Level & rewards" [level=2] [ref=f25e180]
+          - generic [ref=f25e181]: Level 1
+        - generic [ref=f25e182]:
+          - progressbar "XP progress to next level" [ref=f25e183]
+          - paragraph [ref=f25e184]: 0 / 100 XP to Level 2
+        - list [ref=f25e185]:
+          - listitem "Achievement 1" [ref=f25e186]
+          - listitem "No achievements yet" [ref=f25e189]
+      - generic "Standing record" [ref=f25e192]:
+        - generic [ref=f25e193]:
+          - term [ref=f25e194]: XP balance
+          - definition [ref=f25e195]:
+            - link "XP balance 0. Open XP ledger" [ref=f25e196] [cursor=pointer]:
+              - /url: http://localhost:8000/xp-ledger
+              - text: "0"
+            - text: XP
+        - generic [ref=f25e197]:
+          - term [ref=f25e198]: Completed challenges
+          - definition [ref=f25e199]: 0 / 30
+          - progressbar "HTML Fundamentals progress" [ref=f25e200]
+        - generic [ref=f25e201]:
+          - term [ref=f25e202]: Section
+          - definition [ref=f25e203]: Text and Structure
+        - generic [ref=f25e204]:
+          - term [ref=f25e205]: Competency
+          - definition [ref=f25e206]:
+            - link "Competency HTML. View competency evidence" [ref=f25e207] [cursor=pointer]:
+              - /url: http://localhost:8000/competency
+              - text: HTML · Not started
+        - generic [ref=f25e208]:
+          - term [ref=f25e209]: Boss Challenges passed
+          - definition [ref=f25e210]: "0"
+        - generic [ref=f25e211]:
+          - term [ref=f25e212]: Achievements
+          - definition [ref=f25e213]:
+            - link "0 achievements. Open achievements" [ref=f25e214] [cursor=pointer]:
+              - /url: http://localhost:8000/achievements
+              - text: "0"
+      - region [ref=f25e215]:
+        - generic [ref=f25e216]:
+          - paragraph [ref=f25e217]: HTML Fundamentals / Text and Structure
+          - paragraph [ref=f25e218]: Current challenge
+          - heading "Header_Reconstruction" [level=2] [ref=f25e219]
+          - paragraph [ref=f25e220]: Open the lesson, then work through the coding challenge.
+          - generic [ref=f25e221]:
+            - generic [ref=f25e222]:
+              - term [ref=f25e223]: Type
+              - definition [ref=f25e224]: Coding challenge
+            - generic [ref=f25e225]:
+              - term [ref=f25e226]: Difficulty
+              - definition [ref=f25e227]: EASY
+            - generic [ref=f25e228]:
+              - term [ref=f25e229]: Completion reward
+              - definition [ref=f25e230]: +50 XP
+            - generic [ref=f25e231]:
+              - term [ref=f25e232]: Position
+              - definition [ref=f25e233]: Challenge 1 of 30
+        - link "Continue Learning →" [ref=f25e235] [cursor=pointer]:
+          - /url: http://localhost:8000/missions/1
+      - region [ref=f25e236]:
+        - generic [ref=f25e237]:
+          - heading "Recent learning evidence" [level=2] [ref=f25e238]
+          - link "View timeline →" [ref=f25e239] [cursor=pointer]:
+            - /url: http://localhost:8000/timeline
+        - paragraph [ref=f25e240]: No learning activity recorded yet.
+      - region [ref=f25e241]:
+        - heading "Where to focus" [level=2] [ref=f25e242]
+        - link "View recommendations →" [ref=f25e243] [cursor=pointer]:
+          - /url: http://localhost:8000/recommendations

@@ -9,6 +9,22 @@
                 "artisan",
                 "boost:mcp"
             ]
+        },
+        "playwright": {
+            "type": "local",
+            "enabled": true,
+            "command": [
+                "npx",
+                "@playwright/mcp@latest",
+                "--headless",
+                "--executable-path",
+                "/home/vmc/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome"
+            ]
+        },
+        "figma": {
+            "type": "remote",
+            "enabled": true,
+            "url": "https://mcp.figma.com/mcp"
         }
     }
 }

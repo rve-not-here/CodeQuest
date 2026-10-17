@@ -16,3 +16,6 @@ The instructor sidebar (instructorItems in app.blade.php) lists Dashboard / Stud
 
 ## Student shell uses one top-level navigation
 Student screens use the application top bar for Dashboard, Learning Path, Notifications, and Account. Do not add a persistent student sidebar or duplicate these destinations. Lesson and challenge screens may add compact contextual back navigation below the app bar.
+
+## Admin sidebar is layout-owned (no per-page nav)
+layouts/app.blade.php builds $adminNavGroups / $adminNavCurrent and shows the <aside class=console-sidebar> only for role=admin at >=1024px (body.console-ui--admin hides the top-bar nav for admins at all widths). Add new admin destinations to $adminNavGroups — never to individual pages — and keep the groups Overview/Manage/Evidence/System.

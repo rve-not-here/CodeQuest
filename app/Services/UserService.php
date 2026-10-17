@@ -375,4 +375,78 @@ class UserService
             ->where('status', 'active')
             ->count();
     }
+
+    /**
+     * Permanently delete an account only when it has no protected history.
+     * The active-admin fleet guard mirrors the status-change rule: the fleet
+     * must never lose the account that would leave fewer than two active
+     * admins, and an admin may never delete their own account.
+     *
+     * @throws UserProtectionException When a guard refuses the deletion.
+     */
+    public function delete(User $actor, User $target): void
+    {
+        try {
+            DB::transaction(function () use ($actor, $target): void {
+                User::query()->where('role', 'admin')->orderBy('id')->lockForUpdate()->get();
+                User::query()->whereKey($target->id)->lockForUpdate()->firstOrFail();
+                $target->refresh();
+
+                if ($actor->is($target)) {
+                    throw UserProtectionException::selfDeletion();
+                }
+
+                if ($target->role === 'admin' && $target->status === 'active' && $this->activeAdminCount() <= 2) {
+                    throw UserProtectionException::lastActiveAdmin();
+                }
+
+                $targetId = $target->id;
+                $username = $target->username;
+
+                if ($this->hasProtectedRecords($targetId)) {
+                    throw UserProtectionException::hasProtectedRecords();
+                }
+
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_USER_DELETE,
+                    "User deleted: username → '{$username}'",
+                    targetType: 'user',
+                    targetId: $targetId,
+                );
+
+                DB::table('sessions')->where('user_id', $targetId)->delete();
+
+                User::query()->whereKey($targetId)->delete();
+            }, attempts: 3);
+        } catch (UserProtectionException $exception) {
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_USER_DELETE,
+                'Refused: '.$exception->getMessage(),
+                'failed',
+                'user',
+                $target->id,
+            );
+
+            throw $exception;
+        }
+    }
+
+    private function hasProtectedRecords(int $userId): bool
+    {
+        return DB::table('the404_xp_transactions')->where('user_id', $userId)->exists()
+            || DB::table('the404_progress')->where('user_id', $userId)->exists()
+            || DB::table('the404_mission_drafts')->where('user_id', $userId)->exists()
+            || DB::table('the404_assessment_attempts')->where('user_id', $userId)->exists()
+            || DB::table('the404_knowledge_check_attempts')->where('user_id', $userId)->exists()
+            || DB::table('the404_classroom_students')->where('student_id', $userId)->exists()
+            || DB::table('the404_classroom_teachers')->where('teacher_id', $userId)->exists()
+            || DB::table('the404_mission_submission_results')->where('user_id', $userId)->exists()
+            || DB::table('the404_user_achievements')->where('user_id', $userId)->exists()
+            || DB::table('the404_notifications')->where('user_id', $userId)->exists()
+            || DB::table('the404_activity')->where('user_id', $userId)->exists()
+            || DB::table('the404_admin_audit')->where('admin_user_id', $userId)->exists()
+            || DB::table('the404_announcements')->where('created_by', $userId)->exists();
+    }
 }

@@ -14,9 +14,13 @@
             <a href="{{ route('reports.teacher') }}" class="btn-ghost">All reports →</a>
         </header>
     @elseif ($adminReport)
-        <header class="admin-management-context"><div><h1>{{ $document['title'] }}</h1><p>Server-generated evidence within your authorized scope. Each section names its time window.</p></div><a href="{{ route('admin.system') }}" class="btn-ghost">System status →</a></header>
+        <x-page-header :title="$document['title']" subtitle="Server-generated evidence within your authorized scope. Each section names its time window.">
+            <x-slot:actions>
+                <a href="{{ route('admin.system') }}" class="btn-ghost">System status →</a>
+            </x-slot:actions>
+        </x-page-header>
     @else
-        <x-page-header :title="$document['title']" subtitle="Server-generated evidence within your authorized scope. Each section names its time window." icon="table-2" code="RP-02" />
+        <x-page-header :title="$document['title']" subtitle="Server-generated evidence within your authorized scope. Each section names its time window." icon="table-2" />
     @endif
     @if ($errors->any())
         <x-status-message type="error" title="Check report filters">{{ $errors->first() }}</x-status-message>

@@ -42,12 +42,7 @@ Ramp (tokens in `@theme`): 11 / 13 / 16 / 22 / 28 / 36 / 46 px. Hierarchy is car
 
 ## Signature: the classified compartment
 
-A hairline-bordered box whose corner carries a sort code that never repeats across the interface, so state and provenance are legible from the label alone.
-
-- `.sort-code` utility (`student.css`) renders the box.
-- `panel.blade.php` auto-derives a code from its title when none is passed.
-- `page-header.blade.php` accepts a `code` prop.
-- Every Dashboard, Learning Path, Lesson, and Challenge compartment carries one. Verified in the browser suite (`tests/workspace-browser.mjs`).
+Hairline rules group related content; headings and task-specific labels carry meaning directly without machine-generated codes.
 
 ## Raises carried in
 

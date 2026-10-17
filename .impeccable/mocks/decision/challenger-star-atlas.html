@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=JetBrains+Mono:wght@400;500&family=Spectral:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0E1A33;--chalk:#F2F4F8;--amber:#E0A24A;--red:#C6493F;--grid:rgba(242,244,248,.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1440px;height:900px;overflow:hidden;background:var(--navy);color:var(--chalk)}
+body{font-family:Archivo,system-ui,sans-serif;padding:0 48px;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em}
+.sheet{max-width:1344px;margin:0 auto;height:900px;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:26px;padding:20px 0 14px;border-bottom:1px solid rgba(242,244,248,.22)}
+.brand{font-size:22px;font-weight:600;letter-spacing:.01em}
+nav{display:flex;gap:24px;margin-left:auto}
+nav a{font-size:13.5px;color:#A9B4C8;text-decoration:none}
+nav a.on{color:var(--chalk);box-shadow:inset 0 -3px 0 var(--amber)}
+.hright{display:flex;gap:16px;align-items:center;color:#A9B4C8;font-size:13px;padding-left:24px;border-left:1px solid rgba(242,244,248,.22)}
+.head{display:flex;align-items:flex-end;justify-content:space-between;padding:22px 0 14px}
+h1{font-size:30px;font-weight:400;letter-spacing:.01em}
+.sub{font-size:13px;color:#A9B4C8;margin-top:7px}
+.controls{display:flex;gap:12px;align-items:center}
+.seg{display:flex;border:1px solid rgba(242,244,248,.28)}
+.seg button{background:transparent;color:#A9B4C8;border:0;font:500 12.5px Archivo,sans-serif;padding:8px 14px;cursor:pointer}
+.seg button.on{background:var(--chalk);color:var(--navy)}
+input[type=search],select{background:transparent;border:1px solid rgba(242,244,248,.28);color:var(--chalk);font:400 12.5px Archivo,sans-serif;padding:8px 11px;width:190px}
+select{width:150px}
+.plate{position:relative;flex:1;border:1px solid rgba(242,244,248,.2);overflow:hidden;
+ background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+ background-size:40px 40px;min-height:300px}
+.cap{position:absolute;left:14px;bottom:12px;color:#7C8AA3}
+.dot{position:absolute;border-radius:50%;background:var(--chalk)}
+.dotring{position:absolute;border-radius:50%;border:2px solid var(--red)}
+.lbl{position:absolute;font-family:Spectral,serif;font-style:italic;font-weight:300;font-size:13px;color:#C6D0E2}
+.leader{position:absolute;height:1px;background:var(--amber);transform-origin:left center}
+.ann{position:absolute;font-size:10.5px;letter-spacing:.07em;color:var(--amber);font-family:'JetBrains Mono',monospace}
+table{width:100%;border-collapse:collapse;margin-top:16px}
+th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:#8E9BB3;padding:0 12px 7px;border-bottom:1px solid rgba(242,244,248,.28);font-weight:500}
+td{padding:9px 12px;border-bottom:1px solid rgba(242,244,248,.1);font-size:13.5px}
+td.mono{font-size:12px;color:#C6D0E2}
+.name{font-family:Spectral,serif;font-style:italic;font-weight:300;font-size:15px}
+.act{float:right;display:flex;gap:8px}
+.btn{background:transparent;border:1px solid rgba(242,244,248,.4);color:var(--chalk);font:500 11.5px Archivo,sans-serif;padding:4px 10px;cursor:pointer}
+tr.over td.name{color:var(--red)}
+tr.over td.mono{color:var(--red)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+</style></head>
+<body><div class="sheet">
+<header>
+  <span class="brand">CodeQuest</span>
+  <nav><a href="#">Students</a><a href="#">Classrooms</a><a class="on" href="#">Needs Attention</a><a href="#">Learning Activity</a><a href="#">Course Analytics</a></nav>
+  <span class="hright">WEEK 43
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A9B4C8" stroke-width="1.6"><path d="M6 9a6 6 0 1 1 12 0v5l2 3H4l2-3z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+    <span>Account ▾</span></span>
+</header>
+<div class="head">
+  <div><h1>Needs Attention</h1><p class="sub">5 learners · 3 stalled over 3 days · 1 overdue</p></div>
+  <div class="controls">
+    <div class="seg"><button class="on">All</button><button>Stalled 3d+</button><button>Overdue</button></div>
+    <input type="search" placeholder="Search learners">
+    <select><option>Sort: Stalled days</option><option>Sort: Last active</option></select>
+  </div>
+</div>
+<div class="plate">
+  <span class="dot" style="width:9px;height:9px;left:74%;top:26%"></span>
+  <span class="dot" style="width:12px;height:12px;left:58%;top:44%"></span>
+  <span class="dot" style="width:16px;height:16px;left:40%;top:33%"></span>
+  <span class="dot" style="width:20px;height:20px;left:24%;top:52%"></span>
+  <span class="dot" style="width:26px;height:26px;left:16%;top:70%"></span>
+  <span class="dotring" style="width:34px;height:34px;left:11.5%;top:63%"></span>
+  <span class="leader" style="left:20%;top:78%;width:96px"></span>
+  <span class="ann" style="left:20%;top:80%">NOUR HADDAD · 9 DAYS</span>
+  <span class="leader" style="left:43%;top:44%;width:74px;transform:rotate(-22deg)"></span>
+  <span class="ann" style="left:49%;top:33%">KIT MORALES · 6 DAYS</span>
+  <span class="leader" style="left:17%;top:70%;width:66px;transform:rotate(38deg);background:var(--red)"></span>
+  <span class="ann" style="left:13%;top:41%;color:var(--red)">ARI VEGA · OVERDUE 2 DAYS</span>
+  <span class="lbl" style="left:69%;top:22%">Lena Fischer</span>
+  <span class="lbl" style="left:62%;top:49%">Sam Okafor</span>
+  <span class="cap mono">PLATE 03 · WEEK 43 · MAGNITUDE = DAYS STALLED · AXIS: HTML → CSS → JAVASCRIPT</span>
+</div>
+<table>
+  <thead><tr><th>LEARNER ▲▼</th><th>LAST MISSION</th><th>STALLED ▲▼</th><th>COMPETENCY</th><th style="text-align:right">ACTION</th></tr></thead>
+  <tbody>
+    <tr><td class="name">Nour Haddad</td><td>Hyperlink Restoration</td><td class="mono">9 d</td><td class="mono">developing</td><td><span class="act"><button class="btn">Review</button><button class="btn">Message</button></span></td></tr>
+    <tr><td class="name">Kit Morales</td><td>Semantic Structure Restoration</td><td class="mono">6 d</td><td class="mono">developing</td><td><span class="act"><button class="btn">Review</button><button class="btn">Message</button></span></td></tr>
+    <tr><td class="name">Lena Fischer</td><td>Flexbox and Grid Restoration</td><td class="mono">5 d</td><td class="mono">introduced</td><td><span class="act"><button class="btn">Review</button><button class="btn">Message</button></span></td></tr>
+    <tr class="over"><td class="name">Ari Vega</td><td>Links and Hyperlinks</td><td class="mono">4 d</td><td class="mono">overdue</td><td><span class="act"><button class="btn">Review</button><button class="btn">Message</button></span></td></tr>
+    <tr><td class="name">Sam Okafor</td><td>Values and Types</td><td class="mono">2 d</td><td class="mono">introduced</td><td><span class="act"><button class="btn">Review</button><button class="btn">Message</button></span></td></tr>
+  </tbody>
+</table>
+</div></body></html>

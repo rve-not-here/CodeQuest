@@ -1,0 +1,31 @@
+- main [ref=f5e4]:
+  - generic [ref=f5e6]:
+    - link "Skip to introduction" [ref=f5e7] [cursor=pointer]:
+      - /url: "#welcome"
+    - generic [ref=f5e8]:
+      - generic [ref=f5e9]:
+        - generic [aria-hidden] [ref=f5e10]: "404"
+        - generic [ref=f5e11]: CodeQuest
+      - generic [ref=f5e12]: SYSTEM 404
+    - generic [ref=f5e13]:
+      - region [ref=f5e14]:
+        - heading "Programming learning and assessment" [level=1] [ref=f5e15]: Programming learningand assessment
+        - paragraph [ref=f5e16]: CodeQuest brings lessons, Knowledge Checks and Coding Challenges into a structured learning path.
+        - link "Sign in" [ref=f5e17] [cursor=pointer]:
+          - /url: http://localhost:8000/login
+      - region [ref=f5e18]:
+        - heading "Learning in CodeQuest" [level=2] [ref=f5e19]
+        - generic [ref=f5e20]:
+          - generic [ref=f5e21]:
+            - term [ref=f5e22]: Lessons
+            - definition [ref=f5e23]: Read programming lessons and try examples.
+          - generic [ref=f5e24]:
+            - term [ref=f5e25]: Knowledge Checks
+            - definition [ref=f5e26]: Review your understanding with formative feedback.
+          - generic [ref=f5e27]:
+            - term [ref=f5e28]: Coding Challenges
+            - definition [ref=f5e29]: Write code, preview your work and submit it for evaluation.
+          - generic [ref=f5e30]:
+            - term [ref=f5e31]: Boss Challenges
+            - definition [ref=f5e32]: Complete course-level assessments.
+    - generic [ref=f5e33]: An integrated gamified learning and assessment system.

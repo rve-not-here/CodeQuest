@@ -163,6 +163,50 @@ class CourseService
     }
 
     /**
+     * Permanently delete a course and its curriculum. Sections and missions
+     * cascade automatically; the Boss Challenge (assessment) and classroom
+     * assignments carry restrictOnDelete and are removed first. The course
+     * row itself is deleted last.
+     *
+     * @throws InvalidArgumentException When the course cannot be locked.
+     */
+    public function delete(User $actor, Course $course): void
+    {
+        try {
+            DB::transaction(function () use ($actor, $course): void {
+                Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
+                $course->refresh();
+
+                $courseId = $course->id;
+                $courseName = $course->name;
+
+                $this->audit->record(
+                    $actor,
+                    AdminAuditService::ACTION_COURSE_DELETE,
+                    "Course deleted: name → '{$courseName}'",
+                    targetType: 'course',
+                    targetId: $courseId,
+                );
+
+                $course->assessment?->delete();
+                $course->classrooms()->detach();
+                $course->delete();
+            }, attempts: 3);
+        } catch (InvalidArgumentException $exception) {
+            $this->audit->record(
+                $actor,
+                AdminAuditService::ACTION_COURSE_DELETE,
+                'Refused: '.$exception->getMessage(),
+                'failed',
+                'course',
+                $course->id,
+            );
+
+            throw $exception;
+        }
+    }
+
+    /**
      * Record a failed course-update attempt, then throw. Consistent with
      * UserService's refusal flow: the ledger carries the row before the
      * exception propagates.

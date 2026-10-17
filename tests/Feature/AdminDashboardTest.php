@@ -91,6 +91,7 @@ class AdminDashboardTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Admin Console')
+            ->assertDontSee('class="sort-code"', false)
             ->assertSee('Users')
             ->assertSee('Curriculum')
             ->assertSee('Assessments')

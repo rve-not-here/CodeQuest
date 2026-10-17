@@ -1,0 +1,27 @@
+- main [ref=f8e4]:
+  - generic [ref=f8e6]:
+    - link "Skip to sign in" [ref=f8e7] [cursor=pointer]:
+      - /url: "#signin"
+    - generic [ref=f8e8]:
+      - link "CodeQuest home" [ref=f8e9] [cursor=pointer]:
+        - /url: http://localhost:8000/login
+        - generic [aria-hidden] [ref=f8e10]: "404"
+        - generic [ref=f8e11]: CodeQuest
+      - generic [ref=f8e12]: SYSTEM 404
+    - generic [ref=f8e13]:
+      - region [ref=f8e14]:
+        - heading "Access CodeQuest" [level=1] [ref=f8e15]
+        - paragraph [ref=f8e16]: Sign in with your CodeQuest account.
+        - generic [ref=f8e17]:
+          - generic [ref=f8e18]:
+            - generic [ref=f8e19]: Username
+            - textbox "Username" [active] [ref=f8e20]
+          - generic [ref=f8e21]:
+            - generic [ref=f8e22]: Password
+            - textbox "Password" [ref=f8e23]
+          - button "Sign in" [ref=f8e24]
+        - paragraph [ref=f8e25]: Sign-in activity is recorded.
+      - complementary [ref=f8e26]:
+        - heading "Programming learning and assessment" [level=2] [ref=f8e27]: Programming learningand assessment
+        - paragraph [ref=f8e28]: Lessons, Knowledge Checks and Coding Challenges in one learning path.
+        - paragraph [ref=f8e29]: Your account determines the workspace you can access.

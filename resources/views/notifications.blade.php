@@ -93,7 +93,7 @@
         </div>
     @else
     <x-page-header
-        title="Notifications" code="NF-01"
+        title="Notifications"
         subtitle="Your inbox. Challenge completions, Boss Challenge results, and system announcements land here."
         icon="✉"
     >

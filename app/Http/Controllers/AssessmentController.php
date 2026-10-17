@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\DashboardService;
 use App\Services\XpService;
+use App\Support\AssessmentAttemptView;
 use App\Support\AssessmentView;
 use App\Support\SourceCodeInput;
 use Illuminate\Http\RedirectResponse;
@@ -244,20 +245,21 @@ class AssessmentController extends Controller
         $assessment = $state['assessment'];
         $eligible = $state['unlocked'];
         $passed = $state['passed'];
+        $latestView = $latest === null ? null : AssessmentAttemptView::from($latest);
 
         return [
             'course' => $course,
             'assessment' => $assessment === null ? null : AssessmentView::from($assessment),
             'hasPassed' => $passed,
-            'latest' => $latest,
+            'latest' => $latestView,
             'unlocked' => $eligible,
             'lockedReason' => $eligible ? null : $state['reason'],
             'missionProgress' => ['completed' => $progress['completed'], 'total' => $progress['total']],
-            'state' => $this->challengeState($assessment, $eligible, $passed, $latest),
+            'state' => $this->challengeState($assessment, $eligible, $passed, $latestView),
         ];
     }
 
-    private function challengeState(?Assessment $assessment, bool $eligible, bool $passed, ?AssessmentAttempt $latest): string
+    private function challengeState(?Assessment $assessment, bool $eligible, bool $passed, ?AssessmentAttemptView $latest): string
     {
         if ($assessment === null) {
             return 'none';
@@ -291,6 +293,7 @@ class AssessmentController extends Controller
     private function showData(User $user, Assessment $assessment, Course $course): array
     {
         $attempt = $this->assessments->latestAttemptFor($user, $course);
+        $attemptView = $attempt === null ? null : AssessmentAttemptView::from($attempt);
         $xpBalance = $this->xp->balance($user);
 
         return [
@@ -298,8 +301,8 @@ class AssessmentController extends Controller
             'role' => $user->role,
             'assessment' => AssessmentView::from($assessment),
             'course' => $course,
-            'attempt' => $attempt,
-            'code' => $attempt->code ?? '',
+            'attempt' => $attemptView,
+            'code' => $attemptView === null ? '' : ($attemptView->code ?? ''),
             'hasPassed' => $this->assessments->hasPassed($user, $course),
             'canBegin' => $attempt === null,
             'canEdit' => in_array($attempt?->status, ['available', 'started'], true),

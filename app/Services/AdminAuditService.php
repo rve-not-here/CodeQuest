@@ -22,6 +22,8 @@ class AdminAuditService
 {
     public const ACTION_USER_CREATE = 'user.create';
 
+    public const ACTION_USER_DELETE = 'user.delete';
+
     public const ACTION_USER_UPDATE = 'user.update';
 
     public const ACTION_ROLE_CHANGE = 'user.role.change';
@@ -31,6 +33,8 @@ class AdminAuditService
     public const ACTION_COURSE_UPDATE = 'course.update';
 
     public const ACTION_COURSE_STATUS_CHANGE = 'course.status.change';
+
+    public const ACTION_COURSE_DELETE = 'course.delete';
 
     public const ACTION_SECTION_UPDATE = 'section.update';
 
@@ -64,11 +68,13 @@ class AdminAuditService
      */
     public const ACTIONS = [
         self::ACTION_USER_CREATE,
+        self::ACTION_USER_DELETE,
         self::ACTION_USER_UPDATE,
         self::ACTION_ROLE_CHANGE,
         self::ACTION_STATUS_CHANGE,
         self::ACTION_COURSE_UPDATE,
         self::ACTION_COURSE_STATUS_CHANGE,
+        self::ACTION_COURSE_DELETE,
         self::ACTION_SECTION_UPDATE,
         self::ACTION_MISSION_UPDATE,
         self::ACTION_ASSESSMENT_UPDATE,

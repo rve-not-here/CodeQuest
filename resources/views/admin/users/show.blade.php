@@ -4,11 +4,18 @@
 
 @section('content')
     <div class="admin-management">
-    <header class="admin-management-context">
-        <div><h1>{{ $user->username }}</h1><p>Review account details, access, and recent activity.</p></div>
-        <div class="admin-actions"><a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>
-            <a href="{{ route('admin.users.edit', $user) }}" class="btn-ghost">EDIT →</a></div>
-    </header>
+    <nav class="admin-crumbs" aria-label="Breadcrumb">
+        <a href="{{ route('admin.users') }}">Users</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ $user->username }}</span>
+    </nav>
+
+    <x-page-header title="{{ $user->username }}" subtitle="Review account details, access, and recent activity.">
+        <x-slot:actions>
+            <a href="{{ route('admin.users.edit', $user) }}" class="btn-primary">EDIT →</a>
+            <a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -27,31 +34,30 @@
     @endphp
 
     <div class="admin-detail-layout">
-        <section class="admin-record-section">
-            <h2 class="panel-title mb-3">Account</h2>
+        <x-panel title="Account">
             <dl class="admin-property-list">
-                <div>
-                    <dt class="text-xs font-bold text-fg-muted mb-1">Username</dt>
+                <div class="admin-property">
+                    <dt>Username</dt>
                     <dd class="text-ink">{{ $user->username }}</dd>
                 </div>
-                <div>
-                    <dt class="text-xs font-bold text-fg-muted mb-1">Name</dt>
+                <div class="admin-property">
+                    <dt>Name</dt>
                     <dd class="text-ink">{{ $user->name ?: '—' }}</dd>
                 </div>
-                <div>
-                    <dt class="text-xs font-bold text-fg-muted mb-1">Role</dt>
-                    <dd class="mt-1"><x-badge tone="{{ $roleTone }}">{{ strtoupper($user->role) }}</x-badge></dd>
+                <div class="admin-property">
+                    <dt>Role</dt>
+                    <dd><x-badge tone="{{ $roleTone }}">{{ strtoupper($user->role) }}</x-badge></dd>
                 </div>
-                <div>
-                    <dt class="text-xs font-bold text-fg-muted mb-1">Status</dt>
-                    <dd class="mt-1"><x-badge tone="{{ $statusTone }}">{{ strtoupper($user->status) }}</x-badge></dd>
+                <div class="admin-property">
+                    <dt>Status</dt>
+                    <dd><x-badge tone="{{ $statusTone }}">{{ strtoupper($user->status) }}</x-badge></dd>
                 </div>
-                <div>
-                    <dt class="text-xs font-bold text-fg-muted mb-1">Account created</dt>
+                <div class="admin-property">
+                    <dt>Account created</dt>
                     <dd class="text-ink">{{ $user->created_at->format('Y-m-d H:i') }}</dd>
                 </div>
-                <div>
-                    <dt class="text-xs font-bold text-fg-muted mb-1">Last activity</dt>
+                <div class="admin-property">
+                    <dt>Last activity</dt>
                     <dd class="text-ink">
                         @if ($recentActivity->isNotEmpty())
                             {{ $recentActivity->first()['label'] }}
@@ -64,22 +70,22 @@
                     </dd>
                 </div>
             </dl>
-        </section>
+        </x-panel>
 
-        <section class="admin-record-section">
-            <h2 class="panel-title mb-3">Recent Activity</h2>
-
-            @forelse ($recentActivity as $beat)
-                <div class="border-b border-fg-muted/40 py-1 last:border-0">
-                    <p class="font-body text-[15px] text-ink leading-snug">{{ $beat['label'] }}</p>
-                    <p class="text-xs font-bold text-fg-muted mt-0.5">
-                        {{ $beat['at']->diffForHumans() }} · {{ $beat['type'] }}
-                    </p>
-                </div>
-            @empty
-                <p class="font-body text-[15px] text-ink">No learning activity on record.</p>
-            @endforelse
-        </section>
+        <x-panel title="Recent Activity">
+            <div class="admin-beat-list">
+                @forelse ($recentActivity as $beat)
+                    <div class="admin-beat">
+                        <p class="admin-beat-label">{{ $beat['label'] }}</p>
+                        <p class="admin-beat-meta">{{ $beat['at']->diffForHumans() }} · {{ $beat['type'] }}</p>
+                    </div>
+                @empty
+                    <x-status-message type="info" title="NO ACTIVITY">
+                        No learning activity on record.
+                    </x-status-message>
+                @endforelse
+            </div>
+        </x-panel>
     </div>
     </div>
 @endsection

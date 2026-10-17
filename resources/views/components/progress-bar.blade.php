@@ -23,7 +23,7 @@
 
     <div class="h-2.5 w-full overflow-hidden border border-accent-line/15 bg-void">
         <div
-            class="h-full {{ $bar }} transition-all duration-500"
+            class="h-full {{ $bar }} transition-all duration-200"
             style="width: {{ $pct }}%"
             role="progressbar"
             aria-valuenow="{{ $pct }}"

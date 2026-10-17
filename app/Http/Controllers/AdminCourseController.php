@@ -70,4 +70,19 @@ class AdminCourseController extends Controller
         return redirect()->route('admin.courses')
             ->with('status', 'Course updated.');
     }
+
+    public function destroy(Course $course): RedirectResponse
+    {
+        /** @var User $actor */
+        $actor = auth()->user();
+
+        try {
+            $this->courses->delete($actor, $course);
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('admin.courses')
+            ->with('status', 'Course deleted.');
+    }
 }

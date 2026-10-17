@@ -199,6 +199,7 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/admin/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
     Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
     // Course catalog (US-705, §15.0–§17.0): ordered listing + edit existing
     // courses (name/slug/type/description/status/order_num). order_num is the
@@ -209,6 +210,7 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/admin/courses', [AdminCourseController::class, 'index'])->name('admin.courses');
     Route::get('/admin/courses/{course}/edit', [AdminCourseController::class, 'edit'])->name('admin.courses.edit');
     Route::put('/admin/courses/{course}', [AdminCourseController::class, 'update'])->name('admin.courses.update');
+    Route::delete('/admin/courses/{course}', [AdminCourseController::class, 'destroy'])->name('admin.courses.destroy');
 
     // Section management (US-706, §18.0): nested under the course so the
     // Course → Section → Mission hierarchy is explicit in the URL. Lists the

@@ -62,12 +62,40 @@ class DashboardTest extends TestCase
             ->assertSee($course->name)
             ->assertSee($course->missions()->where('order_num', 2)->firstOrFail()->title)
             ->assertSee('Continue Learning →')
-            ->assertSeeInOrder(['Current Objective', 'Mission 2', 'Continue Learning', 'Course position', 'Recent learning evidence'])
+            ->assertSee('<dl class="atlas-dashboard-wall"', false)
+            ->assertSeeInOrder([
+                '<dt>XP balance</dt>',
+                '<dt>Completed challenges</dt>',
+                '<dt>Section</dt>',
+                '<dt>Competency</dt>',
+                '<dt>Boss Challenges passed</dt>',
+                '<dt>Achievements</dt>',
+            ], false)
+            ->assertSee('<dt>Type</dt>', false)
+            ->assertSee('<dt>Difficulty</dt>', false)
+            ->assertSee('<dt>Completion reward</dt>', false)
+            ->assertSeeInOrder(['Current Objective', 'Mission 2', 'Continue Learning', 'Recent learning evidence'])
             ->assertSee(route('recommendations'))
             ->assertSee(route('xp-ledger'))
-            ->assertSee('XP BALANCE')
-            ->assertSee('>'.$missionOne->points.'</strong>', false)
+            ->assertDontSee('class="sort-code"', false)
+            ->assertDontSee('class="atlas-dashboard-heading"', false)
+            ->assertDontSee('XP BALANCE')
+            ->assertSee('aria-label="XP balance '.$missionOne->points.'. Open XP ledger"', false)
             ->assertSee('operator');
+    }
+
+    public function test_course_position_names_the_next_challenge(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->makeCourseWithMissions(2, ['order_num' => 1, 'status' => 'active']);
+        $nextMission = $course->missions()->where('order_num', 1)->firstOrFail();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSeeInOrder(['Completed challenges', 'Mission 1'])
+            ->assertSee('class="atlas-dashboard-fig"><span>0</span><span class="atlas-dashboard-fig-muted"> / 2</span></dd>', false)
+            ->assertSee($nextMission->title);
     }
 
     public function test_dashboard_recent_activity_keeps_learning_events_and_hides_session_bookkeeping(): void
@@ -222,7 +250,7 @@ class DashboardTest extends TestCase
             ->assertSee('Saved work detected.')
             ->assertSee('href="'.route('mission.challenge', $missionTwo).'"', false)
             ->assertDontSee('href="'.route('mission.show', $missionTwo).'"', false)
-            ->assertSee('PRACTICING');
+            ->assertSee('Practicing');
     }
 
     private function makeCourseWithMissions(int $missionCount, array $overrides = []): Course

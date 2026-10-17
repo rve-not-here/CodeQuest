@@ -4,17 +4,18 @@
 
 @section('content')
     <div class="admin-management">
-    <header class="admin-management-context">
-        <div><h1>Administrative Audit Trail</h1><p>Recorded administrative actions. Filter by actor, action, result, and date window.</p></div>
-        <div class="admin-actions"><x-badge tone="cyan">APPEND-ONLY</x-badge></div>
-    </header>
+    <x-page-header title="Administrative Audit Trail" subtitle="Recorded administrative actions. Filter by actor, action, result, and date window.">
+        <x-slot:actions>
+            <x-badge tone="cyan">APPEND-ONLY</x-badge>
+        </x-slot:actions>
+    </x-page-header>
 
-    <form method="GET" action="{{ route('admin.activity') }}" class="admin-filters">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <div>
-                <label for="actor" class="block text-sm font-bold text-fg-muted mb-1">
-                    Actor
-                </label>
+    <x-panel title="Event log">
+        <x-slot:status><x-badge tone="dim">{{ $events->total() }} EVENTS</x-badge></x-slot:status>
+
+        <form method="GET" action="{{ route('admin.activity') }}" class="admin-toolbar">
+            <div class="admin-toolbar-field">
+                <label for="actor">Actor</label>
                 <select id="actor" name="actor" class="terminal-input" @if ($errors->has('actor')) aria-invalid="true" aria-describedby="actor-error" @endif>
                     <option value="">ALL ACTORS</option>
                     @foreach ($filterActors as $actor)
@@ -27,10 +28,8 @@
                 @error('actor')<p id="actor-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
-            <div>
-                <label for="action" class="block text-sm font-bold text-fg-muted mb-1">
-                    Action
-                </label>
+            <div class="admin-toolbar-field">
+                <label for="action">Action</label>
                 <select id="action" name="action" class="terminal-input" @if ($errors->has('action')) aria-invalid="true" aria-describedby="action-error" @endif>
                     <option value="">ALL ACTIONS</option>
                     @foreach ($filterActions as $action)
@@ -43,10 +42,8 @@
                 @error('action')<p id="action-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
-            <div>
-                <label for="result" class="block text-sm font-bold text-fg-muted mb-1">
-                    Result
-                </label>
+            <div class="admin-toolbar-field">
+                <label for="result">Result</label>
                 <select id="result" name="result" class="terminal-input" @if ($errors->has('result')) aria-invalid="true" aria-describedby="result-error" @endif>
                     <option value="">ALL RESULTS</option>
                     @foreach (['success', 'failed'] as $result)
@@ -59,30 +56,25 @@
                 @error('result')<p id="result-error" class="admin-field-error">{{ $message }}</p>@enderror
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label for="from" class="block text-sm font-bold text-fg-muted mb-1">
-                        From
-                    </label>
-                    <input id="from" name="from" type="date" value="{{ $filters['from'] ?? '' }}" class="terminal-input" @if ($errors->has('from')) aria-invalid="true" aria-describedby="from-error" @endif>
+            <div class="admin-toolbar-field admin-toolbar-field--date">
+                <label for="from">From</label>
+                <input id="from" name="from" type="date" value="{{ $filters['from'] ?? '' }}" class="terminal-input" @if ($errors->has('from')) aria-invalid="true" aria-describedby="from-error" @endif>
                 @error('from')<p id="from-error" class="admin-field-error">{{ $message }}</p>@enderror
-                </div>
-                <div>
-                    <label for="to" class="block text-sm font-bold text-fg-muted mb-1">
-                        To
-                    </label>
-                    <input id="to" name="to" type="date" value="{{ $filters['to'] ?? '' }}" class="terminal-input" @if ($errors->has('to')) aria-invalid="true" aria-describedby="to-error" @endif>
-                @error('to')<p id="to-error" class="admin-field-error">{{ $message }}</p>@enderror
-                </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="admin-toolbar-field admin-toolbar-field--date">
+                <label for="to">To</label>
+                <input id="to" name="to" type="date" value="{{ $filters['to'] ?? '' }}" class="terminal-input" @if ($errors->has('to')) aria-invalid="true" aria-describedby="to-error" @endif>
+                @error('to')<p id="to-error" class="admin-field-error">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="admin-toolbar-actions">
                 <button type="submit" class="btn-ghost">FILTER →</button>
                 @if (! empty($filters['actor']) || ! empty($filters['action']) || ! empty($filters['result']) || ($filters['from'] ?? '') !== '' || ($filters['to'] ?? '') !== '')
                     <a href="{{ route('admin.activity') }}" class="btn-ghost">CLEAR</a>
                 @endif
             </div>
-        </div>
+        </form>
 
         @if ($errors->any())
             <x-status-message type="error" title="QUERY REJECTED" class="mt-3">
@@ -91,10 +83,7 @@
                 @endforeach
             </x-status-message>
         @endif
-    </form>
 
-    <section class="admin-record-section" aria-labelledby="audit-heading">
-        <div class="admin-section-heading"><h2 id="audit-heading">Event log</h2><p class="admin-state">{{ $events->total() }} EVENTS</p></div>
         @if ($events->isEmpty())
             <x-status-message type="info" title="NO EVENTS">No audit trail entries match these filters.</x-status-message>
         @else
@@ -121,18 +110,17 @@
                         <tr>
                             <th scope="row" data-label="Actor">{{ $event->admin_username }}</th>
                             <td data-label="Recorded action"><span class="admin-state">{{ $label }}</span><p>{{ $event->summary }}</p></td>
-                            <td data-label="Result"><span class="admin-state admin-audit-result" data-result="{{ $event->result }}">{{ strtoupper($event->result) }}</span></td>
+                            <td data-label="Result"><x-badge tone="{{ $event->result === 'success' ? 'success' : 'alert' }}">{{ strtoupper($event->result) }}</x-badge></td>
                             <td data-label="Target">@if ($event->target_type !== null)<span class="admin-state">#{{ $event->target_id }} {{ strtoupper($event->target_type) }}</span>@else — @endif</td>
                             <td data-label="Recorded at"><time datetime="{{ $event->created_at->toIso8601String() }}">{{ $event->created_at->format('Y-m-d H:i') }}</time></td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+
             @if ($events->hasPages())
-                <div class="flex flex-wrap items-center justify-between gap-4 gap-y-2 p-3 border-t border-fg-muted/60">
-                    <p class="text-sm font-bold text-fg-muted">
-                        SHOWING PAGE {{ $events->currentPage() }} OF {{ $events->lastPage() }}
-                    </p>
+                <div class="panel-pagination">
+                    <p>SHOWING PAGE {{ $events->currentPage() }} OF {{ $events->lastPage() }}</p>
                     <div class="flex items-center gap-2">
                         @if ($events->onFirstPage())
                             <span class="btn-ghost opacity-50 pointer-events-none">◀ PREV</span>
@@ -149,6 +137,6 @@
                 </div>
             @endif
         @endif
-    </section>
+    </x-panel>
     </div>
 @endsection

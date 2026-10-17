@@ -15,7 +15,7 @@ Materials/radii: brass hairlines are exactly 1px (`border-line`/`border-line-str
 
 Structure: tokens are the real color authority; legacy names (`--color-phosphor`, `--color-cyan`, `--color-magenta`, `--color-amber`, `--color-phosphor-dim`, etc.) remain as ALIASES onto Foundry tokens until every reference migrates. All `rgba(51,255,0,...)` hard-codes were swept; none should reappear.
 
-Attribution discipline: the sky is "Committed colour owns whole regions" — proof blue must own at least one region on a sheet rather than dotting every interactive element. "Sort code in the corner of every compartment" is the SIGNATURE. "Running time is a first-class number, right-aligned, tabular figures" is a built-in raise and `font-variant-numeric: tabular-nums` applies to tables/ledgers via `app.css:~96-101`.
+Attribution discipline: the sky is "Committed colour owns whole regions" — proof blue must own at least one region on a sheet rather than dotting every interactive element. Use direct headings and task labels; do not add machine-generated sort-code labels to compartments. "Running time is a first-class number, right-aligned, tabular figures" is a built-in raise and `font-variant-numeric: tabular-nums` applies to tables/ledgers via `app.css:~96-101`.
 
 No transition/ease above 200ms; `@keyframes` must pulse flat fills, never glow rings; `prefers-reduced-motion` cancels any animation.
 

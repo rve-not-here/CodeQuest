@@ -4,13 +4,21 @@
 
 @section('content')
     <div class="admin-management">
-    <header class="admin-management-context">
-        <div><h1>Boss Challenge Management</h1><p>{{ $course->name }} — the single Boss Challenge for this course. Locking or drafting seals the challenge without rewriting recorded attempts. Grading rules are view-only.</p></div>
-        <div class="admin-actions"><a href="{{ route('admin.courses') }}" class="btn-ghost">◀ BACK TO COURSES</a>
+    <nav class="admin-crumbs" aria-label="Breadcrumb">
+        <a href="{{ route('admin.courses') }}">Courses</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('admin.courses.edit', $course) }}">{{ $course->name }}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Boss Challenge</span>
+    </nav>
+
+    <x-page-header title="Boss Challenge Management" subtitle="{{ $course->name }} — the single Boss Challenge for this course. Locking or drafting seals the challenge without rewriting recorded attempts. Grading rules are view-only.">
+        <x-slot:actions>
             @if ($assessment !== null)
-                <x-badge tone="{{ $assessment->status === 'active' ? 'cyan' : 'amber' }}">{{ strtoupper($assessment->status) }}</x-badge>
-            @endif</div>
-    </header>
+                <x-badge tone="{{ $assessment->status === 'active' ? 'cyan' : ($assessment->status === 'locked' ? 'amber' : 'dim') }}">{{ strtoupper($assessment->status) }}</x-badge>
+            @endif
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('status'))
         <x-status-message type="success" title="RECORD SAVED" class="mb-4">
@@ -18,50 +26,50 @@
         </x-status-message>
     @endif
 
-    <h2 class="text-sm font-bold text-accent mb-2">Boss Challenge of {{ $course->name }}</h2>
+    <x-panel title="Boss Challenge of {{ $course->name }}">
+        @if ($assessment === null)
+            <x-status-message type="info" title="NO BOSS CHALLENGE">
+                No Boss Challenge is defined for this course.
+            </x-status-message>
+        @else
+            <div class="admin-table-region">
+                <table class="table-stack admin-table" role="table">
+                    <caption>Course Boss Challenge</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Challenge</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Passing Score</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row" data-label="Challenge">
+                                <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-accent hover:underline">
+                                    {{ $assessment->title }}
+                                </a>
+                                <span class="block text-[15px] text-fg-muted">{{ $assessment->description }}</span>
+                            </th>
 
-    @if ($assessment === null)
-        <x-status-message type="info" title="NO BOSS CHALLENGE">
-            No Boss Challenge is defined for this course.
-        </x-status-message>
-    @else
-        <div class="admin-table-region">
-            <table class="table-stack admin-table" role="table">
-                <caption>Course Boss Challenge</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Challenge</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Passing Score</th>
-                        <th scope="col">Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row" data-label="Challenge">
-                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-accent hover:underline">
-                                {{ $assessment->title }}
-                            </a>
-                            <span class="block text-[15px] text-fg-muted">{{ $assessment->description }}</span>
-                        </th>
+                            <td data-label="Status">
+                                <x-badge tone="{{ $assessment->status === 'active' ? 'cyan' : ($assessment->status === 'locked' ? 'amber' : 'dim') }}">{{ strtoupper($assessment->status) }}</x-badge>
+                            </td>
 
-                        <td data-label="Status">
-                            <x-badge tone="{{ $assessment->status === 'active' ? 'cyan' : ($assessment->status === 'locked' ? 'amber' : 'dim') }}">{{ strtoupper($assessment->status) }}</x-badge>
-                        </td>
+                            <td data-label="Passing Score">
+                                {{ $assessment->passing_score }}%
+                            </td>
 
-                        <td data-label="Passing Score">
-                            {{ $assessment->passing_score }}%
-                        </td>
-
-                        <td data-label="Edit">
-                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="text-sm font-bold text-info hover:underline">
-                                EDIT →
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    @endif
+                            <td data-label="Actions">
+                                <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="admin-row-link">
+                                    EDIT →
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </x-panel>
     </div>
 @endsection
