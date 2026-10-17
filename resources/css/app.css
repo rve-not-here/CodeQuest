@@ -827,8 +827,8 @@
 }
 
 .dashboard-status-cell:hover {
-    background: #0d1b12;
-    color: var(--color-phosphor);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
 }
 
 .dashboard-status-cell strong {
@@ -1092,8 +1092,8 @@ a.path-node-card:hover {
     align-items: center;
     gap: 1rem;
     margin-top: 3rem;
-    border: 1px solid rgba(255, 176, 0, 0.55);
-    background: #0d130c;
+    border: 1px solid var(--color-warning);
+    background: var(--color-warning-soft);
     padding: 1.25rem;
 }
 
@@ -1124,8 +1124,8 @@ a.path-node-card:hover {
 }
 
 .boss-node--passed {
-    border-color: rgba(30, 79, 216, 0.58);
-    background: #09130c;
+    border-color: var(--color-success);
+    background: var(--color-success-soft);
 }
 
 .boss-node--passed .boss-node-sigil {
@@ -1187,9 +1187,10 @@ a.path-node-card:hover {
 
 .lesson-code-block {
     overflow-x: auto;
-    border: 1px solid rgba(73, 216, 232, 0.24);
-    background: #020504;
-    color: #d9e9dd;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-code-bg);
+    color: #E2E8F0;
     padding: 1rem;
     font-size: 0.88rem;
     line-height: 1.65;
@@ -1518,7 +1519,6 @@ main:has(.challenge-workspace) {
     font-size: 1.05rem;
     font-weight: 700;
     text-overflow: ellipsis;
-    text-transform: uppercase;
     white-space: nowrap;
 }
 
@@ -1589,15 +1589,14 @@ main:has(.challenge-workspace) {
     align-items: center;
     gap: 0.9rem;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(30, 79, 216, 0.2);
-    background: #040806;
-    color: var(--color-phosphor-dim);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-alt);
+    color: var(--color-fg-muted);
     padding: 0 1rem;
-    font-family: var(--font-code);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: normal;
 }
 
 .challenge-draft-status {
@@ -1683,8 +1682,8 @@ main:has(.challenge-workspace) {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.65rem;
-    border-top: 1px solid rgba(30, 79, 216, 0.2);
-    background: #050907;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-alt);
     padding: 0.55rem 0.75rem;
 }
 
@@ -1699,8 +1698,8 @@ main:has(.challenge-workspace) {
     flex: none;
     max-height: 15rem;
     overflow-y: auto;
-    border-top: 1px solid rgba(30, 79, 216, 0.18);
-    background: #060c08;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-alt);
     padding: 0.75rem;
 }
 
@@ -1713,10 +1712,9 @@ main:has(.challenge-workspace) {
 
 .challenge-assistance h3 {
     color: var(--color-ink);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: normal;
 }
 
 .challenge-assistance-heading p {
@@ -1775,7 +1773,6 @@ main:has(.challenge-workspace) {
     font-size: clamp(1.6rem, 5vw, 2.35rem);
     font-weight: 700;
     letter-spacing: -0.035em;
-    text-transform: uppercase;
 }
 
 .completion-summary {
@@ -1806,9 +1803,8 @@ main:has(.challenge-workspace) {
 
 .completion-results dt {
     color: var(--color-static);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: normal;
 }
 
 .completion-results dd {
@@ -1828,10 +1824,9 @@ main:has(.challenge-workspace) {
 
 .completion-achievement span {
     color: var(--color-amber);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: normal;
 }
 
 .completion-achievement strong {

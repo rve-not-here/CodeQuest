@@ -1,0 +1,62 @@
+- generic [ref=f5e2]:
+  - link "Skip to content" [ref=f5e3] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f5e4]:
+    - generic [ref=f5e5]:
+      - link "CodeQuest home" [ref=f5e6] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/dashboard
+        - generic [aria-hidden] [ref=f5e7]: "404"
+        - generic [ref=f5e8]: CodeQuest
+      - navigation "Primary" [ref=f5e9]:
+        - link "Dashboard" [ref=f5e10] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/dashboard
+        - link "Learning Path" [ref=f5e11] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/learning-path
+        - link "Boss Challenges" [ref=f5e12] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/assessments
+      - group [ref=f5e13]:
+        - generic "Learning record" [ref=f5e14] [cursor=pointer]:
+          - text: Learning record
+          - generic [aria-hidden] [ref=f5e15]: ⌄
+      - generic [ref=f5e16]:
+        - link "XP balance 110. Open XP ledger" [ref=f5e17] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/xp-ledger
+          - text: "110"
+          - generic [ref=f5e18]: XP
+        - link "Notifications" [ref=f5e19] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/notifications
+        - group [ref=f5e22]:
+          - generic "Open account menu" [ref=f5e23] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f5e24]: S
+            - generic [ref=f5e25]: Account
+            - generic [aria-hidden] [ref=f5e26]: ⌄
+  - main [ref=f5e28]:
+    - article [ref=f5e30]:
+      - heading "Header_Reconstruction" [level=1] [ref=f5e31]
+      - generic [ref=f5e32]:
+        - generic [ref=f5e33]:
+          - tablist "Workspace views" [ref=f5e34]:
+            - tab "Code" [selected] [ref=f5e35] [cursor=pointer]
+            - tab "Preview" [ref=f5e36] [cursor=pointer]
+          - group "Challenge actions" [ref=f5e40]:
+            - generic [ref=f5e41]:
+              - button "Run" [ref=f5e42] [cursor=pointer]
+              - button "Submit challenge" [ref=f5e46] [cursor=pointer]: Submit
+          - group [ref=f5e50]:
+            - generic "Workspace options" [ref=f5e51] [cursor=pointer]
+        - region [ref=f5e53]:
+          - generic [ref=f5e54]:
+            - generic [ref=f5e55]: Instructions
+            - link "BACK TO LESSON" [ref=f5e56] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/missions/1
+              - text: Back to lesson
+          - generic [ref=f5e59]:
+            - heading "Lesson context" [level=2] [ref=f5e61]
+            - generic [ref=f5e62]: "A heading tells the browser how important a line of text is. HTML offers six levels, h1 down to h6, and h1 marks the single most important headline on the page. Search engines and screen readers both use it to understand page structure, so every page should have exactly one clear h1. Syntax: an opening tag, the headline text, then a matching closing tag with a forward slash. Example: <h1>Emergency Broadcast</h1> renders as the largest headline on the page. Your task: the broadcast header below is corrupted. Restore the h1 element around EMERGENCY BROADCAST so the signal headline is valid again."
+            - heading "Example" [level=3] [ref=f5e63]
+            - generic "Reference output" [ref=f5e64]:
+              - code [ref=f5e65]: <h1>EMERGENCY BROADCAST</h1>
+        - separator "Resize instructions" [ref=f5e66]
+        - tabpanel "Code" [ref=f5e67]:
+          - heading "Code editor" [level=2] [ref=f5e68]
+      - status [ref=f5e71]
