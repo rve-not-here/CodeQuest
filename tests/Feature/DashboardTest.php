@@ -249,7 +249,6 @@ class DashboardTest extends TestCase
             ->assertSee('Resume Challenge →')
             ->assertSee('Saved work detected.')
             ->assertSee('href="'.route('mission.challenge', $missionTwo).'"', false)
-            ->assertDontSee('href="'.route('mission.show', $missionTwo).'"', false)
             ->assertSee('Practicing');
     }
 

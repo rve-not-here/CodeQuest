@@ -23,58 +23,72 @@
 
 /* Mission Atlas tokens; legacy names remain aliases until each page migrates. */
 @theme {
-    --font-sans: 'Archivo', system-ui, sans-serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --font-display: var(--font-sans);
     --font-body: var(--font-sans);
     --font-code: var(--font-mono);
-    --color-canvas: #F2F1EC;
+
+    /* SaaS palette (conventional, clean, professional) */
+    --color-bg: #F8FAFC;
+    --color-canvas: #F8FAFC;
     --color-surface: #FFFFFF;
-    --color-raised: #EAE9E3;
+    --color-raised: #F1F5F9;
     --color-overlay: #FFFFFF;
-    --color-line: #D8D6CE;
-    --color-line-strong: #16181B;
-    --color-fg: #16181B;
-    --color-fg-muted: #4A4D52;
-    --color-fg-subtle: #5F6267;
-    --color-locked: #63666B;
-    --color-accent: #1E4FD8;
-    --color-accent-strong: #1A44BC;
-    --color-accent-pressed: #163AA0;
+    --color-line: #E2E8F0;
+    --color-border: #E2E8F0;
+    --color-line-strong: #CBD5E1;
+    --color-border-strong: #CBD5E1;
+    --color-fg: #0F172A;
+    --color-ink: #0F172A;
+    --color-fg-muted: #475569;
+    --color-static: #475569;
+    --color-fg-subtle: #64748B;
+    --color-locked: #94A3B8;
+    --color-accent: #4F46E5;
+    --color-primary: #4F46E5;
+    --color-accent-strong: #4338CA;
+    --color-primary-hover: #4338CA;
+    --color-accent-pressed: #3730A3;
     --color-accent-ink: #FFFFFF;
-    --color-accent-soft: rgb(30 79 216 / 0.08);
-    --color-accent-line: #1E4FD8;
-    --color-success: #14663A;
-    --color-info: #1E4FD8;
-    --color-info-soft: rgb(30 79 216 / 0.08);
-    --color-warning: #8A5A00;
-    --color-warning-soft: rgb(138 90 0 / 0.1);
-    --color-danger: #B32F24;
-    --color-danger-soft: rgb(198 54 42 / 0.1);
-    --color-void: var(--color-canvas);
-    --color-surface-alt: var(--color-raised);
-    --color-panel: var(--color-surface);
+    --color-primary-ink: #FFFFFF;
+    --color-accent-soft: rgb(79 70 229 / 0.08);
+    --color-primary-soft: #EEF2FF;
+    --color-accent-line: #4F46E5;
+    --color-success: #16A34A;
+    --color-success-soft: #F0FDF4;
+    --color-info: #4F46E5;
+    --color-info-soft: rgb(79 70 229 / 0.08);
+    --color-warning: #D97706;
+    --color-warning-soft: #FFFBEB;
+    --color-danger: #DC2626;
+    --color-danger-soft: #FEF2F2;
+    --color-void: #F8FAFC;
+    --color-surface-alt: #F1F5F9;
+    --color-panel: #FFFFFF;
     --color-input: #FFFFFF;
-    --color-header: var(--color-canvas);
-    --color-ink: var(--color-fg);
-    --color-static: var(--color-fg-muted);
+    --color-header: #F8FAFC;
+    --color-code-bg: #0F172A;
+    /* Legacy aliases (kept for compatibility during migration) */
     --color-phosphor: var(--color-accent);
     --color-phosphor-dim: var(--color-accent);
     --color-amber: var(--color-warning);
     --color-alert: var(--color-danger);
-    --color-alert-dim: #A32C22;
+    --color-alert-dim: #B91C1C;
     --color-cyan: var(--color-info);
     --color-magenta: var(--color-info);
     --color-phosphor-glow: transparent;
     --color-amber-glow: transparent;
     --color-alert-glow: transparent;
     --color-cyan-glow: transparent;
-    --radius-xs: 2px;
-    --radius-sm: 2px;
-    --radius-md: 0px;
+
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-pill: 9999px;
     --text-2xs: 0.75rem;
     --text-2xs--line-height: 1.125rem;
-    /* Foundry type ramp. OpenType: tabular numerals everywhere figures sit. */
     --font-size-11: 0.6875rem;
     --font-size-11--line-height: 1.25;
     --font-size-13: 0.8125rem;
@@ -100,14 +114,14 @@
     }
 
     body {
-        @apply bg-surface font-body text-ink antialiased;
+        @apply bg-bg font-body text-fg antialiased;
         min-width: 320px;
         overflow-x: hidden;
-        background: var(--color-canvas);
+        background: var(--color-bg);
         font-size: 16px;
         line-height: 1.55;
         text-rendering: optimizeLegibility;
-        caret-color: var(--color-accent);
+        caret-color: var(--color-primary);
     }
 
     /* A printed sheet under office light: paper ground, no scanlines, no glow, no vignette. */
@@ -203,10 +217,10 @@
 
 @layer components {
     .panel {
-        @apply border bg-panel;
-        border-color: var(--color-line);
-        border-radius: 0;
-        box-shadow: none;
+        @apply border bg-surface;
+        border-color: var(--color-border);
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.10);
     }
 
     .panel-title {
@@ -283,45 +297,44 @@
     .btn-primary,
     .btn-ghost {
         display: inline-flex;
-        min-height: 2.75rem;
+        min-height: 2.25rem;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        border: 1px solid var(--color-phosphor);
-        border-radius: 2px;
-        padding: 0.65rem 1rem;
-        font-family: var(--font-code);
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25;
         text-align: center;
         text-decoration: none;
-        text-transform: uppercase;
-        transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
     }
 
     .btn-primary {
-        background: var(--color-phosphor);
-        color: var(--color-void);
-        box-shadow: none;
+        background: var(--color-primary);
+        color: var(--color-primary-ink);
+        border-color: var(--color-primary);
     }
 
     .btn-primary:hover {
-        background: var(--color-accent-strong);
-        border-color: var(--color-accent-strong);
-        color: var(--color-void);
-        box-shadow: none;
+        background: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+        color: var(--color-primary-ink);
     }
 
     .btn-ghost {
         background: transparent;
-        color: var(--color-phosphor);
+        color: var(--color-fg);
+        border-color: var(--color-border);
     }
 
     .btn-ghost:hover {
-        background: rgba(30, 79, 216, 0.1);
-        color: var(--color-accent-strong);
+        background: var(--color-surface-alt);
+        color: var(--color-fg);
+        border-color: var(--color-border-strong);
     }
 
     button:disabled,
@@ -333,21 +346,21 @@
 
     .terminal-input {
         width: 100%;
-        border: 1px solid rgba(30, 79, 216, 0.28);
-        border-radius: 2px;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
         background: var(--color-input);
         color: var(--color-ink);
-        padding: 0.65rem 0.75rem;
-        font: 400 1rem / 1.25 var(--font-body);
+        padding: 0.5rem 0.75rem;
+        font: 400 0.875rem / 1.25 var(--font-body);
     }
 
     .terminal-input::placeholder {
-        color: #718078;
+        color: var(--color-fg-subtle);
     }
 
     .terminal-input:focus {
-        border-color: var(--color-phosphor);
-        outline: 2px solid var(--color-accent);
+        border-color: var(--color-primary);
+        outline: 2px solid var(--color-primary);
         outline-offset: 1px;
     }
 
@@ -2584,7 +2597,9 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
 /* Admin console shell: persistent section rail beside the content column. */
 .console-sidebar { display: none; }
 @media (min-width: 1024px) {
-    body.console-ui--admin .console-sidebar { display: block; flex-shrink: 0; width: 15.5rem; border-right: 1px solid var(--color-line); }
+    body.console-ui--admin .console-sidebar,
+    body.console-ui--teacher .console-sidebar,
+    body.console-ui--instructor .console-sidebar { display: block; flex-shrink: 0; width: 15.5rem; border-right: 1px solid var(--color-border); background: var(--color-surface); }
 }
 .console-sidebar-inner { position: sticky; top: 64px; display: flex; flex-direction: column; max-height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain; padding: 20px 0 32px; }
 .console-sidebar-heading { margin-top: 20px; padding: 0 20px 6px; color: var(--color-fg-muted); font: 500 0.6875rem / 1.25 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
@@ -2593,9 +2608,15 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
 .console-sidebar a:hover { background: var(--color-accent-soft); color: var(--color-accent); }
 .console-sidebar a[aria-current="page"] { border-left-color: var(--color-accent); background: var(--color-accent-soft); color: var(--color-fg); font-weight: 600; }
 .console-sidebar a:focus-visible { outline-offset: -3px; }
-/* From 1024px the rail carries admin navigation; the top bar keeps brand, alerts, and account. */
-body.console-ui--admin .atlas-primary, body.console-ui--admin .atlas-secondary { display: none; }
-@media (min-width: 1024px) { body.console-ui--admin .atlas-mobile { display: none; } }
+/* From 1024px the rail carries admin/teacher navigation; the top bar keeps brand, alerts, and account. */
+body.console-ui--admin .atlas-primary, body.console-ui--admin .atlas-secondary,
+body.console-ui--teacher .atlas-primary, body.console-ui--teacher .atlas-secondary,
+body.console-ui--instructor .atlas-primary, body.console-ui--instructor .atlas-secondary { display: none; }
+@media (min-width: 1024px) {
+    body.console-ui--admin .atlas-mobile,
+    body.console-ui--teacher .atlas-mobile,
+    body.console-ui--instructor .atlas-mobile { display: none; }
+}
 
 /* Data panel toolbar: the query bar of a ruled table region. */
 .admin-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; margin-bottom: 4px; }

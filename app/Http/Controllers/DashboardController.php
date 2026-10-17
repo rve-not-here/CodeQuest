@@ -9,6 +9,7 @@ use App\Models\Section;
 use App\Models\User;
 use App\Services\CompetencyService;
 use App\Services\DashboardService;
+use App\Services\RecommendationService;
 use App\Services\ResumeService;
 use App\Services\StudentReminderService;
 use App\Services\TimelineService;
@@ -22,6 +23,7 @@ class DashboardController extends Controller
         private readonly DashboardService $dashboard,
         private readonly CompetencyService $competencies,
         private readonly ResumeService $resume,
+        private readonly RecommendationService $recommendations,
         private readonly StudentReminderService $reminders,
     ) {}
 
@@ -68,6 +70,7 @@ class DashboardController extends Controller
             'resume' => $this->resumeViewData($resume),
             'resumeHasDraft' => $this->resumeHasDraft($user, $resume),
             'competencySummary' => $competencySummary,
+            'recommendations' => $this->recommendations->recommendations($user),
         ]);
     }
 

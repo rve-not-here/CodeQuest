@@ -29,6 +29,9 @@
             <div class="atlas-dashboard-figure">
                 <dt>XP balance</dt>
                 <dd class="atlas-dashboard-fig"><a class="atlas-dashboard-fig-link" href="{{ route('xp-ledger') }}" aria-label="XP balance {{ number_format($totalXp) }}. Open XP ledger">{{ number_format($totalXp) }}</a><span class="atlas-dashboard-fig-unit">XP</span></dd>
+                @if ($totalXp === 0)
+                    <p class="atlas-dashboard-figure-note">No XP yet — complete a challenge to start.</p>
+                @endif
             </div>
             <div class="atlas-dashboard-figure">
                 <dt>Completed challenges</dt>
@@ -111,8 +114,24 @@
         </section>
 
         <section class="atlas-dashboard-focus" aria-labelledby="focus-heading">
-            <h2 id="focus-heading">Where to focus</h2>
-            <a href="{{ route('recommendations') }}" class="atlas-dashboard-link">View recommendations →</a>
+            <div class="atlas-dashboard-focus-copy">
+                <h2 id="focus-heading">Where to focus</h2>
+                @if ($recommendations->isNotEmpty())
+                    @php $focus = $recommendations->first(); @endphp
+                    <p class="atlas-dashboard-focus-title">{{ $focus['title'] }}</p>
+                    <p class="atlas-dashboard-focus-subtitle">{{ $focus['subtitle'] }}</p>
+                @else
+                    <p class="atlas-dashboard-focus-title">You're on track</p>
+                    <p class="atlas-dashboard-focus-subtitle">No priority actions right now. Keep going.</p>
+                @endif
+            </div>
+            @php
+                $focus = $recommendations->first();
+                $focusIsAssessment = $focus !== null && str_contains($focus['href'], '/assessments/');
+                $focusHref = $focusIsAssessment ? route('recommendations') : ($focus['href'] ?? route('recommendations'));
+                $focusCta = $focusIsAssessment ? 'View recommendations' : ($focus['cta'] ?? 'View recommendations');
+            @endphp
+            <a href="{{ $focusHref }}" class="btn btn-primary">{{ $focusCta }}</a>
         </section>
     </div>
 @endsection

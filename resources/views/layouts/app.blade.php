@@ -94,9 +94,27 @@
             ['route' => 'admin.system', 'label' => 'System Status'],
         ]],
     ];
+    $teacherNavGroups = [
+        ['heading' => 'Overview', 'items' => [
+            ['route' => 'students', 'label' => 'Students'],
+            ['route' => 'classrooms', 'label' => 'My Classrooms'],
+        ]],
+        ['heading' => 'Evidence', 'items' => [
+            ['route' => 'activity', 'label' => 'Learning Activity'],
+            ['route' => 'course-analytics', 'label' => 'Course Analytics'],
+            ['route' => 'reports.teacher', 'label' => 'Reports'],
+            ['route' => 'needs-attention', 'label' => 'Needs Attention'],
+        ]],
+        ['heading' => 'Account', 'items' => [
+            ['route' => 'notifications', 'label' => 'Notifications'],
+        ]],
+    ];
     $adminNavCurrent = fn (string $route): bool => $activeRoute === $route
         || ($activeRoute !== null && str_starts_with($activeRoute, $route.'.'));
+    $teacherNavCurrent = fn (string $route): bool => $activeRoute === $route
+        || ($activeRoute !== null && str_starts_with($activeRoute, $route.'.'));
     $showAdminSidebar = $role === 'admin' && ! $standalone && ! ($workspace ?? false) && ! $studentPrototype;
+    $showTeacherSidebar = in_array($role, ['teacher', 'instructor'], true) && ! $standalone && ! ($workspace ?? false) && ! $studentPrototype;
 @endphp
 
 <!DOCTYPE html>
@@ -126,6 +144,19 @@
                                 <p class="console-sidebar-heading">{{ $group['heading'] }}</p>
                                 @foreach ($group['items'] as $item)
                                     <a href="{{ route($item['route']) }}" @if ($adminNavCurrent($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
+                                @endforeach
+                            @endforeach
+                        </nav>
+                    </div>
+                </aside>
+            @elseif ($showTeacherSidebar)
+                <aside class="console-sidebar" aria-label="Teacher sections">
+                    <div class="console-sidebar-inner">
+                        <nav aria-label="Teacher destinations">
+                            @foreach ($teacherNavGroups as $group)
+                                <p class="console-sidebar-heading">{{ $group['heading'] }}</p>
+                                @foreach ($group['items'] as $item)
+                                    <a href="{{ route($item['route']) }}" @if ($teacherNavCurrent($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
                                 @endforeach
                             @endforeach
                         </nav>

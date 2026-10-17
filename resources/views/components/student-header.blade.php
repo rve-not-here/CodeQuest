@@ -63,18 +63,4 @@
             @endauth
         </div>
     </div>
-    @if ($role === 'student')
-        <div class="atlas-specimen">
-            <p class="atlas-specimen-stamp">Specimen sheet · Optical size 11–46</p>
-            <div class="atlas-specimen-ruler" role="img" aria-label="Type specimen ramp: 11, 13, 16, 22, 28, 36 and 46 pixel sizes">
-                <span class="atlas-specimen-tick" style="--h:9px"><i aria-hidden="true"></i>11</span>
-                <span class="atlas-specimen-tick" style="--h:10px"><i aria-hidden="true"></i>13</span>
-                <span class="atlas-specimen-tick" style="--h:12px"><i aria-hidden="true"></i>16</span>
-                <span class="atlas-specimen-tick" style="--h:17px"><i aria-hidden="true"></i>22</span>
-                <span class="atlas-specimen-tick" style="--h:22px"><i aria-hidden="true"></i>28</span>
-                <span class="atlas-specimen-tick" style="--h:28px"><i aria-hidden="true"></i>36</span>
-                <span class="atlas-specimen-tick" style="--h:36px"><i aria-hidden="true"></i>46</span>
-            </div>
-        </div>
-    @endif
 </header>
