@@ -9,6 +9,7 @@ use App\Models\Section;
 use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\LearningPathService;
+use App\Support\MissionView;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -44,7 +45,7 @@ class MissionIndexController extends Controller
         // Use the same course-reach verdict as MissionController::show.
         $reachedCourses = $this->assessments->courseReachForCourses($user, $tree->pluck('course'));
 
-        /** @var Collection<int, array{course: Course, section: Section|null, mission: Mission, state: string, accessible: bool}> $rows */
+        /** @var Collection<int, array{course: Course, section: Section|null, mission: MissionView, state: string, accessible: bool}> $rows */
         $rows = collect();
 
         foreach ($tree as $courseNode) {
@@ -53,7 +54,7 @@ class MissionIndexController extends Controller
                     $rows->push([
                         'course' => $courseNode['course'],
                         'section' => $sectionNode['section'],
-                        'mission' => $row['mission'],
+                        'mission' => MissionView::from($row['mission']),
                         'state' => $row['state'],
                         'accessible' => $courseNode['course']->status === 'active' && $reachedCourses[$courseNode['course']->id],
                     ]);

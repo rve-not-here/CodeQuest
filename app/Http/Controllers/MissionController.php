@@ -11,6 +11,8 @@ use App\Services\DraftService;
 use App\Services\KnowledgeCheckService;
 use App\Services\MissionService;
 use App\Services\XpService;
+use App\Support\KnowledgeCheckView;
+use App\Support\MissionView;
 use App\Support\SourceCodeInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -271,15 +273,29 @@ class MissionController extends Controller
         return [
             'user' => $user,
             'role' => $user->role,
-            'mission' => $mission,
+            'mission' => MissionView::from($mission),
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $this->missions->isCompleted($user, $mission),
             'totalXp' => $this->xp->balance($user),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
-            'knowledgeChecks' => $this->knowledgeChecks->lessonSummaries($user, $mission),
-            'outstandingRequiredCheck' => $this->knowledgeChecks->firstOutstandingRequired($user, $mission),
+            'knowledgeChecks' => $this->knowledgeChecks->lessonSummaries($user, $mission)
+                ->map(fn (array $summary): array => array_merge($summary, [
+                    'check' => KnowledgeCheckView::from($summary['check']),
+                ])),
+            'outstandingRequiredCheck' => $this->requiredCheckView($user, $mission),
         ];
+    }
+
+    /**
+     * The required-check teaser is a KnowledgeCheck model; student views get
+     * the whitelisted view-model instead.
+     */
+    private function requiredCheckView(User $user, Mission $mission): ?KnowledgeCheckView
+    {
+        $required = $this->knowledgeChecks->firstOutstandingRequired($user, $mission);
+
+        return $required === null ? null : KnowledgeCheckView::from($required);
     }
 
     /**
@@ -298,7 +314,7 @@ class MissionController extends Controller
         return [
             'user' => $user,
             'role' => $user->role,
-            'mission' => $mission,
+            'mission' => MissionView::from($mission),
             'course' => $mission->course,
             'section' => $mission->section,
             'completed' => $completed,

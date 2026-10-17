@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\KnowledgeCheckService;
 use App\Services\XpService;
+use App\Support\KnowledgeCheckView;
+use App\Support\MissionView;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\ValidatedInput;
 use Illuminate\View\View;
@@ -55,13 +57,19 @@ class KnowledgeCheckController extends Controller
             abort(404);
         }
 
+        // The presentation's next-check teaser is a KnowledgeCheck model;
+        // student views get the whitelisted view-model, and the mission is
+        // whitelisted too — the contract forbids passing the full models.
+        $nextCheck = $presentation['nextCheck'];
+        $presentation['nextCheck'] = $nextCheck === null ? null : KnowledgeCheckView::from($nextCheck);
+
         return view('knowledge-check', [
             'role' => $user->role,
             'totalXp' => $this->xp->balance($user),
-            'mission' => $mission,
+            'mission' => MissionView::from($mission),
             'course' => $mission->course,
             'section' => $mission->section,
-            'knowledgeCheck' => $knowledgeCheck,
+            'knowledgeCheck' => KnowledgeCheckView::from($knowledgeCheck),
             'attempt' => $attempt,
             ...$presentation,
         ]);

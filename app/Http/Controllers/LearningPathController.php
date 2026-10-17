@@ -11,6 +11,8 @@ use App\Services\AssessmentService;
 use App\Services\DashboardService;
 use App\Services\LearningPathService;
 use App\Services\RecommendationService;
+use App\Support\AssessmentView;
+use App\Support\MissionView;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -56,6 +58,12 @@ class LearningPathController extends Controller
             $courseNode['accessible'] = $courseNode['course']->status === 'active' && $states[$courseNode['course']->id]['reached'];
             $courseNode['locked_reason'] = $courseNode['accessible'] ? null : $states[$courseNode['course']->id]['reason'];
 
+            // Student views receive whitelisted mission view-models, never
+            // the Eloquent models carrying solution_code/hints/validate_rule.
+            $courseNode['sections'] = $courseNode['sections']->map(
+                fn (array $sectionNode): array => $this->sectionNodeView($sectionNode)
+            );
+
             return $courseNode;
         });
 
@@ -64,7 +72,7 @@ class LearningPathController extends Controller
             'role' => $user->role,
             'tree' => $tree,
             'totalXp' => $this->dashboard->totalXp($user),
-            'nextMission' => $nextMission,
+            'nextMission' => $nextMission === null ? null : MissionView::from($nextMission),
             'course' => $course,
             'recommendations' => $this->accessibleRecommendations($user, $tree),
         ]);
@@ -82,7 +90,7 @@ class LearningPathController extends Controller
      * accessible. An href with no known target defaults to inaccessible
      * rather than rendering a hopeful link.
      *
-     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}>, boss: array{assessment: ?Assessment, state: string, reason: string, accessible: bool}, accessible: bool, locked_reason: ?string}>  $tree
+     * @param  Collection<int, array{course: Course, progress: array{completed: int, total: int, percent: int}, sections: Collection<int, array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: MissionView, state: string}>}>, boss: array{assessment: ?AssessmentView, state: string, reason: string, accessible: bool}, accessible: bool, locked_reason: ?string}>  $tree
      * @return Collection<int, array{slot: int, title: string, subtitle: string, href: string, cta: string, accessible: bool, locked_reason: ?string}>
      */
     private function accessibleRecommendations(User $user, Collection $tree): Collection
@@ -120,9 +128,26 @@ class LearningPathController extends Controller
     }
 
     /**
+     * Section rows for the learning-path view: mission models are swapped
+     * for the whitelisted MissionView before the tree reaches student views.
+     *
+     * @param  array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: Mission, state: string}>}  $sectionNode
+     * @return array{section: Section|null, progress: array{completed: int, total: int, percent: int}, missions: Collection<int, array{mission: MissionView, state: string}>}
+     */
+    private function sectionNodeView(array $sectionNode): array
+    {
+        $sectionNode['missions'] = $sectionNode['missions']->map(fn (array $row): array => [
+            'mission' => MissionView::from($row['mission']),
+            'state' => $row['state'],
+        ]);
+
+        return $sectionNode;
+    }
+
+    /**
      * @param  array{course: Course, progress: array{completed: int, total: int, percent: int}}  $courseNode
      * @param  array{assessment: ?Assessment, passed: bool, eligible: bool, reached: bool, unlocked: bool, reason: string}  $state
-     * @return array{assessment: ?Assessment, state: 'PASSED'|'AVAILABLE'|'LOCKED', reason: string, accessible: bool}
+     * @return array{assessment: ?AssessmentView, state: 'PASSED'|'AVAILABLE'|'LOCKED', reason: string, accessible: bool}
      */
     private function bossNode(array $courseNode, array $state): array
     {
@@ -140,7 +165,7 @@ class LearningPathController extends Controller
 
         if ($state['passed']) {
             return [
-                'assessment' => $assessment,
+                'assessment' => AssessmentView::from($assessment),
                 'state' => 'PASSED',
                 'reason' => $state['unlocked'] ? 'Course-level competency has been demonstrated.' : 'Historical pass retained. '.$state['reason'],
                 'accessible' => $state['unlocked'],
@@ -149,7 +174,7 @@ class LearningPathController extends Controller
 
         if ($state['unlocked']) {
             return [
-                'assessment' => $assessment,
+                'assessment' => AssessmentView::from($assessment),
                 'state' => 'AVAILABLE',
                 'reason' => 'All required challenges are complete.',
                 'accessible' => true,
@@ -159,7 +184,7 @@ class LearningPathController extends Controller
         $remaining = max(0, $courseNode['progress']['total'] - $courseNode['progress']['completed']);
 
         return [
-            'assessment' => $assessment,
+            'assessment' => AssessmentView::from($assessment),
             'state' => 'LOCKED',
             'reason' => ! $state['reached'] || $course->status !== 'active' || $assessment->status !== 'active'
                 ? $state['reason']

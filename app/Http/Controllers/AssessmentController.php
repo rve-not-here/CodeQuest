@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\AssessmentService;
 use App\Services\DashboardService;
 use App\Services\XpService;
+use App\Support\AssessmentView;
 use App\Support\SourceCodeInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -246,7 +247,7 @@ class AssessmentController extends Controller
 
         return [
             'course' => $course,
-            'assessment' => $assessment,
+            'assessment' => $assessment === null ? null : AssessmentView::from($assessment),
             'hasPassed' => $passed,
             'latest' => $latest,
             'unlocked' => $eligible,
@@ -295,7 +296,7 @@ class AssessmentController extends Controller
         return [
             'user' => $user,
             'role' => $user->role,
-            'assessment' => $assessment,
+            'assessment' => AssessmentView::from($assessment),
             'course' => $course,
             'attempt' => $attempt,
             'code' => $attempt->code ?? '',

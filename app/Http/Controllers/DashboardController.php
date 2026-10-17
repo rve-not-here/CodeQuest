@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\Course;
 use App\Models\Mission;
+use App\Models\Section;
 use App\Models\User;
 use App\Services\CompetencyService;
 use App\Services\DashboardService;
 use App\Services\ResumeService;
 use App\Services\StudentReminderService;
 use App\Services\TimelineService;
+use App\Support\MissionView;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -63,7 +65,7 @@ class DashboardController extends Controller
                 ->reject(fn (Activity $activity): bool => in_array($activity->type, TimelineService::NON_LEARNING_ACTIVITY_TYPES, true))
                 ->take(4)
                 ->values(),
-            'resume' => $resume,
+            'resume' => $this->resumeViewData($resume),
             'resumeHasDraft' => $this->resumeHasDraft($user, $resume),
             'competencySummary' => $competencySummary,
         ]);
@@ -81,5 +83,31 @@ class DashboardController extends Controller
         return $user->missionDrafts()
             ->where('mission_id', $resume['mission']->id)
             ->exists();
+    }
+
+    /**
+     * Student views receive the whitelisted mission view-model, never the
+     * Eloquent model carrying solution_code/hints/validate_rule.
+     *
+     * @param  null|array{type: 'mission'|'course', course: Course, section?: Section|null, mission?: Mission}  $resume
+     * @return null|array{type: 'mission'|'course', course: Course, section?: Section|null, mission?: MissionView}
+     */
+    private function resumeViewData(?array $resume): ?array
+    {
+        if ($resume === null) {
+            return null;
+        }
+
+        $view = [
+            'type' => $resume['type'],
+            'course' => $resume['course'],
+            'section' => $resume['section'] ?? null,
+        ];
+
+        if (isset($resume['mission'])) {
+            $view['mission'] = MissionView::from($resume['mission']);
+        }
+
+        return $view;
     }
 }
