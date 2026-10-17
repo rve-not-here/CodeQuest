@@ -646,8 +646,8 @@ body.student-ui { --color-ink: var(--color-fg); --color-phosphor-dim: var(--colo
 .atlas-dashboard-fig-link-text:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 .atlas-dashboard-figure-text { margin-top: 14px; font-family: var(--font-sans); font-size: var(--font-size-16); line-height: 1.25; font-weight: 500; color: var(--color-fg); overflow-wrap: anywhere; }
 .atlas-dashboard-figure-note { margin-top: 14px; font-family: var(--font-mono); font-size: var(--font-size-13); color: var(--color-fg-muted); overflow-wrap: anywhere; }
-.atlas-dashboard-wall .progress { margin-top: 12px; height: 6px; border-radius: 0; background: var(--color-raised); overflow: hidden; }
-.atlas-dashboard-wall .progress > span { display: block; height: 100%; border-radius: 0; background: var(--color-accent); }
+.atlas-dashboard-wall .progress { margin-top: 12px; height: 6px; border-radius: 9999px; background: var(--color-surface-alt); overflow: hidden; }
+.atlas-dashboard-wall .progress > span { display: block; height: 100%; border-radius: 9999px; background: var(--color-primary); }
 .atlas-dashboard-objective { border: 1px solid var(--color-line-strong); background: var(--color-surface); padding: 24px 30px; }
 .atlas-dashboard-objective-copy { min-width: 0; }
 .atlas-dashboard-state { font-family: var(--font-sans); font-size: 0.75rem; line-height: 1.25; color: var(--color-primary); font-weight: 600; }
@@ -818,7 +818,7 @@ body.student-ui { --color-ink: var(--color-fg); --color-phosphor-dim: var(--colo
 .atlas-check-questions { min-width: 0; }
 .atlas-check-question { min-width: 0; margin-bottom: 40px; padding: 0 0 32px; border: 0; border-bottom: 1px solid var(--color-line); }
 .atlas-check-question legend { width: 100%; padding: 0; }
-.atlas-check-position { display: block; font: 12px/20px var(--font-mono); color: var(--color-fg-muted); margin-bottom: 12px; }
+.atlas-check-position { display: block; font: 400 0.75rem / 1.25rem var(--font-sans); color: var(--color-fg-muted); margin-bottom: 12px; }
 .atlas-check-prompt { display: block; font-size: 24px; line-height: 34px; font-weight: 500; overflow-wrap: anywhere; }
 .atlas-check-option { display: flex; align-items: baseline; gap: 16px; padding: 14px 12px; min-height: 48px; cursor: pointer; font-size: 16px; line-height: 26px; border-bottom: 1px solid var(--color-line); }
 .atlas-check-option input { flex-shrink: 0; accent-color: var(--color-accent); }
@@ -931,8 +931,8 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-award { padding-block: 24px; }
 .atlas-award > p { max-width: 68ch; }
 .atlas-section-record { padding-block: 20px; }
-.atlas-record .progress { height: 3px; border-radius: 0; }
-.atlas-record .progress > span { border-radius: 0; }
+.atlas-record .progress { height: 4px; border-radius: 9999px; }
+.atlas-record .progress > span { border-radius: 9999px; }
 @media (max-width: 767px) {
     .atlas-course-record, .atlas-timeline-day, .atlas-record-summary { grid-template-columns: minmax(0, 1fr); gap: 20px; }
     .atlas-record-summary > h2 { grid-row: auto; }
