@@ -259,7 +259,7 @@ class AdminUserTest extends TestCase
             ->assertSee($student->created_at->format('Y-m-d'))
             ->assertSee('Booted the uplink array')
             ->assertSee('EDIT →')
-            ->assertSee('◀ ALL USERS');
+            ->assertSee('◀ All users');
     }
 
     public function test_admin_can_create_a_student_account(): void

@@ -21,13 +21,13 @@
     </x-page-header>
 
     @if (session('error'))
-        <x-status-message type="error" title="CHANGE REJECTED" class="mb-4">
+        <x-status-message type="error" title="Change rejected" class="mb-4">
             {{ session('error') }}
         </x-status-message>
     @endif
 
     @if ($errors->any())
-        <x-status-message type="error" title="INPUT REJECTED" class="mb-4">
+        <x-status-message type="error" title="Input rejected" class="mb-4">
             <ul>
                 @foreach ($errors->messages() as $field => $messages)
                     @foreach ($messages as $error)
@@ -124,15 +124,15 @@
 
                 <div class="md:col-span-2">
                     <div class="mb-2 flex items-center gap-2">
-                        <span class="text-sm font-bold text-fg-muted">GRADING RULES (VIEW-ONLY)</span>
-                        <x-badge tone="dim">VIEW ONLY</x-badge>
+                        <span class="text-sm font-bold text-fg-muted">Grading rules (VIEW-ONLY)</span>
+                        <x-badge tone="dim">View only</x-badge>
                     </div>
                     <pre class="terminal-input whitespace-pre-wrap break-words p-3 text-[14px] text-ink">{{ $assessment->grading_rule ?? '(none)' }}</pre>
                 </div>
             </div>
 
             <div class="admin-form-actions">
-                <button type="submit" class="btn-primary">SAVE CHALLENGE →</button>
+                <button type="submit" class="btn-primary">Save challenge →</button>
                 <a href="{{ route('admin.courses.assessment', $course) }}" class="btn-ghost">CANCEL</a>
             </div>
         </form>

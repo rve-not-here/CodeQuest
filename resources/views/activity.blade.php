@@ -10,8 +10,8 @@
         </header>
         <form method="GET" action="{{ route('activity') }}" class="teacher-operational-filters" aria-label="Learning activity filters">
             <div><label for="student">Student</label><select id="student" name="student" class="terminal-input"><option value="">ALL STUDENTS</option>@foreach ($filterStudents as $student)<option value="{{ $student->id }}" @selected(($filters['student'] ?? null) == $student->id)>{{ $student->username }}</option>@endforeach</select></div>
-            <div><label for="course">Course</label><select id="course" name="course" class="terminal-input"><option value="">ALL COURSES</option>@foreach ($filterCourses as $course)<option value="{{ $course->id }}" @selected(($filters['course'] ?? null) == $course->id)>{{ $course->name }}</option>@endforeach</select></div>
-            <div><label for="type">Event type</label><select id="type" name="type" class="terminal-input"><option value="">ALL TYPES</option>@foreach ($filterTypes as $type)<option value="{{ $type }}" @selected(($filters['type'] ?? null) === $type)>{{ strtoupper(str_replace('_', ' ', $type)) }}</option>@endforeach</select></div>
+            <div><label for="course">Course</label><select id="course" name="course" class="terminal-input"><option value="">All courses</option>@foreach ($filterCourses as $course)<option value="{{ $course->id }}" @selected(($filters['course'] ?? null) == $course->id)>{{ $course->name }}</option>@endforeach</select></div>
+            <div><label for="type">Event type</label><select id="type" name="type" class="terminal-input"><option value="">All types</option>@foreach ($filterTypes as $type)<option value="{{ $type }}" @selected(($filters['type'] ?? null) === $type)>{{ strtoupper(str_replace('_', ' ', $type)) }}</option>@endforeach</select></div>
             <div><label for="from">From</label><input id="from" name="from" type="date" value="{{ $filters['from'] }}" class="terminal-input"></div>
             <div><label for="to">To</label><input id="to" name="to" type="date" value="{{ $filters['to'] }}" class="terminal-input"></div>
             <div class="teacher-filter-actions">
@@ -21,14 +21,14 @@
                 @endif
             </div>
             @if ($errors->any())
-                <x-status-message type="error" title="QUERY REJECTED">
+                <x-status-message type="error" title="Query rejected">
                     @foreach ($errors->all() as $error){{ $error }}<br>@endforeach
                 </x-status-message>
             @endif
         </form>
         <section class="teacher-record-section" aria-labelledby="activity-title">
             <header class="teacher-section-heading">
-                <div><h2 id="activity-title">EVENT LOG</h2><p class="teacher-state">WINDOW {{ $filters['from'] }} → {{ $filters['to'] }}</p></div>
+                <div><h2 id="activity-title">Event log</h2><p class="teacher-state">WINDOW {{ $filters['from'] }} → {{ $filters['to'] }}</p></div>
                 <p class="teacher-state">{{ $events->total() }} EVENTS</p>
             </header>
             @if ($events->isEmpty())

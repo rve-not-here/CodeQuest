@@ -31,7 +31,7 @@
         </header>
 
         @if (session('mission_success'))
-            <div class="panel mb-5 border-accent-line bg-accent-soft px-4 py-3" role="status"><strong class="text-sm text-accent">CHALLENGE COMPLETE</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
+            <div class="panel mb-5 border-accent-line bg-accent-soft px-4 py-3" role="status"><strong class="text-sm text-accent">Challenge complete</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
         @endif
         @if (session('mission_info'))
             <div class="panel mb-5 px-4 py-3" role="status"><strong class="text-sm">{{ session('mission_info')['title'] }}.</strong> <span class="text-sm text-fg-muted">{{ session('mission_info')['message'] }}</span></div>

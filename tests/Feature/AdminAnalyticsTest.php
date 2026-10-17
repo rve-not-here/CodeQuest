@@ -50,7 +50,7 @@ class AdminAnalyticsTest extends TestCase
             ->assertSee('Curriculum')
             ->assertSee('Learning')
             ->assertSee('Per-Course Analysis')
-            ->assertSee('VIEW ONLY');
+            ->assertSee('View only');
 
         $content = $response->getContent();
 

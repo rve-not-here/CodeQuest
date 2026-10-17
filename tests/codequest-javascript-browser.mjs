@@ -433,7 +433,7 @@ async function course(type) {
         check(`${mission.title} completes server-side`, await page.getByRole('heading', { name: 'Challenge complete', exact: true }).count(), 1);
         await page.keyboard.press('Escape');
         await page.reload();
-        check(`${mission.title} completion survives reload`, await page.getByText('CHALLENGE COMPLETE', { exact: true }).count(), 1);
+        check(`${mission.title} completion survives reload`, await page.getByText('Challenge complete', { exact: true }).count(), 1);
         result.missions.push({ id: mission.id, title: mission.title, points: mission.points, submission: saved.id, elapsed });
         if (type === 'js' && mission === firstRemaining) {
             await replay(saved, correctSource, 'Already completed');
@@ -444,7 +444,7 @@ async function course(type) {
             })));
             for (const response of duplicates) {
                 check('Rapid duplicate completion response', response.status(), 200);
-                check('Rapid duplicate retains completed state', (await response.text()).includes('CHALLENGE COMPLETE'));
+                check('Rapid duplicate retains completed state', (await response.text()).includes('Challenge complete'));
             }
             check('Rapid duplicate retains academic records', JSON.stringify(academicState()), JSON.stringify(beforeDuplicates));
             report.operations.push({ kind: 'rapid-double-submit', mission: mission.id, submission: saved.id });

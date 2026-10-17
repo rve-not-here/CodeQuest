@@ -13,7 +13,7 @@
     <x-page-header title="New Announcement" subtitle="Write a draft and choose its audience. Publishing delivers the message." />
 
     @if ($errors->any())
-        <x-status-message type="error" title="INPUT REJECTED" class="mb-4">
+        <x-status-message type="error" title="Input rejected" class="mb-4">
             <ul>
                 @foreach ($errors->messages() as $field => $messages)
                     @foreach ($messages as $error)
@@ -63,19 +63,19 @@
                     Audience
                 </label>
                 <select id="audience" name="audience" class="terminal-input" required aria-describedby="{{ $errors->has('audience') ? 'audience-help audience-error' : 'audience-help' }}" @if ($errors->has('audience')) aria-invalid="true" @endif>
-                    <option value="all" @selected(old('audience') === 'all')>ALL STUDENTS, TEACHERS &amp; ADMINS</option>
+                    <option value="all" @selected(old('audience') === 'all')>All students, TEACHERS &amp; ADMINS</option>
                     <option value="students" @selected(old('audience') === 'students')>STUDENTS</option>
                     <option value="teachers" @selected(old('audience') === 'teachers')>TEACHERS</option>
                     <option value="admins" @selected(old('audience') === 'admins')>ADMINS</option>
                 </select>
                 @error('audience')<p id="audience-error" class="admin-field-error">{{ $message }}</p>@enderror
                 <p id="audience-help" class="admin-field-help">
-                    SERVER-DETERMINED · OPERATORS NEVER DELIVERED
+                    SERVER-DETERMINED · Operators never delivered
                 </p>
             </div>
 
             <div class="admin-form-actions">
-                <button type="submit" class="btn-primary">SAVE AS DRAFT →</button>
+                <button type="submit" class="btn-primary">Save as draft →</button>
                 <a href="{{ route('admin.announcements') }}" class="btn-ghost">CANCEL</a>
             </div>
         </form>

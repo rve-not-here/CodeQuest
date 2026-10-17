@@ -58,7 +58,7 @@
 
     <div class="admin-ledger">
         <x-panel title="XP Administration" :figures="$xpFigures">
-            <x-slot:status><x-badge tone="dim">VIEW ONLY</x-badge></x-slot:status>
+            <x-slot:status><x-badge tone="dim">View only</x-badge></x-slot:status>
             @if ($xp['by_type'] === [])
                 <x-status-message type="info" title="Empty ledger">No XP transactions have been recorded yet.</x-status-message>
             @else

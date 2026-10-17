@@ -13,7 +13,7 @@
     <x-page-header title="{{ $user->username }}" subtitle="Review account details, access, and recent activity.">
         <x-slot:actions>
             <a href="{{ route('admin.users.edit', $user) }}" class="btn-primary">EDIT →</a>
-            <a href="{{ route('admin.users') }}" class="btn-ghost">◀ ALL USERS</a>
+            <a href="{{ route('admin.users') }}" class="btn-ghost">◀ All users</a>
         </x-slot:actions>
     </x-page-header>
 

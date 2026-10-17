@@ -70,7 +70,7 @@ class ReportPageTest extends TestCase
         $filters = ['from' => now()->subDay()->toDateString(), 'to' => now()->toDateString()];
         $expected = app(ReportPdfExporter::class)->studentProgressView(app(StudentProgressReportService::class)->forStudent($student, null, ReportFilters::fromArray($filters)));
         $this->actingAs($student)->get(route('reports.progress', $filters))->assertOk()
-            ->assertViewHas('document', $expected)->assertSee('DOWNLOAD CSV')->assertSee('DOWNLOAD PDF')
+            ->assertViewHas('document', $expected)->assertSee('Download CSV')->assertSee('Download PDF')
             ->assertSee(route('export.progress'))->assertSee($filters['from']);
         $csv = $this->get(route('export.progress', $filters))->assertOk()->streamedContent();
         $lines = preg_split('/\R/', trim($csv));
@@ -96,8 +96,8 @@ class ReportPageTest extends TestCase
         $this->actingAs($teacher)->get(route('reports.teacher'))->assertOk()->assertSee(route('students'))->assertSee(route('course-analytics'));
         $this->get(route('student-progress', $student))->assertSee(route('reports.teacher-student', $student));
         $this->get(route('course-analytics'))->assertSee(route('reports.teacher-course', $course));
-        $this->get(route('reports.teacher-student', $student))->assertOk()->assertSee('DOWNLOAD CSV')->assertDontSee('PRIVATE REPORT COURSE');
-        $this->get(route('reports.teacher-course', $course))->assertOk()->assertSee('DOWNLOAD PDF');
+        $this->get(route('reports.teacher-student', $student))->assertOk()->assertSee('Download CSV')->assertDontSee('PRIVATE REPORT COURSE');
+        $this->get(route('reports.teacher-course', $course))->assertOk()->assertSee('Download PDF');
         $this->get(route('reports.teacher-course', $private))->assertForbidden();
         $this->get(route('reports.teacher-student', User::factory()->create()))->assertForbidden();
         $classroom->update(['status' => 'inactive']);
@@ -111,7 +111,7 @@ class ReportPageTest extends TestCase
         foreach (['student', 'teacher', 'operator'] as $role) {
             $this->actingAs(User::factory()->create(['role' => $role]))->get(route('reports.admin-system'))->assertForbidden();
         }
-        $this->actingAs(User::factory()->admin()->create())->get(route('reports.admin-system'))->assertOk()->assertSee(route('export.admin-system'))->assertSee('DOWNLOAD PDF')
+        $this->actingAs(User::factory()->admin()->create())->get(route('reports.admin-system'))->assertOk()->assertSee(route('export.admin-system'))->assertSee('Download PDF')
             ->assertSee('<caption>', false)
             ->assertSee('<th scope="row"', false);
         $this->get(route('reports.progress'))->assertForbidden();

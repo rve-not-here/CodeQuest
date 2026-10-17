@@ -125,7 +125,7 @@ class TeacherDashboardTest extends TestCase
             ->assertSee('Recent Activity')
             ->assertSee('Assessment Summary')
             ->assertSee('VIEW ALL')
-            ->assertSee('FULL ANALYTICS')
+            ->assertSee('Full analytics')
             ->assertSee('Student Roster')
             ->assertSee('dashboard_cadet')
             ->assertSee(route('needs-attention'))

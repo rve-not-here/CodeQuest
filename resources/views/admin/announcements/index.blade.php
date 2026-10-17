@@ -6,12 +6,12 @@
     <div class="admin-management">
     <x-page-header title="Announcements" subtitle="Manage announcements and their audiences. Lifecycle: draft → published → archived.">
         <x-slot:actions>
-            <a href="{{ route('admin.announcements.create') }}" class="btn-primary">+ NEW ANNOUNCEMENT</a>
+            <a href="{{ route('admin.announcements.create') }}" class="btn-primary">+ New announcement</a>
         </x-slot:actions>
     </x-page-header>
 
     @if (session('status'))
-        <x-status-message type="success" title="RECORD SAVED" class="mb-4">
+        <x-status-message type="success" title="Record saved" class="mb-4">
             {{ session('status') }}
         </x-status-message>
     @endif

@@ -17,7 +17,7 @@
             <div class="admin-toolbar-field">
                 <label for="actor">Actor</label>
                 <select id="actor" name="actor" class="terminal-input" @if ($errors->has('actor')) aria-invalid="true" aria-describedby="actor-error" @endif>
-                    <option value="">ALL ACTORS</option>
+                    <option value="">All actors</option>
                     @foreach ($filterActors as $actor)
                         <option
                             value="{{ $actor->id }}"
@@ -31,7 +31,7 @@
             <div class="admin-toolbar-field">
                 <label for="action">Action</label>
                 <select id="action" name="action" class="terminal-input" @if ($errors->has('action')) aria-invalid="true" aria-describedby="action-error" @endif>
-                    <option value="">ALL ACTIONS</option>
+                    <option value="">All actions</option>
                     @foreach ($filterActions as $action)
                         <option
                             value="{{ $action }}"
@@ -45,7 +45,7 @@
             <div class="admin-toolbar-field">
                 <label for="result">Result</label>
                 <select id="result" name="result" class="terminal-input" @if ($errors->has('result')) aria-invalid="true" aria-describedby="result-error" @endif>
-                    <option value="">ALL RESULTS</option>
+                    <option value="">All results</option>
                     @foreach (['success', 'failed'] as $result)
                         <option
                             value="{{ $result }}"
@@ -77,7 +77,7 @@
         </form>
 
         @if ($errors->any())
-            <x-status-message type="error" title="QUERY REJECTED" class="mt-3">
+            <x-status-message type="error" title="Query rejected" class="mt-3">
                 @foreach ($errors->all() as $error)
                     {{ $error }}<br>
                 @endforeach

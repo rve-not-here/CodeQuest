@@ -43,9 +43,9 @@
                 @foreach ($filters as $name => $value)<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endforeach
                 <input type="hidden" name="format" value="csv">
                 <div><label for="report-dataset" class="block text-sm">CSV dataset</label><select id="report-dataset" name="dataset" class="terminal-input">@foreach ($datasets as $dataset)<option value="{{ $dataset }}">{{ ucfirst($dataset) }}</option>@endforeach</select></div>
-                <button type="submit" class="btn btn-secondary">DOWNLOAD CSV</button>
+                <button type="submit" class="btn btn-secondary">Download CSV</button>
             </form>
-            <a href="{{ route($exportRoute, [...$exportParams, ...$filters, 'format' => 'pdf']) }}" class="btn btn-secondary">DOWNLOAD PDF</a>
+            <a href="{{ route($exportRoute, [...$exportParams, ...$filters, 'format' => 'pdf']) }}" class="btn btn-secondary">Download PDF</a>
         </div>
     </section>
     <dl class="{{ $teacherReport ? 'teacher-report-scope' : ($adminReport ? 'admin-report-scope' : 'mb-5 grid grid-cols-1 gap-3 md:grid-cols-2') }}" aria-label="Report scope">

@@ -37,7 +37,7 @@
             <section class="teacher-assessments" aria-labelledby="summary-title">
                 <header class="teacher-section-heading">
                     <h2 id="summary-title">Assessment Summary</h2>
-                    <a href="{{ route('course-analytics') }}" class="btn-ghost">FULL ANALYTICS →</a>
+                    <a href="{{ route('course-analytics') }}" class="btn-ghost">Full analytics →</a>
                 </header>
                 @forelse ($dashboardSummary as $row)
                     <article class="teacher-course-evidence">
@@ -72,7 +72,7 @@
                     <div>
                         <label for="course">Current course</label>
                         <select id="course" name="course" class="terminal-input">
-                            <option value="">ALL COURSES</option>
+                            <option value="">All courses</option>
                             @foreach ($filterCourses as $course)
                                 <option value="{{ $course->id }}" @selected(($filters['course'] ?? null) == $course->id)>{{ $course->name }}</option>
                             @endforeach
