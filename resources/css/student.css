@@ -89,25 +89,6 @@
 }
 
 @layer components {
-    .rail {
-        @apply relative;
-    }
-    .rail > li {
-        @apply relative pl-10;
-    }
-    .rail > li::before {
-        content: '';
-        @apply absolute top-0 bottom-0 left-[11px] w-px bg-line;
-    }
-    .rail > li:first-child::before {
-        @apply top-4;
-    }
-    .rail > li:last-child::before {
-        @apply bottom-auto h-4;
-    }
-    .rail > li[data-state='completed']::before {
-        @apply bg-accent-line;
-    }
     .node {
         @apply absolute top-3 left-0 z-10 grid size-6 place-items-center rounded-full border bg-surface;
     }
@@ -125,13 +106,6 @@
     }
     [data-state='locked'] > .node {
         @apply border-line text-locked;
-    }
-    .tab {
-        @apply relative inline-flex h-10 cursor-pointer items-center gap-2 px-3 text-[13px] font-medium text-fg-subtle hover:text-fg aria-selected:text-fg;
-    }
-    .tab[aria-selected='true']::after {
-        content: '';
-        @apply absolute inset-x-3 bottom-0 h-0.5 bg-accent;
     }
     .mission-row {
         @apply relative border-l-2 border-transparent pl-10;
@@ -182,9 +156,6 @@
             @apply h-10 px-3.5;
         }
     }
-    .difficulty {
-        @apply inline-flex items-center gap-1.5;
-    }
 
     [data-state='completed'] .mission-body {
         @apply text-fg-muted;
@@ -207,27 +178,6 @@
     }
     .mission-row.is-current .mission-id {
         @apply text-accent;
-    }
-    .answer-option {
-        @apply flex min-h-12 cursor-pointer items-center gap-3 border border-line-strong bg-canvas px-3.5 py-2.5 text-sm transition-colors hover:border-fg-subtle hover:bg-raised;
-    }
-    .answer-option input {
-        @apply size-4 shrink-0 accent-accent;
-    }
-    .answer-option:has(input:checked) {
-        @apply border-accent-line bg-accent-soft font-semibold;
-        box-shadow: inset 3px 0 0 var(--color-accent);
-    }
-    .answer-option:has(input:focus-visible) {
-        @apply outline-2 outline-offset-2 outline-accent;
-    }
-    .answer-option[data-verdict='correct'] {
-        @apply border-accent-line bg-accent-soft;
-        box-shadow: inset 3px 0 0 var(--color-accent);
-    }
-    .answer-option[data-verdict='incorrect'] {
-        @apply border-danger/40 bg-danger-soft;
-        box-shadow: inset 3px 0 0 var(--color-danger);
     }
     .student-progress #course-title {
         scroll-margin-top: 5rem;
