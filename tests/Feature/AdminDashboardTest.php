@@ -47,7 +47,7 @@ class AdminDashboardTest extends TestCase
             ->assertSee('<th scope="col">Recorded action</th>', false)
             ->assertSee('<th scope="col">Result</th>', false)
             ->assertSee('Refused account status change')
-            ->assertSee('FAILED');
+            ->assertSee('Failed');
     }
 
     public function test_dashboard_metrics_are_derived_from_live_records(): void
@@ -90,13 +90,13 @@ class AdminDashboardTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
 
         $response->assertOk()
-            ->assertSee('Admin Console')
+            ->assertSee('Admin console')
             ->assertDontSee('class="sort-code"', false)
             ->assertSee('Users')
             ->assertSee('Curriculum')
             ->assertSee('Assessments')
             ->assertSee('Learning')
-            ->assertSee('Recent System Activity')
+            ->assertSee('Recent system activity')
             ->assertSee('Deactivated operator off_duty')
             ->assertSee('Promoted cadet to teacher');
 

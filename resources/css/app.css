@@ -2236,6 +2236,7 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-records-summary-bar > span { border-radius: 2px; }
 .atlas-records-summary-note { margin-top: 8px; max-width: 64ch; font-size: 13px; line-height: 22px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-record-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 16px; margin-top: 10px; font-family: var(--font-mono); font-size: 12px; line-height: 20px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-record-key { display: block; font-family: var(--font-mono); font-size: 12px; line-height: 18px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 
 /* Recommendations — the next action carries the margin mark. */
 .atlas-recommendations { margin: 0; padding: 0; list-style: none; }

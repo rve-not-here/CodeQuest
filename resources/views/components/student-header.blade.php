@@ -1,5 +1,6 @@
 @php
     $isCurrent = fn ($item) => $activeRoute === $item['route']
+        || str_starts_with((string) $activeRoute, $item['route'].'.')
         || ($item['route'] === 'learning-path' && in_array($activeRoute, ['mission.show', 'mission.experiment', 'mission.challenge', 'knowledge-check.show'], true))
         || ($item['route'] === 'assessments' && $activeRoute === 'assessment.show');
 @endphp
