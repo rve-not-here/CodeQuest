@@ -2960,6 +2960,55 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-recommendation-locked { margin-top: 6px; font-size: 13px; line-height: 21px; color: var(--color-warning); }
 .atlas-recommendation-action { display: flex; align-items: flex-start; }
 
+/* Challenge index — the catalogue: filters above, course registers, course index beside. */
+.atlas-index-filters { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; padding: 16px 20px 18px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-index-filter { display: grid; gap: 6px; min-width: 0; }
+.atlas-index-filter-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.atlas-index-alerts { padding: 12px 20px 0; }
+.atlas-index-layout { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; }
+.atlas-index-courses { min-width: 0; }
+.atlas-index-aside { display: none; }
+.atlas-index-section { margin-top: 10px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); }
+.atlas-index-section-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 20px 6px; }
+.atlas-index-mark { display: grid; place-items: center; flex-shrink: 0; width: 20px; height: 20px; border: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); border-radius: 2px; font-family: var(--font-mono); font-size: 11px; line-height: 1; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-section-title { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-section-count { margin-left: auto; font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-list { margin: 0; padding: 0; list-style: none; }
+.atlas-index-link { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: start; gap: 4px 16px; padding: 14px 20px; color: inherit; text-decoration: none; transition: background-color 120ms ease-out; }
+.atlas-index-list > li + li .atlas-index-link { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+a.atlas-index-link:hover { background: color-mix(in srgb, var(--cq-ink) 5%, transparent); }
+a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+.atlas-index-link--locked { color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-node { display: grid; place-items: center; width: 20px; height: 20px; margin-top: 2px; border: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); border-radius: 2px; font-family: var(--font-mono); font-size: 11px; line-height: 1; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-row[data-state="completed"] .atlas-index-node { color: var(--color-success); border-color: color-mix(in srgb, var(--color-success) 45%, transparent); }
+.atlas-index-row[data-state="current"] .atlas-index-node { color: var(--color-accent); border-color: color-mix(in srgb, var(--color-accent) 45%, transparent); }
+.atlas-index-row[data-state="in-progress"] .atlas-index-node { color: var(--color-info); border-color: color-mix(in srgb, var(--color-info) 45%, transparent); }
+.atlas-index-text { display: grid; gap: 3px; min-width: 0; }
+.atlas-index-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; min-width: 0; }
+.atlas-index-number { font-family: var(--font-mono); font-size: 11px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-title { font-family: var(--font-display); font-size: 18px; line-height: 1.2; font-weight: 600; overflow-wrap: anywhere; }
+.atlas-index-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 68ch; font-size: 13.5px; line-height: 21px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-index-meta { margin-top: 1px; font-family: var(--font-mono); font-size: 12px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-action { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; }
+.atlas-index-nav { position: sticky; top: 88px; }
+.atlas-index-nav-title { padding-bottom: 8px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-index-nav ul { margin: 0; padding: 0; list-style: none; }
+.atlas-index-nav a { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0 7px 12px; border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-size: 13px; color: var(--color-fg-muted); text-decoration: none; transition: color 120ms ease-out, border-color 120ms ease-out; }
+.atlas-index-nav a:hover { border-color: var(--color-accent); color: var(--color-fg); }
+.atlas-index-nav a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.atlas-index-nav a > span:last-child { font-family: var(--font-mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+@media (min-width: 1024px) {
+    .atlas-index-layout { grid-template-columns: minmax(0, 1fr) 15rem; gap: 40px; }
+    .atlas-index-aside { display: block; }
+}
+@media (max-width: 899.9px) {
+    .atlas-index-filters { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+    .atlas-index-link { grid-template-columns: 22px minmax(0, 1fr); align-items: start; }
+    .atlas-index-action { grid-column: 2; justify-content: flex-start; margin-top: 6px; }
+}
+
 /* Timeline — the day's entries, ruled once each. */
 .atlas-timeline-list { margin: 0; padding: 0; list-style: none; }
 .atlas-timeline-event { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 12px 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
