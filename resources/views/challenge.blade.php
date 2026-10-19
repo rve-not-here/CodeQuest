@@ -66,20 +66,20 @@
                         @if ($completed)<span class="atlas-stamp atlas-stamp--grn">Completed</span>@endif
                     </div>
                     <h2 id="instructions-title">{{ $mission->title }}</h2>
-                    <dl class="cq-brief-meta">
+                    <dl class="log-facts cq-brief-facts">
                         <div>
                             <dt>Difficulty</dt>
                             <dd>{{ $mission->difficulty }}</dd>
                         </div>
                         <div>
                             <dt>Reward</dt>
-                            <dd class="cq-brief-meta-value">+{{ $mission->points }} XP</dd>
+                            <dd class="is-numeric">+{{ $mission->points }} XP</dd>
                         </div>
                     </dl>
                     @if ($mission->description)<div class="cq-lesson-context whitespace-pre-line">{{ $mission->description }}</div>@else<p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>@endif
                     @if ($mission->target_html)
                         <h3>Example</h3>
-                        <pre class="cq-lesson-example" tabindex="0" aria-label="Reference output"><code>{{ $mission->target_html }}</code></pre>
+                        <pre class="log-listing" tabindex="0" aria-label="Reference output"><code>{{ $mission->target_html }}</code></pre>
                     @endif
                 </div>
             </section>

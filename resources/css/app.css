@@ -2410,6 +2410,17 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .log-running a:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
 .log-running a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 
+/* A fact strip is ruled twice; cells are split by hairlines under draft labels. */
+.log-facts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin: 0; border-block: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.log-facts > div { min-width: 0; padding: 8px 12px 8px 0; }
+.log-facts > div + div { padding-left: 12px; border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.log-facts dt { font-family: var(--font-display); font-size: 10px; line-height: 1.3; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.log-facts dd { margin-top: 4px; font-size: 14.5px; font-weight: 500; color: var(--color-fg); overflow-wrap: anywhere; }
+.log-facts dd.is-numeric { font-family: var(--font-mono); font-size: 13px; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+/* A listing is a clipped sheet of paper: thin ink edge, hard offset shadow. */
+.log-listing { max-width: 100%; margin: 0; overflow-x: auto; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 3px 3px 0 var(--cq-shadow); color: var(--color-fg); font: 400 13px / 1.7 var(--font-mono); }
+
 /* Log stamps — record states pressed onto the sheet. */
 .atlas-stamp { display: inline-flex; align-items: center; flex-shrink: 0; border: 2px solid currentColor; padding: 4px 9px; border-radius: 2px; transform: rotate(-1.5deg); font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .18em; line-height: 1.1; text-transform: uppercase; white-space: nowrap; }
 .atlas-stamp--vio { color: var(--color-info); }
@@ -2640,24 +2651,69 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-practice-code .cm-editor { height: 420px; }
 .atlas-practice-code .cm-scroller { overflow: auto; }
 .atlas-practice-return { margin-top: 24px; }
-.atlas-check { max-width: 800px; min-width: 0; margin-inline: auto; }
-.atlas-check-purpose { margin-top: 16px; font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+/* A knowledge check is a test paper: numbered questions ruled down the sheet and a
+   submit rail that stays in reach while the student works. */
+.atlas-check { max-width: 1180px; min-width: 0; }
+.atlas-check-lede { max-width: 65ch; margin-top: 8px; font-size: 16px; line-height: 26px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-check-facts { margin-top: 22px; }
+.atlas-check-purpose { max-width: 70ch; margin-top: 16px; padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+.atlas-check-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 300px); align-items: start; gap: 56px; }
 .atlas-check-questions { min-width: 0; }
-.atlas-check-question { min-width: 0; margin-bottom: 40px; padding: 0 0 32px; border: 0; border-bottom: 1px solid var(--color-line); }
+.atlas-check-question { min-width: 0; margin: 0 0 8px; padding: 0 0 32px; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-check-question:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.atlas-check-question:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 6px; }
 .atlas-check-question legend { width: 100%; padding: 0; }
-.atlas-check-position { display: block; font: 400 0.75rem / 1.25rem var(--font-sans); color: var(--color-fg-muted); margin-bottom: 12px; }
-.atlas-check-prompt { display: block; font-size: 24px; line-height: 34px; font-weight: 500; overflow-wrap: anywhere; }
-.atlas-check-option { display: flex; align-items: baseline; gap: 16px; padding: 14px 12px; min-height: 48px; cursor: pointer; font-size: 16px; line-height: 26px; border-bottom: 1px solid var(--color-line); }
+.atlas-check-position { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-family: var(--font-display); font-size: 12px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-check-position::before { content: ""; width: 16px; height: 2px; background: var(--color-accent); }
+.atlas-check-prompt { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.18; font-weight: 600; letter-spacing: -.005em; color: var(--color-fg); overflow-wrap: anywhere; }
+.atlas-check-code { margin-top: 16px; }
+.atlas-check-options { margin-top: 20px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-check-option { display: flex; align-items: baseline; gap: 14px; min-height: 48px; padding: 12px 12px 12px 10px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); border-left: 3px solid transparent; cursor: pointer; font-size: 16px; line-height: 26px; color: var(--color-fg); }
+.atlas-check-option:last-child { border-bottom: 0; }
+.atlas-check-option > span { min-width: 0; overflow-wrap: anywhere; }
+.atlas-check-option:hover { background: color-mix(in srgb, var(--cq-ink) 4%, transparent); }
+.atlas-check-option:has(input:checked) { border-left-color: var(--color-accent); background: color-mix(in srgb, var(--cq-ink) 5%, transparent); }
 .atlas-check-option input { flex-shrink: 0; accent-color: var(--color-accent); }
-.atlas-check-option:hover, .atlas-check-option:has(input:checked) { background: var(--color-raised); }
-.atlas-check-option:has(input:checked) { color: var(--color-accent); }
-.atlas-check-option:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.atlas-check-submit { border-top: 3px double var(--color-line-strong); padding-top: 24px; }
-.atlas-check-submit .btn { width: auto; }
-.atlas-check-submit [data-check-unanswered] a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; }
-.atlas-check-result { border-block: 1px solid var(--color-line-strong); }
-.atlas-check-review { padding-block: 24px; border-bottom: 1px solid var(--color-line); overflow-wrap: anywhere; }
-.atlas-check-review h3 { font-size: 20px; line-height: 30px; }
+.atlas-check-option input:focus-visible { outline: none; }
+.atlas-check-option:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+.atlas-check-submit { position: sticky; top: 88px; padding-top: 20px; border-top: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); }
+.atlas-check-submit h2 { font-family: var(--font-display); font-size: 22px; line-height: 1.2; font-weight: 600; letter-spacing: -.005em; }
+.atlas-check-submit > p { margin-top: 8px; font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+.atlas-check-summary { margin-top: 20px; padding-top: 16px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-check-count { font-family: var(--font-mono); font-size: 12.5px; line-height: 20px; color: var(--color-fg); }
+.atlas-check-progress { height: 6px; margin-top: 10px; overflow: hidden; background: var(--color-line); }
+.atlas-check-progress span { display: block; width: 0; height: 100%; background: var(--color-success); transition: width 160ms ease-out; }
+.atlas-check-missing-label { margin-top: 16px; font-family: var(--font-display); font-size: 10px; line-height: 1.3; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-check-missing { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; font-size: 13px; line-height: 22px; }
+.atlas-check-missing a { display: inline-flex; align-items: center; min-height: 32px; color: var(--color-info); text-decoration: underline; text-underline-offset: 3px; }
+.atlas-check-missing a:hover { text-decoration-thickness: 2px; }
+.atlas-check-submit-button { width: 100%; margin-top: 20px; }
+.atlas-check-note { margin-top: 12px; font-size: 12px; line-height: 20px; color: var(--color-fg-subtle); }
+.atlas-check-result { margin-bottom: 40px; padding: 24px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
+.atlas-check-result-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 20px 32px; }
+.atlas-check-result-copy { min-width: 0; flex: 1 1 320px; }
+.atlas-check-result-label { font-family: var(--font-display); font-size: 12px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-check-result h2 { margin-top: 6px; font-family: var(--font-display); font-size: clamp(28px, 3.2vw, 38px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.atlas-check-result-note { max-width: 60ch; margin-top: 8px; font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+.atlas-check-result-score { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; gap: 10px; }
+.atlas-check-result-score strong { font-family: var(--font-mono); font-size: 40px; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--color-fg); }
+.atlas-check-result-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin-top: 22px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-check-review-section { min-width: 0; }
+.atlas-check-review-title { padding-bottom: 12px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); font-family: var(--font-display); font-size: 22px; line-height: 1.2; font-weight: 600; letter-spacing: -.005em; }
+.atlas-check-review-list { margin-top: 8px; }
+.atlas-check-review { padding: 24px 0; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); overflow-wrap: anywhere; }
+.atlas-check-review:last-child { border-bottom: 0; }
+.atlas-check-review-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.atlas-check-review-position { font-family: var(--font-display); font-size: 12px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-check-review h3 { margin-top: 10px; font-family: var(--font-display); font-size: 20px; line-height: 1.25; font-weight: 600; }
+.atlas-check-review-answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 32px; margin-top: 16px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-check-review-answers dt { font-family: var(--font-display); font-size: 10px; line-height: 1.3; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-check-review-answers dd { margin-top: 4px; font-size: 14.5px; line-height: 24px; color: var(--color-fg); overflow-wrap: anywhere; }
+.atlas-check-explanation { max-width: 70ch; margin-top: 16px; padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+@media (max-width: 980px) {
+    .atlas-check-form { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+    .atlas-check-submit { position: static; }
+}
 @media (max-width: 900px) {
     .atlas-practice-modes { display: flex; gap: 4px; margin-right: auto; }
     .atlas-practice-modes [aria-pressed="true"] { color: var(--color-accent); border-bottom: 2px solid var(--color-accent); }
@@ -2666,6 +2722,15 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     .atlas-practice-workspace[data-mode="code"] .atlas-practice-output,
     .atlas-practice-workspace[data-mode="output"] .atlas-practice-code { display: none; }
 }
+@media (max-width: 640px) {
+    .atlas-check-prompt { font-size: 22px; line-height: 1.22; }
+    .atlas-check-option { gap: 12px; padding-inline: 8px 4px; }
+    .atlas-check-result { padding: 16px; }
+    .atlas-check-result-heading { flex-direction: column; }
+    .atlas-check-result-score { flex-direction: row; align-items: center; gap: 16px; }
+    .atlas-check-result-score strong { font-size: 32px; }
+    .atlas-check-review-answers { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
 @media (max-width: 480px) {
     .atlas-reading-title { font-size: 30px; line-height: 38px; }
     .atlas-reading-heading { padding-block: 16px 24px; margin-bottom: 32px; }
@@ -2673,8 +2738,6 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     .atlas-lesson-next-actions { align-items: stretch; flex-direction: column; }
     .atlas-practice-code, .atlas-practice-output { padding: 16px 0; }
     .atlas-practice-modes { width: 100%; }
-    .atlas-check-prompt { font-size: 22px; line-height: 32px; }
-    .atlas-check-option { padding-inline: 4px; gap: 12px; }
 }
 
 /* Mission Atlas workbench: task, working source, and non-authoritative output. */
@@ -2800,15 +2863,9 @@ body.student-ui .cq-workspace .cq-lesson-reading { flex: 1; overflow: auto; padd
 .cq-brief-entry-label { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); }
 .cq-brief-entry .atlas-stamp { border-width: 1.5px; padding: 3px 8px; }
 .cq-lesson-reading h2 { margin-top: 8px; font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); line-height: 1.06; font-weight: 600; letter-spacing: -.01em; color: var(--color-fg); overflow-wrap: anywhere; }
-.cq-brief-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 14px 0 18px; border-block: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
-.cq-brief-meta > div { min-width: 0; padding: 8px 12px 8px 0; }
-.cq-brief-meta > div + div { padding-left: 12px; border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
-.cq-brief-meta dt { font-family: var(--font-display); font-size: 10px; line-height: 1.3; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
-.cq-brief-meta dd { margin-top: 4px; font-size: 14.5px; font-weight: 500; color: var(--color-fg); overflow-wrap: anywhere; }
-.cq-brief-meta dd.cq-brief-meta-value { font-family: var(--font-mono); font-size: 13px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.cq-brief-facts { margin: 14px 0 18px; }
 .cq-lesson-context { overflow-wrap: anywhere; }
 .cq-lesson-reading h3 { margin: 24px 0 10px; font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
-.cq-lesson-example { max-width: 100%; overflow-x: auto; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 3px 3px 0 var(--cq-shadow); color: var(--color-fg); font: 400 13px / 1.7 var(--font-mono); }
 body.student-ui .cq-workspace .editor-pane { display: flex; flex: 1; min-height: 0; overflow: hidden; padding: 0; }
 .cq-code-pane #editor-host { flex: 1; min-width: 0; min-height: 0; height: 100%; }
 body.student-ui .cq-code-pane #editor-host .cm-editor { height: 100%; min-height: 0; font-size: 15px; background: var(--color-surface); }
