@@ -1,54 +1,82 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', 'Course Analytics')
+@section('title', 'Course analytics')
 
 @section('content')
-    <div class="teacher-operations">
-        <header class="teacher-context">
-            <div>
-                <h1>Course Analytics</h1>
-                <p>{{ $role === 'teacher' ? 'Classroom scope' : 'SYSTEM-WIDE' }} · Course evidence derived from recorded learning and assessments.</p>
-            </div>
-            <a href="{{ route('students') }}" class="btn-ghost">Student roster →</a>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Course analytics · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            <a href="{{ route('students') }}">Students →</a>
+        </div>
+
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Course evidence</span>
+            <h1 class="atlas-records-title">Course analytics</h1>
+            <p class="atlas-records-lede">Course evidence derived from recorded learning and assessments. Every figure counts the same students the course pages do.</p>
         </header>
-        @forelse ($courses as $course)
-            <section class="teacher-record-section" aria-labelledby="analytics-course-{{ $course['course']->id }}">
-                <header class="teacher-section-heading">
-                    <div><h2 id="analytics-course-{{ $course['course']->id }}">{{ strtoupper($course['course']->name) }}</h2><p class="teacher-state">COURSE {{ $course['course']->order_num }} · {{ strtoupper($course['course']->type) }} · STUDENTS {{ $course['engaged'] }}/{{ $course['fleet'] }}</p></div>
-                    @if ($role === 'teacher')
-                        <a href="{{ route('reports.teacher-course', $course['course']) }}" class="btn-ghost">VIEW COURSE REPORT →</a>
-                    @endif
-                </header>
-                <dl class="teacher-evidence-strip" aria-label="Course lifecycle">
-                    <div><dt>Completed</dt><dd>{{ $course['buckets']['completed'] }}</dd></div>
-                    <div><dt>In progress</dt><dd>{{ $course['buckets']['in_progress'] }}</dd></div>
-                    <div><dt>Boss ready</dt><dd>{{ $course['buckets']['assessment_ready'] }}</dd></div>
-                    <div><dt>Not started</dt><dd>{{ $course['buckets']['not_started'] }}</dd></div>
-                </dl>
-                <div class="teacher-analytics-evidence">
-                    <dl class="teacher-evidence-measures">
-                        <div><dt>Average challenge completion</dt><dd>{{ $course['avg_completion'] !== null ? $course['avg_completion'].'%' : 'No evidence' }}</dd></div>
-                        <div><dt>Boss Challenge pass rate</dt><dd>{{ $course['pass_rate'] !== null ? $course['pass_rate'].'%' : 'No evidence' }}</dd></div>
-                    </dl>
-                    @if ($course['engaged'] > 0)
-                        @php($bands = \App\Services\CourseAnalyticsService::DISTRIBUTION_BANDS)
-                        <div>
-                            <p class="teacher-note">{{ $course['engaged'] }} engaged students, grouped by completed challenges.</p>
-                            <table class="table-stack teacher-evidence-table" role="table">
-                                <caption>Completion distribution</caption>
-                                <thead><tr><th scope="col">Challenge completion</th><th scope="col">Students</th></tr></thead>
-                                <tbody>
-                                    @foreach ($course['distribution'] as $index => $count)
-                                        <tr><th scope="row" data-label="Challenge completion">{{ $bands[$index] }}%</th><td data-label="Students">{{ $count }}</td></tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
+
+        @if ($courses->isEmpty())
+            <section class="atlas-records-empty" aria-labelledby="empty-analytics-title">
+                <h2 id="empty-analytics-title" class="atlas-records-empty-title">No courses</h2>
+                <p class="atlas-records-empty-copy">No active course with missions is available to summarize.</p>
+                <a href="{{ route('students') }}" class="btn btn-ghost">Student roster →</a>
             </section>
-        @empty
-            <section class="teacher-empty"><h2>No courses</h2><p>No active course with missions is available to summarize.</p></section>
-        @endforelse
+        @else
+            <section class="atlas-record-group" aria-labelledby="course-evidence-title">
+                <div class="atlas-record-group-head">
+                    <h2 id="course-evidence-title" class="atlas-record-group-title">Course evidence</h2>
+                    <p class="atlas-record-group-figure">{{ $courses->count() }} {{ Str::plural('course', $courses->count()) }}</p>
+                </div>
+                <ol class="atlas-records-list">
+                    @foreach ($courses as $course)
+                        @php
+                            $bands = \App\Services\CourseAnalyticsService::DISTRIBUTION_BANDS;
+                            $peak = max($course['distribution'] ?: [0]);
+                        @endphp
+                        <li class="atlas-record-entry">
+                            <div class="atlas-record-entry-head">
+                                <h3 id="analytics-course-{{ $course['course']->id }}" class="atlas-record-entry-title">{{ $course['course']->name }}</h3>
+                                <p class="atlas-record-entry-figure">{{ $course['engaged'] }}/{{ $course['fleet'] }} students engaged</p>
+                            </div>
+                            <p class="atlas-record-meta">
+                                <span>Course {{ $course['course']->order_num }}</span>
+                                <span>{{ strtoupper($course['course']->type) }}</span>
+                            </p>
+                            <dl class="log-facts atlas-record-entry-facts" aria-label="Course lifecycle">
+                                <div><dt>Completed</dt><dd class="is-numeric">{{ $course['buckets']['completed'] }}</dd></div>
+                                <div><dt>In progress</dt><dd class="is-numeric">{{ $course['buckets']['in_progress'] }}</dd></div>
+                                <div><dt>Boss ready</dt><dd class="is-numeric">{{ $course['buckets']['assessment_ready'] }}</dd></div>
+                                <div><dt>Not started</dt><dd class="is-numeric">{{ $course['buckets']['not_started'] }}</dd></div>
+                            </dl>
+                            <dl class="log-facts atlas-record-entry-facts" aria-label="Course measures">
+                                <div><dt>Average challenge completion</dt><dd class="is-numeric">{{ $course['avg_completion'] !== null ? $course['avg_completion'].'%' : 'No evidence' }}</dd></div>
+                                <div><dt>Boss Challenge pass rate</dt><dd class="is-numeric">{{ $course['pass_rate'] !== null ? $course['pass_rate'].'%' : 'No evidence' }}</dd></div>
+                            </dl>
+                            @if ($course['engaged'] > 0)
+                                <div class="atlas-distribution">
+                                    <p class="atlas-record-entry-label">Completion distribution</p>
+                                    <ul class="atlas-distribution-list" aria-label="Completion distribution">
+                                        @foreach ($course['distribution'] as $index => $count)
+                                            <li class="atlas-distribution-row">
+                                                <span class="atlas-distribution-band">{{ $bands[$index] }}%</span>
+                                                <span class="atlas-distribution-bar"><span style="width: {{ $peak > 0 ? round($count / $peak * 100) : 0 }}%"></span></span>
+                                                <span class="atlas-distribution-count">{{ $count }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                    <p class="atlas-record-entry-note">{{ $course['engaged'] }} {{ Str::plural('engaged student', $course['engaged']) }}, grouped by completed challenges.</p>
+                                </div>
+                            @endif
+                            @if ($role === 'teacher')
+                                <div class="atlas-record-entry-actions">
+                                    <a href="{{ route('reports.teacher-course', $course['course']) }}" class="btn btn-secondary btn-sm">Course report →</a>
+                                </div>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
+                <p class="atlas-record-group-note">Engaged students are the students visible in this scope who have at least one recorded challenge event in the course.</p>
+            </section>
+        @endif
     </div>
 @endsection

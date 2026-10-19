@@ -103,16 +103,18 @@ class AttentionService
 
     /**
      * Display labels, keyed by signal. Indexes align with SIGNAL_PRIORITY.
+     * Sentence case: the attention queue and its notification carry the
+     * emphasis through layout, never through shouted copy.
      *
      * @var array<string, string>
      */
     public const SIGNAL_LABELS = [
-        'boss_fail' => 'BOSS CHALLENGE FAILED',
-        'repeat_fail' => 'REPEATED FAILURES',
-        'low_performance' => 'LOW PERFORMANCE',
-        'stalled' => 'STALLED',
-        'never_started' => 'NOT STARTED',
-        'inactive' => 'INACTIVE',
+        'boss_fail' => 'Boss Challenge failed',
+        'repeat_fail' => 'Repeated failures',
+        'low_performance' => 'Low performance',
+        'stalled' => 'Stalled',
+        'never_started' => 'Not started',
+        'inactive' => 'Inactive',
     ];
 
     /**

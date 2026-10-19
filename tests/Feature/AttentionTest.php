@@ -403,16 +403,16 @@ class AttentionTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('needs-attention'))
             ->assertOk()
-            ->assertSee('MO_FAILED')
-            ->assertSee('BOSS CHALLENGE FAILED')
-            ->assertSee('REPEATED FAILURES')
+            ->assertSee('mo_failed')
+            ->assertSee('Boss Challenge failed')
+            ->assertSee('Repeated failures')
             ->assertSee('Boss Challenge failed (score 40/100, attempt 2)')
             ->assertSee('Failed the Page challenge 2 times')
-            ->assertSee('MO_GONE')
-            ->assertSee('INACTIVE')
+            ->assertSee('mo_gone')
+            ->assertSee('Inactive')
             ->assertSee('No activity in 30 days')
-            ->assertSee('PRIMARY')
-            ->assertSee('OTHER SIGNALS');
+            ->assertSee('Primary ·')
+            ->assertSee('<span class="atlas-signal-label">Low performance</span>', false);
     }
 
     public function test_the_page_shows_the_empty_state_for_a_fresh_fleet(): void

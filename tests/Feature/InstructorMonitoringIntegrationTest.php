@@ -148,7 +148,7 @@ class InstructorMonitoringIntegrationTest extends TestCase
             $this->actingAs($teacher)->get(route('course-analytics'))->getContent(),
             'id="analytics-course-'.$alpha->id.'"',
         );
-        $this->assertStringContainsString('<dt>Completed</dt><dd>1</dd>', $alphaPanel);
+        $this->assertStringContainsString('<dt>Completed</dt><dd class="is-numeric">1</dd>', $alphaPanel);
         $this->assertStringContainsString('100%', $alphaPanel);
     }
 

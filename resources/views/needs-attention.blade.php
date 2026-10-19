@@ -1,46 +1,80 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', 'Needs Attention')
+@section('title', 'Needs attention')
 
 @section('content')
-    <div class="teacher-operations">
-        <header class="teacher-context">
-            <div>
-                <h1>Needs Attention</h1>
-                <p>{{ $role === 'teacher' ? 'Classroom scope' : 'SYSTEM-WIDE' }} · {{ $students->count() }} {{ Str::plural('student', $students->count()) }} with recorded signals.</p>
-                <p>Each signal has a named threshold and supporting evidence. These reasons are not grades or a composite score.</p>
-            </div>
-            <a href="{{ route('students') }}" class="btn-ghost">Student roster →</a>
-        </header>
-        <div class="teacher-attention-records">
-            @forelse ($students as $row)
-                <article class="teacher-attention-record" aria-labelledby="attention-student-{{ $row['student']->id }}">
-                    <header>
-                        <h2 id="attention-student-{{ $row['student']->id }}"><a href="{{ route('student-progress', $row['student']) }}">{{ strtoupper($row['student']->username) }}</a></h2>
-                        @if ($row['current_course'])
-                            <p>{{ $row['current_course']->name }}</p>
-                        @endif
-                        <p class="teacher-state">{{ count($row['signals']) }} SIGNAL{{ count($row['signals']) > 1 ? 'S' : '' }}</p>
-                    </header>
-                    <div>
-                        <p class="teacher-state text-warning">PRIMARY · {{ \App\Services\AttentionService::SIGNAL_LABELS[$row['primary']] }}</p>
-                        <p>{{ $row['reasons'][$row['primary']] }}</p>
-                        @if (count($row['signals']) > 1)
-                            <details>
-                                <summary>OTHER SIGNALS</summary>
-                                <ul class="teacher-record-list">
-                                    @foreach ($row['signals'] as $signal)
-                                        @continue($signal === $row['primary'])
-                                        <li><strong class="teacher-state">{{ \App\Services\AttentionService::SIGNAL_LABELS[$signal] }}</strong><span>{{ $row['reasons'][$signal] }}</span></li>
-                                    @endforeach
-                                </ul>
-                            </details>
-                        @endif
-                    </div>
-                </article>
-            @empty
-                <section class="teacher-empty"><h2>No signals</h2><p>No student currently triggers an attention signal in this scope.</p></section>
-            @endforelse
+    @php
+        $signalTotal = $students->sum(fn (array $row): int => count($row['signals']));
+        $newestSignal = $students
+            ->pluck('last_activity_at')
+            ->filter()
+            ->sortDesc()
+            ->first();
+    @endphp
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Attention queue · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            <a href="{{ route('students') }}">Students →</a>
         </div>
+
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Attention</span>
+            <h1 class="atlas-records-title">Needs attention</h1>
+            <p class="atlas-records-lede">Each signal has a named threshold and supporting evidence. These reasons are not grades or a composite score.</p>
+            <dl class="log-facts atlas-records-facts" aria-label="Attention scope">
+                <div><dt>Students flagged</dt><dd class="is-numeric">{{ $students->count() }}</dd></div>
+                <div><dt>Signals recorded</dt><dd class="is-numeric">{{ $signalTotal }}</dd></div>
+                <div><dt>Scope</dt><dd>{{ $role === 'teacher' ? 'Classroom' : 'Platform' }}</dd></div>
+                <div><dt>Newest signal</dt><dd>{{ $newestSignal !== null ? $newestSignal->diffForHumans() : '—' }}</dd></div>
+            </dl>
+        </header>
+
+        @if ($students->isEmpty())
+            <section class="atlas-records-empty" aria-labelledby="empty-attention-title">
+                <h2 id="empty-attention-title" class="atlas-records-empty-title">No signals</h2>
+                <p class="atlas-records-empty-copy">No student currently triggers an attention signal in this scope.</p>
+                <a href="{{ route('students') }}" class="btn btn-ghost">Student roster →</a>
+            </section>
+        @else
+            <section class="atlas-record-group" aria-labelledby="attention-queue-title">
+                <div class="atlas-record-group-head">
+                    <h2 id="attention-queue-title" class="atlas-record-group-title">Attention queue</h2>
+                    <p class="atlas-record-group-figure">{{ $students->count() }} {{ Str::plural('student', $students->count()) }}</p>
+                </div>
+                <ol class="atlas-records-list" aria-label="Students needing attention">
+                    @foreach ($students as $row)
+                        <li class="atlas-record-entry" data-signal="{{ $row['primary'] }}">
+                            <div class="atlas-record-entry-head">
+                                <h3 class="atlas-record-entry-title"><a href="{{ route('student-progress', $row['student']) }}">{{ $row['student']->username }}</a></h3>
+                                <p class="atlas-record-entry-figure">{{ count($row['signals']) }} {{ Str::plural('signal', count($row['signals'])) }}</p>
+                            </div>
+                            <p class="atlas-record-meta">
+                                @if ($row['current_course'])
+                                    <span>Course · {{ $row['current_course']->name }}</span>
+                                @endif
+                                <span>Last activity · {{ $row['last_activity_at'] !== null ? $row['last_activity_at']->diffForHumans() : 'None recorded' }}</span>
+                            </p>
+                            <ul class="atlas-signal-list">
+                                <li class="atlas-signal atlas-signal--primary">
+                                    <span class="atlas-signal-label">Primary · {{ \App\Services\AttentionService::SIGNAL_LABELS[$row['primary']] }}</span>
+                                    <span class="atlas-signal-copy">{{ $row['reasons'][$row['primary']] }}</span>
+                                </li>
+                                @foreach ($row['signals'] as $signal)
+                                    @continue($signal === $row['primary'])
+                                    <li class="atlas-signal">
+                                        <span class="atlas-signal-label">{{ \App\Services\AttentionService::SIGNAL_LABELS[$signal] }}</span>
+                                        <span class="atlas-signal-copy">{{ $row['reasons'][$signal] }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                            <div class="atlas-record-entry-actions">
+                                <a href="{{ route('student-progress', $row['student']) }}" class="btn btn-secondary btn-sm">Review student →</a>
+                            </div>
+                        </li>
+                    @endforeach
+                </ol>
+                <p class="atlas-record-group-note">A signal names a threshold that was crossed and the evidence behind it. It is not a grade, a rank, or a composite score.</p>
+            </section>
+        @endif
     </div>
 @endsection

@@ -21,7 +21,7 @@ class CourseAnalyticsTest extends TestCase
     use RefreshDatabase;
     use WithClassroomScope;
 
-    public function test_completion_distribution_has_named_columns(): void
+    public function test_completion_distribution_names_every_band(): void
     {
         $course = Course::factory()->create(['status' => 'active']);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
@@ -31,9 +31,9 @@ class CourseAnalyticsTest extends TestCase
         $this->classroomFor($teacher, [$student], [$course]);
 
         $this->actingAs($teacher)->get(route('course-analytics'))
-            ->assertSee('<caption>Completion distribution</caption>', false)
-            ->assertSee('<th scope="col">Challenge completion</th>', false)
-            ->assertSee('<th scope="col">Students</th>', false);
+            ->assertSee('<p class="atlas-record-entry-label">Completion distribution</p>', false)
+            ->assertSee('<ul class="atlas-distribution-list" aria-label="Completion distribution">', false)
+            ->assertSee('<span class="atlas-distribution-band">0-24%</span>', false);
     }
 
     public function test_course_analytics_requires_authentication(): void
@@ -196,18 +196,18 @@ class CourseAnalyticsTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('course-analytics'))
             ->assertOk()
-            ->assertSee('ALPHA ANALYTICS')
-            ->assertSee('STUDENTS 5/6')
-            ->assertSee('<dt>Completed</dt><dd>3</dd>', false)
-            ->assertSee('<dt>In progress</dt><dd>1</dd>', false)
-            ->assertSee('<dt>Boss ready</dt><dd>1</dd>', false)
-            ->assertSee('<dt>Not started</dt><dd>1</dd>', false)
+            ->assertSee('<h3 id="analytics-course-'.$alpha->id.'" class="atlas-record-entry-title">Alpha Analytics</h3>', false)
+            ->assertSee('5/6 students engaged')
+            ->assertSee('<dt>Completed</dt><dd class="is-numeric">3</dd>', false)
+            ->assertSee('<dt>In progress</dt><dd class="is-numeric">1</dd>', false)
+            ->assertSee('<dt>Boss ready</dt><dd class="is-numeric">1</dd>', false)
+            ->assertSee('<dt>Not started</dt><dd class="is-numeric">1</dd>', false)
             ->assertSee('Average challenge completion')
             ->assertSee('87%')
             ->assertSeeInOrder(['Boss Challenge pass rate', '75%'])
             ->assertSee('Completion distribution')
-            ->assertSee('0-24%')
-            ->assertSee('100%');
+            ->assertSee('<span class="atlas-distribution-band">0-24%</span>', false)
+            ->assertSee('<span class="atlas-distribution-band">100%</span>', false);
     }
 
     public function test_the_page_shows_the_empty_state_for_a_fresh_fleet(): void

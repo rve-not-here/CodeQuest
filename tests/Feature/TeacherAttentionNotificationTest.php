@@ -155,8 +155,8 @@ class TeacherAttentionNotificationTest extends TestCase
 
         $this->assertSame('teacher_attention', $row->type);
         $this->assertNull($row->dedupe_key);
-        $this->assertSame('ALICE NEEDS ATTENTION', $row->title);
-        $this->assertSame('BOSS CHALLENGE FAILED: Boss Challenge failed (score 40/100, attempt 1)', $row->message);
+        $this->assertSame('alice needs attention', $row->title);
+        $this->assertSame('Boss Challenge failed (score 40/100, attempt 1)', $row->message);
         $this->assertSame([
             'route' => 'needs-attention',
             'params' => [],
@@ -170,7 +170,7 @@ class TeacherAttentionNotificationTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('notifications'))
             ->assertOk()
-            ->assertSee('ALICE NEEDS ATTENTION')
+            ->assertSee('alice needs attention')
             ->assertSee('Boss Challenge failed (score 40/100, attempt 1)')
             ->assertSee(route('needs-attention'));
 
@@ -197,7 +197,7 @@ class TeacherAttentionNotificationTest extends TestCase
             $this->actingAs($student)
                 ->get(route('notifications'))
                 ->assertOk()
-                ->assertDontSee('NEEDS ATTENTION')
+                ->assertDontSee('needs attention')
                 ->assertDontSee('boss_fail')
                 ->assertSee('Inbox empty');
         }

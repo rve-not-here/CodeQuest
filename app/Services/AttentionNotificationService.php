@@ -113,14 +113,21 @@ class AttentionNotificationService
     private function createFor(User $teacher, array $row, array $signals): void
     {
         $student = $row['student'];
-        $label = AttentionService::SIGNAL_LABELS[$row['primary']] ?? strtoupper($row['primary']);
+        $label = AttentionService::SIGNAL_LABELS[$row['primary']] ?? ucfirst($row['primary']);
         $reason = $row['reasons'][$row['primary']] ?? '';
+        // The title already names the student; the message carries the signal
+        // label only when the evidence does not already open with it.
+        $message = match (true) {
+            $reason === '' => $label,
+            str_starts_with($reason, $label) => $reason,
+            default => $label.' — '.$reason,
+        };
 
         $this->notifications->create(
             $teacher,
             NotificationService::TYPE_TEACHER_ATTENTION,
-            strtoupper($student->username).' NEEDS ATTENTION',
-            "{$label}: {$reason}",
+            $student->username.' needs attention',
+            $message,
             null,
             NotificationService::payload(
                 'needs-attention',
