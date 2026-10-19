@@ -108,7 +108,7 @@
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <h3 class="text-[15px] font-medium">{{ $check->title }}</h3>
-                                            <span class="badge {{ $check->is_required ? 'badge-warning' : 'badge-neutral' }}">{{ $check->is_required ? 'Required' : 'Optional' }}</span>
+                                            <span class="atlas-stamp {{ $check->is_required ? 'atlas-stamp--amb' : 'atlas-stamp--ink' }}">{{ $check->is_required ? 'Required' : 'Optional' }}</span>
                                         </div>
                                         <p class="mt-1 text-xs leading-5 text-fg-subtle">
                                             {{ $summary['questionCount'] }} {{ Str::plural('question', $summary['questionCount']) }}
