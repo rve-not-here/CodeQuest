@@ -32,7 +32,7 @@
                 @endisset
             @endif
             <details class="atlas-disclosure atlas-mobile" data-shell-disclosure data-navigation-disclosure>
-                <summary aria-label="Open navigation menu">Menu <span aria-hidden="true">≡</span></summary>
+                <summary aria-label="Open navigation menu"><span class="atlas-mobile-label">Menu</span> <span aria-hidden="true">≡</span></summary>
                 <nav class="atlas-popover atlas-mobile-links" aria-label="Mobile navigation">
                     @foreach ($topItems as $item)
                         <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif>{{ $item['label'] }}</a>

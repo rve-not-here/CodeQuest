@@ -194,7 +194,7 @@ class LearningPathRecommendationsTest extends TestCase
         $this->actingAs($user)
             ->get(route('learning-path'))
             ->assertOk()
-            ->assertSee('START CHALLENGE')
+            ->assertSee('Start challenge')
             ->assertSee(route('assessment.show', $assessment));
 
         $this->actingAs($user)

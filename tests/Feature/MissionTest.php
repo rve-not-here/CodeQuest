@@ -98,14 +98,14 @@ class MissionTest extends TestCase
             ->get(route('mission.challenge', $mission))
             ->assertOk()
             ->assertSee($mission->title)
-            ->assertSee('BACK TO LESSON')
+            ->assertSee('Back to lesson')
             ->assertSee('Submit challenge')
             ->assertSee('Run')
             ->assertSee('Save draft')
             ->assertSee('Assistance')
-            ->assertSee('SHOW SOLUTION')
+            ->assertSee('Show solution')
             ->assertSee('Draft:')
-            ->assertDontSee('NEXT CHALLENGE')
+            ->assertDontSee('Next challenge')
             ->assertDontSee('NEW DRAFT')
             ->assertDontSee('data-open', false);
     }
@@ -296,9 +296,9 @@ class MissionTest extends TestCase
             ->assertSee('0% → 50%')
             ->assertSee('Achievement unlocked')
             ->assertSee('First Challenge')
-            ->assertSee('NEXT CHALLENGE')
+            ->assertSee('Next challenge')
             ->assertSee('href="'.route('mission.show', $nextMission).'"', false)
-            ->assertDontSee('REVIEW LEARNING PATH');
+            ->assertDontSee('Review learning path');
     }
 
     public function test_completing_the_last_mission_returns_to_the_learning_path_for_the_boss_gate(): void
@@ -313,9 +313,9 @@ class MissionTest extends TestCase
             ->followingRedirects()
             ->post(route('mission.submit', $mission), ['code' => 'anything'])
             ->assertOk()
-            ->assertSee('REVIEW LEARNING PATH')
+            ->assertSee('Review learning path')
             ->assertSee('href="'.route('learning-path').'"', false)
-            ->assertDontSee('NEXT CHALLENGE');
+            ->assertDontSee('Next challenge');
     }
 
     public function test_failed_submission_keeps_the_student_in_the_workspace_without_completion_controls(): void
@@ -334,7 +334,7 @@ class MissionTest extends TestCase
             ->assertSee('Code editor')
             ->assertDontSee('class="completion-overlay"', false)
             ->assertDontSee('CONTINUE TO LEARNING PATH')
-            ->assertDontSee('NEXT CHALLENGE');
+            ->assertDontSee('Next challenge');
     }
 
     public function test_mission_submit_wrong_code_deducts_xp(): void

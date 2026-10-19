@@ -125,8 +125,8 @@ class MissionController extends Controller
                         ? route('mission.show', $nextMission)
                         : route('learning-path'),
                     'next_label' => $nextMission !== null
-                        ? 'NEXT CHALLENGE'
-                        : 'REVIEW LEARNING PATH',
+                        ? 'Next challenge'
+                        : 'Review learning path',
                 ]);
         }
 

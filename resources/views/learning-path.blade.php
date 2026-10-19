@@ -138,7 +138,7 @@
                             <h3 id="boss-{{ $pathCourse->id }}-title">{{ $boss['assessment']?->title ?? 'Boss Challenge' }}</h3>
                             <p class="atlas-path-note">{{ $boss['reason'] }}</p>
                             @if ($boss['assessment'] !== null && $boss['accessible'])
-                                <a href="{{ route('assessment.show', $boss['assessment']) }}" class="btn btn-secondary">{{ $boss['state'] === 'PASSED' ? 'Review challenge' : 'START CHALLENGE' }} →</a>
+                                <a href="{{ route('assessment.show', $boss['assessment']) }}" class="btn btn-secondary">{{ $boss['state'] === 'PASSED' ? 'Review challenge' : 'Start challenge' }} →</a>
                             @endif
                         </section>
                     </div>

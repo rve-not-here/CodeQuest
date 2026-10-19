@@ -27,7 +27,7 @@ class WorkspaceControlsTest extends TestCase
             ->assertSee('data-pane-toggle="editor"', false)
             ->assertSee('Reset panes')
             ->assertSee('aria-label="Challenge actions"', false)
-            ->assertSee('Lesson context')->assertSee('Code')->assertSee('Preview')
+            ->assertSee('Difficulty')->assertSee('Reward')->assertSee('Code')->assertSee('Preview')
             ->assertSee('data-challenge-confirm', false)
             ->assertDontSee('>Save draft</button>', false);
         $this->assertSame('<h1>Saved draft</h1>', $draft->fresh()->code);

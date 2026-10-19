@@ -46,8 +46,9 @@
                     <summary aria-label="Workspace options" title="Workspace options"><x-workspace-icon name="sliders-horizontal" /></summary>
                     <div class="cq-workspace-menu">
                         <p class="cq-workspace-context">{{ $mission->title }}@if ($course)<span>{{ $course->name }}@if ($section) · {{ $section->title }}@endif</span>@endif</p>
-                        <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP @if ($completed) · Complete @endif</p>
-                        <p id="draft-status" class="challenge-draft-status" aria-live="polite">Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
+                        <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
+                        @if ($completed)<p class="cq-workspace-state"><span class="atlas-stamp atlas-stamp--grn">Completed</span></p>@endif
+                        <p id="draft-status" class="challenge-draft-status" data-state="{{ session('draft_saved') || $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
                         @if (! $completed)<p class="cq-workspace-help">Save draft: <kbd>Ctrl/⌘ + S</kbd> within the workspace.</p>@endif
                         <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-icon="closed"><x-workspace-icon name="panel-left-close" /></span><span data-workspace-hide-icon="open" hidden><x-workspace-icon name="panel-left-open" /></span><span data-workspace-hide-label>Hide instructions</span></button>
                         <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="340" data-workspace-width></label>
@@ -58,9 +59,23 @@
                 </details>
             </header>
             <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-title" tabindex="0">
-                <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="BACK TO LESSON"><x-workspace-icon name="arrow-left" />Back to lesson</a></header>
+                <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="Back to lesson"><x-workspace-icon name="arrow-left" />Back to lesson</a></header>
                 <div class="challenge-pane-body cq-lesson-reading">
-                    <div class="flex items-center gap-3 flex-wrap"><h2 id="instructions-title">Lesson context</h2></div>
+                    <div class="cq-brief-entry">
+                        <span class="cq-brief-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge</span>
+                        @if ($completed)<span class="atlas-stamp atlas-stamp--grn">Completed</span>@endif
+                    </div>
+                    <h2 id="instructions-title">{{ $mission->title }}</h2>
+                    <dl class="cq-brief-meta">
+                        <div>
+                            <dt>Difficulty</dt>
+                            <dd>{{ $mission->difficulty }}</dd>
+                        </div>
+                        <div>
+                            <dt>Reward</dt>
+                            <dd class="cq-brief-meta-value">+{{ $mission->points }} XP</dd>
+                        </div>
+                    </dl>
                     @if ($mission->description)<div class="cq-lesson-context whitespace-pre-line">{{ $mission->description }}</div>@else<p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>@endif
                     @if ($mission->target_html)
                         <h3>Example</h3>
@@ -90,42 +105,42 @@
         </x-student-toast>
     @endif
     @if (session('hint_error') && session('mission_error') === null)
-        <x-student-toast type="error" title="INSUFFICIENT XP">
+        <x-student-toast type="error" title="Insufficient XP">
             Hint costs {{ session('hint_error')['cost'] }} XP. Your balance is {{ session('hint_error')['balance'] }}.
         </x-student-toast>
     @endif
     @if (session('reveal_error') && session('mission_error') === null)
-        <x-student-toast type="error" title="INSUFFICIENT XP">
+        <x-student-toast type="error" title="Insufficient XP">
             Solution reveal costs {{ session('reveal_error')['cost'] }} XP. Your balance is {{ session('reveal_error')['balance'] }}.
         </x-student-toast>
     @endif
     @if (session('hint_revealed'))
-        <x-student-toast type="warning" title="HINT {{ session('hint_revealed') }} REVEALED">
+        <x-student-toast type="warning" title="Hint {{ session('hint_revealed') }} revealed">
             Open View hints to read it.
         </x-student-toast>
     @endif
     @if (session('hint_flat'))
-        <x-student-toast type="info" title="NO HINTS REMAINING">
+        <x-student-toast type="info" title="No hints remaining">
             All hints revealed or no hints available.
         </x-student-toast>
     @endif
     @if (session('reveal_flat'))
-        <x-student-toast type="info" title="NOT NEEDED">
+        <x-student-toast type="info" title="Not needed">
             No solution is available, or this challenge is already complete.
         </x-student-toast>
     @endif
     @if (session('solution_revealed'))
-        <x-student-toast type="warning" title="SOLUTION REVEALED">
+        <x-student-toast type="warning" title="Solution revealed">
             The reference solution has been loaded.
         </x-student-toast>
     @endif
     @if (session('draft_saved'))
-        <x-student-toast type="success" title="DRAFT SAVED">
+        <x-student-toast type="success" title="Draft saved">
             Your code is ready when you return.
         </x-student-toast>
     @endif
     @if ($errors->any())
-        <x-student-toast type="error" title="CHECK YOUR CODE">
+        <x-student-toast type="error" title="Check your code">
             {{ $errors->first() }}
         </x-student-toast>
     @endif
@@ -151,11 +166,11 @@
             <dialog class="cq-assistance" data-challenge-assistance aria-labelledby="assistance-title">
                 <header><h2 id="assistance-title">Assistance</h2><form method="dialog"><button type="submit" class="btn btn-ghost" autofocus>Close</button></form></header>
                 @if ($hints)
-                    <div class="challenge-hints">@foreach ($hints as $index => $hintText)<x-status-message type="warning" title="HINT {{ $index + 1 }}">{{ $hintText }}</x-status-message>@endforeach</div>
+                    <div class="challenge-hints">@foreach ($hints as $index => $hintText)<x-status-message type="warning" title="Hint {{ $index + 1 }}">{{ $hintText }}</x-status-message>@endforeach</div>
                 @else<p>No hints have been revealed.</p>@endif
                 @if (! $completed && $hasSolution)
                     <form method="POST" action="{{ route('mission.reveal', $mission) }}" data-challenge-action="reveal" data-confirm-title="Reveal reference solution?" data-confirm-copy="Revealing the reference solution costs {{ $revealCost }} XP." data-confirm-label="Reveal solution">
-                        @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">SHOW SOLUTION · {{ $revealCost }} XP</button>
+                        @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">Show solution · {{ $revealCost }} XP</button>
                     </form>
                 @endif
             </dialog>
@@ -172,7 +187,10 @@
                 data-completion-dialog
                 tabindex="-1"
             >
-                <h2 id="completion-title">Challenge complete</h2>
+                <div class="completion-heading">
+                    <h2 id="completion-title">Challenge complete</h2>
+                    <span class="atlas-stamp atlas-stamp--grn">Passed</span>
+                </div>
                 <p id="completion-summary" class="completion-summary">
                     {{ $mission->title }} passed server validation. Your progress is recorded.
                 </p>
@@ -180,11 +198,11 @@
                 <dl class="completion-results">
                     <div>
                         <dt>Validation</dt>
-                        <dd class="text-accent">Passed</dd>
+                        <dd class="text-success">Passed</dd>
                     </div>
                     <div>
                         <dt>XP earned</dt>
-                        <dd class="text-accent">+{{ $completion['xp_awarded'] }}</dd>
+                        <dd class="text-success">+{{ $completion['xp_awarded'] }}</dd>
                     </div>
                     <div>
                         <dt>Total XP</dt>
@@ -207,7 +225,7 @@
 
                 <div class="completion-actions">
                     <a href="{{ $completion['next_url'] }}" class="btn btn-primary" data-completion-primary>{{ $completion['next_label'] }} →</a>
-                    <button type="button" class="btn btn-ghost" data-completion-close>REVIEW CODE</button>
+                    <button type="button" class="btn btn-ghost" data-completion-close>Review code</button>
                 </div>
             </section>
         </div>
@@ -233,6 +251,12 @@
             var draftStatus = document.querySelector('#draft-status span');
             var draftForm = document.getElementById('draft-form');
             var completionOverlay = document.querySelector('[data-completion-overlay]');
+
+            function setDraftState(state, text) {
+                if (!draftStatus) return;
+                draftStatus.textContent = text;
+                document.getElementById('draft-status')?.setAttribute('data-state', state);
+            }
 
             function syncPayloads(editor) {
                 var value = editor.state.doc.toString();
@@ -265,7 +289,7 @@
                         CM.EditorView.updateListener.of(function (u) {
                             if (u.docChanged) {
                                 syncPayloads(view);
-                                if (draftStatus && draftStatus.textContent !== 'Unsaved changes') draftStatus.textContent = 'Unsaved changes';
+                                if (draftStatus && draftStatus.textContent !== 'Unsaved changes') setDraftState('dirty', 'Unsaved changes');
                                 var previewState = document.querySelector('[data-preview-state]');
                                 if (previewState) previewState.textContent = 'Source changed. Run to update.';
                             }
@@ -326,7 +350,7 @@
 
                 document.addEventListener('cq:workspace-layout', function () { view.requestMeasure(); });
                 draftForm?.addEventListener('submit', function () {
-                    if (draftStatus) draftStatus.textContent = 'Saving...';
+                    setDraftState('saving', 'Saving...');
                 });
 
                 var assistanceDialog = document.querySelector('[data-challenge-assistance]');

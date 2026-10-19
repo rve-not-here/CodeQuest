@@ -554,14 +554,14 @@
 /* ── APPLICATION SHELL ───────────────────────────────────── */
 .cq-topnav,
 .cq-sidebar {
-    background: rgba(4, 8, 6, 0.98);
-    border-color: rgba(30, 79, 216, 0.2);
+    background: var(--cq-ground);
+    border-color: color-mix(in srgb, var(--cq-ink) 20%, transparent);
 }
 
 
 
 .cq-sidebar {
-    border-right: 1px solid rgba(30, 79, 216, 0.24);
+    border-right: 1px solid color-mix(in srgb, var(--cq-ink) 24%, transparent);
     box-shadow: 18px 0 40px rgba(0, 0, 0, 0.4);
 }
 
@@ -616,11 +616,11 @@
 .cq-nav-heading {
     margin: 1.35rem 0 0.35rem;
     padding: 0 0.75rem;
-    color: #74827a;
-    font-family: var(--font-code);
+    color: color-mix(in srgb, var(--cq-ink) 70%, transparent);
+    font-family: var(--font-display);
     font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    font-weight: 600;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
@@ -641,8 +641,8 @@
 }
 
 .cq-side-link:hover {
-    border-left-color: rgba(30, 79, 216, 0.4);
-    background: rgba(30, 79, 216, 0.045);
+    border-left-color: var(--cq-accent);
+    background: color-mix(in srgb, var(--cq-ink) 5%, transparent);
     color: var(--color-ink);
 }
 
@@ -827,7 +827,8 @@ main:has(.challenge-workspace) {
 .workspace-separator {
     cursor: col-resize;
     touch-action: none;
-    background: var(--color-line);
+    background: transparent;
+    border-inline: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
 }
 
 .workspace-separator:focus-visible {
@@ -847,7 +848,7 @@ main:has(.challenge-workspace) {
 }
 
 .challenge-pane + .challenge-pane {
-    border-left: 1px solid rgba(30, 79, 216, 0.18);
+    border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
 }
 
 
@@ -859,7 +860,7 @@ main:has(.challenge-workspace) {
 }
 
 .challenge-draft-status span {
-    color: var(--color-cyan);
+    color: var(--color-fg-muted);
 }
 
 .challenge-pane-body {
@@ -943,7 +944,7 @@ main:has(.challenge-workspace) {
     display: grid;
     place-items: center;
     overflow-y: auto;
-    background: rgba(0, 0, 0, 0.84);
+    background: rgba(0, 0, 0, 0.66);
     padding: 1rem;
     overscroll-behavior: contain;
 }
@@ -952,20 +953,32 @@ main:has(.challenge-workspace) {
     overflow: hidden;
 }
 
+/* The grade report is a pasted sheet: ink edge, hard offset shadow, no glow. */
 .completion-dialog {
     width: min(35rem, 100%);
-    border: 1px solid rgba(30, 79, 216, 0.7);
-    background: var(--color-panel);
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 32px rgba(30, 79, 216, 0.09);
+    border: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent);
+    border-radius: 2px;
+    background: var(--cq-sheet);
+    box-shadow: 8px 8px 0 var(--cq-ink-shadow);
     padding: clamp(1.25rem, 4vw, 2rem);
 }
 
+.completion-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+}
+
 .completion-dialog h2 {
-    margin-top: 0.45rem;
+    margin: 0;
     color: var(--color-ink);
-    font-size: clamp(1.6rem, 5vw, 2.35rem);
-    font-weight: 700;
-    letter-spacing: -0.035em;
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.05;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 .completion-summary {
@@ -977,7 +990,7 @@ main:has(.challenge-workspace) {
 
 .completion-results {
     margin-top: 1.25rem;
-    border-block: 1px solid rgba(30, 79, 216, 0.18);
+    border-block: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent);
     padding-block: 0.35rem;
 }
 
@@ -986,7 +999,7 @@ main:has(.challenge-workspace) {
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 1px solid rgba(30, 79, 216, 0.08);
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
     padding-block: 0.65rem;
 }
 
@@ -995,14 +1008,18 @@ main:has(.challenge-workspace) {
 }
 
 .completion-results dt {
-    color: var(--color-static);
-    font-size: 0.75rem;
-    letter-spacing: normal;
+    color: color-mix(in srgb, var(--cq-ink) 70%, transparent);
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
 }
 
 .completion-results dd {
     color: var(--color-ink);
-    font-weight: 700;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
     text-align: right;
 }
 
@@ -1010,16 +1027,19 @@ main:has(.challenge-workspace) {
     display: grid;
     gap: 0.2rem;
     margin-top: 1rem;
-    border: 1px solid rgba(255, 176, 0, 0.4);
-    background: rgba(255, 176, 0, 0.06);
+    border: 1px solid color-mix(in srgb, var(--color-warning) 40%, transparent);
+    border-radius: 2px;
+    background: var(--color-warning-soft);
     padding: 0.8rem;
 }
 
 .completion-achievement span {
-    color: var(--color-amber);
+    color: var(--color-warning);
+    font-family: var(--font-display);
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: normal;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
 .completion-achievement strong {
@@ -1051,11 +1071,11 @@ main:has(.challenge-workspace) {
 
     .challenge-pane {
         min-height: 23rem;
-        border: 1px solid rgba(30, 79, 216, 0.2);
+        border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
     }
 
     .challenge-pane + .challenge-pane {
-        border-left: 1px solid rgba(30, 79, 216, 0.2);
+        border-left: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
     }
 
     .challenge-pane:first-child {
@@ -1264,12 +1284,13 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
     .atlas-shell-actions { gap: 4px; }
     .atlas-brand { gap: 8px; font-size: 1rem; }
     .atlas-mark { width: 26px; }
-    .atlas-account-label, .atlas-xp { display: none; }
+    .atlas-account-label, .atlas-xp, .atlas-mobile-label { display: none; }
+    .cq-account-menu summary > span[aria-hidden="true"]:last-child { display: none; }
+    .atlas-theme button { padding-inline: 7px; }
     .atlas-account { position: fixed; top: 72px; right: 16px; }
 }
-@media (max-width: 359.9px) {
-    .atlas-mark { display: none; }
-    .atlas-shell-actions { gap: 0; }
+@media (max-width: 379.9px) {
+    .atlas-brand > span:last-child { display: none; }
 }
 
 /* Teacher landing: scoped context, course evidence, and a semantic roster. */
@@ -2092,12 +2113,12 @@ body.student-ui .student-toast {
     border: 1px solid var(--color-line-strong);
     border-radius: 2px;
     background: var(--color-overlay);
-    box-shadow: none;
+    box-shadow: 3px 3px 0 var(--cq-shadow);
     color: var(--color-fg);
     pointer-events: auto;
 }
 
-body.student-ui .student-toast--success { --student-toast-tone: var(--color-accent); }
+body.student-ui .student-toast--success { --student-toast-tone: var(--color-success); }
 body.student-ui .student-toast--warning { --student-toast-tone: var(--color-warning); }
 body.student-ui .student-toast--error { --student-toast-tone: var(--color-danger); }
 
@@ -2122,9 +2143,10 @@ body.student-ui .student-toast-copy {
 
 body.student-ui .student-toast-copy strong {
     color: var(--student-toast-tone);
-    font-size: 0.69rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
 }
 
 body.student-ui .student-toast-close {
@@ -2259,13 +2281,17 @@ body.student-ui .challenge-pane-body.is-frame {
 }
 
 body.student-ui .completion-dialog {
-    border-color: var(--color-accent-line);
-    border-radius: var(--radius-sm);
-    background: var(--color-surface);
-    box-shadow: 0 24px 64px rgb(0 0 0 / 0.6);
+    border-color: color-mix(in srgb, var(--cq-ink) 25%, transparent);
+    border-radius: 2px;
+    background: var(--cq-sheet);
+    box-shadow: 8px 8px 0 var(--cq-ink-shadow);
 }
 
-body.student-ui .completion-dialog h2,
+body.student-ui .completion-dialog h2 {
+    font-family: var(--font-display);
+    text-transform: none;
+}
+
 body.student-ui .completion-results dd,
 body.student-ui .completion-achievement strong {
     color: var(--color-fg);
@@ -2273,13 +2299,15 @@ body.student-ui .completion-achievement strong {
     text-transform: none;
 }
 
-body.student-ui .completion-results,
-body.student-ui .completion-results div {
-    border-color: var(--color-line);
+body.student-ui .completion-results {
+    border-color: color-mix(in srgb, var(--cq-ink) 25%, transparent);
 }
 
-body.student-ui .completion-summary,
-body.student-ui .completion-results dt {
+body.student-ui .completion-results div {
+    border-color: color-mix(in srgb, var(--cq-ink) 16%, transparent);
+}
+
+body.student-ui .completion-summary {
     color: var(--color-fg-muted);
 }
 
@@ -2755,33 +2783,43 @@ body.student-ui:has(.cq-challenge) .atlas-mark { width: 28px; height: 26px; }
 body.student-ui .cq-workspace[data-workspace] { display: grid; grid-template-columns: var(--brief-width, 340px) var(--brief-handle, 8px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; padding: 0; gap: 0; }
 .cq-workspace [hidden] { display: none !important; }
 body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 0; border: 0; }
-.cq-workspace-heading { grid-column: 3; grid-row: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; padding: 8px 12px; border-bottom: 1px solid var(--color-line); background: var(--color-surface); }
+.cq-workspace-heading { grid-column: 3; grid-row: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; padding: 8px 12px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--color-surface); }
 body.student-ui .cq-workspace-tabs { display: flex; align-items: stretch; margin-right: auto; }
-body.student-ui .cq-workspace-tabs [data-pane-toggle] { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 4px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--color-fg-muted); font-size: 13px; line-height: 22px; cursor: pointer; white-space: nowrap; }
+body.student-ui .cq-workspace-tabs [data-pane-toggle] { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 4px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .14em; line-height: 22px; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
 body.student-ui .cq-workspace-tabs [data-pane-toggle][aria-selected="true"] { border-color: var(--color-accent); color: var(--color-fg); background: transparent; }
 body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color-accent); }
 .cq-workspace .cq-instructions { grid-column: 1; grid-row: 1 / 3; }
 .cq-workspace .cq-code-pane, .cq-workspace .cq-preview-pane { grid-column: 3; grid-row: 2; }
 .cq-workspace .workspace-separator { grid-column: 2; grid-row: 1 / 3; }
-.cq-instructions-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 16px; border-bottom: 1px solid var(--color-line); background: var(--color-surface); }
-.cq-instructions-heading > span { font-size: 13px; font-weight: 600; }
-.cq-back-to-lesson { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: var(--color-fg-muted); font-size: 12px; white-space: nowrap; }
-.cq-back-to-lesson:hover { color: var(--color-accent); }
+.cq-instructions-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--color-surface); }
+.cq-instructions-heading > span { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-back-to-lesson { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-family: var(--font-display); font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--cq-ink) 50%, transparent); text-underline-offset: 4px; white-space: nowrap; }
+.cq-back-to-lesson:hover { color: var(--color-accent); text-decoration-color: var(--color-accent); }
 body.student-ui .cq-workspace .cq-lesson-reading { flex: 1; overflow: auto; padding: 20px 22px; font-size: 15px; line-height: 26px; }
-.cq-lesson-reading h2 { margin-bottom: 16px; font-size: 18px; line-height: 26px; font-weight: 600; }
+.cq-brief-entry { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }
+.cq-brief-entry-label { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); }
+.cq-brief-entry .atlas-stamp { border-width: 1.5px; padding: 3px 8px; }
+.cq-lesson-reading h2 { margin-top: 8px; font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); line-height: 1.06; font-weight: 600; letter-spacing: -.01em; color: var(--color-fg); overflow-wrap: anywhere; }
+.cq-brief-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 14px 0 18px; border-block: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.cq-brief-meta > div { min-width: 0; padding: 8px 12px 8px 0; }
+.cq-brief-meta > div + div { padding-left: 12px; border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.cq-brief-meta dt { font-family: var(--font-display); font-size: 10px; line-height: 1.3; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-brief-meta dd { margin-top: 4px; font-size: 14.5px; font-weight: 500; color: var(--color-fg); overflow-wrap: anywhere; }
+.cq-brief-meta dd.cq-brief-meta-value { font-family: var(--font-mono); font-size: 13px; font-weight: 400; font-variant-numeric: tabular-nums; }
 .cq-lesson-context { overflow-wrap: anywhere; }
-.cq-lesson-reading h3 { margin: 24px 0 10px; font-size: 16px; line-height: 24px; font-weight: 600; }
-.cq-lesson-example { max-width: 100%; overflow-x: auto; padding: 12px; border: 1px solid var(--color-line); background: var(--color-surface); font: 400 13px / 22px var(--font-mono); }
+.cq-lesson-reading h3 { margin: 24px 0 10px; font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-lesson-example { max-width: 100%; overflow-x: auto; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 3px 3px 0 var(--cq-shadow); color: var(--color-fg); font: 400 13px / 1.7 var(--font-mono); }
 body.student-ui .cq-workspace .editor-pane { display: flex; flex: 1; min-height: 0; overflow: hidden; padding: 0; }
 .cq-code-pane #editor-host { flex: 1; min-width: 0; min-height: 0; height: 100%; }
 body.student-ui .cq-code-pane #editor-host .cm-editor { height: 100%; min-height: 0; font-size: 15px; background: var(--color-surface); }
 .cq-code-pane .cm-scroller { font-family: var(--font-mono); }
-body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0; padding: 0; border: 1px solid var(--color-line-strong); }
+body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0; padding: 0; border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); }
 /* The preview is the student's own render, so its white ground is truthful and is never
    darkened. It is bounded as a sheet instead: edge, inset and label make it read as a page
    resting on the terminal rather than a hole cut through it. */
 .cq-preview-pane iframe { flex: 1; width: 100%; height: 100%; min-height: 0; background: white; box-shadow: inset 0 0 0 1px var(--color-line-strong); }
-.cq-preview-note { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--color-line); color: var(--color-fg-muted); font-size: 12px; line-height: 20px; }
+.cq-preview-note { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-size: 12px; line-height: 20px; }
+.cq-preview-note [data-preview-state] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .cq-workspace-actions, .cq-help-actions, .cq-evaluation-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .cq-workspace-actions { gap: 12px; }
 .cq-workspace-actions form { display: flex; margin: 0; }
@@ -2791,21 +2829,26 @@ body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0;
 .cq-workspace-options > summary { display: grid; place-items: center; width: 32px; min-height: 32px; border: 1px solid transparent; border-radius: 2px; color: var(--color-fg-muted); list-style: none; cursor: pointer; }
 .cq-workspace-options > summary::-webkit-details-marker { display: none; }
 .cq-workspace-options[open] > summary, .cq-workspace-options > summary:hover { border-color: var(--color-line-strong); color: var(--color-fg); }
-.cq-workspace-menu { position: absolute; z-index: 50; top: calc(100% + 8px); right: 0; width: 280px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 148px); overflow: auto; padding: 12px; border: 1px solid var(--color-line-strong); background: var(--color-overlay); }
+.cq-workspace-menu { position: absolute; z-index: 50; top: calc(100% + 8px); right: 0; width: 280px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 148px); overflow: auto; padding: 12px; border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
 .cq-workspace-menu > .btn { width: 100%; justify-content: flex-start; white-space: normal; }
 .cq-workspace-context { font-size: 14px; overflow-wrap: anywhere; }
 .cq-workspace-context > span { display: block; margin-top: 4px; color: var(--color-fg-muted); font-size: 12px; }
 .cq-workspace-metadata, .cq-workspace-help, .cq-workspace-menu #draft-status { margin-block: 8px; color: var(--color-fg-muted); font-size: 12px; line-height: 20px; }
+.cq-workspace-help kbd { display: inline-block; padding: 1px 5px; border: 1px solid color-mix(in srgb, var(--cq-ink) 30%, transparent); border-radius: 2px; background: var(--cq-raised); font-size: 11px; }
+.cq-workspace-state { margin-block: 8px; }
+body.student-ui .challenge-draft-status[data-state="saved"] span { color: var(--color-info); font-weight: 600; }
+body.student-ui .challenge-draft-status[data-state="dirty"] span { color: var(--color-warning); font-weight: 600; }
+body.student-ui .challenge-draft-status[data-state="saving"] span { color: var(--color-fg); }
 .cq-workspace-width { display: grid; gap: 4px; padding: 12px 8px; border-block: 1px solid var(--color-line); font-size: 12px; }
 .cq-workspace-width input { min-width: 0; width: 100%; min-height: 44px; accent-color: var(--color-accent); }
-.cq-feedback { flex: none; max-height: 180px; overflow: auto; border-top: 1px solid var(--color-line); }
-.cq-feedback > h2 { padding: 12px 16px 0; font-size: 14px; font-weight: 600; }
+.cq-feedback { flex: none; max-height: 180px; overflow: auto; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.cq-feedback > h2, .cq-feedback h2 { padding: 12px 16px 0; font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 body.student-ui .cq-feedback .challenge-toast-stack { padding: 8px 16px; max-height: none; }
 body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none; }
-.cq-confirm, .cq-assistance { width: min(480px, calc(100% - 32px)); max-height: calc(100dvh - 32px); margin: auto; overflow: auto; padding: 24px; border: 1px solid var(--color-line-strong); background: var(--color-overlay); color: var(--color-fg); }
+.cq-confirm, .cq-assistance { width: min(480px, calc(100% - 32px)); max-height: calc(100dvh - 32px); margin: auto; overflow: auto; padding: 24px; border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 8px 8px 0 var(--cq-ink-shadow); color: var(--color-fg); }
 .cq-assistance { width: min(640px, calc(100% - 32px)); }
 .cq-confirm::backdrop, .cq-assistance::backdrop { background: #0009; }
-.cq-confirm h2, .cq-assistance h2 { margin-bottom: 16px; font-size: 22px; line-height: 28px; }
+.cq-confirm h2, .cq-assistance h2 { margin-bottom: 16px; font-family: var(--font-display); font-size: 22px; line-height: 28px; letter-spacing: -.005em; }
 .cq-confirm p, .cq-assistance p { font-size: 14px; line-height: 24px; }
 .cq-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
 .cq-assistance > header { display: flex; justify-content: space-between; gap: 12px; }
