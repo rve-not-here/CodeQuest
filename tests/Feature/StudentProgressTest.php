@@ -113,9 +113,9 @@ class StudentProgressTest extends TestCase
             ->assertSee('1/3')
             ->assertSee('1/2')
             ->assertSee('0/1')
-            ->assertSee('IN PROGRESS')
-            ->assertSee('NOT STARTED')
-            ->assertSee('BOSS CHALLENGE: LOCKED');
+            ->assertSee('In progress')
+            ->assertSee('Not started')
+            ->assertSee('<dt>Boss Challenge</dt><dd>Locked</dd>', false);
     }
 
     public function test_student_progress_shows_the_current_learning_position(): void
@@ -132,12 +132,12 @@ class StudentProgressTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('CURRENT POSITION')
-            ->assertSee('Continue at')
+            ->assertSee('Current position')
+            ->assertSee('Next challenge to complete')
             ->assertSee($course->name)
             ->assertSee($sections[1]->title)
             ->assertSee($missions[1]->title)
-            ->assertSee('CURRENT');
+            ->assertSee('Current');
     }
 
     public function test_student_progress_marks_a_ready_course_with_challenge_outstanding_position(): void
@@ -157,9 +157,9 @@ class StudentProgressTest extends TestCase
             ->assertOk()
             ->assertSee('Boss Challenge outstanding')
             ->assertSee('2/2')
-            ->assertSee('DONE')
-            ->assertSee('READY')
-            ->assertSee('BOSS CHALLENGE: READY');
+            ->assertSee('Done')
+            ->assertSee('Ready')
+            ->assertSee('<dt>Boss Challenge</dt><dd>Ready</dd>', false);
     }
 
     public function test_student_progress_all_cleared_state(): void
@@ -178,8 +178,8 @@ class StudentProgressTest extends TestCase
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
             ->assertSee('No current learning position in this monitoring scope.')
-            ->assertSee('COMPLETED')
-            ->assertSee('BOSS CHALLENGE: PASSED');
+            ->assertSee('Completed')
+            ->assertSee('<dt>Boss Challenge</dt><dd>Passed</dd>', false);
     }
 
     public function test_student_progress_renders_with_the_teacher_layout(): void
@@ -229,13 +229,13 @@ class StudentProgressTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('Assessment Performance')
+            ->assertSee('Assessment performance')
             ->assertSee($course->name)
             ->assertSee('2')
             ->assertSee('90%')
-            ->assertSee('PASSED')
-            ->assertSee('COMPLETED')
-            ->assertSee($passedAt->format('Y-m-d H:i'));
+            ->assertSee('Passed')
+            ->assertSee('Completed')
+            ->assertSee($passedAt->format('M d, Y'));
     }
 
     public function test_student_progress_attempt_log_lists_every_attempt_newest_first(): void
@@ -264,8 +264,8 @@ class StudentProgressTest extends TestCase
         $this->assertSame(1, substr_count($panel, '50%'));
         $this->assertSame(1, substr_count($panel, '40%'));
         $this->assertSame(2, substr_count($panel, '90%'));
-        $this->assertSame(2, substr_count($panel, 'FAILED'));
-        $this->assertSame(2, substr_count($panel, 'PASSED'));
+        $this->assertSame(2, substr_count($panel, 'Failed'));
+        $this->assertSame(2, substr_count($panel, 'Passed'));
     }
 
     public function test_student_progress_performance_covers_only_assessed_courses(): void
@@ -289,8 +289,8 @@ class StudentProgressTest extends TestCase
         $panel = $this->evidenceSection($content, 'id="monitoring-assessment"');
         $this->assertSame(2, substr_count($panel, $assessed->name));
         $this->assertSame(0, substr_count($panel, $bare->name));
-        $this->assertSame(1, substr_count($content, $bare->name));
-        $this->assertStringContainsString('BOSS CHALLENGE: LOCKED', $content);
+        $this->assertStringContainsString('<h3 class="atlas-record-entry-title">'.$bare->name.'</h3>', $content);
+        $this->assertStringContainsString('<dt>Boss Challenge</dt><dd>Locked</dd>', $content);
     }
 
     public function test_the_student_progress_route_is_read_only(): void
@@ -333,12 +333,12 @@ class StudentProgressTest extends TestCase
         $response->assertOk()->assertSee('Competency');
 
         $panel = $this->evidenceSection($response->getContent(), 'id="monitoring-competency"');
-        $this->assertSame(1, substr_count($panel, 'DEMONSTRATED'));
-        $this->assertSame(1, substr_count($panel, 'DEVELOPING'));
+        $this->assertSame(1, substr_count($panel, 'Demonstrated'));
+        $this->assertSame(1, substr_count($panel, 'Developing'));
         $this->assertSame(1, substr_count($panel, '2/2'));
         $this->assertSame(1, substr_count($panel, '1/3'));
-        $this->assertSame(1, substr_count($panel, 'PASSED'));
-        $this->assertSame(1, substr_count($panel, 'NOT ATTEMPTED'));
+        $this->assertSame(1, substr_count($panel, 'Passed'));
+        $this->assertSame(1, substr_count($panel, 'Not attempted'));
     }
 
     private function evidenceSection(string $content, string $titleMarker): string

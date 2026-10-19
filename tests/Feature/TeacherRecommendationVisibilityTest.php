@@ -42,7 +42,7 @@ class TeacherRecommendationVisibilityTest extends TestCase
         $content = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('RECOMMENDATIONS')
+            ->assertSee('Recommendations')
             ->assertSee('Continue learning')
             ->assertSee('Shared Signal')
             ->getContent();
@@ -93,7 +93,7 @@ class TeacherRecommendationVisibilityTest extends TestCase
 
         $this->assertStringNotContainsString('Beta Struggle', $content);
         $this->assertStringNotContainsString(route('mission.show', $missionB), $content);
-        $this->assertSame(1, substr_count($content, 'PRIORITY '));
+        $this->assertSame(1, substr_count($content, 'Priority '));
 
         $this->actingAs($teacherB)
             ->get(route('student-progress', ['student' => $student->id]))
@@ -134,7 +134,7 @@ class TeacherRecommendationVisibilityTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertDontSee('RECOMMENDATIONS')
+            ->assertDontSee('Recommendations')
             ->assertDontSee('Distant Work');
     }
 
@@ -191,7 +191,7 @@ class TeacherRecommendationVisibilityTest extends TestCase
             $this->assertStringContainsString($card['subtitle'], $content);
         }
 
-        $this->assertSame($cards->count(), substr_count($content, 'PRIORITY '));
+        $this->assertSame($cards->count(), substr_count($content, 'Priority '));
     }
 
     public function test_viewing_recommendations_mutates_no_learning_state(): void
@@ -232,7 +232,7 @@ class TeacherRecommendationVisibilityTest extends TestCase
         $this->actingAs($admin)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('RECOMMENDATIONS')
+            ->assertSee('Recommendations')
             ->assertSee('Beta Struggle');
     }
 
@@ -296,13 +296,13 @@ class TeacherRecommendationVisibilityTest extends TestCase
     }
 
     /**
-     * The rendered RECOMMENDATIONS panel slice, so read-only assertions stay
+     * The rendered Recommendations panel slice, so read-only assertions stay
      * scoped to teacher recommendation output instead of the whole layout
      * (which legitimately carries its own navigation and forms).
      */
     private function recommendationsPanel(string $content): string
     {
-        $start = strpos($content, 'RECOMMENDATIONS');
+        $start = strpos($content, 'Recommendations');
 
         $this->assertNotFalse($start);
 

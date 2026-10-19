@@ -25,11 +25,11 @@
             </dl>
         </header>
 
-        <section class="atlas-attention-callout" data-state="{{ $dashboardMetrics['needs_attention'] > 0 ? 'flagged' : 'clear' }}" aria-labelledby="attention-title">
+        <section class="atlas-callout" data-state="{{ $dashboardMetrics['needs_attention'] > 0 ? 'flagged' : 'clear' }}" aria-labelledby="attention-title">
             <div>
-                <h2 id="attention-title" class="atlas-attention-callout-label">Needs attention</h2>
-                <p class="atlas-attention-callout-figure">{{ $dashboardMetrics['needs_attention'] }} {{ Str::plural('student', $dashboardMetrics['needs_attention']) }} flagged</p>
-                <p class="atlas-attention-callout-copy">Review the queue for recorded signals and their supporting evidence. {{ $role === 'teacher' ? 'Attention covers your classroom scope. Roster filters do not narrow this count.' : 'Attention covers the platform scope. Roster filters do not narrow this count.' }}</p>
+                <h2 id="attention-title" class="atlas-callout-label">Needs attention</h2>
+                <p class="atlas-callout-figure">{{ $dashboardMetrics['needs_attention'] }} {{ Str::plural('student', $dashboardMetrics['needs_attention']) }} flagged</p>
+                <p class="atlas-callout-copy">Review the queue for recorded signals and their supporting evidence. {{ $role === 'teacher' ? 'Attention covers your classroom scope. Roster filters do not narrow this count.' : 'Attention covers the platform scope. Roster filters do not narrow this count.' }}</p>
             </div>
             <a href="{{ route('needs-attention') }}" class="btn {{ $dashboardMetrics['needs_attention'] > 0 ? 'btn-primary' : 'btn-secondary' }}">Review attention queue →</a>
         </section>

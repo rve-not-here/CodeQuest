@@ -107,7 +107,7 @@ class PersonalizedLearningJourneyTest extends TestCase
 
     private function recommendationsPanel(string $content): string
     {
-        $start = strpos($content, 'RECOMMENDATIONS');
+        $start = strpos($content, 'Recommendations');
 
         $this->assertNotFalse($start);
 
@@ -210,7 +210,7 @@ class PersonalizedLearningJourneyTest extends TestCase
         $teacherPage = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('DEMONSTRATED')
+            ->assertSee('Demonstrated')
             ->assertSee('Next course')
             ->assertSee('Course Beta')
             ->getContent();

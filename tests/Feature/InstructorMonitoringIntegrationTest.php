@@ -133,14 +133,14 @@ class InstructorMonitoringIntegrationTest extends TestCase
             ->get(route('student-progress', ['student' => $student->id]));
 
         $performance = $this->evidenceSection($detail->getContent(), 'id="monitoring-assessment"');
-        $this->assertStringContainsString('PASSED', $performance);
+        $this->assertStringContainsString('Passed', $performance);
         $this->assertStringContainsString('100%', $performance);
         $this->assertStringContainsString($alpha->name, $performance);
 
         $competency = $this->evidenceSection($detail->getContent(), 'id="monitoring-competency"');
-        $this->assertStringContainsString('DEMONSTRATED', $competency);
+        $this->assertStringContainsString('Demonstrated', $competency);
         $this->assertStringContainsString('2/2', $competency);
-        $this->assertStringContainsString('PASSED', $competency);
+        $this->assertStringContainsString('Passed', $competency);
 
         // Course analytics: alpha's panel counts the completed student and a 100% pass
         // rate, all derived from the same attempt and progress records.

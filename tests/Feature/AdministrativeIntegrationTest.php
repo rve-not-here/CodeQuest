@@ -226,7 +226,7 @@ class AdministrativeIntegrationTest extends TestCase
         $detail = $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]));
         $performance = $this->evidenceSection($detail->getContent(), 'id="monitoring-assessment"');
-        $this->assertStringContainsString('PASSED', $performance);
+        $this->assertStringContainsString('Passed', $performance);
         $this->assertStringContainsString('The 404 Challenge', $performance);
     }
 

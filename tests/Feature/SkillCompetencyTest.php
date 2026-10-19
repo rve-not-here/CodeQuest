@@ -469,9 +469,9 @@ class SkillCompetencyTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
-            ->assertSee('Skill Competency')
+            ->assertSee('Skill competency')
             ->assertSee('HTML Headings')
-            ->assertSee('ON TRACK');
+            ->assertSee('On track');
     }
 
     public function test_teacher_scoped_out_skill_is_hidden(): void
