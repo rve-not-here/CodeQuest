@@ -2457,6 +2457,7 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 
 /* Challenge index — the catalogue: filters above, course registers, course index beside. */
 .atlas-index-filters { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; padding: 16px 20px 18px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-index-filters--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .atlas-index-filter { display: grid; gap: 6px; min-width: 0; }
 .atlas-index-filter-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .atlas-index-alerts { padding: 12px 20px 0; }
@@ -2495,6 +2496,7 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
 @media (min-width: 1024px) {
     .atlas-index-layout { grid-template-columns: minmax(0, 1fr) 15rem; gap: 40px; }
     .atlas-index-aside { display: block; }
+    .atlas-index-filters--wide { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @media (max-width: 899.9px) {
     .atlas-index-filters { grid-template-columns: minmax(0, 1fr); }
@@ -2502,6 +2504,7 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
 @media (max-width: 640px) {
     .atlas-index-link { grid-template-columns: 22px minmax(0, 1fr); align-items: start; }
     .atlas-index-action { grid-column: 2; justify-content: flex-start; margin-top: 6px; }
+    .atlas-index-filters--wide { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Inbox — one ruled row per notification, unread marked at the margin. */
@@ -2589,6 +2592,8 @@ a.atlas-notification-title:focus-visible { outline: 2px solid var(--color-accent
 .atlas-timeline-mark--note { color: var(--color-warning); border-color: color-mix(in srgb, var(--color-warning) 45%, transparent); }
 .atlas-timeline-mark--info { color: var(--color-info); border-color: color-mix(in srgb, var(--color-info) 45%, transparent); }
 .atlas-timeline-label { font-size: 14.5px; line-height: 22px; color: var(--color-fg); overflow-wrap: anywhere; }
+.atlas-timeline-label a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--cq-ink) 35%, transparent); text-underline-offset: 3px; }
+.atlas-timeline-label a:hover { text-decoration-color: var(--color-accent); }
 .atlas-timeline-time { display: block; margin-top: 2px; font-family: var(--font-mono); font-size: 12px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-timeline-points { font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .atlas-timeline-points--credit { color: var(--color-success); }

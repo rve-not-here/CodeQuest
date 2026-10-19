@@ -90,7 +90,7 @@ class ClassroomPairAuthorizationTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('activity'))
             ->assertOk()
-            ->assertSee('NO ACTIVITY');
+            ->assertSee('No activity');
     }
 
     public function test_deactivating_a_classroom_removes_its_pairs_and_reactivating_restores_them(): void

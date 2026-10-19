@@ -281,14 +281,14 @@ class ActivityFeedTest extends TestCase
             ->assertSee('EVENT 01')
             ->assertSee('EVENT 30')
             ->assertDontSee('EVENT 31')
-            ->assertSee('SHOWING PAGE 1 OF 2');
+            ->assertSee('Page 1 of 2');
 
         $this->actingAs($teacher)
             ->get(route('activity', ['page' => 2]))
             ->assertOk()
             ->assertSee('EVENT 31')
             ->assertDontSee('EVENT 01')
-            ->assertSee('SHOWING PAGE 2 OF 2');
+            ->assertSee('Page 2 of 2');
     }
 
     public function test_invalid_filter_values_are_rejected_server_side(): void
@@ -353,7 +353,7 @@ class ActivityFeedTest extends TestCase
         $this->actingAs($this->teacher())
             ->get(route('activity'))
             ->assertOk()
-            ->assertSee('NO ACTIVITY');
+            ->assertSee('No activity');
     }
 
     private function teacher(): User
