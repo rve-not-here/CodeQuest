@@ -4,15 +4,48 @@
 
 @section('content')
     @if (auth()->user()->role === 'teacher')
-        <div class="teacher-operations">
-            <header class="teacher-context"><div><h1>Reports</h1><p>Choose a student or course from your current classroom scope.</p></div><a href="{{ route('classrooms') }}" class="btn-ghost">My classrooms →</a></header>
-            <section class="teacher-report-destination" aria-labelledby="student-reports">
-                <div><h2 id="student-reports">Student reports</h2><p>Open a student from the roster, then choose View Student Report on their progress page.</p></div>
-                <a href="{{ route('students') }}" class="btn-primary">CHOOSE STUDENT →</a>
+        <div class="atlas-records">
+            <div class="log-running atlas-records-running">
+                <span>Records · Reports · Classroom scope</span>
+                <a href="{{ route('classrooms') }}">My classrooms →</a>
+            </div>
+
+            <header class="atlas-records-heading">
+                <span class="atlas-lesson-entry-label">Records · Reports</span>
+                <h1 class="atlas-records-title">Reports</h1>
+                <p class="atlas-records-lede">Choose a student or course from your current classroom scope. Reports are generated from recorded evidence only.</p>
+            </header>
+
+            <section class="atlas-record-group" aria-labelledby="student-reports">
+                <div class="atlas-record-group-head">
+                    <div>
+                        <span class="atlas-record-entry-label">Register 01</span>
+                        <h2 id="student-reports" class="atlas-record-group-title">Student reports</h2>
+                    </div>
+                </div>
+                <article class="atlas-record-entry">
+                    <h3 class="atlas-record-entry-title">Per-student progress evidence</h3>
+                    <p class="atlas-record-entry-copy">Open a student from the roster, then choose Student report on their progress page. Every table names its own time window.</p>
+                    <div class="atlas-record-entry-actions">
+                        <a href="{{ route('students') }}" class="btn btn-primary">Choose student →</a>
+                    </div>
+                </article>
             </section>
-            <section class="teacher-report-destination" aria-labelledby="course-reports">
-                <div><h2 id="course-reports">Course reports</h2><p>Open a course report from Course Analytics to inspect lifecycle, competency and period evidence.</p></div>
-                <a href="{{ route('course-analytics') }}" class="btn-ghost">CHOOSE COURSE →</a>
+
+            <section class="atlas-record-group" aria-labelledby="course-reports">
+                <div class="atlas-record-group-head">
+                    <div>
+                        <span class="atlas-record-entry-label">Register 02</span>
+                        <h2 id="course-reports" class="atlas-record-group-title">Course reports</h2>
+                    </div>
+                </div>
+                <article class="atlas-record-entry">
+                    <h3 class="atlas-record-entry-title">Per-course lifecycle evidence</h3>
+                    <p class="atlas-record-entry-copy">Open a course report from Course analytics to inspect lifecycle, competency and period evidence.</p>
+                    <div class="atlas-record-entry-actions">
+                        <a href="{{ route('course-analytics') }}" class="btn-ghost">Choose course →</a>
+                    </div>
+                </article>
             </section>
         </div>
     @else
