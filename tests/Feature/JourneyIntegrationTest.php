@@ -169,7 +169,7 @@ class JourneyIntegrationTest extends TestCase
         // ASSESSMENT: the challenge screen presents its initiate state.
         $this->get(route('assessment.show', $alphaChallenge))
             ->assertOk()
-            ->assertSee('INITIATE CHALLENGE');
+            ->assertSee('Start attempt');
 
         // BEGIN and SUBMIT the pass from the challenge screen.
         $this->post(route('assessment.start', $alphaChallenge))

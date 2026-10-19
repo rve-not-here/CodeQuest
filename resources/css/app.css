@@ -1292,6 +1292,10 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
 @media (max-width: 379.9px) {
     .atlas-brand > span:last-child { display: none; }
 }
+/* Tablet widths: the full theme control stays, the account label and caret drop for room. */
+@media (min-width: 600px) and (max-width: 899.9px) {
+    .atlas-account-label, .cq-account-menu summary > span[aria-hidden="true"]:last-child { display: none; }
+}
 
 /* Teacher landing: scoped context, course evidence, and a semantic roster. */
 .atlas-teacher { min-width: 0; color: var(--color-fg); overflow-wrap: anywhere; }
@@ -2426,6 +2430,7 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-stamp--vio { color: var(--color-info); }
 .atlas-stamp--grn { color: var(--color-success); }
 .atlas-stamp--amb { color: var(--color-warning); }
+.atlas-stamp--acc { color: var(--color-accent); }
 .atlas-stamp--ink { color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 
 /* Figures — the ruled index strip. */
@@ -2752,14 +2757,19 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 /* Mission Atlas workbench: task, working source, and non-authoritative output. */
 body.student-ui .atlas-workbench-context { background: var(--color-void); border-bottom: 1px solid var(--color-line-strong); }
 body.student-ui .atlas-workbench-context h1 { font-size: 18px; line-height: 26px; overflow-wrap: anywhere; white-space: normal; overflow: visible; }
-body.student-ui .atlas-workbench-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--color-line-strong); }
+body.student-ui .atlas-workbench-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; padding: 6px 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
 body.student-ui .atlas-workbench-controls [data-workspace-reset] { margin-left: auto; }
+.atlas-workbench-tab { display: inline-flex; align-items: center; min-height: 34px; padding: 4px 10px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; transition: color 120ms ease-out, border-color 120ms ease-out; }
+.atlas-workbench-tab:hover { color: var(--color-fg); }
+.atlas-workbench-tab[aria-expanded="true"], .atlas-workbench-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-accent); }
+.atlas-workbench-tab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.atlas-workbench-reset { font-family: var(--font-sans); font-size: 13px; font-weight: 500; letter-spacing: normal; text-transform: none; }
 body.student-ui .challenge-workspace[data-workspace] { padding: 0; gap: 0; }
 body.student-ui .challenge-pane-header { padding: 12px 16px; background: var(--color-void); font-size: 14px; line-height: 22px; }
 body.student-ui .challenge-pane-body { padding: 20px 16px; overflow-wrap: anywhere; }
 body.student-ui .challenge-pane-body.editor-pane, body.student-ui .challenge-pane-body.is-frame { padding: 0; }
 body.student-ui .challenge-draft-status, body.student-ui .challenge-draft-status span { font-size: 12px; }
-body.student-ui .atlas-workbench-note { font-size: 12px; line-height: 20px; color: var(--color-fg-muted); font-family: var(--font-sans); }
+
 body.student-ui .challenge-toast-stack { position: static; flex: none; width: auto; max-height: 144px; padding-inline: 16px; pointer-events: auto; }
 body.student-ui .challenge-assistance { border-top: 1px solid var(--color-line-strong); padding-top: 20px; }
 body.student-ui .challenge-assistance-heading { display: block; }
@@ -2767,29 +2777,79 @@ body.student-ui .challenge-assistance-actions { margin-top: 12px; }
 body.student-ui .challenge-assistance .btn { white-space: normal; }
 body.student-ui .challenge-pane-editor .cm-editor { background: var(--color-surface); }
 body.student-ui .challenge-pane-editor .cm-gutters { background: var(--color-void); border-right: 1px solid var(--color-line); }
+/* Boss Challenge: the course's final gate, run on the same bench as a coding challenge. */
 body.student-ui .atlas-boss { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-.atlas-boss > nav[aria-label="Breadcrumb"] { padding: 8px 16px 0; }
-.atlas-boss > nav a { display: inline-flex; align-items: center; min-height: 44px; }
-.atlas-boss-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px 20px; border-bottom: 3px double var(--color-line-strong); }
-.atlas-boss-heading h1 { font-size: 26px; line-height: 34px; }
-.atlas-boss > .space-y-3 { margin-top: 0; }
-.atlas-boss-brief > div { padding: 0 0 20px; }
-.atlas-boss-details { padding-top: 20px; border-top: 1px solid var(--color-line-strong); }
-.atlas-boss-details h2 { font-size: 16px; }
-.atlas-boss-code, .atlas-boss-output { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-.atlas-boss-code { overflow: auto; }
+.atlas-boss-running { padding-inline: 20px; }
+.atlas-boss-heading { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; padding: 4px 20px 14px; border-bottom: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); }
+.atlas-boss-heading-main { min-width: 0; }
+.atlas-boss-title { margin-top: 6px; font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 34px); line-height: 1.08; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.atlas-boss-heading-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.atlas-boss-meta { font-family: var(--font-mono); font-size: 12px; line-height: 20px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-boss-alerts { display: grid; gap: 8px; padding: 12px 20px 0; }
+.atlas-boss-brief-head { padding-bottom: 12px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.atlas-boss-brief-title { font-family: var(--font-display); font-size: 24px; line-height: 1.15; font-weight: 600; letter-spacing: -.005em; }
+.atlas-boss-brief-copy { margin-top: 16px; font-size: 15px; line-height: 26px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-boss-objective { margin-top: 18px; padding-top: 16px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-boss-objective h3 { font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-boss-objective p { margin-top: 8px; }
+.atlas-boss-details { margin-top: 24px; padding-top: 20px; border-top: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); }
+.atlas-boss-details-title { font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-boss-details-facts { margin-top: 12px; }
+.atlas-boss-note { margin-top: 14px; font-size: 13px; line-height: 22px; color: var(--color-fg-muted); }
+.atlas-boss-back { margin-top: 16px; }
+.atlas-boss-state { padding: 32px 20px; overflow: auto; }
+.atlas-boss-state-title { margin-top: 8px; font-family: var(--font-display); font-size: 26px; line-height: 1.1; font-weight: 600; }
+.atlas-boss-state-copy { max-width: 62ch; margin-top: 10px; font-size: 15px; line-height: 26px; color: var(--color-fg-muted); }
+.atlas-boss-state .btn { margin-top: 20px; }
+.atlas-boss-code { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: auto; }
+.atlas-boss-code-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; padding: 10px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.atlas-boss-code-title { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-boss-code-state { font-family: var(--font-mono); font-size: 11.5px; color: var(--color-fg-subtle); }
+.atlas-boss-verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 12px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); background: color-mix(in srgb, var(--cq-ink) 4%, transparent); }
+.atlas-boss-verdict p { min-width: 0; flex: 1 1 260px; font-size: 13px; line-height: 22px; color: var(--color-fg-muted); }
+.atlas-boss-code-note { padding: 10px 16px; font-size: 12px; line-height: 20px; color: var(--color-fg-muted); }
 .atlas-boss-code > .challenge-pane-editor { flex: 1; min-height: 160px; }
 .atlas-boss-code > .challenge-pane-editor .cm-editor { height: 100%; }
 body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
-.atlas-boss-code > p { font-size: 12px; line-height: 20px; }
-.atlas-boss-frame { width: 100%; flex: 1; min-height: 0; background: white; }
-.atlas-boss-workspace [data-workspace-pane="preview"] > .atlas-workbench-note { padding: 12px 16px; border-bottom: 1px solid var(--color-line); }
-.atlas-boss-state { padding: 24px 20px; overflow: auto; }
-.atlas-assessments { max-width: 1120px; margin-inline: auto; }
-.atlas-assessment-entry { min-width: 0; border-top: 3px double var(--color-line-strong); padding-block: 12px 24px; }
+.atlas-boss-code-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-boss-code-actions form { display: flex; }
+.atlas-boss-output { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.atlas-boss-output-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; padding: 10px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.atlas-boss-output-title { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-boss-output-note { font-size: 12px; line-height: 20px; color: var(--color-fg-subtle); }
+/* The preview is the student's own render: its white ground is truthful and never tokenised. */
+.atlas-boss-frame { width: 100%; flex: 1; min-height: 0; border: 0; background: white; }
+.atlas-boss-output-empty { padding: 20px; font-size: 13px; line-height: 22px; color: var(--color-fg-muted); }
+/* Boss Challenge hub: one ruled entry per course gate, stamped with its state. */
+.atlas-assessments { max-width: 1180px; min-width: 0; }
+.atlas-assessments-facts { margin-top: 22px; }
+.atlas-assessment-list { margin-top: 4px; }
+.atlas-assessment-entry { min-width: 0; border-top: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); padding-block: 24px 28px; }
+.atlas-assessment-head { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; }
+.atlas-assessment-heading { min-width: 0; }
+.atlas-assessment-order { font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-assessment-heading h2 { margin-top: 6px; font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 32px); line-height: 1.1; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.atlas-assessment-challenge { max-width: 62ch; margin-top: 6px; font-size: 14.5px; line-height: 24px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-assessment-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 20px 32px; margin-top: 20px; }
+.atlas-assessment-progress { min-width: 0; }
+.atlas-assessment-facts { max-width: 420px; }
+.atlas-assessment-bar { max-width: 420px; margin-top: 14px; height: 4px; border-radius: 2px; }
+.atlas-assessment-bar > span { display: block; height: 100%; border-radius: 2px; background: var(--color-success); }
+.atlas-assessment-note { max-width: 62ch; margin-top: 12px; font-size: 14px; line-height: 24px; color: var(--color-fg-muted); }
+.atlas-assessment-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.atlas-assessment-actions form { display: flex; }
+.atlas-assessment-empty { margin-top: 40px; padding: 32px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
+.atlas-assessment-empty h2 { font-family: var(--font-display); font-size: 24px; line-height: 1.15; font-weight: 600; }
+.atlas-assessment-empty p { max-width: 60ch; margin-top: 8px; font-size: 14.5px; line-height: 24px; color: var(--color-fg-muted); }
+.atlas-assessment-empty .btn { margin-top: 20px; }
+@media (max-width: 760px) {
+    .atlas-assessment-body { grid-template-columns: minmax(0, 1fr); align-items: start; }
+}
 @media (max-width: 1100px) {
     body.student-ui .atlas-workbench-controls { padding-inline: 16px; }
-    .atlas-boss-heading h1 { font-size: 22px; line-height: 30px; }
+    .atlas-boss-running, .atlas-boss-heading, .atlas-boss-alerts { padding-inline: 16px; }
+    .atlas-boss-heading { align-items: flex-start; }
+    .atlas-boss-title { font-size: 22px; line-height: 1.15; }
 }
 @media (max-width: 640px) {
     body.student-ui .atlas-workbench-context { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 8px 16px 12px; }

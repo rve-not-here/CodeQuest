@@ -293,21 +293,21 @@ async function boss(course, type) {
     check(`${type} Boss now eligible`, ['ready', 'in-progress', 'failed', 'passed'].includes(state));
     await navigate(await row.locator('a[href*="/assessments/"]').first().getAttribute('href'));
     if (state === 'passed') {
-        check(`${type} previously accepted Boss persists`, await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
+        check(`${type} previously accepted Boss persists`, await page.locator('[data-boss-verdict="passed"]').count(), 1);
         report.operations.push({ kind: 'boss-already-passed', type, url: page.url() });
         return;
     }
-    const start = page.getByRole('button', { name: 'INITIATE CHALLENGE', exact: true });
+    const start = page.getByRole('button', { name: 'Start attempt', exact: true });
     if (await start.count()) await submit(start);
-    if (state === 'failed') await submit(page.getByRole('button', { name: 'RETRY CHALLENGE', exact: true }));
+    if (state === 'failed') await submit(page.getByRole('button', { name: 'Retry challenge', exact: true }));
     if (type === 'js') {
         await code('console.log("incomplete boss");');
-        await submit(page.getByRole('button', { name: 'SUBMIT', exact: true }));
-        check('JS Boss invalid submission persists failed verdict', await page.getByText('VERDICT: FAILED.', { exact: true }).count(), 1);
+        await submit(page.getByRole('button', { name: 'Submit', exact: true }));
+        check('JS Boss invalid submission persists failed verdict', await page.locator('[data-boss-verdict="failed"]').count(), 1);
         report.operations.push({ kind: 'boss-failed', url: page.url() });
         await page.reload();
-        check('JS Boss failure survives reload', await page.getByText('VERDICT: FAILED.', { exact: true }).count(), 1);
-        await submit(page.getByRole('button', { name: 'RETRY CHALLENGE', exact: true }));
+        check('JS Boss failure survives reload', await page.locator('[data-boss-verdict="failed"]').count(), 1);
+        await submit(page.getByRole('button', { name: 'Retry challenge', exact: true }));
     }
     await code(bossSources[type]);
     const beforeBossPreview = academicState();
@@ -319,27 +319,27 @@ async function boss(course, type) {
         check('JS Boss preview toggles signal', await frame.locator('#signal').innerText(), 'ONLINE');
         check('JS Boss preview restarts ticks', await frame.locator('#ticks').innerText(), '0');
         check('Boss preview leaves academic state unchanged', JSON.stringify(academicState()), JSON.stringify(beforeBossPreview));
-        check('Boss preview grants no pass', await page.getByText('COURSE CLEARED.', { exact: true }).count(), 0);
+        check('Boss preview grants no pass', await page.getByText('Course cleared.', { exact: true }).count(), 0);
         await layouts('javascript-boss');
     }
     const form = await page.locator('form[action$="/submit"]').evaluate(form => ({ url: form.action, token: form.querySelector('[name=_token]').value }));
-    await submit(page.getByRole('button', { name: 'SUBMIT', exact: true }));
-    check(`${type} Boss server pass`, await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
-    check(`${type} course cleared`, await page.getByText('COURSE CLEARED.', { exact: true }).count(), 1);
+    await submit(page.getByRole('button', { name: 'Submit', exact: true }));
+    check(`${type} Boss server pass`, await page.locator('[data-boss-verdict="passed"]').count(), 1);
+    check(`${type} course cleared`, await page.getByText('Course cleared.', { exact: true }).count(), 1);
     report.operations.push({ kind: 'boss-passed', type, url: page.url() });
     await page.reload();
-    check(`${type} Boss pass persists reload`, await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
+    check(`${type} Boss pass persists reload`, await page.locator('[data-boss-verdict="passed"]').count(), 1);
     if (type === 'js') {
         const beforeBossReplay = academicState();
         await pace();
         const response = await context.request.post(form.url, { form: { _token: form.token, code: bossSources.js } });
         check('Boss completed request replay remains bounded', response.status(), 200);
         check('Boss replay leaves academic records unchanged', JSON.stringify(academicState()), JSON.stringify(beforeBossReplay));
-        check('Boss replay preserves prior pass', (await response.text()).includes('COURSE CLEARED'));
-        await submit(page.getByRole('button', { name: 'RETRY CHALLENGE', exact: true }));
+        check('Boss replay preserves prior pass', (await response.text()).includes('Course cleared'));
+        await submit(page.getByRole('button', { name: 'Retry challenge', exact: true }));
         await code(bossSources.js);
-        await submit(page.getByRole('button', { name: 'SUBMIT', exact: true }));
-        check('Boss deliberate practice retry passes', await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
+        await submit(page.getByRole('button', { name: 'Submit', exact: true }));
+        check('Boss deliberate practice retry passes', await page.locator('[data-boss-verdict="passed"]').count(), 1);
         check('Boss practice retry awards no extra reward', academicState().completionRewards, beforeBossReplay.completionRewards);
         check('Boss practice retry awards no extra balance', academicState().balance, beforeBossReplay.balance);
         check('Boss retry communicates no extra XP', (await page.locator('main').innerText()).includes('no extra XP'));

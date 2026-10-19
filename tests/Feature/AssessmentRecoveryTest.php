@@ -55,7 +55,7 @@ class AssessmentRecoveryTest extends TestCase
     public function test_resuming_submitted_attempt_uses_stored_source_and_ignores_forged_verdict(): void
     {
         [$student, $boss, $attempt] = $this->readyAttempt('submitted');
-        $this->actingAs($student)->get(route('assessment.show', $boss))->assertOk()->assertSee('RESUME VERIFICATION');
+        $this->actingAs($student)->get(route('assessment.show', $boss))->assertOk()->assertSee('Resume verification');
         $this->actingAs($student)->post(route('assessment.submit', $boss), [
             'code' => 'SIGNAL', 'score' => 100, 'passed' => true, 'status' => 'passed', 'xp' => 1000,
         ])->assertRedirect(route('assessment.show', $boss));

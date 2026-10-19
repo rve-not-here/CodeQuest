@@ -213,8 +213,8 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->get(route('assessments'))
             ->assertOk()
-            ->assertSee('SEALED')
-            ->assertDontSee('INITIATE CHALLENGE');
+            ->assertSee('Sealed')
+            ->assertDontSee('Start attempt');
     }
 
     public function test_assessment_index_marks_an_unlocked_challenge_as_ready(): void
@@ -225,8 +225,8 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->get(route('assessments'))
             ->assertOk()
-            ->assertSee('READY')
-            ->assertSee('INITIATE CHALLENGE');
+            ->assertSee('Ready')
+            ->assertSee('Start attempt');
     }
 
     public function test_assessment_index_marks_an_in_progress_challenge(): void
@@ -242,8 +242,8 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->get(route('assessments'))
             ->assertOk()
-            ->assertSee('IN PROGRESS')
-            ->assertSee('CONTINUE CHALLENGE');
+            ->assertSee('In progress')
+            ->assertSee('Continue challenge');
     }
 
     public function test_assessment_index_marks_a_passed_challenge_as_cleared(): void
@@ -262,7 +262,7 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->get(route('assessments'))
             ->assertOk()
-            ->assertSee('CLEARED');
+            ->assertSee('Cleared');
     }
 
     public function test_assessment_show_redirects_when_challenge_is_sealed(): void
@@ -288,8 +288,8 @@ class AssessmentTest extends TestCase
             ->assertOk()
             ->assertSee($assessment->title)
             ->assertSee('Restore the damaged broadcast.')
-            ->assertSee('INITIATE CHALLENGE')
-            ->assertDontSee('SUBMIT');
+            ->assertSee('Start attempt')
+            ->assertDontSee('id="assessment-submit"', false);
     }
 
     public function test_assessment_show_renders_terminal_when_attempt_in_progress(): void
@@ -306,8 +306,8 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->get(route('assessment.show', $assessment))
             ->assertOk()
-            ->assertSee('RUN')
-            ->assertSee('SUBMIT')
+            ->assertSee('Run preview')
+            ->assertSee('Submit')
             ->assertSee('id="assessment-submit"', false)
             ->assertSee('A B');
     }
@@ -632,7 +632,7 @@ class AssessmentTest extends TestCase
         $this->actingAs($bob)
             ->get(route('assessment.show', $assessment))
             ->assertOk()
-            ->assertSee('INITIATE CHALLENGE')
+            ->assertSee('Start attempt')
             ->assertDontSee('TOP_SECRET_420');
     }
 
@@ -674,7 +674,7 @@ class AssessmentTest extends TestCase
         $this->actingAs($user)
             ->get(route('assessments'))
             ->assertOk()
-            ->assertSee('CLEARED')
+            ->assertSee('Cleared')
             ->assertSee('your pass stands');
     }
 }

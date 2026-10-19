@@ -252,22 +252,22 @@ async function completeHtmlCourse(page) {
     check('HTML Boss becomes available only after completed prerequisites', ['ready', 'in-progress', 'passed'].includes(bossState));
     const bossLink = await htmlBoss().locator('a[href*="/assessments/"]').first().getAttribute('href');
     await navigate(page, bossLink);
-    if (bossState === 'ready') await submit(page.getByRole('button', { name: 'INITIATE CHALLENGE', exact: true }));
+    if (bossState === 'ready') await submit(page.getByRole('button', { name: 'Start attempt', exact: true }));
     if (bossState !== 'passed') {
         const instructions = await page.locator('#boss-briefing-title').locator('..').locator('..').innerText();
         assert.ok(instructions.includes('/safe') && instructions.includes('/register'), 'Solve the actual visible HTML Boss brief.');
         const source = '<h1>Emergency Broadcast</h1>\n<a href="/safe">Return to Safety</a>\n<form action="/register"><label>Callsign <input name="callsign"></label><button type="submit">Register</button></form>';
         await editorCode(page, source);
-        await page.getByRole('button', { name: 'RUN', exact: true }).press('Enter');
+        await page.getByRole('button', { name: 'Run preview', exact: true }).press('Enter');
         check('HTML Boss preview uses submitted source', await page.locator('#preview-frame').getAttribute('srcdoc'), source);
         check('HTML Boss preview keeps opaque sandbox', await page.locator('#preview-frame').getAttribute('sandbox'), '');
         await inspectLayout(page, 'boss-workspace');
         await page.locator('[data-pane-toggle="editor"]').press('Enter');
-        await submit(page.getByRole('button', { name: 'SUBMIT', exact: true }));
+        await submit(page.getByRole('button', { name: 'Submit', exact: true }));
     }
-    check('real HTML Boss receives passing server verdict', await page.getByText('VERDICT: PASSED.', { exact: true }).count(), 1);
-    check('real HTML course shows cleared confirmation', await page.getByText('COURSE CLEARED.', { exact: true }).count(), 1);
-    report.htmlCourse.bossPassed = await page.getByText('VERDICT: PASSED.', { exact: true }).count() === 1;
+    check('real HTML Boss receives passing server verdict', await page.locator('[data-boss-verdict="passed"]').count(), 1);
+    check('real HTML course shows cleared confirmation', await page.getByText('Course cleared.', { exact: true }).count(), 1);
+    report.htmlCourse.bossPassed = await page.locator('[data-boss-verdict="passed"]').count() === 1;
     await page.locator('.cm-content').waitFor();
     await page.locator('[data-pane-toggle="preview"]').press('Enter');
     const previewHeading = page.frameLocator('#preview-frame').getByRole('heading', { name: 'Emergency Broadcast', exact: true });

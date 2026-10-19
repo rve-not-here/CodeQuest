@@ -129,7 +129,7 @@ class AssessmentIntegrationTest extends TestCase
 
         $this->actingAs($user)->get(route('assessments'))
             ->assertOk()
-            ->assertSee('SEALED');
+            ->assertSee('Sealed');
 
         // Required missions first.
         $this->passMission($user, $alphaMissions[0], '<h1>Intro</h1>');
@@ -152,11 +152,11 @@ class AssessmentIntegrationTest extends TestCase
         // All missions done: the Boss Challenge is now unlocked.
         $this->actingAs($user)->get(route('assessment.show', $alphaChallenge))
             ->assertOk()
-            ->assertSee('INITIATE CHALLENGE');
+            ->assertSee('Start attempt');
 
         $this->actingAs($user)->get(route('assessments'))
             ->assertOk()
-            ->assertSee('READY');
+            ->assertSee('Ready');
 
         // Pass the Boss Challenge.
         $this->passChallenge($user, $alphaChallenge, 'SYSTEM_ONLINE');
@@ -216,8 +216,8 @@ class AssessmentIntegrationTest extends TestCase
 
         $this->actingAs($user)->get(route('assessments'))
             ->assertOk()
-            ->assertSee('CLEARED')
-            ->assertDontSee('SEALED');
+            ->assertSee('Cleared')
+            ->assertDontSee('Sealed');
     }
 
     public function test_finishing_missions_unlocks_but_does_not_complete_a_course(): void
@@ -234,7 +234,7 @@ class AssessmentIntegrationTest extends TestCase
         // Unlocked, so the student can view and initiate the challenge.
         $this->actingAs($user)->get(route('assessment.show', $challenge))
             ->assertOk()
-            ->assertSee('INITIATE CHALLENGE');
+            ->assertSee('Start attempt');
 
         // But no attempt exists, completion has not happened, and the same
         // course is still current on the dashboard.

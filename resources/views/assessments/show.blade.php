@@ -6,32 +6,45 @@
     @php
         $initialCode = old('code', $code);
         $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
+
+        $status = $hasPassed
+            ? ['label' => 'Cleared', 'stamp' => 'atlas-stamp--grn']
+            : ($attempt?->status === 'failed'
+                ? ['label' => 'Failed', 'stamp' => 'atlas-stamp--amb']
+                : ($canBegin
+                    ? ['label' => 'Ready', 'stamp' => 'atlas-stamp--acc']
+                    : ($canEdit
+                        ? ['label' => 'In progress', 'stamp' => 'atlas-stamp--vio']
+                        : ['label' => 'Awaiting verdict', 'stamp' => 'atlas-stamp--vio'])));
+
+        $hasAlerts = $hasPassed
+            || session()->has('assessment_success')
+            || session()->has('assessment_info')
+            || session()->has('assessment_error')
+            || $errors->has('code');
     @endphp
     <div class="atlas-boss">
-        <nav aria-label="Breadcrumb" class="font-mono text-xs text-fg-subtle">
-            <ol class="flex flex-wrap items-center gap-1.5">
-                <li><a href="{{ route('assessments') }}" class="hover:text-fg">Boss Challenges</a></li>
-                <li aria-hidden="true">/</li>
-                <li aria-current="page" class="text-fg-muted">{{ $course->name }}</li>
-            </ol>
-        </nav>
+        <div class="log-running atlas-boss-running">
+            <span>Boss challenge · {{ $course->name }}</span>
+            <a href="{{ route('assessments') }}">All Boss Challenges →</a>
+        </div>
 
         <header class="atlas-boss-heading">
-            <div class="min-w-0">
-                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">{{ $assessment->title }}</h1>
+            <div class="atlas-boss-heading-main">
+                <span class="atlas-lesson-entry-label">Boss challenge · {{ $course->name }}</span>
+                <h1 class="atlas-boss-title">{{ $assessment->title }}</h1>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <span class="badge {{ $hasPassed ? 'badge-accent' : ($attempt?->status === 'failed' ? 'badge-warning' : 'badge-neutral') }}">
-                    {{ $hasPassed ? 'CLEARED' : ($attempt?->status === 'failed' ? 'FAILED' : ($canBegin ? 'READY' : ($canEdit ? 'IN PROGRESS' : 'AWAITING VERDICT'))) }}
-                </span>
-                <span class="badge badge-neutral">PASS ≥ {{ $assessment->passing_score }}%</span>
+            <div class="atlas-boss-heading-meta">
+                <span class="atlas-stamp {{ $status['stamp'] }}">{{ $status['label'] }}</span>
+                <p class="atlas-boss-meta">Pass {{ $assessment->passing_score }}% · First pass +{{ $reward }} XP</p>
             </div>
         </header>
 
-        <div class="mt-5 space-y-3">
+        @if ($hasAlerts)
+        <div class="atlas-boss-alerts">
             @if ($hasPassed)
                 <div class="panel border-accent-line bg-accent-soft px-4 py-3 text-sm" role="status">
-                    <strong class="text-accent">COURSE CLEARED.</strong>
+                    <strong class="text-accent">Course cleared.</strong>
                     <span class="text-fg-muted">You have cleared this Boss Challenge{{ $attempt !== null && $attempt->status === 'failed' ? ' — this retry failed, but your pass stands.' : ' — later retries are practice and award no extra XP.' }}</span>
                 </div>
             @endif
@@ -44,46 +57,53 @@
                 @endif
             @endforeach
             @if ($errors->has('code'))
-                <div class="panel border-danger/40 bg-danger-soft px-4 py-3 text-sm" role="alert"><strong class="text-danger">CODE REQUIRED.</strong> <span class="text-fg-muted">Submit a code payload with the challenge.</span></div>
+                <div class="panel border-danger/40 bg-danger-soft px-4 py-3 text-sm" role="alert"><strong class="text-danger">Code required.</strong> <span class="text-fg-muted">Submit a code payload with the challenge.</span></div>
             @endif
         </div>
+        @endif
 
         <nav class="atlas-workbench-controls" aria-label="Workspace panes" data-workspace-controls>
-            <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Task</button>
-            <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Code</button>
-            <button type="button" class="btn btn-ghost btn-sm" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Output</button>
-            <button type="button" class="btn btn-ghost btn-sm" data-workspace-reset>Reset panes</button>
+            <button type="button" class="atlas-workbench-tab" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Task</button>
+            <button type="button" class="atlas-workbench-tab" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Code</button>
+            <button type="button" class="atlas-workbench-tab" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Preview</button>
+            <button type="button" class="atlas-workbench-tab atlas-workbench-reset" data-workspace-reset>Reset panes</button>
         </nav>
         <div class="challenge-workspace atlas-boss-workspace" data-workspace>
             <section class="challenge-pane" id="workspace-brief" data-workspace-pane="brief" tabindex="0">
                 <div class="challenge-pane-body">
                     <section class="atlas-boss-brief" aria-labelledby="boss-briefing-title">
-                        <div class="border-b border-line px-5 py-4">
-                            <h2 id="boss-briefing-title" class="mt-1 text-lg font-semibold">Briefing</h2>
+                        <div class="atlas-boss-brief-head">
+                            <h2 id="boss-briefing-title" class="atlas-boss-brief-title">Briefing</h2>
                         </div>
-                        <div class="space-y-4 px-5 py-5 text-[15px] leading-7 text-fg-muted">
+                        <div class="atlas-boss-brief-copy">
                             @if ($assessment->description)
                                 <p class="whitespace-pre-line">{{ $assessment->description }}</p>
                             @else
                                 <p>No briefing has been added yet.</p>
                             @endif
                             @if ($assessment->instructions)
-                                <div class="border-t border-line pt-4">
-                                    <h3 class="text-sm font-semibold text-fg">Objective</h3>
-                                    <p class="mt-2 whitespace-pre-line">{{ $assessment->instructions }}</p>
+                                <div class="atlas-boss-objective">
+                                    <h3>Objective</h3>
+                                    <p class="whitespace-pre-line">{{ $assessment->instructions }}</p>
                                 </div>
                             @endif
                         </div>
                     </section>
 
                     <section class="atlas-boss-details" aria-labelledby="boss-details-title">
-                        <h2 id="boss-details-title" class="mt-1 text-lg font-semibold">What to expect</h2>
-                        <dl class="mt-4 space-y-3 border-t border-line pt-4 text-sm">
-                            <div class="flex justify-between gap-4"><dt class="text-fg-subtle">Passing score</dt><dd class="font-mono text-fg">{{ $assessment->passing_score }}%</dd></div>
-                            <div class="flex justify-between gap-4"><dt class="text-fg-subtle">First pass</dt><dd class="font-mono text-accent">+{{ $reward }} XP</dd></div>
+                        <h2 id="boss-details-title" class="atlas-boss-details-title">What to expect</h2>
+                        <dl class="log-facts atlas-boss-details-facts">
+                            <div>
+                                <dt>Passing score</dt>
+                                <dd class="is-numeric">{{ $assessment->passing_score }}%</dd>
+                            </div>
+                            <div>
+                                <dt>First pass</dt>
+                                <dd class="is-numeric">+{{ $reward }} XP</dd>
+                            </div>
                         </dl>
-                        <p class="mt-4 text-xs leading-5 text-fg-subtle">Preview runs in an isolated frame. The server checks the submitted code.</p>
-                        <a href="{{ route('assessments') }}" class="btn btn-ghost mt-5 w-full">ALL CHALLENGES ←</a>
+                        <p class="atlas-boss-note">Preview runs in an isolated frame. The server checks the submitted code.</p>
+                        <a href="{{ route('assessments') }}" class="btn btn-ghost atlas-boss-back">All challenges</a>
                     </section>
                 </div>
             </section>
@@ -91,51 +111,53 @@
             <section class="challenge-pane" id="workspace-editor" data-workspace-pane="editor" tabindex="0">
                 @if ($canBegin)
                     <section class="atlas-boss-state" aria-labelledby="boss-start-title">
-                        <h2 id="boss-start-title" class="text-lg font-semibold">Ready to begin</h2>
-                        <p class="mt-2 max-w-[62ch] text-sm leading-6 text-fg-muted">Start an attempt to open the editor. Your work is scored on the server after submission.</p>
-                        <form method="POST" action="{{ route('assessment.start', $assessment) }}" class="mt-5">
+                        <span class="atlas-lesson-entry-label">Boss challenge · {{ $course->name }}</span>
+                        <h2 id="boss-start-title" class="atlas-boss-state-title">Ready to begin</h2>
+                        <p class="atlas-boss-state-copy">Begin an attempt to open the editor. Your work is scored on the server after submission.</p>
+                        <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary">INITIATE CHALLENGE</button>
+                            <button type="submit" class="btn btn-primary">Start attempt <x-workspace-icon name="chevron-right" /></button>
                         </form>
                     </section>
                 @elseif ($attempt?->status === 'submitted')
                     <section class="atlas-boss-state" aria-labelledby="boss-pending-title" role="status">
-                        <h2 id="boss-pending-title" class="text-lg font-semibold">Verification in progress</h2>
-                        <p class="mt-2 text-sm text-fg-muted">Your submission is recorded. Resume verification of the saved code to obtain its result.</p>
-                        <form method="POST" action="{{ route('assessment.submit', $assessment) }}" class="mt-5">
+                        <span class="atlas-lesson-entry-label">Boss challenge · {{ $course->name }}</span>
+                        <h2 id="boss-pending-title" class="atlas-boss-state-title">Verification in progress</h2>
+                        <p class="atlas-boss-state-copy">Your submission is recorded. Resume verification of the saved code to obtain its result.</p>
+                        <form method="POST" action="{{ route('assessment.submit', $assessment) }}">
                             @csrf
                             <input type="hidden" name="code" value="{{ $code }}">
-                            <button type="submit" class="btn btn-primary">RESUME VERIFICATION</button>
+                            <button type="submit" class="btn btn-primary">Resume verification <x-workspace-icon name="chevron-right" /></button>
                         </form>
                     </section>
                 @else
                     <section class="atlas-boss-code" aria-labelledby="boss-editor-title">
-                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
-                            <h2 id="boss-editor-title" class="text-sm font-semibold">Code editor</h2>
-                            <span class="font-mono text-xs text-fg-subtle">{{ $canEdit ? 'Attempt in progress' : 'Review your code' }}</span>
+                        <div class="atlas-boss-code-head">
+                            <h2 id="boss-editor-title" class="atlas-boss-code-title">Code editor</h2>
+                            <span class="atlas-boss-code-state">{{ $canEdit ? 'Attempt in progress' : 'Review your code' }}</span>
                         </div>
                         @if (in_array($attempt?->status, ['passed', 'failed'], true))
-                            <div class="border-b border-line px-4 py-3 text-sm" role="status">
-                                <strong class="{{ $attempt->status === 'passed' ? 'text-accent' : 'text-danger' }}">{{ $attempt->status === 'passed' ? 'VERDICT: PASSED' : 'VERDICT: FAILED' }}.</strong>
-                                <span class="text-fg-muted">Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. SUBMIT is closed; open a retry for a fresh attempt.</span>
+                            <div class="atlas-boss-verdict" role="status" data-boss-verdict="{{ $attempt->status }}">
+                                <span class="atlas-stamp {{ $attempt->status === 'passed' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}">{{ $attempt->status === 'passed' ? 'Passed' : 'Failed' }}</span>
+                                <p>Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. Submitting is closed; open a retry for a fresh attempt.</p>
                             </div>
                         @endif
-                        <p class="px-3 py-2 text-sm text-fg-muted">Build an HTML document. Include your CSS in a style element and JavaScript in a script element.</p>
+                        <p class="atlas-boss-code-note">Build an HTML document. Include your CSS in a style element and JavaScript in a script element.</p>
                         <div id="editor-host" class="challenge-pane-editor"></div>
                         <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
-                        <div class="flex flex-wrap items-center gap-2 border-t border-line p-3">
-                            <button type="button" id="run" class="btn btn-secondary">RUN</button>
+                        <div class="atlas-boss-code-actions">
+                            <button type="button" id="run" class="btn btn-secondary">Run preview <x-workspace-icon name="play" /></button>
                             @if ($canEdit)
                                 <form id="assessment-submit" method="POST" action="{{ route('assessment.submit', $assessment) }}">
                                     @csrf
                                     <input type="hidden" name="code" class="code-payload">
-                                    <button type="submit" class="btn btn-primary">SUBMIT</button>
+                                    <button type="submit" class="btn btn-primary">Submit <x-workspace-icon name="send" /></button>
                                 </form>
                             @endif
                             @if ($canRetry)
                                 <form method="POST" action="{{ route('assessment.retry', $assessment) }}">
                                     @csrf
-                                    <button type="submit" class="btn btn-primary">RETRY CHALLENGE</button>
+                                    <button type="submit" class="btn btn-primary">Retry challenge</button>
                                 </form>
                             @endif
                         </div>
@@ -145,15 +167,17 @@
             </section>
             <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize preview pane" aria-controls="workspace-preview" aria-orientation="vertical" aria-valuemin="20" aria-valuemax="40" aria-valuenow="25" data-workspace-resize="preview"></div>
             <section class="challenge-pane" id="workspace-preview" data-workspace-pane="preview" tabindex="0">
-                <p class="atlas-workbench-note">Run previews only. Submit records an assessment result.</p>
-                @if (! $canBegin && $attempt?->status !== 'submitted')
-                    <section class="atlas-boss-output" aria-labelledby="boss-preview-title">
-                        <h2 id="boss-preview-title" class="border-b border-line px-4 py-3 text-sm font-semibold">Preview</h2>
+                <section class="atlas-boss-output" aria-labelledby="boss-preview-title">
+                    <div class="atlas-boss-output-head">
+                        <h2 id="boss-preview-title" class="atlas-boss-output-title">Preview</h2>
+                        <span class="atlas-boss-output-note">Preview only. Nothing is recorded until the attempt is submitted.</span>
+                    </div>
+                    @if (! $canBegin && $attempt?->status !== 'submitted')
                         <iframe id="preview-frame" class="atlas-boss-frame" sandbox="{{ in_array($course->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}" title="Live preview"></iframe>
-                    </section>
-                @else
-                    <p class="p-5 text-sm text-fg-muted">Preview is available when an attempt is open for editing or review.</p>
-                @endif
+                    @else
+                        <p class="atlas-boss-output-empty">Preview is available when an attempt is open for editing or review.</p>
+                    @endif
+                </section>
             </section>
         </div>
     </div>
@@ -168,6 +192,7 @@
             }
 
             var initial = {{ Illuminate\Support\Js::from($initialCode) }};
+            var readOnly = {{ Illuminate\Support\Js::from(! $canEdit) }};
             var source = document.getElementById('editor-source');
             var runBtn = document.getElementById('run');
             var frame = document.getElementById('preview-frame');
@@ -201,6 +226,7 @@
                         CM.basicSetup,
                         lang,
                         CM.foundry,
+                        CM.EditorView.editable.of(! readOnly),
                         CM.EditorView.updateListener.of(function (u) {
                             if (u.docChanged) syncPayloads(view);
                         }),

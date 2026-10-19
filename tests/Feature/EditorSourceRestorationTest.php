@@ -101,6 +101,7 @@ const CM = {
     html() {}, css() {}, javascript() {},
     EditorView: class {
         static updateListener = { of() {} };
+        static editable = { of() {} };
         constructor(options) { editor = this; this.state = { doc: { toString: () => options.doc } }; }
     },
 };
