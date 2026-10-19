@@ -199,7 +199,7 @@ class TeacherAttentionNotificationTest extends TestCase
                 ->assertOk()
                 ->assertDontSee('NEEDS ATTENTION')
                 ->assertDontSee('boss_fail')
-                ->assertSee('INBOX EMPTY');
+                ->assertSee('Inbox empty');
         }
     }
 

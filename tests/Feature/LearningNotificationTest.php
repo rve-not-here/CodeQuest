@@ -118,7 +118,7 @@ class LearningNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("mission_completed:{$missions[0]->id}", $notification->dedupe_key);
-        $this->assertSame('CHALLENGE COMPLETED', $notification->title);
+        $this->assertSame('Challenge completed', $notification->title);
         $this->assertSame("Challenge completed: {$missions[0]->title}", $notification->message);
         $this->assertSame(['route' => 'mission.show', 'params' => ['mission' => $missions[0]->id]], $notification->data);
         $this->assertSame(
@@ -160,7 +160,7 @@ class LearningNotificationTest extends TestCase
                 app(NotificationService::class)->create(
                     $user,
                     NotificationService::TYPE_MISSION_COMPLETED,
-                    'CHALLENGE COMPLETED',
+                    'Challenge completed',
                     'Mission completed.',
                     "mission_completed:{$mission->id}",
                     NotificationService::payload('mission.show', ['mission' => $mission->id]),
@@ -196,7 +196,7 @@ class LearningNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("course_completed:{$alpha->id}", $completed->dedupe_key);
-        $this->assertSame('COURSE COMPLETED', $completed->title);
+        $this->assertSame('Course completed', $completed->title);
         $this->assertSame(['route' => 'learning-path', 'params' => ['course' => $alpha->id]], $completed->data);
 
         $next = Notification::query()
@@ -205,7 +205,7 @@ class LearningNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("next_course_unlocked:{$beta->id}", $next->dedupe_key);
-        $this->assertSame('NEXT COURSE UNLOCKED', $next->title);
+        $this->assertSame('Next course unlocked', $next->title);
         $this->assertSame(['route' => 'learning-path', 'params' => ['course' => $beta->id]], $next->data);
         $this->assertSame(
             route('learning-path', ['course' => $beta->id]),
@@ -285,7 +285,7 @@ class LearningNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("achievement_earned:{$firstChallenge->id}", $notification->dedupe_key);
-        $this->assertSame('ACHIEVEMENT EARNED', $notification->title);
+        $this->assertSame('Achievement earned', $notification->title);
         $this->assertSame("Achievement unlocked: {$firstChallenge->name}", $notification->message);
         $this->assertSame(['route' => 'achievements', 'params' => []], $notification->data);
 

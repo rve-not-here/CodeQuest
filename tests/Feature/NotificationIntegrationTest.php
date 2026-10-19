@@ -69,12 +69,12 @@ class NotificationIntegrationTest extends TestCase
         $this->actingAs($student)->get(route('dashboard'))
             ->assertOk()
             ->assertSee(route('notifications'))
-            ->assertDontSee('CHALLENGE UNLOCKED')
+            ->assertDontSee('Challenge unlocked')
             ->assertDontSee(route('assessment.show', $alphaChallenge));
 
         $this->actingAs($student)->get(route('notifications'))
             ->assertOk()
-            ->assertSee('CHALLENGE UNLOCKED')
+            ->assertSee('Challenge unlocked')
             ->assertSee(route('assessment.show', $alphaChallenge));
 
         $this->actingAs($student)
@@ -97,9 +97,9 @@ class NotificationIntegrationTest extends TestCase
 
         $this->actingAs($student)->get(route('notifications'))
             ->assertOk()
-            ->assertSee('CHALLENGE PASSED')
-            ->assertSee('COURSE COMPLETED')
-            ->assertSee('NEXT COURSE UNLOCKED')
+            ->assertSee('Challenge passed')
+            ->assertSee('Course completed')
+            ->assertSee('Next course unlocked')
             ->assertSee(route('learning-path', ['course' => $beta->id]));
 
         $teacherDashboard = $this->actingAs($teacher)->get(route('students'));

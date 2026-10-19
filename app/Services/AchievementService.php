@@ -168,7 +168,7 @@ class AchievementService
             $this->notifications->create(
                 $user,
                 NotificationService::TYPE_ACHIEVEMENT_EARNED,
-                'ACHIEVEMENT EARNED',
+                'Achievement earned',
                 "Achievement unlocked: {$achievement->name}",
                 "achievement_earned:{$achievement->id}",
                 NotificationService::payload('achievements'),

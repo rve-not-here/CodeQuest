@@ -704,7 +704,7 @@ class AssessmentService
                 $this->notifications->create(
                     $user,
                     NotificationService::TYPE_ASSESSMENT_PASSED,
-                    'CHALLENGE PASSED',
+                    'Challenge passed',
                     "Boss Challenge passed: {$assessment->title}",
                     "assessment_passed:{$attempt->id}",
                     NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),
@@ -713,7 +713,7 @@ class AssessmentService
                 $this->notifications->create(
                     $user,
                     NotificationService::TYPE_ASSESSMENT_FAILED,
-                    'CHALLENGE FAILED',
+                    'Challenge failed',
                     "Boss Challenge failed: {$assessment->title}",
                     "assessment_failed:{$attempt->id}",
                     NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),
@@ -734,7 +734,7 @@ class AssessmentService
                     $this->notifications->create(
                         $user,
                         NotificationService::TYPE_COURSE_COMPLETED,
-                        'COURSE COMPLETED',
+                        'Course completed',
                         "Course cleared: {$course->name}",
                         "course_completed:{$course->id}",
                         NotificationService::payload('learning-path', ['course' => $course->id]),
@@ -747,7 +747,7 @@ class AssessmentService
                     $this->notifications->create(
                         $user,
                         NotificationService::TYPE_NEXT_COURSE_UNLOCKED,
-                        'NEXT COURSE UNLOCKED',
+                        'Next course unlocked',
                         "Next course unlocked: {$next->name}",
                         "next_course_unlocked:{$next->id}",
                         NotificationService::payload('learning-path', ['course' => $next->id]),

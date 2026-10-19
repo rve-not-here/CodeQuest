@@ -108,7 +108,7 @@ class AssessmentNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("assessment_unlocked:{$built['assessment']->id}", $notification->dedupe_key);
-        $this->assertSame('CHALLENGE UNLOCKED', $notification->title);
+        $this->assertSame('Challenge unlocked', $notification->title);
         $this->assertSame([
             'route' => 'assessment.show',
             'params' => ['assessment' => $built['assessment']->id],
@@ -154,7 +154,7 @@ class AssessmentNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("assessment_failed:{$failedAttempt->id}", $failed->dedupe_key);
-        $this->assertSame('CHALLENGE FAILED', $failed->title);
+        $this->assertSame('Challenge failed', $failed->title);
         $this->assertSame([
             'route' => 'assessment.show',
             'params' => ['assessment' => $built['assessment']->id],
@@ -180,7 +180,7 @@ class AssessmentNotificationTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame("assessment_passed:{$passedAttempt->id}", $passed->dedupe_key);
-        $this->assertSame('CHALLENGE PASSED', $passed->title);
+        $this->assertSame('Challenge passed', $passed->title);
         $this->assertSame([
             'route' => 'assessment.show',
             'params' => ['assessment' => $built['assessment']->id],
@@ -232,7 +232,7 @@ class AssessmentNotificationTest extends TestCase
         $first = $notifications->create(
             $user,
             NotificationService::TYPE_ASSESSMENT_PASSED,
-            'CHALLENGE PASSED',
+            'Challenge passed',
             'Challenge passed.',
             "assessment_passed:{$user->id}",
             $data,
@@ -241,7 +241,7 @@ class AssessmentNotificationTest extends TestCase
         $second = $notifications->create(
             $user,
             NotificationService::TYPE_ASSESSMENT_PASSED,
-            'CHALLENGE PASSED',
+            'Challenge passed',
             'Challenge passed.',
             "assessment_passed:{$user->id}",
             $data,

@@ -23,8 +23,8 @@ class NotificationCenterTest extends TestCase
         $response = $this->actingAs($user)->get(route('notifications'));
 
         $response->assertOk()
-            ->assertSee('3 TOTAL')
-            ->assertSee('2 UNREAD');
+            ->assertSee('3 total')
+            ->assertSee('2 unread');
     }
 
     public function test_notification_center_hides_the_unread_badge_when_everything_is_read(): void
@@ -36,8 +36,8 @@ class NotificationCenterTest extends TestCase
         $response = $this->actingAs($user)->get(route('notifications'));
 
         $response->assertOk()
-            ->assertSee('2 TOTAL')
-            ->assertDontSee('UNREAD');
+            ->assertSee('2 total')
+            ->assertDontSee('unread');
     }
 
     public function test_notification_center_distinguishes_read_and_unread_rows(): void
@@ -52,7 +52,7 @@ class NotificationCenterTest extends TestCase
         $response->assertOk()
             ->assertSee('FRESH ALERT')
             ->assertSee('SEEN ALERT')
-            ->assertSee('MARK READ');
+            ->assertSee('Mark read');
     }
 
     public function test_notification_center_paginates_the_callers_history_newest_first(): void
@@ -72,13 +72,13 @@ class NotificationCenterTest extends TestCase
             ->assertSee('PAGBATCH_1')
             ->assertSee('PAGBATCH_30')
             ->assertDontSee('PAGBATCH_31')
-            ->assertSee('SHOWING PAGE 1 OF 2');
+            ->assertSee('Page 1 of 2');
 
         $pageTwo = $this->actingAs($user)->get(route('notifications', ['page' => 2]));
         $pageTwo->assertOk()
             ->assertSee('PAGBATCH_31')
             ->assertDontSee('PAGBATCH_1')
-            ->assertSee('SHOWING PAGE 2 OF 2');
+            ->assertSee('Page 2 of 2');
     }
 
     public function test_notification_feed_bounds_the_database_row_read(): void

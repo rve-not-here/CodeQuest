@@ -128,7 +128,7 @@ class StudentReminderService
             $this->notifications->create(
                 $user,
                 NotificationService::TYPE_DRAFT_REMINDER,
-                'CHALLENGE DRAFT AWAITING',
+                'Challenge draft awaiting',
                 $this->draftMessage($mission, $stage, $draft->updated_at),
                 null,
                 NotificationService::payload(
@@ -188,7 +188,7 @@ class StudentReminderService
         $this->notifications->create(
             $user,
             NotificationService::TYPE_LEARNING_REMINDER,
-            $kind === self::KIND_STALLED ? 'COURSE STALLED' : 'CHALLENGE READY',
+            $kind === self::KIND_STALLED ? 'Course stalled' : 'Challenge ready',
             $this->learningMessage($course, $kind, $daysSinceLastCompletion, $completed, $total),
             null,
             NotificationService::payload('learning-path', [], ['course' => $course->id, 'kind' => $kind]),

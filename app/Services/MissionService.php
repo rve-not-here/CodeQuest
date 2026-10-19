@@ -188,7 +188,7 @@ class MissionService
         $this->notifications->create(
             $user,
             NotificationService::TYPE_MISSION_COMPLETED,
-            'CHALLENGE COMPLETED',
+            'Challenge completed',
             "Challenge completed: {$mission->title}",
             "mission_completed:{$mission->id}",
             NotificationService::payload('mission.show', ['mission' => $mission->id]),
@@ -201,7 +201,7 @@ class MissionService
                 $this->notifications->create(
                     $user,
                     NotificationService::TYPE_ASSESSMENT_UNLOCKED,
-                    'CHALLENGE UNLOCKED',
+                    'Challenge unlocked',
                     "Boss Challenge unlocked: {$assessment->title}",
                     "assessment_unlocked:{$assessment->id}",
                     NotificationService::payload('assessment.show', ['assessment' => $assessment->id]),

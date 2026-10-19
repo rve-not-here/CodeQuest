@@ -54,7 +54,7 @@ class StudentReminderTest extends TestCase
 
         $this->assertSame('learning_reminder', $row->type);
         $this->assertNull($row->dedupe_key);
-        $this->assertSame('COURSE STALLED', $row->title);
+        $this->assertSame('Course stalled', $row->title);
         $this->assertSame('No new challenge on "Boss" in 14 days (1/3 challenges). Pick it back up.', $row->message);
         $this->assertEquals([
             'route' => 'learning-path',
@@ -67,7 +67,7 @@ class StudentReminderTest extends TestCase
         $this->actingAs($student)
             ->get(route('notifications'))
             ->assertOk()
-            ->assertSee('COURSE STALLED')
+            ->assertSee('Course stalled')
             ->assertSee(route('learning-path'));
     }
 
@@ -94,7 +94,7 @@ class StudentReminderTest extends TestCase
         $this->assertSame(2, $this->countRows($student, NotificationService::TYPE_LEARNING_REMINDER));
 
         $ready = $this->latestRow($student, NotificationService::TYPE_LEARNING_REMINDER);
-        $this->assertSame('CHALLENGE READY', $ready->title);
+        $this->assertSame('Challenge ready', $ready->title);
         $this->assertEquals([
             'route' => 'learning-path',
             'params' => [],
@@ -265,7 +265,7 @@ class StudentReminderTest extends TestCase
 
         $this->assertSame('draft_reminder', $first->type);
         $this->assertNull($first->dedupe_key);
-        $this->assertSame('CHALLENGE DRAFT AWAITING', $first->title);
+        $this->assertSame('Challenge draft awaiting', $first->title);
         $this->assertSame('Your saved draft for "Mission Boss 1" is waiting (4 days). Pick it back up.', $first->message);
         $this->assertEquals([
             'route' => 'mission.show',
@@ -297,7 +297,7 @@ class StudentReminderTest extends TestCase
         $this->actingAs($student)
             ->get(route('notifications'))
             ->assertOk()
-            ->assertSee('CHALLENGE DRAFT AWAITING')
+            ->assertSee('Challenge draft awaiting')
             ->assertSee(route('mission.show', $mission));
     }
 

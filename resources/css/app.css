@@ -3009,6 +3009,33 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
     .atlas-index-action { grid-column: 2; justify-content: flex-start; margin-top: 6px; }
 }
 
+/* Inbox — one ruled row per notification, unread marked at the margin. */
+.atlas-records-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 18px 20px 6px; }
+.atlas-records-toolbar .atlas-records-subheading { padding: 0; }
+.atlas-records-alerts { padding: 12px 20px 0; }
+.atlas-inbox { margin: 0; padding: 0; list-style: none; }
+.atlas-notification { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: start; gap: 4px 14px; padding: 16px 20px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-notification:last-child { border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-notification-mark { width: 8px; height: 8px; margin-top: 8px; border: 1px solid color-mix(in srgb, var(--cq-ink) 30%, transparent); background: color-mix(in srgb, var(--cq-ink) 30%, transparent); }
+.atlas-notification[data-state="unread"] .atlas-notification-mark { border-color: var(--color-accent); background: var(--color-accent); }
+.atlas-notification-body { display: grid; gap: 4px; min-width: 0; }
+.atlas-notification-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.atlas-notification-title { font-family: var(--font-display); font-size: 17px; line-height: 1.25; font-weight: 600; color: var(--color-fg); text-decoration: none; overflow-wrap: anywhere; }
+a.atlas-notification-title:hover { text-decoration: underline; text-underline-offset: 3px; }
+a.atlas-notification-title:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.atlas-notification[data-state="read"] .atlas-notification-title { font-weight: 500; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-notification-copy { font-size: 14px; line-height: 22px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.atlas-notification-action { display: flex; align-items: flex-start; }
+.atlas-notification-action .btn-ghost { white-space: nowrap; }
+.atlas-records-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 14px 20px 18px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); }
+.atlas-records-pager-figure { font-family: var(--font-mono); font-size: 12px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-records-pager-actions { display: flex; align-items: center; gap: 8px; }
+.atlas-records-pager-off { opacity: .45; pointer-events: none; }
+@media (max-width: 640px) {
+    .atlas-notification { grid-template-columns: 10px minmax(0, 1fr); }
+    .atlas-notification-action { grid-column: 2; margin-top: 4px; }
+}
+
 /* Timeline — the day's entries, ruled once each. */
 .atlas-timeline-list { margin: 0; padding: 0; list-style: none; }
 .atlas-timeline-event { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 12px 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
@@ -3039,7 +3066,7 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
 .atlas-ledger-amount--credit { color: var(--color-success); }
 .atlas-ledger-amount--debit { color: var(--color-warning); }
 @media (max-width: 1100px) {
-    .atlas-records-running, .atlas-records-heading, .atlas-records-summary, .atlas-record-group-head, .atlas-record-entry, .atlas-record-group-note, .atlas-records-empty, .atlas-timeline-event, .atlas-ledger-entry, .atlas-records-subheading, .atlas-recommendation { padding-inline: 16px; }
+    .atlas-records-running, .atlas-records-heading, .atlas-records-summary, .atlas-record-group-head, .atlas-record-entry, .atlas-record-group-note, .atlas-records-empty, .atlas-timeline-event, .atlas-ledger-entry, .atlas-records-subheading, .atlas-recommendation, .atlas-records-toolbar, .atlas-records-alerts, .atlas-records-pager, .atlas-notification { padding-inline: 16px; }
     .atlas-recommendation[data-next-action] { padding-left: 13px; }
     .atlas-recommendation { grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .atlas-recommendation-action { justify-self: start; }
