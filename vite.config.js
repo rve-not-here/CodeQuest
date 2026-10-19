@@ -9,7 +9,9 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/css/student.css', 'resources/js/app.js'],
             refresh: true,
             fonts: [
-                bunny('Inter', { weights: [400, 500, 600, 700], styles: ['normal'] }),
+                bunny('Barlow', { weights: [400, 500, 600, 700], styles: ['normal'] }),
+                bunny('Barlow Condensed', { weights: [500, 600, 700], styles: ['normal'] }),
+                bunny('Fragment Mono', { weights: [400], styles: ['normal'] }),
             ],
         }),
         tailwindcss(),

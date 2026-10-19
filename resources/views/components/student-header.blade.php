@@ -45,6 +45,11 @@
                     @endif
                 </nav>
             </details>
+            <div class="atlas-theme" role="group" aria-label="Colour theme">
+                <button type="button" data-theme-value="light" aria-pressed="false" aria-label="Light theme"><span aria-hidden="true">☀</span><span class="atlas-theme-label">Light</span></button>
+                <button type="button" data-theme-value="system" aria-pressed="true" aria-label="System theme"><span aria-hidden="true">◐</span><span class="atlas-theme-label">System</span></button>
+                <button type="button" data-theme-value="dark" aria-pressed="false" aria-label="Dark theme"><span aria-hidden="true">☾</span><span class="atlas-theme-label">Dark</span></button>
+            </div>
             <a href="{{ route('notifications') }}" class="atlas-notifications" aria-label="Notifications">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6M9 19a3 3 0 0 0 6 0" /></svg>
             </a>

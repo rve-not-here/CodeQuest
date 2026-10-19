@@ -35,7 +35,17 @@
         @apply h-8 px-2.5 text-[13px];
     }
     .btn-primary {
-        @apply border-accent bg-accent font-semibold text-accent-ink hover:border-accent-strong hover:bg-accent-strong;
+        @apply border-primary bg-primary font-semibold text-primary-ink hover:border-primary-hover hover:bg-primary-hover;
+        box-shadow: 3px 3px 0 var(--cq-ink-shadow);
+        transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    }
+    .btn-primary:hover {
+        box-shadow: 2px 2px 0 var(--cq-ink-shadow);
+        transform: translate(1px, 1px);
+    }
+    .btn-primary:active {
+        box-shadow: none;
+        transform: translate(3px, 3px);
     }
     .btn-secondary {
         @apply border-line-strong bg-raised text-fg hover:border-fg-subtle hover:bg-overlay;
@@ -73,10 +83,10 @@
     }
 
     .progress {
-        @apply relative h-1.5 w-full overflow-hidden rounded-full bg-overlay;
+        @apply relative h-1.5 w-full overflow-hidden bg-overlay;
     }
     .progress > span {
-        @apply absolute inset-y-0 left-0 rounded-full bg-accent;
+        @apply absolute inset-y-0 left-0 bg-success;
     }
 
     .field {
@@ -197,8 +207,7 @@
 }
 
 body.student-ui {
-    background: var(--color-canvas);
-    background-image: none;
+    background-color: var(--cq-ground);
     color: var(--color-fg);
     font-family: var(--font-sans);
 }
@@ -207,7 +216,7 @@ body.student-ui h1,
 body.student-ui h2,
 body.student-ui h3,
 body.student-ui h4 {
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     line-height: 1.25;
 }
 

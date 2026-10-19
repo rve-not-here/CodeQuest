@@ -68,3 +68,45 @@ window.matchMedia('(min-width: 1200px)').addEventListener('change', () => {
         }
     });
 });
+
+// Colour theme: Light / System / Dark, stored as 'cq-theme' (absent = system).
+const themeButtons = [...document.querySelectorAll('[data-theme-value]')];
+const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+let themeMode = document.documentElement.dataset.themeMode || 'system';
+
+function applyTheme(mode) {
+    themeMode = mode;
+    const dark = mode === 'dark' || (mode === 'system' && systemDark.matches);
+
+    document.documentElement.classList.toggle('dark', dark);
+    document.documentElement.dataset.themeMode = mode;
+    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+
+    themeButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.themeValue === mode));
+    });
+}
+
+themeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        const mode = button.dataset.themeValue;
+
+        try {
+            if (mode === 'system') {
+                localStorage.removeItem('cq-theme');
+            } else {
+                localStorage.setItem('cq-theme', mode);
+            }
+        } catch (e) {}
+
+        applyTheme(mode);
+    });
+});
+
+systemDark.addEventListener('change', () => {
+    if (themeMode === 'system') {
+        applyTheme('system');
+    }
+});
+
+applyTheme(themeMode);

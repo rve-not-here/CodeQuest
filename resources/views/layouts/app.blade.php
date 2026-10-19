@@ -124,6 +124,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'CodeQuest') · CodeQuest</title>
+    <script>
+        // Apply the stored colour mode before first paint so dark never flashes.
+        (function () {
+            var mode = 'system';
+            try {
+                mode = localStorage.getItem('cq-theme') || 'system';
+            } catch (e) {}
+            var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', dark);
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @if ($studentPrototype)
         @vite('resources/css/student.css')
@@ -164,7 +177,7 @@
                 </aside>
             @endif
             <main id="main" tabindex="-1" class="min-w-0 flex-1 {{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}">
-                <div class="{{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'mx-auto w-full max-w-[1440px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1440px]')) }}">
+                <div class="{{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'sheet-column mx-auto w-full max-w-[1440px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1440px]')) }}">
                     @yield('content')
                 </div>
             </main>

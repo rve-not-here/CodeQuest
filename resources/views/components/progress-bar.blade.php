@@ -7,9 +7,9 @@
         'amber' => 'bg-warning',
         'alert' => 'bg-danger',
         'cyan' => 'bg-info',
-        'phosphor' => 'bg-accent',
+        'phosphor' => 'bg-success',
         'dim' => 'bg-fg-muted',
-        default => 'bg-accent',
+        default => 'bg-success',
     };
 @endphp
 
@@ -21,7 +21,7 @@
         </div>
     @endif
 
-    <div class="h-2.5 w-full overflow-hidden border border-accent-line/15 bg-void">
+    <div class="h-1.5 w-full overflow-hidden border border-line bg-raised">
         <div
             class="h-full {{ $bar }} transition-all duration-200"
             style="width: {{ $pct }}%"
