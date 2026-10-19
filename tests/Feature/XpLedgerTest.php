@@ -36,7 +36,7 @@ class XpLedgerTest extends TestCase
             ->get('/xp-ledger')
             ->assertOk()
             ->assertSee('XP 0')
-            ->assertSee('NO TRANSACTIONS');
+            ->assertSee('No transactions yet');
     }
 
     public function test_the_xp_ledger_shows_the_single_authoritative_balance(): void
@@ -77,9 +77,11 @@ class XpLedgerTest extends TestCase
             ->assertSee('+30 XP')
             ->assertSee('-5 XP')
             ->assertSee('+100 XP')
-            ->assertSee('CHALLENGE')
-            ->assertSee('BOSS')
-            ->assertSee('SPENT')
+            ->assertSee('<span class="atlas-ledger-source">Challenge</span>', false)
+            ->assertSee('<span class="atlas-ledger-source">Boss</span>', false)
+            ->assertSee('<span class="atlas-ledger-source">Spent</span>', false)
+            ->assertSee('data-direction="credit"', false)
+            ->assertSee('data-direction="debit"', false)
             ->assertSee('Aug 02, 11:30');
     }
 
@@ -95,7 +97,7 @@ class XpLedgerTest extends TestCase
             ->get('/xp-ledger')
             ->assertOk()
             ->assertSee('XP 0')
-            ->assertSee('NO TRANSACTIONS')
+            ->assertSee('No transactions yet')
             ->assertDontSee('Their Mission');
     }
 

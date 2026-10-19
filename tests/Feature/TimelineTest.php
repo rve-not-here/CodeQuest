@@ -28,7 +28,7 @@ class TimelineTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('timeline'))
             ->assertOk()
-            ->assertSee('NO LEARNING EVENTS');
+            ->assertSee('No learning events yet');
     }
 
     public function test_the_timeline_is_scoped_to_the_authenticated_student(): void

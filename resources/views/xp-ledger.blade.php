@@ -3,53 +3,52 @@
 @section('title', 'XP Ledger')
 
 @section('content')
-    <div class="atlas-record">
-        <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-            <div>
-                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">XP Ledger</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Your current balance and the actions that earned or spent XP.</p>
-            </div>
-            <a href="{{ route('timeline') }}" class="btn btn-secondary btn-sm">View Timeline →</a>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · XP ledger</span>
+            <a href="{{ route('timeline') }}">Learning timeline →</a>
+        </div>
+
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Balance</span>
+            <h1 class="atlas-records-title">XP ledger</h1>
+            <p class="atlas-records-lede">Your current balance and every action that earned or spent XP.</p>
         </header>
 
-        <section class="atlas-record-summary" aria-labelledby="balance-title">
-            <h2 id="balance-title" class="text-sm font-semibold tracking-wide text-fg-muted">Current balance</h2>
-            <p class="mt-2 font-mono text-3xl font-semibold tabular-nums text-fg">XP {{ number_format($balance) }}</p>
-            <p class="mt-2 text-xs leading-5 text-fg-muted">Challenges and Boss Challenges can earn XP. Hints, solution reveals, and incorrect submissions can spend it.</p>
+        <section class="atlas-records-summary atlas-ledger-balance" aria-labelledby="balance-title">
+            <h2 id="balance-title" class="atlas-lesson-entry-label">Current balance</h2>
+            <p class="atlas-ledger-figure">XP {{ number_format($balance) }}</p>
+            <p class="atlas-ledger-note">Challenges and Boss Challenges earn XP. Hints, solution reveals, and wrong submissions spend it.</p>
         </section>
 
         @if ($transactions->isEmpty())
-            <section class="atlas-record-empty" aria-labelledby="no-transactions-title">
-                <h2 id="no-transactions-title" class="text-lg font-semibold">NO TRANSACTIONS</h2>
-                <p class="mt-2 text-sm text-fg-muted">Your XP activity will appear here when you complete or use an XP action.</p>
+            <section class="atlas-records-empty" aria-labelledby="no-transactions-title">
+                <h2 id="no-transactions-title" class="atlas-records-empty-title">No transactions yet</h2>
+                <p class="atlas-records-empty-copy">Complete a challenge or spend a hint and the entry is written here.</p>
             </section>
         @else
-            <section class="mt-8" aria-labelledby="transactions-title">
-                <div class="mb-3">
-                    <h2 id="transactions-title" class="mt-1 text-lg font-semibold">Transaction history</h2>
-                </div>
-                <ol class="atlas-record-list">
-                    @foreach ($transactions as $transaction)
-                        @php
-                            $credit = $transaction['direction'] === 'credit';
-                            $sourceLabel = $credit
-                                ? ($transaction['source'] === 'assessment' ? 'BOSS' : 'CHALLENGE')
-                                : 'SPENT';
-                        @endphp
-                        <li class="flex min-w-0 flex-wrap items-start gap-3 px-5 py-4 md:flex-nowrap md:px-6">
-                            <span class="grid size-7 shrink-0 place-items-center rounded-sm border border-line font-mono text-xs {{ $credit ? 'text-accent' : 'text-warning' }}" aria-hidden="true">{{ $credit ? '+' : '−' }}</span>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm leading-6 text-fg text-pretty">{{ $transaction['reason'] }}</p>
-                                <time class="mt-1 block font-mono text-xs text-fg-subtle" datetime="{{ $transaction['at']->toIso8601String() }}">{{ $transaction['at']->format('M d, H:i') }}</time>
-                            </div>
-                            <div class="flex shrink-0 flex-wrap items-center gap-2">
-                                <span class="badge {{ $credit ? 'badge-accent' : 'badge-warning' }}">{{ $transaction['amount'] > 0 ? '+' : '' }}{{ $transaction['amount'] }} XP</span>
-                                <span class="badge badge-neutral">{{ $sourceLabel }}</span>
-                            </div>
-                        </li>
-                    @endforeach
-                </ol>
-            </section>
+            <h2 class="atlas-records-subheading">Transaction history</h2>
+            <ol class="atlas-ledger-list">
+                @foreach ($transactions as $transaction)
+                    @php
+                        $credit = $transaction['direction'] === 'credit';
+                        $sourceLabel = $credit
+                            ? ($transaction['source'] === 'assessment' ? 'Boss' : 'Challenge')
+                            : 'Spent';
+                    @endphp
+                    <li class="atlas-ledger-entry" data-direction="{{ $credit ? 'credit' : 'debit' }}">
+                        <span class="atlas-ledger-mark" aria-hidden="true">{{ $credit ? '+' : '−' }}</span>
+                        <div class="min-w-0">
+                            <p class="atlas-ledger-reason">{{ $transaction['reason'] }}</p>
+                            <p class="atlas-ledger-meta">
+                                <span class="atlas-ledger-source">{{ $sourceLabel }}</span>
+                                <time datetime="{{ $transaction['at']->toIso8601String() }}">{{ $transaction['at']->format('M d, H:i') }}</time>
+                            </p>
+                        </div>
+                        <span class="atlas-ledger-amount atlas-ledger-amount--{{ $credit ? 'credit' : 'debit' }}">{{ $transaction['amount'] > 0 ? '+' : '' }}{{ $transaction['amount'] }} XP</span>
+                    </li>
+                @endforeach
+            </ol>
         @endif
     </div>
 @endsection
