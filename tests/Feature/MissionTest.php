@@ -82,14 +82,14 @@ class MissionTest extends TestCase
         $user = User::factory()->create();
         ['mission' => $mission] = $this->createMissionWithCourse(['solution_code' => '<h1>Example</h1>']);
 
-        // mission.show is the teaching Lesson: concept, XP reward, START CHALLENGE,
+        // mission.show is the teaching Lesson: concept, XP reward, Start challenge,
         // and no authoritative coding workspace (editor, RUN, SUBMIT, Save draft).
         $this->actingAs($user)
             ->get(route('mission.show', $mission))
             ->assertOk()
             ->assertSee($mission->title)
             ->assertSee('+'.$mission->points.' XP')
-            ->assertSee('START CHALLENGE')
+            ->assertSee('Start challenge')
             ->assertDontSee('SUBMIT')
             ->assertDontSee('Save draft');
 

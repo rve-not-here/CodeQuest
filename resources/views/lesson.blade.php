@@ -4,34 +4,35 @@
 
 @section('content')
     <div class="atlas-lesson">
-        <nav aria-label="Breadcrumb" class="atlas-reading-context">
-            <ol class="flex flex-wrap items-center gap-1.5">
-                <li><a href="{{ route('learning-path') }}" class="hover:text-fg">Learning Path</a></li>
-                @if ($course)
-                    <li aria-hidden="true">/</li>
-                    <li class="text-fg-muted">{{ $course->name }}</li>
-                @endif
-                <li aria-hidden="true">/</li>
-                <li aria-current="page" class="text-fg-muted">{{ $mission->title }}</li>
-            </ol>
-        </nav>
+        @if ($course)
+            <div class="log-running">
+                <span>Log sheet {{ str_pad((string) $course->order_num, 3, '0', STR_PAD_LEFT) }} · {{ $course->name }}</span>
+                <a href="{{ route('learning-path') }}">Learning path →</a>
+            </div>
+        @else
+            <div class="log-running">
+                <span>Lesson</span>
+                <a href="{{ route('learning-path') }}">Learning path →</a>
+            </div>
+        @endif
 
         <header class="atlas-reading-heading">
-            <div class="flex items-center gap-3 flex-wrap">
-                <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
+            <div class="atlas-lesson-entry">
+                <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Lesson</span>
+                @if ($completed)
+                    <span class="atlas-stamp atlas-stamp--grn">Completed</span>
+                @endif
             </div>
+            <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
             <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">Read the brief and inspect the starter, then apply what you learned in the coding challenge.</p>
             <div class="atlas-reading-meta">
                 <span class="atlas-reading-metadata">{{ $mission->difficulty }}</span>
                 <span class="atlas-reading-metadata">+{{ $mission->points }} XP on first pass</span>
-                @if ($completed)
-                    <span class="badge badge-accent">Completed</span>
-                @endif
             </div>
         </header>
 
         @if (session('mission_success'))
-            <div class="panel mb-5 border-accent-line bg-accent-soft px-4 py-3" role="status"><strong class="text-sm text-accent">Challenge complete</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
+            <div class="panel mb-5 border-success/40 bg-success-soft px-4 py-3" role="status"><strong class="text-sm text-success">Challenge complete</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
         @endif
         @if (session('mission_info'))
             <div class="panel mb-5 px-4 py-3" role="status"><strong class="text-sm">{{ session('mission_info')['title'] }}.</strong> <span class="text-sm text-fg-muted">{{ session('mission_info')['message'] }}</span></div>
@@ -141,17 +142,17 @@
                     </p>
                 </div>
                 <div class="atlas-lesson-next-actions">
-                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">TRY IT YOURSELF <x-workspace-icon name="chevron-right" /></a>
+                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">Try it yourself <x-workspace-icon name="chevron-right" /></a>
                     @if ($outstandingRequiredCheck)
                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary w-full">START REQUIRED CHECK <x-workspace-icon name="chevron-right" /></button>
+                            <button type="submit" class="btn btn-primary w-full">Start required check <x-workspace-icon name="chevron-right" /></button>
                         </form>
                     @else
-                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">START CHALLENGE <x-workspace-icon name="chevron-right" /></a>
+                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">Start challenge <x-workspace-icon name="chevron-right" /></a>
                     @endif
                     <dl class="space-y-2 border-t border-line pt-4 text-sm">
-                        <div class="flex justify-between gap-3"><dt class="text-fg-subtle">First pass</dt><dd class="font-mono text-accent">+{{ $mission->points }} XP</dd></div>
+                        <div class="flex justify-between gap-3"><dt class="text-fg-subtle">First pass</dt><dd class="font-mono text-success">+{{ $mission->points }} XP</dd></div>
                         <div class="flex justify-between gap-3"><dt class="text-fg-subtle">Wrong attempt</dt><dd class="font-mono text-fg-muted">−{{ $wrongPenalty }} XP</dd></div>
                     </dl>
                     <a href="{{ route('learning-path') }}" class="inline-flex min-h-11 items-center text-sm text-fg-muted hover:text-fg">← Back to Learning Path</a>

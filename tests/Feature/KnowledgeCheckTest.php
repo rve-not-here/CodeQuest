@@ -444,8 +444,8 @@ class KnowledgeCheckTest extends TestCase
             ->assertOk()
             ->assertSee('Knowledge Check')
             ->assertSee($check->title)
-            ->assertSee('START REQUIRED CHECK')
-            ->assertDontSee('START CHALLENGE')
+            ->assertSee('Start required check')
+            ->assertDontSee('Start challenge')
             ->assertDontSee('>QUIZZES<', false)
             ->assertDontSee('>EXAMS<', false);
     }
