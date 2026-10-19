@@ -21,7 +21,7 @@
         </div>
     @endif
 
-    <div class="h-1.5 w-full overflow-hidden border border-line bg-raised">
+    <div class="h-1.5 w-full overflow-hidden border border-line bg-line">
         <div
             class="h-full {{ $bar }} transition-all duration-200"
             style="width: {{ $pct }}%"

@@ -138,9 +138,6 @@
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @if ($studentPrototype)
-        @vite('resources/css/student.css')
-    @endif
 </head>
 <body class="atlas-ui {{ $studentPrototype ? 'student-ui' : 'console-ui console-ui--'.$role.' bg-surface text-ink font-sans' }} min-h-screen">
     <div class="flex min-h-screen flex-col">

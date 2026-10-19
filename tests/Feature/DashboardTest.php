@@ -94,7 +94,7 @@ class DashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSeeInOrder(['Completed challenges', 'Mission 1'])
-            ->assertSee('class="atlas-dashboard-fig"><span>0</span><span class="atlas-dashboard-fig-muted"> / 2</span></dd>', false)
+            ->assertSee('class="atlas-dashboard-fig"><a class="atlas-dashboard-fig-link" href="'.route('progress').'" aria-label="0 of 2 challenges complete. Open the course record">0</a><span class="atlas-dashboard-fig-muted"> / 2</span></dd>', false)
             ->assertSee($nextMission->title);
     }
 
