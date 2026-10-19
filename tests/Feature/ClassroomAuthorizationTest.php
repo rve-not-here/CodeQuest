@@ -144,7 +144,7 @@ class ClassroomAuthorizationTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('classrooms'))
             ->assertOk()
-            ->assertSee('NO CLASSROOMS');
+            ->assertSee('No classrooms');
 
         $access = app(ClassroomAccessService::class);
         $this->assertFalse($access->isAuthorizedForStudent($teacher, $student));

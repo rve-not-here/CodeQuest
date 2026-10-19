@@ -3,59 +3,101 @@
 @section('title', $classroom->name)
 
 @section('content')
-    <div class="teacher-operations">
-        <header class="teacher-context">
-            <div>
-                <h1>{{ $classroom->name }}</h1>
-                <p><span class="teacher-state">{{ $classroom->code ?? '—' }} · {{ strtoupper($classroom->status) }}</span></p>
-                <p>Students and course assignments in this classroom. Teacher visibility requires an active classroom.</p>
-            </div>
-            <div class="teacher-context-actions">
-                <a href="{{ route('classrooms') }}" class="btn-ghost">◀ ALL CLASSROOMS</a>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Classrooms · {{ $classroom->code ?? 'No code' }}</span>
+            <span class="atlas-records-running-links">
+                <a href="{{ route('classrooms') }}">All classrooms →</a>
                 @if ($role === 'admin')
-                    <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="btn-ghost">ADMIN EDIT →</a>
+                    <a href="{{ route('admin.classrooms.edit', $classroom) }}">Admin edit →</a>
                 @endif
-            </div>
+            </span>
+        </div>
+
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Classroom sheet</span>
+            <h1 class="atlas-records-title">{{ $classroom->name }}</h1>
+            <p class="atlas-records-lede">Students and course assignments in this classroom. Teacher visibility requires an active classroom.</p>
+            <dl class="log-facts atlas-records-facts" aria-label="Classroom facts">
+                <div><dt>Status</dt><dd>{{ ucfirst($classroom->status) }}</dd></div>
+                <div><dt>Students</dt><dd class="is-numeric">{{ $classroom->students->count() }}</dd></div>
+                <div><dt>Courses</dt><dd class="is-numeric">{{ $classroom->courses->count() }}</dd></div>
+                <div><dt>Teachers</dt><dd class="is-numeric">{{ $classroom->teachers->count() }}</dd></div>
+            </dl>
         </header>
-        <div class="teacher-classroom-layout">
-            <div>
-                <section class="teacher-record-section" aria-labelledby="assigned-courses">
-                    <h2 id="assigned-courses">ASSIGNED COURSES</h2>
-                    <ul class="teacher-record-list">
-                        @forelse ($classroom->courses as $course)
-                            <li><strong>{{ $course->name }}</strong><span class="teacher-state">{{ strtoupper($course->status) }}</span></li>
-                        @empty
-                            <li class="teacher-note">NO COURSES · No courses are assigned to this classroom.</li>
-                        @endforelse
-                    </ul>
-                </section>
-                <section class="teacher-record-section" aria-labelledby="assigned-teachers">
-                    <h2 id="assigned-teachers">ASSIGNED TEACHERS</h2>
-                    <ul class="teacher-record-list">
-                        @forelse ($classroom->teachers as $teacher)
-                            <li><strong>{{ $teacher->username }}</strong><span>{{ $teacher->name }}</span></li>
-                        @empty
-                            <li class="teacher-note">NO TEACHERS · No teachers are assigned to this classroom.</li>
-                        @endforelse
-                    </ul>
-                </section>
+
+        <section class="atlas-record-group" aria-labelledby="assigned-courses-title">
+            <div class="atlas-record-group-head">
+                <h2 id="assigned-courses-title" class="atlas-record-group-title">Assigned courses</h2>
+                <p class="atlas-record-group-figure">{{ $classroom->courses->count() }} {{ Str::plural('course', $classroom->courses->count()) }}</p>
             </div>
-            <section class="teacher-record-section" aria-labelledby="enrolled-students">
-                <div class="teacher-section-heading"><h2 id="enrolled-students">ENROLLED STUDENTS</h2><p class="teacher-state">{{ $classroom->students->count() }} students</p></div>
-                @if ($classroom->students->isEmpty())
-                    <p class="teacher-note">NO STUDENTS · No students are enrolled in this classroom.</p>
-                @else
-                    <table class="table-stack teacher-evidence-table" role="table">
+            @if ($classroom->courses->isEmpty())
+                <p class="atlas-record-group-note">No courses are assigned to this classroom.</p>
+            @else
+                <ul class="atlas-records-list">
+                    @foreach ($classroom->courses as $course)
+                        <li class="atlas-record-entry atlas-record-entry--compact">
+                            <div class="atlas-record-entry-row atlas-record-entry-row--tag">
+                                <h3 class="atlas-record-entry-title">{{ $course->name }}</h3>
+                                <span class="atlas-stamp {{ $course->status === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ ucfirst($course->status) }}</span>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+
+        <section class="atlas-record-group" aria-labelledby="assigned-teachers-title">
+            <div class="atlas-record-group-head">
+                <h2 id="assigned-teachers-title" class="atlas-record-group-title">Assigned teachers</h2>
+                <p class="atlas-record-group-figure">{{ $classroom->teachers->count() }} {{ Str::plural('teacher', $classroom->teachers->count()) }}</p>
+            </div>
+            @if ($classroom->teachers->isEmpty())
+                <p class="atlas-record-group-note">No teachers are assigned to this classroom.</p>
+            @else
+                <ul class="atlas-records-list">
+                    @foreach ($classroom->teachers as $teacher)
+                        <li class="atlas-record-entry atlas-record-entry--compact">
+                            <div class="atlas-record-entry-row atlas-record-entry-row--tag">
+                                <h3 class="atlas-record-entry-title">{{ $teacher->username }}</h3>
+                            </div>
+                            @if ($teacher->name)
+                                <p class="atlas-record-entry-copy">{{ $teacher->name }}</p>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+
+        <section class="atlas-record-group" aria-labelledby="enrolled-students-title">
+            <div class="atlas-record-group-head">
+                <h2 id="enrolled-students-title" class="atlas-record-group-title">Enrolled students</h2>
+                <p class="atlas-record-group-figure">{{ $classroom->students->count() }} {{ Str::plural('student', $classroom->students->count()) }}</p>
+            </div>
+            @if ($classroom->students->isEmpty())
+                <p class="atlas-record-group-note">No students are enrolled in this classroom.</p>
+            @else
+                <div class="atlas-register-table-wrap">
+                    <table class="table-stack atlas-register-table" role="table">
                         <caption>Students enrolled in {{ $classroom->name }}</caption>
-                        <thead><tr><th scope="col">Student</th><th scope="col">Name</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th scope="col">Student</th>
+                                <th scope="col">Name</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             @foreach ($classroom->students as $student)
-                                <tr><th scope="row" data-label="Student"><a href="{{ route('student-progress', $student) }}">{{ $student->username }} →</a></th><td data-label="Name">{{ $student->name }}</td></tr>
+                                <tr>
+                                    <th scope="row" data-label="Student"><a href="{{ route('student-progress', $student) }}">{{ $student->username }}</a></th>
+                                    <td data-label="Name">{{ $student->name }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                @endif
-            </section>
-        </div>
+                </div>
+            @endif
+        </section>
     </div>
 @endsection
