@@ -2257,6 +2257,13 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-index-filter { display: grid; gap: 6px; min-width: 0; }
 .atlas-index-filter-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .atlas-index-alerts { padding: 12px 20px 0; }
+.atlas-form { display: grid; gap: 16px; padding: 16px 20px 18px; }
+.atlas-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.atlas-form-field { display: grid; align-content: start; gap: 6px; min-width: 0; }
+.atlas-form-field--wide { grid-column: 1 / -1; }
+.atlas-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.atlas-field-error { font-size: 12px; line-height: 18px; color: var(--color-danger); }
+.atlas-field-help { font-size: 12px; line-height: 18px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-index-layout { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; }
 .atlas-index-courses { min-width: 0; }
 .atlas-index-aside { display: none; }
@@ -2297,6 +2304,7 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
 }
 @media (max-width: 899.9px) {
     .atlas-index-filters { grid-template-columns: minmax(0, 1fr); }
+    .atlas-form-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
     .atlas-index-link { grid-template-columns: 22px minmax(0, 1fr); align-items: start; }

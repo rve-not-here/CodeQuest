@@ -69,20 +69,20 @@ class AdminUserTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.users'));
 
         $response->assertOk()
-            ->assertSee('User Management')
+            ->assertSee('Users')
             ->assertSee('chief_admin')
             ->assertSee('roster_student')
             ->assertSee('Roster Student')
             ->assertSee('roster_teacher')
             ->assertSee('roster_operator')
             ->assertSee('off_teacher')
-            ->assertSee('STUDENT')
-            ->assertSee('TEACHER')
-            ->assertSee('ADMIN')
-            ->assertSee('OPERATOR')
-            ->assertSee('ACTIVE')
-            ->assertSee('INACTIVE')
-            ->assertSee(now()->format('Y-m-d'));
+            ->assertSee('Student')
+            ->assertSee('Teacher')
+            ->assertSee('Admin')
+            ->assertSee('Operator')
+            ->assertSee('Active')
+            ->assertSee('Inactive')
+            ->assertSee(now()->format('M d, Y'));
     }
 
     public function test_user_directory_search_filters_username_and_name_server_side(): void
@@ -142,14 +142,14 @@ class AdminUserTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.users'))
             ->assertOk()
-            ->assertSee('SHOWING PAGE 1 OF 2')
+            ->assertSee('Page 1 of 2')
             ->assertSee('page_user_01')
             ->assertDontSee('page_user_12');
 
         $this->actingAs($admin)
             ->get(route('admin.users', ['page' => 2]))
             ->assertOk()
-            ->assertSee('SHOWING PAGE 2 OF 2')
+            ->assertSee('Page 2 of 2')
             ->assertSee('page_user_11')
             ->assertDontSee('page_user_01');
     }
@@ -254,12 +254,12 @@ class AdminUserTest extends TestCase
             ->assertOk()
             ->assertSee('detail_cadet')
             ->assertSee('Detail Cadet')
-            ->assertSee('STUDENT')
-            ->assertSee('ACTIVE')
-            ->assertSee($student->created_at->format('Y-m-d'))
+            ->assertSee('Student')
+            ->assertSee('Active')
+            ->assertSee($student->created_at->format('M d, Y'))
             ->assertSee('Booted the uplink array')
-            ->assertSee('EDIT →')
-            ->assertSee('◀ All users');
+            ->assertSee('Edit account →')
+            ->assertSee('All users');
     }
 
     public function test_admin_can_create_a_student_account(): void

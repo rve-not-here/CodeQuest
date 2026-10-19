@@ -1,158 +1,157 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', 'User Management')
+@section('title', 'Users')
 
 @section('content')
-    <div class="admin-management">
-    <x-page-header title="User Management" subtitle="Search accounts and manage roles and access.">
-        <x-slot:actions>
-            <a href="{{ route('admin.users.create') }}" class="btn-primary">+ NEW USER</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Users · Platform scope</span>
+            <span class="atlas-stamp atlas-stamp--ink">System-wide</span>
+        </div>
 
-    @if (session('status'))
-        <x-status-message type="success" title="RECORD SAVED" class="mb-4">
-            {{ session('status') }}
-        </x-status-message>
-    @endif
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Accounts</span>
+            <h1 class="atlas-records-title">Users</h1>
+            <p class="atlas-records-lede">Search accounts and manage roles and access. Every role and status change is recorded in the audit trail.</p>
+        </header>
 
-    <x-panel title="Account Directory">
-        <form method="GET" action="{{ route('admin.users') }}" class="admin-toolbar">
-            <div class="admin-toolbar-field admin-toolbar-field--wide">
-                <label for="q">Search</label>
-                <input
-                    id="q"
-                    name="q"
-                    type="search"
-                    value="{{ $filters['q'] ?? '' }}"
-                    placeholder="USERNAME / NAME"
-                    class="terminal-input"
-                 @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
-                @error('q')<p id="q-error" class="admin-field-error">{{ $message }}</p>@enderror
+        @if (session('status'))
+            <div class="atlas-records-alerts">
+                <div class="panel border-success/40 bg-success-soft px-4 py-3 text-sm" role="status">
+                    <strong class="text-success">Saved</strong>
+                    <span class="text-fg-muted">{{ session('status') }}</span>
+                </div>
             </div>
-
-            <div class="admin-toolbar-field">
-                <label for="role">Role</label>
-                <select id="role" name="role" class="terminal-input" @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
-                    <option value="">ALL ROLES</option>
-                    <option value="student" @selected(($filters['role'] ?? null) === 'student')>STUDENT</option>
-                    <option value="teacher" @selected(($filters['role'] ?? null) === 'teacher')>TEACHER</option>
-                    <option value="admin" @selected(($filters['role'] ?? null) === 'admin')>ADMIN</option>
-                    <option value="operator" @selected(($filters['role'] ?? null) === 'operator')>OPERATOR</option>
-                </select>
-                @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
-            </div>
-
-            <div class="admin-toolbar-actions">
-                <button type="submit" class="btn-ghost">FILTER →</button>
-                @if (! empty($filters['q']) || ! empty($filters['role']))
-                    <a href="{{ route('admin.users') }}" class="btn-ghost">CLEAR</a>
-                @endif
-            </div>
-
-            <p class="admin-toolbar-count">{{ $users->total() }} {{ Str::plural('user', $users->total()) }}</p>
-        </form>
-
-        @if ($errors->any())
-            <x-status-message type="error" title="QUERY REJECTED" class="mt-3">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </x-status-message>
         @endif
 
-        @if ($users->isEmpty())
-            <x-status-message type="info" title="NO USERS">
-                No users match these filters.
-            </x-status-message>
-        @else
-            <div class="admin-table-region">
-                <table class="table-stack admin-table" role="table">
-                    <caption>Account directory</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">User</th>
-                            <th scope="col">Role</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Created</th>
-                            <th scope="col">Last activity</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($users as $row)
-                            @php
-                                $roleTone = match ($row['role']) {
-                                    'admin' => 'cyan',
-                                    'teacher' => 'amber',
-                                    'operator' => 'dim',
-                                    default => 'phosphor',
-                                };
-                                $statusTone = $row['status'] === 'active' ? 'cyan' : 'amber';
-                            @endphp
+        <section class="atlas-record-group" aria-labelledby="accounts-title">
+            <div class="atlas-record-group-head">
+                <h2 id="accounts-title" class="atlas-record-group-title">Account directory</h2>
+                <p class="atlas-record-group-figure">{{ $users->total() }} {{ Str::plural('account', $users->total()) }} {{ $users->total() === 1 ? 'matches' : 'match' }} the current filters</p>
+            </div>
 
+            <form method="GET" action="{{ route('admin.users') }}" class="atlas-index-filters" aria-label="Account filters">
+                <div class="atlas-index-filter">
+                    <label for="q">Search</label>
+                    <input
+                        id="q"
+                        name="q"
+                        type="search"
+                        value="{{ $filters['q'] ?? '' }}"
+                        placeholder="Username or name"
+                        class="terminal-input"
+                     @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
+                    @error('q')<p id="q-error" class="admin-field-error">{{ $message }}</p>@enderror
+                </div>
+                <div class="atlas-index-filter">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" class="terminal-input" @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
+                        <option value="">All roles</option>
+                        <option value="student" @selected(($filters['role'] ?? null) === 'student')>Student</option>
+                        <option value="teacher" @selected(($filters['role'] ?? null) === 'teacher')>Teacher</option>
+                        <option value="admin" @selected(($filters['role'] ?? null) === 'admin')>Admin</option>
+                        <option value="operator" @selected(($filters['role'] ?? null) === 'operator')>Operator</option>
+                    </select>
+                    @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
+                </div>
+                <div class="atlas-index-filter-actions">
+                    <button type="submit" class="btn btn-primary">Apply filters</button>
+                    @if (! empty($filters['q']) || ! empty($filters['role']))
+                        <a href="{{ route('admin.users') }}" class="btn btn-ghost">Reset filters</a>
+                    @endif
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-secondary">New user →</a>
+                </div>
+            </form>
+
+            @if ($errors->any())
+                <div class="atlas-index-alerts">
+                    <div class="panel border-warning/40 bg-warning-soft px-4 py-3 text-sm" role="alert">
+                        <strong class="text-warning">Query rejected</strong>
+                        <span class="text-fg-muted">{{ $errors->first() }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if ($users->isEmpty())
+                <section class="atlas-records-empty" aria-labelledby="empty-accounts-title">
+                    <h3 id="empty-accounts-title" class="atlas-records-empty-title">No accounts match</h3>
+                    <p class="atlas-records-empty-copy">No users match these filters.</p>
+                    @if (! empty($filters['q']) || ! empty($filters['role']))
+                        <a href="{{ route('admin.users') }}" class="btn btn-ghost">Reset filters →</a>
+                    @endif
+                </section>
+            @else
+                <div class="atlas-register-table-wrap">
+                    <table class="table-stack atlas-register-table" role="table">
+                        <caption>Account directory</caption>
+                        <thead>
                             <tr>
-                                <th scope="row" data-label="User">
-                                    <a
-                                        href="{{ route('admin.users.show', $row['id']) }}"
-                                        class="text-accent hover:underline"
-                                    >{{ $row['username'] }}</a>
-                                    @if ($row['name'])
-                                        <span class="block text-[15px] text-fg-muted">{{ $row['name'] }}</span>
-                                    @endif
-                                </th>
-
-                                <td data-label="Role">
-                                    <x-badge tone="{{ $roleTone }}">{{ strtoupper($row['role']) }}</x-badge>
-                                </td>
-
-                                <td data-label="Status">
-                                    <x-badge tone="{{ $statusTone }}">{{ strtoupper($row['status']) }}</x-badge>
-                                </td>
-
-                                <td data-label="Created">
-                                    {{ $row['createdAt']->format('Y-m-d') }}
-                                </td>
-
-                                <td data-label="Last activity">
-                                    @if ($row['lastActivity'] !== null)
-                                        <span class="block text-ink">{{ $row['lastActivity']['message'] }}</span>
-                                        <span class="block text-[13px] text-fg-muted">{{ $row['lastActivity']['at'] }}</span>
-                                    @else
-                                        <span class="text-fg-muted">—</span>
-                                    @endif
-                                </td>
-
-                                <td data-label="Actions">
-                                    <a href="{{ route('admin.users.show', $row['id']) }}" class="admin-row-link">
-                                        VIEW →
-                                    </a>
-                                </td>
+                                <th scope="col">User</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Created</th>
+                                <th scope="col">Last activity</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($users as $row)
+                                @php
+                                    $roleTone = match ($row['role']) {
+                                        'admin' => 'atlas-stamp--acc',
+                                        'teacher' => 'atlas-stamp--amb',
+                                        'operator' => 'atlas-stamp--ink',
+                                        default => 'atlas-stamp--vio',
+                                    };
+                                    $roleLabel = match ($row['role']) {
+                                        'admin' => 'Admin',
+                                        'teacher' => 'Teacher',
+                                        'operator' => 'Operator',
+                                        default => 'Student',
+                                    };
+                                @endphp
+
+                                <tr>
+                                    <th scope="row" data-label="User">
+                                        <a href="{{ route('admin.users.show', $row['id']) }}">{{ $row['username'] }}</a>
+                                        @if ($row['name'])
+                                            <span class="atlas-register-note">{{ $row['name'] }}</span>
+                                        @endif
+                                    </th>
+                                    <td data-label="Role"><span class="atlas-stamp {{ $roleTone }}">{{ $roleLabel }}</span></td>
+                                    <td data-label="Status"><span class="atlas-stamp {{ $row['status'] === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ $row['status'] === 'active' ? 'Active' : 'Inactive' }}</span></td>
+                                    <td data-label="Created">{{ $row['createdAt']->format('M d, Y') }}</td>
+                                    <td data-label="Last activity">
+                                        @if ($row['lastActivity'] !== null)
+                                            <span>{{ $row['lastActivity']['message'] }}</span>
+                                            <span class="atlas-register-note">{{ $row['lastActivity']['at'] }}</span>
+                                        @else
+                                            <span class="atlas-register-note">No activity recorded</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
                 @if ($users->hasPages())
-                    <div class="panel-pagination">
-                        <p>SHOWING PAGE {{ $users->currentPage() }} OF {{ $users->lastPage() }}</p>
-                        <div class="flex items-center gap-2">
+                    <nav class="atlas-records-pager" aria-label="Account directory pages">
+                        <p class="atlas-records-pager-figure">Showing {{ $users->firstItem() }}–{{ $users->lastItem() }} of {{ $users->total() }} · Page {{ $users->currentPage() }} of {{ $users->lastPage() }}</p>
+                        <div class="atlas-records-pager-actions">
                             @if ($users->onFirstPage())
-                                <span class="btn-ghost opacity-50 pointer-events-none">◀ PREV</span>
+                                <span class="btn btn-secondary btn-sm atlas-records-pager-off" aria-disabled="true">← Previous</span>
                             @else
-                                <a href="{{ $users->previousPageUrl() }}" class="btn-ghost">◀ PREV</a>
+                                <a href="{{ $users->previousPageUrl() }}" class="btn btn-secondary btn-sm">← Previous</a>
                             @endif
-
                             @if ($users->hasMorePages())
-                                <a href="{{ $users->nextPageUrl() }}" class="btn-ghost">NEXT ▶</a>
+                                <a href="{{ $users->nextPageUrl() }}" class="btn btn-secondary btn-sm">Next →</a>
                             @else
-                                <span class="btn-ghost opacity-50 pointer-events-none">NEXT ▶</span>
+                                <span class="btn btn-secondary btn-sm atlas-records-pager-off" aria-disabled="true">Next →</span>
                             @endif
                         </div>
-                    </div>
+                    </nav>
                 @endif
-            </div>
-        @endif
-    </x-panel>
+            @endif
+        </section>
     </div>
 @endsection

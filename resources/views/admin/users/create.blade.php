@@ -1,103 +1,104 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', 'Create User')
+@section('title', 'New user')
 
 @section('content')
-    <div class="admin-management">
-    <nav class="admin-crumbs" aria-label="Breadcrumb">
-        <a href="{{ route('admin.users') }}">Users</a>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">Create User</span>
-    </nav>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Users · Platform scope</span>
+            <a href="{{ route('admin.users') }}">← All users</a>
+        </div>
 
-    <x-page-header title="Create User" subtitle="Create an account and choose its role." />
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Accounts</span>
+            <h1 class="atlas-records-title">New user</h1>
+            <p class="atlas-records-lede">Create an account and choose its role. The account is active from its first sign-in.</p>
+        </header>
 
-    @if ($errors->any())
-        <x-status-message type="error" title="INPUT REJECTED" class="mb-4">
-            <ul>
-                @foreach ($errors->messages() as $field => $messages)
-                    @foreach ($messages as $error)
-                        <li><a href="#{{ Str::before($field, '.') }}">{{ $error }}</a></li>
-                    @endforeach
-                @endforeach
-            </ul>
-        </x-status-message>
-    @endif
-
-    <x-panel title="Account">
-        <form method="POST" action="{{ route('admin.users.store') }}" class="admin-form">
-            @csrf
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="username" class="block text-sm font-bold text-fg-muted mb-1">
-                        Username
-                    </label>
-                    <input
-                        id="username"
-                        type="text"
-                        name="username"
-                        value="{{ old('username') }}"
-                        required
-                        maxlength="64"
-                        class="terminal-input"
-                     @if ($errors->has('username')) aria-invalid="true" aria-describedby="username-error" @endif>
-                    @error('username')<p id="username-error" class="admin-field-error">{{ $message }}</p>@enderror
-                </div>
-
-                <div>
-                    <label for="name" class="block text-sm font-bold text-fg-muted mb-1">
-                        Name
-                    </label>
-                    <input
-                        id="name"
-                        type="text"
-                        name="name"
-                        value="{{ old('name') }}"
-                        required
-                        maxlength="128"
-                        class="terminal-input"
-                     @if ($errors->has('name')) aria-invalid="true" aria-describedby="name-error" @endif>
-                    @error('name')<p id="name-error" class="admin-field-error">{{ $message }}</p>@enderror
-                </div>
-
-                <div>
-                    <label for="role" class="block text-sm font-bold text-fg-muted mb-1">
-                        Role
-                    </label>
-                    <select id="role" name="role" class="terminal-input" required @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
-                        <option value="student" @selected(old('role') === 'student')>STUDENT</option>
-                        <option value="teacher" @selected(old('role') === 'teacher')>TEACHER</option>
-                        <option value="admin" @selected(old('role') === 'admin')>ADMIN</option>
-                    </select>
-                    @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
-                </div>
-
-                <div>
-                    <label for="password" class="block text-sm font-bold text-fg-muted mb-1">
-                        Initial password
-                    </label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        required
-                        minlength="8"
-                        autocomplete="new-password"
-                        class="terminal-input"
-                     aria-describedby="{{ $errors->has('password') ? 'password-help password-error' : 'password-help' }}" @if ($errors->has('password')) aria-invalid="true" @endif>
-                    @error('password')<p id="password-error" class="admin-field-error">{{ $message }}</p>@enderror
-                    <p id="password-help" class="admin-field-help">
-                        At least 8 characters.
-                    </p>
+        @if ($errors->any())
+            <div class="atlas-records-alerts">
+                <div class="panel border-danger/40 bg-danger-soft px-4 py-3 text-sm" role="alert">
+                    <strong class="text-danger">Input rejected</strong>
+                    <ul class="mt-1 list-disc pl-5">
+                        @foreach ($errors->messages() as $field => $messages)
+                            @foreach ($messages as $error)
+                                <li><a href="#{{ Str::before($field, '.') }}" class="underline underline-offset-2">{{ $error }}</a></li>
+                            @endforeach
+                        @endforeach
+                    </ul>
                 </div>
             </div>
+        @endif
 
-            <div class="admin-form-actions">
-                <button type="submit" class="btn-primary">CREATE ACCOUNT →</button>
-                <a href="{{ route('admin.users') }}" class="btn-ghost">CANCEL</a>
+        <section class="atlas-record-group" aria-labelledby="account-title">
+            <div class="atlas-record-group-head">
+                <h2 id="account-title" class="atlas-record-group-title">Account</h2>
+                <p class="atlas-record-group-figure">Identity and access</p>
             </div>
-        </form>
-    </x-panel>
+
+            <form method="POST" action="{{ route('admin.users.store') }}" class="atlas-form">
+                @csrf
+
+                <div class="atlas-form-grid">
+                    <div class="atlas-form-field">
+                        <label for="username" class="atlas-lesson-entry-label">Username</label>
+                        <input
+                            id="username"
+                            type="text"
+                            name="username"
+                            value="{{ old('username') }}"
+                            required
+                            maxlength="64"
+                            class="terminal-input"
+                         @if ($errors->has('username')) aria-invalid="true" aria-describedby="username-error" @endif>
+                        @error('username')<p id="username-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="atlas-form-field">
+                        <label for="name" class="atlas-lesson-entry-label">Name</label>
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            value="{{ old('name') }}"
+                            required
+                            maxlength="128"
+                            class="terminal-input"
+                         @if ($errors->has('name')) aria-invalid="true" aria-describedby="name-error" @endif>
+                        @error('name')<p id="name-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="atlas-form-field">
+                        <label for="role" class="atlas-lesson-entry-label">Role</label>
+                        <select id="role" name="role" class="terminal-input" required @if ($errors->has('role')) aria-invalid="true" aria-describedby="role-error" @endif>
+                            <option value="student" @selected(old('role') === 'student')>Student</option>
+                            <option value="teacher" @selected(old('role') === 'teacher')>Teacher</option>
+                            <option value="admin" @selected(old('role') === 'admin')>Admin</option>
+                        </select>
+                        @error('role')<p id="role-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="atlas-form-field">
+                        <label for="password" class="atlas-lesson-entry-label">Initial password</label>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            minlength="8"
+                            autocomplete="new-password"
+                            class="terminal-input"
+                         aria-describedby="{{ $errors->has('password') ? 'password-help password-error' : 'password-help' }}" @if ($errors->has('password')) aria-invalid="true" @endif>
+                        @error('password')<p id="password-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                        <p id="password-help" class="atlas-field-help">At least 8 characters.</p>
+                    </div>
+                </div>
+
+                <div class="atlas-form-actions">
+                    <button type="submit" class="btn btn-primary">Create account →</button>
+                    <a href="{{ route('admin.users') }}" class="btn btn-ghost">Cancel</a>
+                </div>
+            </form>
+        </section>
     </div>
 @endsection
