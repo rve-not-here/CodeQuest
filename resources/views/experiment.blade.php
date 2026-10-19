@@ -2,36 +2,71 @@
 
 @section('title', 'Experiment: '.$mission->title)
 
+@php
+    $language = match ($course?->type) {
+        'css' => 'CSS',
+        'js', 'javascript' => 'JavaScript',
+        default => 'HTML',
+    };
+@endphp
+
 @section('content')
     <div class="atlas-practice">
-        <a href="{{ route('mission.show', $mission) }}" class="btn btn-ghost">← BACK TO LESSON</a>
+        <div class="log-running">
+            <span>
+                @if ($course)
+                    Log sheet {{ str_pad((string) $course->order_num, 3, '0', STR_PAD_LEFT) }} · {{ $course->name }}
+                @else
+                    Experiment
+                @endif
+            </span>
+            <a href="{{ route('mission.show', $mission) }}" aria-label="Return to {{ $mission->title }} lesson">Lesson →</a>
+        </div>
+
         <header class="atlas-reading-heading">
+            <div class="atlas-lesson-entry">
+                <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Experiment</span>
+                <span class="atlas-stamp atlas-stamp--ink">Not recorded</span>
+            </div>
             <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
-             <p class="text-xs text-fg-subtle mt-1">Ungraded experiment</p>
-            <p class="mt-2 text-sm text-fg-muted">Try changes and preview the result. Experiments do not submit answers, award XP, or change your progress.</p>
+            <p class="atlas-check-lede">Ungraded experiment. Try changes and preview the result. Experiments do not submit answers, award XP, or change your progress.</p>
+            <dl class="log-facts atlas-practice-facts">
+                <div>
+                    <dt>Language</dt>
+                    <dd class="is-numeric">{{ $language }}</dd>
+                </div>
+                <div>
+                    <dt>Scoring</dt>
+                    <dd>None</dd>
+                </div>
+            </dl>
         </header>
+
         @if ($mission->description)
             <section class="atlas-practice-context" aria-label="Example context"><p>{{ $mission->description }}</p></section>
         @endif
+
         <div class="atlas-practice-controls">
             <div class="atlas-practice-modes" aria-label="Practice views">
                 <button type="button" id="practice-code" data-practice-mode="code" aria-pressed="true" aria-controls="practice-code-panel" class="btn btn-ghost">Code</button>
-                <button type="button" id="practice-output" data-practice-mode="output" aria-pressed="false" aria-controls="practice-output-panel" class="btn btn-ghost">Output</button>
+                <button type="button" id="practice-output" data-practice-mode="output" aria-pressed="false" aria-controls="practice-output-panel" class="btn btn-ghost">Preview</button>
             </div>
-            <button type="button" id="experiment-run" class="btn btn-primary">RUN / PREVIEW</button>
-            <button type="button" id="experiment-reset" class="btn btn-ghost">RESET EXAMPLE</button>
+            <div class="atlas-practice-actions">
+                <button type="button" id="experiment-run" class="btn btn-primary">Run preview <x-workspace-icon name="play" /></button>
+                <button type="button" id="experiment-reset" class="btn btn-ghost">Reset example</button>
+            </div>
         </div>
         <div id="practice-workspace" class="atlas-practice-workspace" data-mode="code">
             <section id="practice-code-panel" class="atlas-practice-code" aria-labelledby="experiment-editor-title">
-                <h2 id="experiment-editor-title" class="mb-3 font-semibold">Editable example</h2>
-                <div id="editor-host" class="min-h-80"></div>
+                <header class="atlas-practice-heading"><h2 id="experiment-editor-title">Code</h2></header>
+                <div id="editor-host"></div>
             </section>
             <section id="practice-output-panel" class="atlas-practice-output" aria-labelledby="experiment-preview-title">
-                <h2 id="experiment-preview-title" class="mb-3 font-semibold">Preview output</h2>
-                <iframe id="experiment-preview" class="h-96 w-full bg-white" title="Experiment preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                <header class="atlas-practice-heading"><h2 id="experiment-preview-title">Preview</h2></header>
+                <iframe id="experiment-preview" title="Experiment preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
             </section>
         </div>
-        <a href="{{ route('mission.show', $mission) }}" class="btn btn-secondary atlas-practice-return">RETURN TO LESSON →</a>
+        <a href="{{ route('mission.show', $mission) }}" class="btn btn-secondary atlas-practice-return">Return to lesson <x-workspace-icon name="chevron-right" /></a>
     </div>
     @push('scripts')
     <script>

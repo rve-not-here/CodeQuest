@@ -2640,16 +2640,23 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-lesson-next-actions > .btn { width: auto; }
 .atlas-lesson-next-actions dl { width: 100%; max-width: 360px; }
 .atlas-lesson-next-actions > a:last-child { width: 100%; }
-.atlas-practice { min-width: 0; }
+/* The experiment is the bench: an ungraded pad with a code cell and a preview cell. */
+.atlas-practice { max-width: 1180px; min-width: 0; }
+.atlas-practice-facts { margin-top: 22px; }
 .atlas-practice-context { max-width: 68ch; margin-bottom: 32px; font-size: 16px; line-height: 26px; white-space: pre-line; overflow-wrap: anywhere; }
-.atlas-practice-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-block: 1px solid var(--color-line-strong); padding-block: 12px; }
+.atlas-practice-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-block: 12px; border-block: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
 .atlas-practice-modes { display: none; }
-.atlas-practice-workspace { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); border-bottom: 1px solid var(--color-line-strong); }
-.atlas-practice-code, .atlas-practice-output { min-width: 0; padding: 20px; background: var(--color-surface); }
-.atlas-practice-output { border-left: 1px solid var(--color-line-strong); }
-.atlas-practice-workspace h2 { font-size: 16px; line-height: 24px; }
-.atlas-practice-code .cm-editor { height: 420px; }
+.atlas-practice-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.atlas-practice-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-top: 0; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
+.atlas-practice-code, .atlas-practice-output { display: flex; flex-direction: column; min-width: 0; }
+.atlas-practice-output { border-left: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
+.atlas-practice-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 6px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.atlas-practice-heading h2 { font-family: var(--font-display); font-size: 12px; line-height: 1.3; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-practice-code #editor-host { flex: 1; min-width: 0; height: 460px; }
+.atlas-practice-code .cm-editor { height: 100%; }
 .atlas-practice-code .cm-scroller { overflow: auto; }
+/* The preview is the student's own render: its white ground is truthful and never tokenised. */
+.atlas-practice-output iframe { display: block; width: 100%; height: 460px; border: 0; background: white; }
 .atlas-practice-return { margin-top: 24px; }
 /* A knowledge check is a test paper: numbered questions ruled down the sheet and a
    submit rail that stays in reach while the student works. */
@@ -2716,7 +2723,7 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 }
 @media (max-width: 900px) {
     .atlas-practice-modes { display: flex; gap: 4px; margin-right: auto; }
-    .atlas-practice-modes [aria-pressed="true"] { color: var(--color-accent); border-bottom: 2px solid var(--color-accent); }
+    .atlas-practice-modes [aria-pressed="true"] { color: var(--color-fg); border-bottom-color: var(--color-accent); }
     .atlas-practice-workspace { grid-template-columns: minmax(0, 1fr); }
     .atlas-practice-output { border-left: 0; }
     .atlas-practice-workspace[data-mode="code"] .atlas-practice-output,
@@ -2730,13 +2737,15 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     .atlas-check-result-score { flex-direction: row; align-items: center; gap: 16px; }
     .atlas-check-result-score strong { font-size: 32px; }
     .atlas-check-review-answers { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .atlas-practice-actions { width: 100%; }
+    .atlas-practice-actions .btn { flex: 1 1 auto; justify-content: center; }
+    .atlas-practice-code #editor-host, .atlas-practice-output iframe { height: 380px; }
 }
 @media (max-width: 480px) {
-    .atlas-reading-title { font-size: 30px; line-height: 38px; }
+    .atlas-reading-title { font-size: clamp(24px, 7vw, 30px); line-height: 1.2; }
     .atlas-reading-heading { padding-block: 16px 24px; margin-bottom: 32px; }
     .atlas-lesson-example pre { padding: 16px; }
     .atlas-lesson-next-actions { align-items: stretch; flex-direction: column; }
-    .atlas-practice-code, .atlas-practice-output { padding: 16px 0; }
     .atlas-practice-modes { width: 100%; }
 }
 

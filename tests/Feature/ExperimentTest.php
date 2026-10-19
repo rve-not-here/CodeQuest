@@ -77,7 +77,7 @@ JS]);
 
         $this->actingAs($student)->get(route('mission.show', $mission))->assertSee(route('mission.experiment', $mission));
         $this->get(route('mission.experiment', $mission))
-            ->assertOk()->assertSee('Ungraded experiment')->assertSee('RESET EXAMPLE')
+            ->assertOk()->assertSee('Ungraded experiment')->assertSee('Reset example')
             ->assertSee('data-practice-mode="code"', false)
             ->assertSee('data-practice-mode="output"', false)
             ->assertDontSee('PRIVATE SOLUTION')->assertDontSee('SUBMIT CHALLENGE');
