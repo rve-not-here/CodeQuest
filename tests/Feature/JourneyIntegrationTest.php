@@ -127,7 +127,7 @@ class JourneyIntegrationTest extends TestCase
             ->assertOk()
             ->assertSee('HTML Fundamentals')
             ->assertSee($alphaMissions[0]->title)
-            ->assertSee('Continue Learning →');
+            ->assertSee('Continue learning →');
 
         // FOLLOW THE RESUME LINK the student would click: the dashboard's
         // Continue Learning deep-links the first unfinished mission.
@@ -164,7 +164,7 @@ class JourneyIntegrationTest extends TestCase
             ->assertOk()
             ->assertSee('Boss Challenge ready')
             ->assertSee('Return to the Learning Path to inspect the course milestone.')
-            ->assertSee('Continue Learning →');
+            ->assertSee('Continue learning →');
 
         // ASSESSMENT: the challenge screen presents its initiate state.
         $this->get(route('assessment.show', $alphaChallenge))
@@ -208,7 +208,7 @@ class JourneyIntegrationTest extends TestCase
         // RECOMMENDATION: next course is the recommendation the student now
         // sees on /recommendations.
         $recommendations = $this->get(route('recommendations'))->assertOk()->getContent();
-        $this->assertTrue($this->contentContains($recommendations, 'Next Course'));
+        $this->assertTrue($this->contentContains($recommendations, 'Next course'));
         $this->assertTrue($this->contentContains($recommendations, $beta->name));
     }
 }

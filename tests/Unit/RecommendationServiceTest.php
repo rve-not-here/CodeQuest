@@ -46,7 +46,7 @@ class RecommendationServiceTest extends TestCase
         [$card] = $this->service->recommendations($user)->all();
 
         $this->assertSame(1, $card['slot']);
-        $this->assertSame('Continue Learning', $card['title']);
+        $this->assertSame('Continue learning', $card['title']);
         $this->assertStringContainsString($missions[1]->title, $card['subtitle']);
         $this->assertSame(route('mission.show', $missions[1]), $card['href']);
     }
@@ -60,7 +60,7 @@ class RecommendationServiceTest extends TestCase
         [$card] = $this->service->recommendations($user)->all();
 
         $this->assertSame(1, $card['slot']);
-        $this->assertSame('Continue Learning', $card['title']);
+        $this->assertSame('Continue learning', $card['title']);
         $this->assertSame(route('mission.show', $first), $card['href']);
     }
 
@@ -77,7 +77,7 @@ class RecommendationServiceTest extends TestCase
         [$card] = $this->service->recommendations($user)->all();
 
         $this->assertSame(4, $card['slot']);
-        $this->assertSame('Next Course', $card['title']);
+        $this->assertSame('Next course', $card['title']);
         $this->assertStringContainsString($next->name, $card['subtitle']);
         $this->assertSame(route('learning-path'), $card['href']);
     }
@@ -310,7 +310,7 @@ class RecommendationServiceTest extends TestCase
 
         $this->assertSame([3, 4], collect($cards)->pluck('slot')->all());
         $this->assertSame('Review', $cards[0]['title']);
-        $this->assertSame('Next Course', $cards[1]['title']);
+        $this->assertSame('Next course', $cards[1]['title']);
         $this->assertStringContainsString($next->name, $cards[1]['subtitle']);
     }
 

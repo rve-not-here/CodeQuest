@@ -43,7 +43,7 @@ class TeacherRecommendationVisibilityTest extends TestCase
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
             ->assertSee('RECOMMENDATIONS')
-            ->assertSee('Continue Learning')
+            ->assertSee('Continue learning')
             ->assertSee('Shared Signal')
             ->getContent();
 

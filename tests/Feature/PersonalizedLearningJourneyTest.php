@@ -197,7 +197,7 @@ class PersonalizedLearningJourneyTest extends TestCase
         foreach ([route('recommendations'), route('learning-path')] as $page) {
             $this->actingAs($student)->get($page)
                 ->assertOk()
-                ->assertSee('Next Course')
+                ->assertSee('Next course')
                 ->assertSee('Course Beta');
         }
 
@@ -211,7 +211,7 @@ class PersonalizedLearningJourneyTest extends TestCase
             ->get(route('student-progress', ['student' => $student->id]))
             ->assertOk()
             ->assertSee('DEMONSTRATED')
-            ->assertSee('Next Course')
+            ->assertSee('Next course')
             ->assertSee('Course Beta')
             ->getContent();
 

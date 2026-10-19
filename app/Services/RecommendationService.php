@@ -158,7 +158,7 @@ class RecommendationService
             'title' => 'Boss Challenge',
             'subtitle' => $course->name.' · '.($assessment->title ?? 'Take the Boss Challenge'),
             'href' => $unlocked && $assessment !== null ? route('assessment.show', $assessment) : route('learning-path'),
-            'cta' => $unlocked ? 'START CHALLENGE' : 'VIEW LEARNING PATH',
+            'cta' => $unlocked ? 'Start challenge' : 'View learning path',
         ];
     }
 
@@ -179,10 +179,10 @@ class RecommendationService
     {
         return [
             'slot' => 1,
-            'title' => 'Continue Learning',
+            'title' => 'Continue learning',
             'subtitle' => $mission->title.' · '.($mission->course->name ?? ''),
             'href' => route('mission.show', $mission),
-            'cta' => 'CONTINUE',
+            'cta' => 'Continue',
         ];
     }
 
@@ -204,10 +204,10 @@ class RecommendationService
     {
         return [
             'slot' => 1,
-            'title' => 'Continue Learning',
+            'title' => 'Continue learning',
             'subtitle' => $course->name,
             'href' => route('learning-path'),
-            'cta' => 'CONTINUE',
+            'cta' => 'Continue',
         ];
     }
 
@@ -231,10 +231,10 @@ class RecommendationService
     {
         return [
             'slot' => 4,
-            'title' => 'Next Course',
+            'title' => 'Next course',
             'subtitle' => $course->name,
             'href' => route('learning-path'),
-            'cta' => 'OPEN COURSE',
+            'cta' => 'Open course',
         ];
     }
 
@@ -385,7 +385,7 @@ class RecommendationService
             'title' => 'Review',
             'subtitle' => $mission->title.' · '.($mission->course->name ?? ''),
             'href' => route('mission.show', $mission),
-            'cta' => 'REVIEW',
+            'cta' => 'Review',
             'accessible' => $accessible,
             'locked_reason' => $accessible ? null : 'Course access is sealed. Pass earlier courses or return when this course is active.',
         ];

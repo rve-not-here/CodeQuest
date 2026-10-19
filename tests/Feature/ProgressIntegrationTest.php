@@ -221,7 +221,7 @@ class ProgressIntegrationTest extends TestCase
         $after = $this->recommendations($user);
         $this->assertCount(1, $after);
         $this->assertSame(4, $after->first()['slot']);
-        $this->assertSame('Next Course', $after->first()['title']);
+        $this->assertSame('Next course', $after->first()['title']);
         $this->assertStringContainsString($beta->name, $after->first()['subtitle']);
     }
 

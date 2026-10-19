@@ -61,7 +61,7 @@ class DashboardTest extends TestCase
             ->assertOk()
             ->assertSee($course->name)
             ->assertSee($course->missions()->where('order_num', 2)->firstOrFail()->title)
-            ->assertSee('Continue Learning →')
+            ->assertSee('Continue learning →')
             ->assertSee('<dl class="atlas-dashboard-wall"', false)
             ->assertSeeInOrder([
                 '<dt>XP balance</dt>',
@@ -74,7 +74,7 @@ class DashboardTest extends TestCase
             ->assertSee('<dt>Type</dt>', false)
             ->assertSee('<dt>Difficulty</dt>', false)
             ->assertSee('<dt>Completion reward</dt>', false)
-            ->assertSeeInOrder(['Current Objective', 'Mission 2', 'Continue Learning', 'Recent learning evidence'])
+            ->assertSeeInOrder(['Current Objective', 'Mission 2', 'Continue learning', 'Recent learning evidence'])
             ->assertSee(route('recommendations'))
             ->assertSee(route('xp-ledger'))
             ->assertDontSee('class="sort-code"', false)
@@ -195,7 +195,7 @@ class DashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee(route('mission.show', $missionTwo))
-            ->assertSee('Continue Learning →');
+            ->assertSee('Continue learning →');
     }
 
     public function test_continue_learning_never_jumps_to_the_assessment_when_the_challenge_is_pending(): void
@@ -246,7 +246,7 @@ class DashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('Resume Challenge →')
+            ->assertSee('Resume challenge →')
             ->assertSee('Saved work detected.')
             ->assertSee('href="'.route('mission.challenge', $missionTwo).'"', false)
             ->assertSee('Practicing');

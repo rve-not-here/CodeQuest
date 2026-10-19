@@ -48,7 +48,7 @@ class RecommendationsTest extends TestCase
             ->assertOk()
             ->assertSee('<ol aria-label="Recommended actions"', false)
             ->assertSee('Priority 1')
-            ->assertSee('Continue Learning')
+            ->assertSee('Continue learning')
             ->assertSee('Rusty Lockbox')
             ->assertSee(route('mission.show', $mission));
     }

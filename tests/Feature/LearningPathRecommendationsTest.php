@@ -42,8 +42,8 @@ class LearningPathRecommendationsTest extends TestCase
             ->get(route('learning-path'))
             ->assertOk()
             ->assertSee('Recommended next actions')
-            ->assertSee('PRIORITY 1')
-            ->assertSee('Continue Learning')
+            ->assertSee('Priority 1')
+            ->assertSee('Continue learning')
             ->assertSee('Rusty Lockbox')
             ->assertSee(route('mission.show', $mission));
     }
@@ -103,8 +103,8 @@ class LearningPathRecommendationsTest extends TestCase
 
         // The viewer earns exactly one card (their own unfinished mission).
         // The other student's review card for the shared mission must not
-        // render: PRIORITY badges appear only inside recommendation cards.
-        $this->assertSame(1, substr_count($content, 'PRIORITY '));
+        // render: priority labels appear only inside recommendation cards.
+        $this->assertSame(1, substr_count($content, 'Priority '));
     }
 
     public function test_recommendation_into_a_sealed_course_shows_no_actionable_link(): void

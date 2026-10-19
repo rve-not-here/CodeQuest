@@ -43,7 +43,7 @@
     <div class="atlas-dashboard">
         <div class="log-running">
             <span>{{ $course !== null ? 'Log sheet'.($sheetNumber !== null ? ' '.$sheetNumber : '').' · '.$course->name : 'Learning log' }}</span>
-            <a href="{{ route('learning-path') }}">View Learning Path →</a>
+            <a href="{{ route('learning-path') }}">Learning path →</a>
         </div>
 
         <dl class="atlas-dashboard-wall" aria-label="Standing record">
@@ -123,9 +123,9 @@
             </div>
             <div class="atlas-dashboard-actions">
                 @if ($mission !== null)
-                    <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $resumeHasDraft ? 'Resume Challenge' : 'Continue Learning' }} →</a>
+                    <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $resumeHasDraft ? 'Resume challenge' : 'Continue learning' }} →</a>
                 @else
-                    <a href="{{ route('learning-path') }}" class="btn btn-primary btn-lg">{{ $course === null ? 'View Learning Path' : 'Continue Learning' }} →</a>
+                    <a href="{{ route('learning-path') }}" class="btn btn-primary btn-lg">{{ $course === null ? 'View learning path' : 'Continue learning' }} →</a>
                 @endif
             </div>
         </section>

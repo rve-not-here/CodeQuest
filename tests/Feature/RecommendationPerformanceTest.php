@@ -231,9 +231,9 @@ class RecommendationPerformanceTest extends TestCase
 
         // Position card: first unfinished mission of the final course.
         $this->assertSame(1, $cards[0]['slot']);
-        $this->assertSame('Continue Learning', $cards[0]['title']);
+        $this->assertSame('Continue learning', $cards[0]['title']);
         $this->assertSame('Mission 2-3 · Perf Course 2', $cards[0]['subtitle']);
-        $this->assertSame('CONTINUE', $cards[0]['cta']);
+        $this->assertSame('Continue', $cards[0]['cta']);
 
         // Review queue: completed missions with 3 recent wrong submissions,
         // capped at 3, order aside (same-second timestamps tie).
