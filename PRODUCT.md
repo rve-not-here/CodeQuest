@@ -22,7 +22,7 @@ Success means each role can identify its next important action quickly, understa
 
 ## Positioning
 
-CodeQuest combines a freeCodeCamp-style learning path, boot.dev-style progression, and a server-authoritative assessment system inside the System 404 terminal fiction. Preview output never determines correctness. The server owns validation, progression, XP, competency, and unlock state.
+CodeQuest combines a freeCodeCamp-style learning path, boot.dev-style progression, and a server-authoritative assessment system in the System 404 setting. Preview output never determines correctness. The server owns validation, progression, XP, competency, and unlock state.
 
 ## Operating context
 
@@ -46,7 +46,7 @@ The student Challenge is a focused workspace adopted on 2026-10-15: Code and Pre
 
 ## Brand commitments
 
-Keep the CodeQuest name, System 404 fiction, retro-computing character, and learning-through-repair premise. No current layout, palette, component style, typography, or decorative treatment is protected. The redesign may replace the current visual system completely, and the visual world is still an open decision.
+Keep the CodeQuest name, the System 404 flavour in copy, and the learning-through-repair premise. No current layout, palette, component style, typography, or decorative treatment is protected. The committed visual world is The Engineer's Log (chosen by the user 2026-10-19, seed:914c026a6b42634d); its contract is recorded at `.impeccable/surfaces/resources-views-layouts-app-blade-php.md`. The fiction no longer constrains the visual system: the interface is a working tool, and copy may keep the System 404 flavour where it clarifies.
 
 The binding Challenge workspace commitment above is a functional and behavioral constraint, not a visual style. It fixes what the screen does and how it separates work from evaluation; it does not fix palette, typography, iconography, or control styling.
 
@@ -60,7 +60,7 @@ The repository contains working Blade screens for all three roles, real applicat
 - Use one coherent visual language across all roles.
 - Let role-specific tasks determine density and hierarchy.
 - Keep learning and assessment state legible and trustworthy.
-- Use the System 404 fiction to clarify interaction, not obstruct it.
+- Keep the System 404 flavour in words, never as a visual costume.
 
 ## Accessibility and inclusion
 
