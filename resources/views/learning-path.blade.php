@@ -4,11 +4,6 @@
 
 @section('content')
     <div class="atlas-path">
-        <header class="atlas-path-heading">
-            <div><h1>Learning Path</h1><p>Your courses, challenges, and course-level assessments.</p></div>
-            <span class="atlas-path-meta">XP {{ number_format($totalXp) }}</span>
-        </header>
-
         @php
             $totalCompleted = 0;
             $totalChallenges = 0;
@@ -18,6 +13,16 @@
             }
             $overallPercent = $totalChallenges > 0 ? (int) round($totalCompleted / $totalChallenges * 100) : 0;
         @endphp
+
+        <div class="log-running">
+            <span>Log index · {{ $tree->count() }} {{ $tree->count() === 1 ? 'course' : 'courses' }} · {{ $totalCompleted }} / {{ $totalChallenges }} challenges</span>
+            <a href="{{ route('timeline') }}">View learning record →</a>
+        </div>
+
+        <header class="atlas-path-heading">
+            <div><h1>Learning Path</h1><p>Your courses, challenges, and course-level assessments.</p></div>
+            <span class="atlas-path-meta">XP {{ number_format($totalXp) }}</span>
+        </header>
 
         @if ($nextMission !== null)
             <section class="atlas-path-continue" aria-labelledby="continue-heading">
@@ -120,7 +125,16 @@
                         </ol>
                         <section class="atlas-path-boss" aria-labelledby="boss-{{ $pathCourse->id }}-title">
                             <span class="atlas-path-marker" aria-hidden="true"></span>
-                            <p class="atlas-path-meta">Final course milestone · Boss {{ ucfirst(strtolower($boss['state'])) }}</p>
+                            <div class="atlas-path-boss-labels">
+                                <p class="atlas-path-meta">Final course milestone</p>
+                                @if ($boss['state'] === 'PASSED')
+                                    <span class="atlas-stamp atlas-stamp--grn">Passed</span>
+                                @elseif ($boss['state'] === 'AVAILABLE')
+                                    <span class="atlas-stamp atlas-stamp--ink">Available</span>
+                                @elseif ($boss['assessment'] !== null)
+                                    <span class="atlas-stamp atlas-stamp--ink">Locked</span>
+                                @endif
+                            </div>
                             <h3 id="boss-{{ $pathCourse->id }}-title">{{ $boss['assessment']?->title ?? 'Boss Challenge' }}</h3>
                             <p class="atlas-path-note">{{ $boss['reason'] }}</p>
                             @if ($boss['assessment'] !== null && $boss['accessible'])

@@ -243,7 +243,7 @@ class LearningPathTest extends TestCase
             ->get(route('learning-path'))
             ->assertOk()
             ->assertSee('Final course milestone')
-            ->assertSee('Boss Available')
+            ->assertSee('atlas-stamp atlas-stamp--ink">Available', false)
             ->assertSee(route('assessment.show', $assessment));
     }
 }

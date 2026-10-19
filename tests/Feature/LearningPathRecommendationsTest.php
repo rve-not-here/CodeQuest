@@ -243,7 +243,7 @@ class LearningPathRecommendationsTest extends TestCase
             ->assertOk()
             ->assertDontSee('Recommended next actions')
             ->assertSee('Cleared Signal')
-            ->assertSee('Boss Passed');
+            ->assertSee('atlas-stamp atlas-stamp--grn">Passed', false);
     }
 
     public function test_learning_path_states_survive_the_recommendation_panel(): void
