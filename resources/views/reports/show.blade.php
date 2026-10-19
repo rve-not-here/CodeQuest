@@ -95,10 +95,10 @@
                         <p class="atlas-record-group-note">{{ $section['note'] }}</p>
                     @endif
                     @if ($section['rows'] === [])
-                        <p class="atlas-report-empty">No evidence matches this section's scope and filters.</p>
+                        <p class="atlas-register-empty">No evidence matches this section's scope and filters.</p>
                     @else
-                        <div class="atlas-report-table-wrap">
-                            <table class="table-stack atlas-report-table" role="table">
+                        <div class="atlas-register-table-wrap">
+                            <table class="table-stack atlas-register-table" role="table">
                                 <thead>
                                     <tr>
                                         @foreach ($section['columns'] as $column)

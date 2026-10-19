@@ -213,8 +213,8 @@ class AdministrativeIntegrationTest extends TestCase
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString('The 404 Challenge', $roster);
         $this->assertStringContainsString($beta->name, $roster);
-        $this->assertStringContainsString('IN PROGRESS 0/1 · 0%', $roster);
-        $this->assertStringContainsString('DEMONSTRATED 1', $roster);
+        $this->assertStringContainsString('0/1 · 0%', $roster);
+        $this->assertStringContainsString('Demonstrated 1', $roster);
 
         $alphaPanel = $this->evidenceSection(
             $this->actingAs($teacher)->get(route('course-analytics'))->getContent(),

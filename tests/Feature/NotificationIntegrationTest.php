@@ -109,7 +109,7 @@ class NotificationIntegrationTest extends TestCase
         $roster = $this->rosterBody($teacherDashboard->getContent());
         $this->assertStringContainsString('notification_cadet', $roster);
         $this->assertStringContainsString($beta->name, $roster);
-        $this->assertStringContainsString('DEMONSTRATED 1', $roster);
+        $this->assertStringContainsString('Demonstrated 1', $roster);
 
         $adminDashboard = $this->actingAs($admin)->get(route('admin.dashboard'));
         $adminDashboard->assertOk();

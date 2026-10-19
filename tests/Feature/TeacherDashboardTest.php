@@ -116,17 +116,17 @@ class TeacherDashboardTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('students'))
             ->assertOk()
-            ->assertSee('Teacher Dashboard')
+            ->assertSee('<h1 class="atlas-records-title">Students</h1>', false)
             ->assertSee('Total students')
-            ->assertSee('Active (14d)')
+            ->assertSee('Active · 14d')
             ->assertSee('Courses in progress')
             ->assertSee('Assessments passed')
             ->assertSee('Needs attention')
-            ->assertSee('Recent Activity')
-            ->assertSee('Assessment Summary')
-            ->assertSee('VIEW ALL')
+            ->assertSee('Recent activity')
+            ->assertSee('Assessment summary')
+            ->assertSee('View all')
             ->assertSee('Full analytics')
-            ->assertSee('Student Roster')
+            ->assertSee('Student roster')
             ->assertSee('dashboard_cadet')
             ->assertSee(route('needs-attention'))
             ->assertSee(route('activity'))
@@ -138,10 +138,10 @@ class TeacherDashboardTest extends TestCase
         $this->actingAs($this->teacher())
             ->get(route('students'))
             ->assertOk()
-            ->assertSee('Teacher Dashboard')
+            ->assertSee('<h1 class="atlas-records-title">Students</h1>', false)
             ->assertSee('No learning activity in the last 14 days.')
             ->assertSee('No active course with missions to summarize.')
-            ->assertSee('NO TRAINEES');
+            ->assertSee('No students match');
     }
 
     public function test_attention_summary_is_distinct_from_the_filtered_roster(): void
@@ -158,7 +158,7 @@ class TeacherDashboardTest extends TestCase
             ->assertViewHas('dashboardMetrics', fn (array $metrics): bool => $metrics['total_students'] === 2 && $metrics['needs_attention'] === 1)
             ->assertViewHas('students', fn ($students): bool => $students->total() === 1)
             ->assertSee('Attention covers your classroom scope. Roster filters do not narrow this count.')
-            ->assertSee('1 student matches the current filters.')
+            ->assertSee('1 student matches the current filters')
             ->assertSee(route('needs-attention'));
     }
 
@@ -173,10 +173,10 @@ class TeacherDashboardTest extends TestCase
             ->assertSee('<caption>Current learning evidence</caption>', false)
             ->assertSee('<th scope="col">Student</th>', false)
             ->assertSee('<th scope="col">Boss Challenge</th>', false)
-            ->assertSee('<dt>Complete</dt>', false)
-            ->assertSee('<dt>In progress</dt>', false)
-            ->assertSee('<dt>Boss ready</dt>', false)
-            ->assertSee('<dt>Not started</dt>', false);
+            ->assertSee('<span>Completed ', false)
+            ->assertSee('<span>In progress ', false)
+            ->assertSee('<span>Boss ready ', false)
+            ->assertSee('<span>Not started ', false);
     }
 
     public function test_roster_last_activity_matches_the_activity_strip_beat_vocabulary(): void

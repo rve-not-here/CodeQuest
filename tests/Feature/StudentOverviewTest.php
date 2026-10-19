@@ -84,9 +84,10 @@ class StudentOverviewTest extends TestCase
             ->assertOk()
             ->assertSee('cadet_inkling')
             ->assertSee($course->name)
-            ->assertSee('IN PROGRESS 1/2 · 50%')
-            ->assertSee('LOCKED')
-            ->assertSee('PRACTICING 1')
+            ->assertSee('1/2 · 50%')
+            ->assertSee('<span class="atlas-stamp atlas-stamp--ink">In progress</span>', false)
+            ->assertSee('<span class="atlas-stamp atlas-stamp--ink">Locked</span>', false)
+            ->assertSee('Practicing 1')
             ->assertSee('Hint used on mission: alpha')
             ->assertSee('Needs attention');
     }
@@ -115,7 +116,7 @@ class StudentOverviewTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('students', ['q' => 'nobody_here']))
             ->assertOk()
-            ->assertSee('NO TRAINEES');
+            ->assertSee('No students match');
     }
 
     public function test_student_overview_filters_by_current_course(): void
@@ -190,12 +191,13 @@ class StudentOverviewTest extends TestCase
             ->get(route('students'))
             ->assertOk()
             ->assertSee('status_building')
-            ->assertSee('IN PROGRESS 1/2 · 50%')
+            ->assertSee('1/2 · 50%')
             ->assertSee('status_ready')
-            ->assertSee('READY 2/2 · 100%')
+            ->assertSee('2/2 · 100%')
+            ->assertSee('<span class="atlas-stamp atlas-stamp--vio">Boss ready</span>', false)
             ->assertSee('status_cleared')
-            ->assertSee('ALL CLEARED')
-            ->assertSee('DEMONSTRATED 1');
+            ->assertSee('<span class="atlas-stamp atlas-stamp--grn">All cleared</span>', false)
+            ->assertSee('Demonstrated 1');
 
         $inProgress = $this->rosterBody($this->actingAs($teacher)
             ->get(route('students', ['status' => 'in_progress']))->getContent());
@@ -234,7 +236,7 @@ class StudentOverviewTest extends TestCase
             ->assertSee('cadet_10')
             ->assertDontSee('cadet_11')
             ->assertDontSee('cadet_12')
-            ->assertSee('SHOWING PAGE 1 OF 2');
+            ->assertSee('Page 1 of 2');
 
         $this->actingAs($teacher)
             ->get(route('students', ['page' => 2]))
@@ -243,7 +245,7 @@ class StudentOverviewTest extends TestCase
             ->assertSee('cadet_12')
             ->assertDontSee('cadet_01')
             ->assertDontSee('cadet_02')
-            ->assertSee('SHOWING PAGE 2 OF 2');
+            ->assertSee('Page 2 of 2');
     }
 
     public function test_unfiltered_roster_query_count_stays_bounded_after_the_first_page(): void

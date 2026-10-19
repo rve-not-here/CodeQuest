@@ -94,27 +94,11 @@
             ['route' => 'admin.system', 'label' => 'System Status'],
         ]],
     ];
-    $teacherNavGroups = [
-        ['heading' => 'Overview', 'items' => [
-            ['route' => 'students', 'label' => 'Students'],
-            ['route' => 'classrooms', 'label' => 'My Classrooms'],
-        ]],
-        ['heading' => 'Evidence', 'items' => [
-            ['route' => 'activity', 'label' => 'Learning Activity'],
-            ['route' => 'course-analytics', 'label' => 'Course Analytics'],
-            ['route' => 'reports.teacher', 'label' => 'Reports'],
-            ['route' => 'needs-attention', 'label' => 'Needs Attention'],
-        ]],
-        ['heading' => 'Account', 'items' => [
-            ['route' => 'notifications', 'label' => 'Notifications'],
-        ]],
-    ];
     $adminNavCurrent = fn (string $route): bool => $activeRoute === $route
-        || ($activeRoute !== null && str_starts_with($activeRoute, $route.'.'));
-    $teacherNavCurrent = fn (string $route): bool => $activeRoute === $route
-        || ($activeRoute !== null && str_starts_with($activeRoute, $route.'.'));
+        || str_starts_with($activeRoute, $route.'.');
+    $teacherShell = in_array($role, ['teacher', 'instructor'], true) && ! $standalone && ! ($workspace ?? false);
+    $atlasShell = $studentPrototype || $teacherShell;
     $showAdminSidebar = $role === 'admin' && ! $standalone && ! ($workspace ?? false) && ! $studentPrototype;
-    $showTeacherSidebar = in_array($role, ['teacher', 'instructor'], true) && ! $standalone && ! ($workspace ?? false) && ! $studentPrototype;
 @endphp
 
 <!DOCTYPE html>
@@ -139,7 +123,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="atlas-ui {{ $studentPrototype ? 'student-ui' : 'console-ui console-ui--'.$role.' bg-surface text-ink font-sans' }} min-h-screen">
+<body class="atlas-ui {{ $studentPrototype ? 'student-ui' : ($teacherShell ? 'teacher-ui' : 'console-ui console-ui--'.$role.' bg-surface text-ink font-sans') }} min-h-screen">
     <div class="flex min-h-screen flex-col">
         @unless ($standalone)
             @include('components.student-header')
@@ -159,28 +143,15 @@
                         </nav>
                     </div>
                 </aside>
-            @elseif ($showTeacherSidebar)
-                <aside class="console-sidebar" aria-label="Teacher sections">
-                    <div class="console-sidebar-inner">
-                        <nav aria-label="Teacher destinations">
-                            @foreach ($teacherNavGroups as $group)
-                                <p class="console-sidebar-heading">{{ $group['heading'] }}</p>
-                                @foreach ($group['items'] as $item)
-                                    <a href="{{ route($item['route']) }}" @if ($teacherNavCurrent($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
-                                @endforeach
-                            @endforeach
-                        </nav>
-                    </div>
-                </aside>
             @endif
-            <main id="main" tabindex="-1" class="min-w-0 flex-1 {{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}">
-                <div class="{{ ($workspace ?? false) ? 'w-full' : ($studentPrototype ? 'sheet-column mx-auto w-full max-w-[1440px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1440px]')) }}">
+            <main id="main" tabindex="-1" class="min-w-0 flex-1 {{ ($workspace ?? false) ? 'w-full' : ($atlasShell ? 'w-full px-4 py-6 md:px-6 md:py-8 lg:px-8' : ($standalone ? 'w-full' : 'w-full p-4 sm:p-5 md:p-7')) }}">
+                <div class="{{ ($workspace ?? false) ? 'w-full' : ($atlasShell ? 'sheet-column mx-auto w-full max-w-[1440px]' : ($standalone ? '' : 'mx-auto w-full max-w-[1440px]')) }}">
                     @yield('content')
                 </div>
             </main>
         </div>
 
-        @unless ($standalone || ($workspace ?? false) || $studentPrototype)
+        @unless ($standalone || ($workspace ?? false) || $atlasShell)
         <footer class="manual-footer">
             <p>CODEQUEST // SYSTEM 404 LEARNING NETWORK</p>
             <p>STATUS: ONLINE · ACCESS: {{ strtoupper($role) }}</p>

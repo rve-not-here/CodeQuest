@@ -80,7 +80,7 @@ class InstructorMonitoringIntegrationTest extends TestCase
         $dashboard = $this->actingAs($teacher)->get(route('students'));
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString('cadet_live', $roster);
-        $this->assertStringContainsString('IN PROGRESS 1/2 · 50%', $roster);
+        $this->assertStringContainsString('1/2 · 50%', $roster);
         $this->assertStringContainsString($alpha->name, $roster);
 
         // Stage 2 — every mission done: the roster flips to READY before the Boss.
@@ -89,7 +89,7 @@ class InstructorMonitoringIntegrationTest extends TestCase
 
         $roster = $this->rosterBody($this->actingAs($teacher)
             ->get(route('students'))->getContent());
-        $this->assertStringContainsString('READY 2/2 · 100%', $roster);
+        $this->assertStringContainsString('2/2 · 100%', $roster);
 
         // Stage 3 — the single triggering event: one Boss Challenge pass writes the
         // verdict and the assessment XP. Every teacher-facing reader below reflects
@@ -108,23 +108,24 @@ class InstructorMonitoringIntegrationTest extends TestCase
         // roster has advanced the student into the next course as COMPLETED territory.
         $dashboard = $this->actingAs($teacher)->get(route('students'));
         $dashboard->assertSee('Boss Challenge completed: '.$alphaChallenge->title);
-        $dashboard->assertSee('PASS RATE 100%');
+        $dashboard->assertSee('Pass rate 100%');
         $content = $dashboard->getContent();
-        $from = strpos($content, '<h3>'.$alpha->name.'</h3>');
+        $from = strpos($content, '<h3 class="atlas-record-entry-title">'.$alpha->name.'</h3>');
         $this->assertNotFalse($from);
         $to = strpos($content, '</article>', $from);
         $this->assertNotFalse($to);
         $summary = substr($content, $from, $to - $from);
-        $this->assertStringContainsString('<dt>Complete</dt><dd>1</dd>', $summary);
-        $this->assertStringContainsString('<dt>In progress</dt><dd>0</dd>', $summary);
-        $this->assertStringContainsString('<dt>Boss ready</dt><dd>0</dd>', $summary);
-        $this->assertStringContainsString('<dt>Not started</dt><dd>0</dd>', $summary);
+        $this->assertStringContainsString('<span>Completed 1</span>', $summary);
+        $this->assertStringContainsString('<span>In progress 0</span>', $summary);
+        $this->assertStringContainsString('<span>Boss ready 0</span>', $summary);
+        $this->assertStringContainsString('<span>Not started 0</span>', $summary);
+        $this->assertStringContainsString($alpha->name, $summary);
 
         $roster = $this->rosterBody($dashboard->getContent());
         $this->assertStringContainsString($beta->name, $roster);
-        $this->assertStringContainsString('IN PROGRESS 0/1 · 0%', $roster);
-        $this->assertStringContainsString('DEMONSTRATED 1', $roster);
-        $this->assertStringNotContainsString('READY 2/2 · 100%', $roster);
+        $this->assertStringContainsString('0/1 · 0%', $roster);
+        $this->assertStringContainsString('Demonstrated 1', $roster);
+        $this->assertStringNotContainsString('2/2 · 100%', $roster);
 
         // Per-student progress page (teacher): the assessment result and the
         // competency breakdown read live records, not a recomputed copy.
