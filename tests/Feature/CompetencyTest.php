@@ -38,7 +38,7 @@ class CompetencyTest extends TestCase
         $this->actingAs($user)
             ->get(route('competency'))
             ->assertOk()
-            ->assertSee('NO COMPETENCIES')
+            ->assertSee('No competencies yet')
             ->assertDontSee('Empty Area');
     }
 
@@ -51,7 +51,7 @@ class CompetencyTest extends TestCase
             ->get(route('competency'))
             ->assertOk()
             ->assertSee('HTML')
-            ->assertSee('NOT STARTED')
+            ->assertSee('Not started')
             ->assertSee('0/3');
     }
 
@@ -65,7 +65,7 @@ class CompetencyTest extends TestCase
         $this->actingAs($user)
             ->get(route('competency'))
             ->assertOk()
-            ->assertSee('DEVELOPING')
+            ->assertSee('Developing')
             ->assertSee('1/3')
             ->assertSee('Work in progress');
     }
@@ -81,9 +81,9 @@ class CompetencyTest extends TestCase
         $this->actingAs($user)
             ->get(route('competency'))
             ->assertOk()
-            ->assertSee('PRACTICING')
+            ->assertSee('Practicing')
             ->assertSee('2/4')
-            ->assertSee('Boss Challenge: NOT ATTEMPTED');
+            ->assertSee('Not attempted');
     }
 
     public function test_competency_shows_demonstrated_with_the_visible_reasoning(): void
@@ -99,10 +99,10 @@ class CompetencyTest extends TestCase
         $this->actingAs($user)
             ->get(route('competency'))
             ->assertOk()
-            ->assertSee('DEMONSTRATED')
+            ->assertSee('Demonstrated')
             ->assertSee('2/2')
             ->assertSee('Demonstrated through')
-            ->assertSee('Boss Challenge: PASSED');
+            ->assertSee('Passed');
     }
 
     public function test_competency_does_not_render_a_zero_mission_course(): void
@@ -114,7 +114,7 @@ class CompetencyTest extends TestCase
             ->get(route('competency'))
             ->assertOk()
             ->assertDontSee('Empty Area')
-            ->assertDontSee('NOT STARTED');
+            ->assertDontSee('Not started');
     }
 
     public function test_competency_excludes_locked_and_draft_courses(): void
@@ -126,7 +126,7 @@ class CompetencyTest extends TestCase
         $this->actingAs($user)
             ->get(route('competency'))
             ->assertOk()
-            ->assertSee('NO COMPETENCIES');
+            ->assertSee('No competencies yet');
     }
 
     public function test_demonstrated_competency_survives_a_failed_retry_on_the_page(): void
@@ -153,8 +153,8 @@ class CompetencyTest extends TestCase
         $this->actingAs($user)
             ->get(route('competency'))
             ->assertOk()
-            ->assertSee('DEMONSTRATED')
-            ->assertDontSee('PRACTICING');
+            ->assertSee('Demonstrated')
+            ->assertDontSee('Practicing');
     }
 
     public function test_competency_rejects_user_scoping_parameters(): void

@@ -191,11 +191,12 @@ class JourneyIntegrationTest extends TestCase
             ->assertOk()
             ->assertSee($beta->name);
 
-        // COMPETENCY: the finished course reads DEMONSTRATED and alpha's Boss
-        // Challenge shows PASSED in the rendered competency screen.
+        // COMPETENCY: the finished course reads Demonstrated and alpha's Boss
+        // Challenge shows Passed in the rendered competency screen.
         $competencyPage = $this->get(route('competency'))->assertOk()->getContent();
-        $this->assertTrue($this->contentContains($competencyPage, 'DEMONSTRATED'));
-        $this->assertTrue($this->contentContains($competencyPage, 'Boss Challenge: PASSED'));
+        $this->assertTrue($this->contentContains($competencyPage, 'Demonstrated'));
+        $this->assertTrue($this->contentContains($competencyPage, '<dt>Boss Challenge</dt>'));
+        $this->assertTrue($this->contentContains($competencyPage, '<dd>Passed</dd>'));
 
         // ACHIEVEMENT: the first pass awarded first_course to this user.
         $firstCourseId = Achievement::query()->where('slug', AchievementService::SLUG_FIRST_COURSE)->value('id');

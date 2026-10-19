@@ -28,7 +28,7 @@ class RecommendationsTest extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'student']))
             ->get(route('recommendations'))
             ->assertOk()
-            ->assertSee('NO RECOMMENDATIONS');
+            ->assertSee('No recommendations yet');
     }
 
     public function test_the_page_suggests_the_current_unfinished_mission(): void
@@ -47,7 +47,7 @@ class RecommendationsTest extends TestCase
             ->get(route('recommendations'))
             ->assertOk()
             ->assertSee('<ol aria-label="Recommended actions"', false)
-            ->assertSee('PRIORITY 1')
+            ->assertSee('Priority 1')
             ->assertSee('Continue Learning')
             ->assertSee('Rusty Lockbox')
             ->assertSee(route('mission.show', $mission));
@@ -61,7 +61,7 @@ class RecommendationsTest extends TestCase
         ]);
 
         $this->blade('<x-recommendation-cards :recommendations="$recommendations" variant="evidence" />', compact('recommendations'))
-            ->assertSeeInOrder(['Locked review', 'LOCKED', 'Next available action', 'Next course'])
+            ->assertSeeInOrder(['Locked review', 'Locked', 'Next available action', 'Next course'])
             ->assertDontSee('href="/locked-review"', false)
             ->assertSee('href="/learning-path"', false);
     }

@@ -2919,6 +2919,7 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-record-entry { padding: 22px 20px 26px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
 .atlas-record-entry--compact { padding-block: 14px 16px; }
 .atlas-record-entry-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px 18px; }
+.atlas-record-entry-row--tag { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 6px 12px; }
 .atlas-record-entry-figure { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); white-space: nowrap; }
 .atlas-record-entry--compact .atlas-record-entry-bar { max-width: none; margin-top: 10px; height: 3px; }
 .atlas-record-entry-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
@@ -2942,6 +2943,22 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-records-empty-title { font-family: var(--font-display); font-size: 20px; line-height: 1.2; font-weight: 600; }
 .atlas-records-empty-copy { margin-top: 8px; max-width: 64ch; font-size: 15px; line-height: 24px; color: var(--color-fg-muted); }
 .atlas-records-subheading { padding: 22px 20px 10px; font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-records-summary-bar { max-width: 460px; margin-top: 10px; height: 4px; border-radius: 2px; }
+.atlas-records-summary-bar > span { border-radius: 2px; }
+.atlas-records-summary-note { margin-top: 8px; max-width: 64ch; font-size: 13px; line-height: 22px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-record-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 16px; margin-top: 10px; font-family: var(--font-mono); font-size: 12px; line-height: 20px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+
+/* Recommendations — the next action carries the margin mark. */
+.atlas-recommendations { margin: 0; padding: 0; list-style: none; }
+.atlas-recommendation { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; align-items: start; gap: 8px 24px; padding: 22px 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-recommendation[data-next-action] { padding-left: 17px; border-left: 3px solid var(--color-accent); background: color-mix(in srgb, var(--cq-ink) 4%, transparent); }
+.atlas-recommendation-slot { padding-top: 2px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-recommendation-note { margin-bottom: 6px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--color-accent); }
+.atlas-recommendation-title { font-family: var(--font-display); font-size: 21px; line-height: 1.2; font-weight: 600; overflow-wrap: anywhere; }
+.atlas-recommendation[data-next-action] .atlas-recommendation-title { font-size: 24px; }
+.atlas-recommendation-copy { margin-top: 6px; max-width: 62ch; font-size: 14.5px; line-height: 23px; color: var(--color-fg-muted); }
+.atlas-recommendation-locked { margin-top: 6px; font-size: 13px; line-height: 21px; color: var(--color-warning); }
+.atlas-recommendation-action { display: flex; align-items: flex-start; }
 
 /* Timeline — the day's entries, ruled once each. */
 .atlas-timeline-list { margin: 0; padding: 0; list-style: none; }
@@ -2958,7 +2975,7 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-timeline-points--debit { color: var(--color-warning); }
 
 /* XP ledger — the balance, then one ruled line per movement. */
-.atlas-ledger-figure { margin-top: 6px; font-family: var(--font-sans); font-size: clamp(30px, 4.4vw, 40px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--color-fg); }
+.atlas-records-figure { margin-top: 6px; font-family: var(--font-sans); font-size: clamp(30px, 4.4vw, 40px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--color-fg); }
 .atlas-ledger-note { margin-top: 8px; max-width: 64ch; font-size: 13.5px; line-height: 22px; color: var(--color-fg-muted); }
 .atlas-ledger-list { margin: 0; padding: 0; list-style: none; }
 .atlas-ledger-entry { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 4px 16px; padding: 14px 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
@@ -2973,7 +2990,10 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-ledger-amount--credit { color: var(--color-success); }
 .atlas-ledger-amount--debit { color: var(--color-warning); }
 @media (max-width: 1100px) {
-    .atlas-records-running, .atlas-records-heading, .atlas-records-summary, .atlas-record-group-head, .atlas-record-entry, .atlas-record-group-note, .atlas-records-empty, .atlas-timeline-event, .atlas-ledger-entry, .atlas-records-subheading { padding-inline: 16px; }
+    .atlas-records-running, .atlas-records-heading, .atlas-records-summary, .atlas-record-group-head, .atlas-record-entry, .atlas-record-group-note, .atlas-records-empty, .atlas-timeline-event, .atlas-ledger-entry, .atlas-records-subheading, .atlas-recommendation { padding-inline: 16px; }
+    .atlas-recommendation[data-next-action] { padding-left: 13px; }
+    .atlas-recommendation { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .atlas-recommendation-action { justify-self: start; }
     .atlas-records-title { font-size: 22px; line-height: 1.15; }
 }
 

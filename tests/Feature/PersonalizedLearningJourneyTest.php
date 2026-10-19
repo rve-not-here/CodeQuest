@@ -191,7 +191,7 @@ class PersonalizedLearningJourneyTest extends TestCase
 
         $this->actingAs($student)->get(route('competency'))
             ->assertOk()
-            ->assertSee('DEMONSTRATED');
+            ->assertSee('Demonstrated');
 
         // Recommendations shift to the cleared state on every student surface.
         foreach ([route('recommendations'), route('learning-path')] as $page) {

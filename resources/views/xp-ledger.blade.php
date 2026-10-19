@@ -17,7 +17,7 @@
 
         <section class="atlas-records-summary atlas-ledger-balance" aria-labelledby="balance-title">
             <h2 id="balance-title" class="atlas-lesson-entry-label">Current balance</h2>
-            <p class="atlas-ledger-figure">XP {{ number_format($balance) }}</p>
+            <p class="atlas-records-figure">XP {{ number_format($balance) }}</p>
             <p class="atlas-ledger-note">Challenges and Boss Challenges earn XP. Hints, solution reveals, and wrong submissions spend it.</p>
         </section>
 

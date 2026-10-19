@@ -38,7 +38,7 @@
                 <section class="atlas-record-group" aria-labelledby="day-{{ $date }}">
                     <div class="atlas-record-group-head">
                         <h2 id="day-{{ $date }}" class="atlas-record-group-title"><time datetime="{{ $date }}">{{ $dailyEvents->first()['at']->format('F j, Y') }}</time></h2>
-                        <span class="atlas-record-group-figure">{{ $dailyEvents->count() }} {{ \Illuminate\Support\Str::plural('entry', $dailyEvents->count()) }}</span>
+                        <span class="atlas-record-group-figure">{{ $dailyEvents->count() }} {{ Str::plural('entry', $dailyEvents->count()) }}</span>
                     </div>
                     <ol class="atlas-timeline-list">
                         @foreach ($dailyEvents as $event)

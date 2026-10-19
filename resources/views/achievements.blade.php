@@ -3,48 +3,57 @@
 @section('title', 'Achievements')
 
 @section('content')
-    <div class="atlas-record">
-        <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-            <div>
-                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Achievements</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">Milestones you have earned through challenges and Boss Challenges.</p>
-            </div>
-            <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
+    @php
+        $percent = $totalCount > 0 ? (int) round($earnedCount / $totalCount * 100) : 0;
+    @endphp
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Achievements</span>
+            <a href="{{ route('learning-path') }}">Learning path →</a>
+        </div>
+
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Milestones</span>
+            <h1 class="atlas-records-title">Achievements</h1>
+            <p class="atlas-records-lede">Milestones you have earned through challenges and Boss Challenges.</p>
         </header>
 
-        <section class="atlas-record-summary" aria-labelledby="achievement-summary-title">
-            <h2 id="achievement-summary-title" class="text-sm font-semibold tracking-wide text-fg-muted">Your milestones</h2>
-            <p class="mt-2 font-mono text-2xl font-semibold text-fg">{{ $earnedCount }}/{{ $totalCount }} UNLOCKED</p>
-            <p class="mt-2 text-xs leading-5 text-fg-muted">Awards appear here when your learning record meets their criteria.</p>
+        <section class="atlas-records-summary" aria-labelledby="achievement-summary-title">
+            <h2 id="achievement-summary-title" class="atlas-lesson-entry-label">Milestones unlocked</h2>
+            <p class="atlas-records-figure">{{ $earnedCount }}/{{ $totalCount }}</p>
+            <div class="progress atlas-records-summary-bar" role="progressbar" aria-label="Achievements unlocked" aria-valuemin="0" aria-valuemax="{{ max($totalCount, 1) }}" aria-valuenow="{{ $earnedCount }}" aria-valuetext="{{ $earnedCount }} of {{ $totalCount }} milestones unlocked">
+                <span style="width: {{ $percent }}%"></span>
+            </div>
+            <p class="atlas-records-summary-note">Awards are written here when your learning record meets their criteria.</p>
         </section>
 
         @if ($catalog->isEmpty())
-            <section class="atlas-record-empty" aria-labelledby="no-achievements-title">
-                <h2 id="no-achievements-title" class="text-lg font-semibold">NO ACHIEVEMENTS</h2>
-                <p class="mt-2 text-sm text-fg-muted">No achievement milestones are available yet.</p>
+            <section class="atlas-records-empty" aria-labelledby="no-achievements-title">
+                <h2 id="no-achievements-title" class="atlas-records-empty-title">No achievements yet</h2>
+                <p class="atlas-records-empty-copy">No achievement milestones are available yet. They appear once Command publishes them.</p>
             </section>
         @else
-            <section class="mt-8" aria-labelledby="milestones-title">
-                <h2 id="milestones-title" class="mb-3 text-lg font-semibold">Milestones</h2>
-                <ol class="atlas-record-list">
-                    @foreach ($catalog as $row)
-                        <li class="atlas-award" data-achievement-state="{{ $row['awarded'] ? 'unlocked' : 'discovered' }}">
-                            <div class="flex flex-wrap items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <h3 class="mt-1 text-[15px] font-semibold text-balance">{{ $row['name'] }}</h3>
-                                </div>
-                                <span class="badge {{ $row['awarded'] ? 'badge-accent' : 'badge-neutral' }}">{{ $row['awarded'] ? 'UNLOCKED' : 'DISCOVERED' }}</span>
-                            </div>
-                            <p class="mt-3 text-sm leading-6 text-fg-muted">{{ $row['description'] ?? 'Achievement description pending.' }}</p>
-                            @if ($row['awarded'] && $row['unlocked_at'] !== null)
-                                <p class="mt-4 border-t border-line pt-3 font-mono text-xs text-fg-subtle">EARNED {{ $row['unlocked_at']->format('Y-m-d H:i') }}</p>
+            <h2 class="atlas-records-subheading">Milestones</h2>
+            <ol class="atlas-records-list">
+                @foreach ($catalog as $row)
+                    <li class="atlas-record-entry atlas-record-entry--compact" data-achievement-state="{{ $row['awarded'] ? 'unlocked' : 'discovered' }}">
+                        <div class="atlas-record-entry-row atlas-record-entry-row--tag">
+                            <h3 class="atlas-record-entry-title">{{ $row['name'] }}</h3>
+                            @if ($row['awarded'])
+                                <span class="atlas-stamp atlas-stamp--grn">Unlocked</span>
                             @else
-                                <p class="mt-4 border-t border-line pt-3 text-xs text-fg-subtle">Keep learning to unlock this achievement.</p>
+                                <span class="atlas-stamp atlas-stamp--ink">Locked</span>
                             @endif
-                        </li>
-                    @endforeach
-                </ol>
-            </section>
+                        </div>
+                        <p class="atlas-record-entry-copy">{{ $row['description'] ?? 'Achievement description pending.' }}</p>
+                        @if ($row['awarded'] && $row['unlocked_at'] !== null)
+                            <p class="atlas-record-meta">Earned {{ $row['unlocked_at']->format('M d, Y · H:i') }}</p>
+                        @else
+                            <p class="atlas-record-meta">Keep learning to unlock this achievement.</p>
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
         @endif
     </div>
 @endsection

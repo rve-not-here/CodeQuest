@@ -3,25 +3,28 @@
 {{-- Availability is supplied by the service. Teacher usage stays informational. --}}
 @if ($variant === 'evidence')
     @php($nextActionKey = $recommendations->search(fn ($recommendation) => $actionable && ($recommendation['accessible'] ?? true)))
-    <ol aria-label="Recommended actions" class="atlas-action-sequence">
+    <ol aria-label="Recommended actions" class="atlas-recommendations">
         @foreach ($recommendations as $key => $recommendation)
-            <li @if ($key === $nextActionKey) data-next-action @endif>
-                <p class="font-mono text-xs text-accent">PRIORITY {{ $recommendation['slot'] }}</p>
-                <div>
+            @php($accessible = $recommendation['accessible'] ?? true)
+            <li class="atlas-recommendation" @if ($key === $nextActionKey) data-next-action @endif>
+                <span class="atlas-recommendation-slot">Priority {{ $recommendation['slot'] }}</span>
+                <div class="min-w-0">
                     @if ($key === $nextActionKey)
-                        <p class="mb-2 text-sm text-fg-muted">Next available action</p>
+                        <p class="atlas-recommendation-note">Next available action</p>
                     @endif
-                    <h3 class="text-xl font-semibold">{{ $recommendation['title'] }}</h3>
-                    <p class="mt-2 text-sm leading-6 text-fg-muted">{{ $recommendation['subtitle'] }}</p>
-                    @if (! ($recommendation['accessible'] ?? true) && ($recommendation['locked_reason'] ?? null))
-                        <p class="mt-2 text-sm text-warning">{{ $recommendation['locked_reason'] }}</p>
+                    <h3 class="atlas-recommendation-title">{{ $recommendation['title'] }}</h3>
+                    <p class="atlas-recommendation-copy">{{ $recommendation['subtitle'] }}</p>
+                    @if (! $accessible && ($recommendation['locked_reason'] ?? null))
+                        <p class="atlas-recommendation-locked">{{ $recommendation['locked_reason'] }}</p>
                     @endif
                 </div>
-                @if ($actionable && ($recommendation['accessible'] ?? true))
-                    <a href="{{ $recommendation['href'] }}" class="btn {{ $key === $nextActionKey ? 'btn-primary' : 'btn-secondary' }}">{{ $recommendation['cta'] }} →</a>
-                @elseif (($recommendation['accessible'] ?? true) === false)
-                    <span class="badge badge-locked">LOCKED</span>
-                @endif
+                <div class="atlas-recommendation-action">
+                    @if ($actionable && $accessible)
+                        <a href="{{ $recommendation['href'] }}" class="btn {{ $key === $nextActionKey ? 'btn-primary' : 'btn-secondary' }}">{{ $recommendation['cta'] }} →</a>
+                    @elseif (! $accessible)
+                        <span class="atlas-stamp atlas-stamp--ink">Locked</span>
+                    @endif
+                </div>
             </li>
         @endforeach
     </ol>

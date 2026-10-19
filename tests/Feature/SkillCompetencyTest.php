@@ -450,9 +450,9 @@ class SkillCompetencyTest extends TestCase
             ->assertSee('Knowledge Check and Coding Challenge evidence')
             ->assertDontSee('Boss Challenge evidence')
             ->assertSee('HTML Headings')
-            ->assertSee('ON TRACK')
+            ->assertSee('On track')
             ->assertSee('HTML Links')
-            ->assertSee('NOT ASSESSED');
+            ->assertSee('Not assessed');
     }
 
     public function test_authorized_teacher_sees_student_skills(): void
