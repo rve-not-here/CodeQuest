@@ -3,71 +3,104 @@
 @section('title', 'Course Progress')
 
 @section('content')
-    <div class="atlas-record">
-        <header class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-            <div>
-                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-balance md:text-3xl">Course Progress</h1>
-                <p class="mt-2 max-w-[64ch] text-sm leading-6 text-fg-muted">See challenge completion and the Boss Challenge milestone for each course.</p>
-            </div>
-            <a href="{{ route('learning-path') }}" class="btn btn-secondary btn-sm">View Learning Path →</a>
+    @php
+        $labels = [
+            'COMPLETED' => ['label' => 'Cleared', 'stamp' => 'atlas-stamp--grn'],
+            'READY' => ['label' => 'Ready', 'stamp' => 'atlas-stamp--acc'],
+            'IN PROGRESS' => ['label' => 'In progress', 'stamp' => 'atlas-stamp--vio'],
+            'LOCKED' => ['label' => 'Locked', 'stamp' => 'atlas-stamp--ink'],
+        ];
+        $completedChallenges = $overview->sum(fn (array $row): int => $row['progress']['completed']);
+        $totalChallenges = $overview->sum(fn (array $row): int => $row['progress']['total']);
+        $clearedCourses = $overview->filter(fn (array $row): bool => $row['state'] === 'COMPLETED')->count();
+    @endphp
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Course progress</span>
+            <a href="{{ route('learning-path') }}">Learning path →</a>
+        </div>
+
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Progress</span>
+            <h1 class="atlas-records-title">Course progress</h1>
+            <p class="atlas-records-lede">Challenge completion and the Boss Challenge milestone for every course in your path.</p>
+            <dl class="log-facts atlas-records-facts">
+                <div>
+                    <dt>Courses</dt>
+                    <dd class="is-numeric">{{ $overview->count() }}</dd>
+                </div>
+                <div>
+                    <dt>Challenges complete</dt>
+                    <dd class="is-numeric">{{ $completedChallenges }} / {{ $totalChallenges }}</dd>
+                </div>
+                <div>
+                    <dt>Gates cleared</dt>
+                    <dd class="is-numeric">{{ $clearedCourses }}</dd>
+                </div>
+            </dl>
         </header>
 
         @if ($overview->isEmpty())
-            <section class="atlas-record-empty" aria-labelledby="no-courses-title">
-                <h2 id="no-courses-title" class="text-lg font-semibold">NO COURSES</h2>
-                <p class="mt-2 text-sm text-fg-muted">No courses are available in your learning path yet.</p>
+            <section class="atlas-records-empty" aria-labelledby="no-courses-title">
+                <h2 id="no-courses-title" class="atlas-records-empty-title">No courses yet</h2>
+                <p class="atlas-records-empty-copy">No courses are available in your learning path yet. They appear here once Command opens them.</p>
             </section>
         @else
-            <ol class="atlas-record-list mt-8">
+            <ol class="atlas-records-list">
                 @foreach ($overview as $row)
                     @php
                         $course = $row['course'];
                         $progress = $row['progress'];
-                        $state = $row['state'];
+                        $state = $labels[$row['state']] ?? ['label' => 'Locked', 'stamp' => 'atlas-stamp--ink'];
                     @endphp
-                    <li class="atlas-course-record" data-course-state="{{ strtolower(str_replace(' ', '-', $state)) }}">
-                        <div class="atlas-course-context">
-                            <div class="min-w-0">
-                                <h2 class="mt-1 text-lg font-semibold text-balance">{{ $course->name }}</h2>
-                                @if ($course->description)
-                                    <p class="mt-1 max-w-[68ch] text-sm leading-6 text-fg-muted">{{ $course->description }}</p>
-                                @endif
-                            </div>
-                            <span class="badge {{ $state === 'COMPLETED' || $state === 'READY' ? 'badge-accent' : ($state === 'IN PROGRESS' ? 'badge-warning' : 'badge-neutral') }}">{{ $state }}</span>
+                    <li class="atlas-record-entry" data-course-state="{{ strtolower(str_replace(' ', '-', $row['state'])) }}">
+                        <div class="atlas-record-entry-head">
+                            <span class="atlas-record-entry-label">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span class="atlas-stamp {{ $state['stamp'] }}">{{ $state['label'] }}</span>
                         </div>
-                        <div class="atlas-course-evidence">
-                            <div class="min-w-0">
-                                <div class="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                                    <p class="text-fg-muted"><span class="font-mono text-fg">{{ $progress['completed'] }}/{{ $progress['total'] }}</span> challenges complete</p>
-                                    <span class="font-mono text-fg">{{ $progress['percent'] }}%</span>
-                                </div>
-                                @if ($progress['total'] > 0)
-                                    <div class="progress mt-3" role="progressbar" aria-label="{{ $course->name }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $progress['total'] }}" aria-valuenow="{{ $progress['completed'] }}" aria-valuetext="{{ $progress['completed'] }} of {{ $progress['total'] }} challenges complete">
-                                        <span style="width: {{ $progress['percent'] }}%"></span>
-                                    </div>
-                                @endif
-                                <p class="mt-3 text-xs leading-5 text-fg-subtle">
-                                    @if ($state === 'COMPLETED')
-                                        Boss Challenge cleared. Your course result is recorded.
-                                    @elseif ($state === 'READY')
-                                        All challenges complete. The Boss Challenge is ready.
-                                    @elseif ($state === 'IN PROGRESS')
-                                        Continue your challenges to reach the Boss Challenge.
-                                    @else
-                                        This course opens when the earlier course is cleared and the course is active.
-                                    @endif
-                                </p>
+                        <h2 class="atlas-record-entry-title">{{ $course->name }}</h2>
+                        @if ($course->description)
+                            <p class="atlas-record-entry-copy">{{ $course->description }}</p>
+                        @endif
+                        <dl class="log-facts atlas-record-entry-facts">
+                            <div>
+                                <dt>Challenges</dt>
+                                <dd class="is-numeric">{{ $progress['completed'] }}/{{ $progress['total'] }}</dd>
                             </div>
-                            <div class="flex flex-wrap gap-2 md:justify-end">
-                                @if ($state === 'READY')
-                                    <a href="{{ route('assessments') }}" class="btn btn-primary">View Boss Challenge →</a>
-                                @elseif ($state === 'IN PROGRESS')
-                                    <a href="{{ route('learning-path') }}" class="btn btn-primary">Continue Learning →</a>
-                                @elseif ($state === 'COMPLETED')
-                                    <a href="{{ route('assessments') }}" class="btn btn-secondary">Review result →</a>
-                                @endif
+                            <div>
+                                <dt>Complete</dt>
+                                <dd class="is-numeric">{{ $progress['percent'] }}%</dd>
                             </div>
-                        </div>
+                        </dl>
+                        @if ($progress['total'] > 0)
+                            <div class="progress atlas-record-entry-bar" role="progressbar" aria-label="{{ $course->name }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $progress['total'] }}" aria-valuenow="{{ $progress['completed'] }}" aria-valuetext="{{ $progress['completed'] }} of {{ $progress['total'] }} challenges complete">
+                                <span style="width: {{ $progress['percent'] }}%"></span>
+                            </div>
+                        @endif
+                        <p class="atlas-record-entry-note">
+                            @if ($row['state'] === 'COMPLETED')
+                                Boss Challenge cleared. Your course result is recorded.
+                            @elseif ($row['state'] === 'READY')
+                                Every challenge is complete. The Boss Challenge is open.
+                            @elseif ($row['state'] === 'IN PROGRESS')
+                                Keep working the challenges to reach the Boss Challenge.
+                            @else
+                                This course opens when the earlier course is cleared.
+                            @endif
+                        </p>
+                        @if ($row['state'] === 'READY')
+                            <div class="atlas-record-entry-actions">
+                                <a href="{{ route('assessments') }}" class="btn btn-primary">View Boss Challenge →</a>
+                            </div>
+                        @elseif ($row['state'] === 'IN PROGRESS')
+                            <div class="atlas-record-entry-actions">
+                                <a href="{{ route('learning-path') }}" class="btn btn-secondary">Continue learning →</a>
+                            </div>
+                        @elseif ($row['state'] === 'COMPLETED')
+                            <div class="atlas-record-entry-actions">
+                                <a href="{{ route('assessments') }}" class="btn btn-secondary">Review result →</a>
+                            </div>
+                        @endif
                     </li>
                 @endforeach
             </ol>

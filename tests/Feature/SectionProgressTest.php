@@ -48,7 +48,7 @@ class SectionProgressTest extends TestCase
             ->get(route('section-progress'))
             ->assertOk()
             ->assertSee('0/2')
-            ->assertSee('NOT STARTED');
+            ->assertSee('Not started');
     }
 
     public function test_section_progress_partial_section_is_in_progress(): void
@@ -62,7 +62,7 @@ class SectionProgressTest extends TestCase
             ->get(route('section-progress'))
             ->assertOk()
             ->assertSee('1/2')
-            ->assertSee('IN PROGRESS');
+            ->assertSee('In progress');
     }
 
     public function test_section_progress_full_section_is_done(): void
@@ -77,7 +77,7 @@ class SectionProgressTest extends TestCase
             ->get(route('section-progress'))
             ->assertOk()
             ->assertSee('2/2')
-            ->assertSee('DONE');
+            ->assertSee('Done');
     }
 
     public function test_section_progress_empty_section_shows_em_empty_and_does_not_mask_other_sections(): void
@@ -89,9 +89,9 @@ class SectionProgressTest extends TestCase
             ->get(route('section-progress'))
             ->assertOk()
             ->assertSee('0/0')
-            ->assertSee('EMPTY')
+            ->assertSee('Empty')
             ->assertSee('0/1')
-            ->assertSee('NOT STARTED');
+            ->assertSee('Not started');
     }
 
     public function test_section_progress_is_not_a_flat_course_percentage_repeated_per_section(): void
@@ -107,8 +107,8 @@ class SectionProgressTest extends TestCase
             ->assertSee('1/3')
             ->assertSee('1/2')
             ->assertSee('0/1')
-            ->assertSee('IN PROGRESS')
-            ->assertSee('NOT STARTED');
+            ->assertSee('In progress')
+            ->assertSee('Not started');
     }
 
     public function test_section_progress_in_locked_course_still_derives_from_real_mission_state(): void
@@ -123,7 +123,7 @@ class SectionProgressTest extends TestCase
             ->get(route('section-progress'))
             ->assertOk()
             ->assertSee('2/2')
-            ->assertSee('DONE');
+            ->assertSee('Done');
     }
 
     /**

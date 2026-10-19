@@ -50,7 +50,7 @@ class CourseProgressTest extends TestCase
             ->get(route('progress'))
             ->assertOk()
             ->assertSee('0/2')
-            ->assertSee('IN PROGRESS');
+            ->assertSee('In progress');
     }
 
     public function test_progress_counts_completed_missions(): void
@@ -64,7 +64,7 @@ class CourseProgressTest extends TestCase
             ->get(route('progress'))
             ->assertOk()
             ->assertSee('1/2')
-            ->assertSee('IN PROGRESS');
+            ->assertSee('In progress');
     }
 
     public function test_progress_marks_all_missions_done_as_ready(): void
@@ -80,7 +80,7 @@ class CourseProgressTest extends TestCase
             ->get(route('progress'))
             ->assertOk()
             ->assertSee('2/2')
-            ->assertSee('READY');
+            ->assertSee('Ready');
     }
 
     public function test_progress_marks_passed_challenge_as_completed(): void
@@ -101,7 +101,7 @@ class CourseProgressTest extends TestCase
             ->get(route('progress'))
             ->assertOk()
             ->assertSee('1/1')
-            ->assertSee('COMPLETED');
+            ->assertSee('Cleared');
     }
 
     public function test_progress_keeps_completed_even_after_a_failed_retry(): void
@@ -116,7 +116,7 @@ class CourseProgressTest extends TestCase
         $this->actingAs($user)
             ->get(route('progress'))
             ->assertOk()
-            ->assertSee('COMPLETED');
+            ->assertSee('Cleared');
     }
 
     public function test_progress_marks_ahead_course_as_locked(): void
@@ -134,11 +134,11 @@ class CourseProgressTest extends TestCase
         $this->actingAs($user)
             ->get(route('progress'))
             ->assertOk()
-            ->assertSee('COMPLETED')
-            ->assertSee('IN PROGRESS')
+            ->assertSee('Cleared')
+            ->assertSee('In progress')
             ->assertSee($aheadCourse->name)
             ->assertSee('0/1')
-            ->assertSee('LOCKED');
+            ->assertSee('Locked');
     }
 
     public function test_progress_marks_locked_course_record_as_locked(): void
@@ -149,7 +149,7 @@ class CourseProgressTest extends TestCase
         $this->actingAs($user)
             ->get(route('progress'))
             ->assertOk()
-            ->assertSee('LOCKED');
+            ->assertSee('Locked');
     }
 
     public function test_progress_marks_zero_mission_active_course_as_locked(): void
@@ -161,7 +161,7 @@ class CourseProgressTest extends TestCase
             ->get(route('progress'))
             ->assertOk()
             ->assertSee('0/0')
-            ->assertSee('LOCKED');
+            ->assertSee('Locked');
     }
 
     /**
