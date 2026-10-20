@@ -69,7 +69,7 @@ class AdminAnnouncementTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.announcements.create'))
             ->assertOk()
-            ->assertSee('New Announcement');
+            ->assertSee('New announcement');
     }
 
     public function test_admin_creates_an_announcement_as_a_draft(): void
