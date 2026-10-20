@@ -33,10 +33,10 @@ class ShellTest extends TestCase
         $response = $this->get(route('shell'));
 
         $response->assertOk()
-            ->assertSee('Design System')
+            ->assertSee('Design system')
             ->assertSee('Component examples only')
-            ->assertSee('CONTINUE LEARNING →')
-            ->assertSee('RULE FAILED');
+            ->assertSee('Continue learning →')
+            ->assertSee('Rule failed');
     }
 
     public function test_teacher_cannot_open_the_student_achievement_page(): void

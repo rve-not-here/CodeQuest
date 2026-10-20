@@ -166,7 +166,14 @@
             <dialog class="cq-assistance" data-challenge-assistance aria-labelledby="assistance-title">
                 <header><h2 id="assistance-title">Assistance</h2><form method="dialog"><button type="submit" class="btn btn-ghost" autofocus>Close</button></form></header>
                 @if ($hints)
-                    <div class="challenge-hints">@foreach ($hints as $index => $hintText)<x-status-message type="warning" title="Hint {{ $index + 1 }}">{{ $hintText }}</x-status-message>@endforeach</div>
+                    <ol class="challenge-hints">
+                        @foreach ($hints as $index => $hintText)
+                            <li class="challenge-hint">
+                                <span class="challenge-hint-label">Hint {{ $index + 1 }}</span>
+                                <p>{{ $hintText }}</p>
+                            </li>
+                        @endforeach
+                    </ol>
                 @else<p>No hints have been revealed.</p>@endif
                 @if (! $completed && $hasSolution)
                     <form method="POST" action="{{ route('mission.reveal', $mission) }}" data-challenge-action="reveal" data-confirm-title="Reveal reference solution?" data-confirm-copy="Revealing the reference solution costs {{ $revealCost }} XP." data-confirm-label="Reveal solution">

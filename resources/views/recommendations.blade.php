@@ -21,7 +21,7 @@
                 <p class="atlas-records-empty-copy">Your next steps appear here as your learning record grows.</p>
             </section>
         @else
-            <x-recommendation-cards :recommendations="$recommendations" variant="evidence" />
+            <x-recommendation-cards :recommendations="$recommendations" />
         @endif
     </div>
 @endsection

@@ -148,7 +148,7 @@
         @if ($recommendations->isNotEmpty())
             <section class="atlas-path-recommendations" aria-labelledby="recommendations-heading">
                 <h2 id="recommendations-heading">Recommended next actions</h2>
-                <x-recommendation-cards :recommendations="$recommendations" variant="evidence" />
+                <x-recommendation-cards :recommendations="$recommendations" />
             </section>
         @endif
     </div>

@@ -381,7 +381,7 @@
                     <p class="atlas-record-group-figure">{{ $recommendations->count() }} {{ Str::plural('action', $recommendations->count()) }}</p>
                 </div>
                 <p class="atlas-record-group-note">Recorded actions only. This view is read-only.</p>
-                <x-recommendation-cards :recommendations="$recommendations" :actionable="false" variant="evidence" />
+                <x-recommendation-cards :recommendations="$recommendations" :actionable="false" />
             </section>
         @endif
     </div>
