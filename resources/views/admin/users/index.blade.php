@@ -41,7 +41,7 @@
                         placeholder="Username or name"
                         class="terminal-input"
                      @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
-                    @error('q')<p id="q-error" class="admin-field-error">{{ $message }}</p>@enderror
+                    @error('q')<p id="q-error" class="atlas-field-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="atlas-index-filter">
                     <label for="role">Role</label>
@@ -52,7 +52,7 @@
                         <option value="admin" @selected(($filters['role'] ?? null) === 'admin')>Admin</option>
                         <option value="operator" @selected(($filters['role'] ?? null) === 'operator')>Operator</option>
                     </select>
-                    @error('role')<p id="role-error" class="admin-field-error">{{ $message }}</p>@enderror
+                    @error('role')<p id="role-error" class="atlas-field-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="atlas-index-filter-actions">
                     <button type="submit" class="btn btn-primary">Apply filters</button>

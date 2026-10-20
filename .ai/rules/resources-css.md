@@ -5,8 +5,8 @@ paths:
 
 # Resources Css
 
-## Console classes live in one app.css block
-The admin console shell (.console-sidebar*, .admin-toolbar*, .panel-pagination, .admin-row-link*, .admin-crumbs, .admin-field-help, .admin-beat-*, .panel:has(> .admin-form)) is declared once in app.css after the admin-management block. Admin table column proportions are set with .admin-table:has([data-label=...]) thead th width rules. Do not re-declare these in student.css.
+## Console chrome is gone; guest chrome is next
+The admin console block (`.atlas-admin`, `admin-management`, `admin-*` tables/forms/toolbars, `.console-sidebar*`, `.panel-pagination`, `.admin-crumbs`/`.admin-row-link*`/`.admin-beat-*`) has been deleted from app.css — do not reintroduce it. Every authenticated surface (student, teacher, admin) is an `.atlas-records` sheet. Still standing until the guest phase: the `body.console-ui` block (guest/auth pages) and the `.guest-access-*` Mission Atlas login styles. `manual-footer` is likewise guest-only. Filter labels are not a class: `.atlas-index-filter > label` carries the eyebrow treatment (same metrics as `.atlas-lesson-entry-label`), so plain `<label>` inside a filter grid is correct.
 
 ## Structure and utilities (Engineer's Log)
 Tailwind v4 CSS-first: no tailwind.config.*; the system lives in `@theme` in resources/css/app.css and the tokens are the real colour authority in both themes — never hard-code palette hexes in blades. Light and dark are one palette under two lights; dark mode is a class strategy on `<html>` with a no-flash inline script, system default and an explicit Light/Dark/System toggle. Fonts load through the laravel-vite-plugin `bunny()` helper (resources/js/app.js / app.css), never a hand-written hosted stylesheet. After editing app.css, re-run `npm run build` or the served manifest CSS won't change; run `npm run build` before declaring a visual change complete.
