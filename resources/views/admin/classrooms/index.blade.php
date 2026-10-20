@@ -1,144 +1,148 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', 'Classroom Management')
+@section('title', 'Classrooms')
 
 @section('content')
-    <div class="admin-management">
-    <x-page-header title="Classroom Management" subtitle="Manage classrooms, teacher assignments, student enrollment, and course access.">
-        <x-slot:actions>
-            <a href="{{ route('admin.classrooms.create') }}" class="btn-primary">+ NEW CLASSROOM</a>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Classrooms · Platform scope</span>
+            <span class="atlas-stamp atlas-stamp--ink">System-wide</span>
+        </div>
 
-    @if (session('status'))
-        <x-status-message type="success" title="RECORD SAVED" class="mb-4">
-            {{ session('status') }}
-        </x-status-message>
-    @endif
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Operations</span>
+            <h1 class="atlas-records-title">Classrooms</h1>
+            <p class="atlas-records-lede">Manage classrooms, teacher assignments, student enrolment and course access.</p>
+        </header>
 
-    <x-panel title="Classroom Directory">
-        <form method="GET" action="{{ route('admin.classrooms') }}" class="admin-toolbar">
-            <div class="admin-toolbar-field admin-toolbar-field--wide">
-                <label for="q">Search</label>
-                <input
-                    id="q"
-                    name="q"
-                    type="search"
-                    value="{{ $filters['q'] ?? '' }}"
-                    placeholder="NAME / CODE"
-                    class="terminal-input"
-                 @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
-                @error('q')<p id="q-error" class="admin-field-error">{{ $message }}</p>@enderror
+        @if (session('status'))
+            <div class="atlas-records-alerts">
+                <div class="panel border-success/40 bg-success-soft px-4 py-3 text-sm" role="status">
+                    <strong class="text-success">Saved</strong>
+                    <span class="text-fg-muted">{{ session('status') }}</span>
+                </div>
             </div>
-
-            <div class="admin-toolbar-field">
-                <label for="status">Status</label>
-                <select id="status" name="status" class="terminal-input" @if ($errors->has('status')) aria-invalid="true" aria-describedby="status-error" @endif>
-                    <option value="">ALL STATUSES</option>
-                    <option value="active" @selected(($filters['status'] ?? null) === 'active')>ACTIVE</option>
-                    <option value="inactive" @selected(($filters['status'] ?? null) === 'inactive')>INACTIVE</option>
-                </select>
-                @error('status')<p id="status-error" class="admin-field-error">{{ $message }}</p>@enderror
-            </div>
-
-            <div class="admin-toolbar-actions">
-                <button type="submit" class="btn-ghost">FILTER →</button>
-                @if (! empty($filters['q']) || ! empty($filters['status']))
-                    <a href="{{ route('admin.classrooms') }}" class="btn-ghost">CLEAR</a>
-                @endif
-            </div>
-
-            <p class="admin-toolbar-count">{{ $classrooms->total() }} {{ Str::plural('classroom', $classrooms->total()) }}</p>
-        </form>
-
-        @if ($errors->any())
-            <x-status-message type="error" title="QUERY REJECTED" class="mt-3">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </x-status-message>
         @endif
 
-        @if ($classrooms->isEmpty())
-            <x-status-message type="info" title="NO CLASSROOMS">
-                No classrooms match these filters.
-            </x-status-message>
-        @else
-            <div class="admin-table-region">
-                <table class="table-stack admin-table" role="table">
-                    <caption>Classroom directory</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">Classroom</th>
-                            <th scope="col">Code</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Teachers</th>
-                            <th scope="col">Students</th>
-                            <th scope="col">Courses</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($classrooms as $classroom)
+        <section class="atlas-record-group" aria-labelledby="classroom-directory-title">
+            <div class="atlas-record-group-head">
+                <h2 id="classroom-directory-title" class="atlas-record-group-title">Classroom directory</h2>
+                <p class="atlas-record-group-figure">{{ $classrooms->total() }} {{ Str::plural('classroom', $classrooms->total()) }}</p>
+            </div>
+
+            <form method="GET" action="{{ route('admin.classrooms') }}" class="atlas-index-filters" aria-label="Classroom filters">
+                <div class="atlas-index-filter">
+                    <label for="q">Search</label>
+                    <input
+                        id="q"
+                        name="q"
+                        type="search"
+                        value="{{ $filters['q'] ?? '' }}"
+                        placeholder="Name or code"
+                        class="terminal-input"
+                     @if ($errors->has('q')) aria-invalid="true" aria-describedby="q-error" @endif>
+                    @error('q')<p id="q-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="atlas-index-filter">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="terminal-input" @if ($errors->has('status')) aria-invalid="true" aria-describedby="status-error" @endif>
+                        <option value="">All statuses</option>
+                        <option value="active" @selected(($filters['status'] ?? null) === 'active')>Active</option>
+                        <option value="inactive" @selected(($filters['status'] ?? null) === 'inactive')>Inactive</option>
+                    </select>
+                    @error('status')<p id="status-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="atlas-index-filter-actions">
+                    <button type="submit" class="btn btn-primary">Apply filters</button>
+                    @if (! empty($filters['q']) || ! empty($filters['status']))
+                        <a href="{{ route('admin.classrooms') }}" class="btn btn-ghost">Reset filters</a>
+                    @endif
+                    <a href="{{ route('admin.classrooms.create') }}" class="btn btn-secondary">New classroom →</a>
+                </div>
+            </form>
+
+            @if ($errors->any())
+                <div class="atlas-index-alerts">
+                    <div class="panel border-warning/40 bg-warning-soft px-4 py-3 text-sm" role="alert">
+                        <strong class="text-warning">Query rejected</strong>
+                        <span class="text-fg-muted">{{ $errors->first() }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if ($classrooms->isEmpty())
+                <section class="atlas-records-empty" aria-labelledby="empty-classrooms-title">
+                    <h3 id="empty-classrooms-title" class="atlas-records-empty-title">No classrooms</h3>
+                    <p class="atlas-records-empty-copy">No classrooms match these filters.</p>
+                    @if (! empty($filters['q']) || ! empty($filters['status']))
+                        <a href="{{ route('admin.classrooms') }}" class="btn btn-ghost">Reset filters →</a>
+                    @endif
+                </section>
+            @else
+                <div class="atlas-register-table-wrap">
+                    <table class="table-stack atlas-register-table" role="table">
+                        <caption>Classroom directory</caption>
+                        <thead>
                             <tr>
-                                <th scope="row" data-label="Classroom">
-                                    <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="text-accent hover:underline">
-                                        {{ $classroom->name }}
-                                    </a>
-                                </th>
-
-                                <td data-label="Code">
-                                    {{ $classroom->code ?? '—' }}
-                                </td>
-
-                                <td data-label="Status">
-                                    <x-badge tone="{{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'cyan' : 'dim' }}" class="uppercase">
-                                        {{ $classroom->status }}
-                                    </x-badge>
-                                </td>
-
-                                <td data-label="Teachers">
-                                    {{ $classroom->teachers_count }}
-                                </td>
-
-                                <td data-label="Students">
-                                    {{ $classroom->students_count }}
-                                </td>
-
-                                <td data-label="Courses">
-                                    {{ $classroom->courses_count }}
-                                </td>
-
-                                <td data-label="Actions">
-                                    <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="admin-row-link">
-                                        EDIT →
-                                    </a>
-                                </td>
+                                <th scope="col">Classroom</th>
+                                <th scope="col">Code</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Teachers</th>
+                                <th scope="col">Students</th>
+                                <th scope="col">Courses</th>
+                                <th scope="col">Actions</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($classrooms as $classroom)
+                                <tr>
+                                    <th scope="row" data-label="Classroom">
+                                        <a href="{{ route('admin.classrooms.edit', $classroom) }}">{{ $classroom->name }}</a>
+                                    </th>
+
+                                    <td data-label="Code"><span class="atlas-register-figure">{{ $classroom->code ?? '—' }}</span></td>
+
+                                    <td data-label="Status">
+                                        <span class="atlas-stamp {{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ ucfirst($classroom->status) }}</span>
+                                    </td>
+
+                                    <td data-label="Teachers"><span class="atlas-register-figure">{{ $classroom->teachers_count }}</span></td>
+
+                                    <td data-label="Students"><span class="atlas-register-figure">{{ $classroom->students_count }}</span></td>
+
+                                    <td data-label="Courses"><span class="atlas-register-figure">{{ $classroom->courses_count }}</span></td>
+
+                                    <td data-label="Actions">
+                                        <div class="atlas-row-actions">
+                                            <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="atlas-row-action">Edit</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
                 @if ($classrooms->hasPages())
-                    <div class="panel-pagination">
-                        <p>SHOWING PAGE {{ $classrooms->currentPage() }} OF {{ $classrooms->lastPage() }}</p>
-                        <div class="flex items-center gap-2">
+                    <nav class="atlas-records-pager" aria-label="Classroom directory pages">
+                        <p class="atlas-records-pager-figure">Showing {{ $classrooms->firstItem() }}–{{ $classrooms->lastItem() }} of {{ $classrooms->total() }} · Page {{ $classrooms->currentPage() }} of {{ $classrooms->lastPage() }}</p>
+                        <div class="atlas-records-pager-actions">
                             @if ($classrooms->onFirstPage())
-                                <span class="btn-ghost opacity-50 pointer-events-none">◀ PREV</span>
+                                <span class="btn btn-secondary btn-sm atlas-records-pager-off" aria-disabled="true">← Previous</span>
                             @else
-                                <a href="{{ $classrooms->previousPageUrl() }}" class="btn-ghost">◀ PREV</a>
+                                <a href="{{ $classrooms->previousPageUrl() }}" class="btn btn-secondary btn-sm">← Previous</a>
                             @endif
-
                             @if ($classrooms->hasMorePages())
-                                <a href="{{ $classrooms->nextPageUrl() }}" class="btn-ghost">NEXT ▶</a>
+                                <a href="{{ $classrooms->nextPageUrl() }}" class="btn btn-secondary btn-sm">Next →</a>
                             @else
-                                <span class="btn-ghost opacity-50 pointer-events-none">NEXT ▶</span>
+                                <span class="btn btn-secondary btn-sm atlas-records-pager-off" aria-disabled="true">Next →</span>
                             @endif
                         </div>
-                    </div>
+                    </nav>
                 @endif
-            </div>
-        @endif
-    </x-panel>
+            @endif
+        </section>
     </div>
 @endsection

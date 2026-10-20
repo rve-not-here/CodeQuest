@@ -180,7 +180,7 @@ class ClassroomManagementTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.classrooms'))
             ->assertOk()
-            ->assertSee('+ NEW CLASSROOM')
+            ->assertSee('New classroom →')
             ->assertSee(route('admin.classrooms.create'));
     }
 

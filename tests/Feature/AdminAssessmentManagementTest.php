@@ -44,7 +44,7 @@ class AdminAssessmentManagementTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.courses.assessment', $course))
             ->assertOk()
-            ->assertSee('NO BOSS CHALLENGE');
+            ->assertSee('No Boss Challenge');
     }
 
     public function test_assessment_index_is_scoped_to_the_given_course(): void

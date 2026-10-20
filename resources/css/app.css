@@ -2305,6 +2305,7 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
 @media (max-width: 899.9px) {
     .atlas-index-filters { grid-template-columns: minmax(0, 1fr); }
     .atlas-form-grid { grid-template-columns: minmax(0, 1fr); }
+    .atlas-choice-list { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
     .atlas-index-link { grid-template-columns: 22px minmax(0, 1fr); align-items: start; }
@@ -2368,6 +2369,9 @@ a.atlas-notification-title:focus-visible { outline: 2px solid var(--color-accent
 .atlas-row-action--danger { color: var(--color-danger); }
 .atlas-row-action--danger:hover { color: var(--color-danger); }
 .atlas-row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.atlas-choice-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; margin: 0; padding: 2px 20px 16px; border: 0; }
+.atlas-choice { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-size: 14px; line-height: 20px; }
+.atlas-choice-name { font-family: var(--font-mono); font-size: 12px; line-height: 18px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-register-note { display: block; margin-top: 3px; font-family: var(--font-sans); font-size: 12.5px; font-weight: 400; letter-spacing: normal; text-transform: none; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-register-figure { font-family: var(--font-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 
