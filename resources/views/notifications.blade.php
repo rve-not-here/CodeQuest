@@ -8,14 +8,17 @@
         [$inboxRoute, $inboxLabel] = match ($role) {
             'student' => [route('learning-path'), 'Learning path →'],
             'admin' => [route('admin.dashboard'), 'Admin console →'],
-            default => [route('students'), 'Students →'],
+            'teacher', 'instructor' => [route('students'), 'Students →'],
+            default => [null, null],
         };
     @endphp
 
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · Notifications · {{ $runningFigures }}</span>
-            <a href="{{ $inboxRoute }}">{{ $inboxLabel }}</a>
+            @if ($inboxRoute !== null)
+                <a href="{{ $inboxRoute }}">{{ $inboxLabel }}</a>
+            @endif
         </div>
 
         <header class="atlas-records-heading">

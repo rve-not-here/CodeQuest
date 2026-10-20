@@ -73,11 +73,14 @@
         default => 'Tools',
     };
     $standalone = $standalone ?? false;
-    $studentPrototype = ($authUser !== null && $role === 'student') || ($studentPrototype ?? false);
+    // Public cover/login pages opt out of every shell (header, footer, sheet column).
+    $guestShell = $guest ?? false;
+    $studentPrototype = ! $guestShell && (($authUser !== null && $role === 'student') || ($studentPrototype ?? false));
 
-    $teacherShell = in_array($role, ['teacher', 'instructor'], true) && ! $standalone && ! ($workspace ?? false);
-    $adminShell = $role === 'admin' && ! $standalone && ! ($workspace ?? false) && ! $studentPrototype;
-    $atlasShell = $studentPrototype || $teacherShell || $adminShell;
+    $teacherShell = in_array($role, ['teacher', 'instructor'], true) && ! $standalone && ! ($workspace ?? false) && ! $guestShell;
+    $adminShell = $role === 'admin' && ! $standalone && ! ($workspace ?? false) && ! $studentPrototype && ! $guestShell;
+    $isGuest = $guestShell || $authUser === null;
+    $atlasShell = ! $isGuest;
 @endphp
 
 <!DOCTYPE html>
@@ -102,7 +105,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="atlas-ui {{ $studentPrototype ? 'student-ui' : ($teacherShell ? 'teacher-ui' : ($adminShell ? 'admin-ui' : 'console-ui console-ui--'.$role.' bg-surface text-ink font-sans')) }} min-h-screen">
+<body class="atlas-ui {{ $isGuest ? 'guest-ui' : ($studentPrototype ? 'student-ui' : ($teacherShell ? 'teacher-ui' : ($adminShell ? 'admin-ui' : 'operator-ui'))) }} min-h-screen">
     <div class="flex min-h-screen flex-col">
         @unless ($standalone)
             @include('components.student-header')

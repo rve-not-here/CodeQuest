@@ -962,22 +962,6 @@ main:has(.challenge-workspace) {
     }
 }
 
-/* Monitoring and management use compact, readable tables and forms. */
-body.console-ui {
-    --font-body: var(--font-sans);
-    font-family: var(--font-sans);
-    line-height: 1.5;
-}
-body.console-ui main { font-size: 0.9rem; }
-body.console-ui main h1,
-body.console-ui main h2,
-body.console-ui main h3 { font-family: var(--font-display); text-shadow: none; }
-body.console-ui main .terminal-input,
-body.console-ui main table { font-family: var(--font-sans); text-transform: none; letter-spacing: normal; text-shadow: none; }
-body.console-ui main table { font-size: 0.875rem; }
-body.console-ui main .panel { border-radius: 0; box-shadow: none; }
-body.console-ui .result-count { color: var(--color-static); font-variant-numeric: tabular-nums; }
-
 /* Shared Mission Atlas shell. Page compositions remain in their own phases. */
 .atlas-ui { background-color: var(--cq-ground); }
 .atlas-ui .panel { border-radius: 2px; box-shadow: 3px 3px 0 var(--cq-shadow); }
@@ -1057,56 +1041,55 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
     .atlas-account-label, .cq-account-menu summary > span[aria-hidden="true"]:last-child { display: none; }
 }
 
-/* Mission Atlas guest authentication */
-.guest-access { max-width: 1120px; margin-inline: auto; padding-inline: 48px; }
-.guest-access-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; border-bottom: 1px solid var(--color-line); }
-.guest-access-system { color: var(--color-fg-muted); font: 400 0.75rem / 1.5 var(--font-mono); letter-spacing: 0.04em; }
-.guest-access-layout { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 96px; padding-block: 64px 48px; }
-.guest-access-form { min-width: 0; scroll-margin-top: 24px; }
-.guest-access-form h1 { margin: 0; color: var(--color-fg); font-size: 2rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.03em; }
-.guest-access-intro { margin-top: 12px; color: var(--color-fg-muted); font-size: 1rem; line-height: 1.625; }
-.guest-access-form form { display: grid; gap: 24px; margin-top: 32px; }
-.guest-access-field { min-width: 0; }
-.guest-access-field label { display: block; margin-bottom: 8px; color: var(--color-fg); font-size: 0.875rem; font-weight: 500; }
-.guest-access-field .terminal-input { min-height: 48px; padding: 12px; font: 400 1rem / 1.5 var(--font-sans); background: var(--color-surface); border-radius: 2px; }
-.guest-access-field .terminal-input[aria-invalid="true"] { border-color: var(--color-danger); }
-.guest-access-field-error { margin-top: 8px; color: var(--color-danger); font-size: 0.875rem; line-height: 1.5; overflow-wrap: anywhere; }
-.guest-access-form .btn-primary { width: 100%; min-height: 48px; margin-top: 8px; }
-.guest-access-record { margin-top: 16px; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.5; }
-.guest-access-errors { margin-top: 24px; overflow-wrap: anywhere; }
-.guest-access-errors ul { display: grid; gap: 8px; margin-top: 8px; }
-.guest-access-errors a { text-decoration: underline; text-underline-offset: 3px; }
-.guest-access-context { align-self: start; min-width: 0; padding-top: 24px; border-top: 1px solid var(--color-line); }
-.guest-access-context h2 { margin: 0; color: var(--color-fg); font-size: 1.5rem; font-weight: 500; line-height: 1.333; letter-spacing: -0.02em; }
-.guest-access-context p { max-width: 32ch; margin-top: 24px; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.6; }
-@media (max-width: 899.9px) {
-    .guest-access { padding-inline: 24px; }
-    .guest-access-layout { grid-template-columns: minmax(0, 1fr); gap: 40px; max-width: 440px; margin-inline: auto; padding-block: 40px; }
-    .guest-access-form h1 { font-size: 1.75rem; }
-    .guest-access-context p { max-width: none; margin-top: 16px; }
-}
-@media (max-width: 479.9px) {
-    .guest-access { padding-inline: 16px; }
-    .guest-access-header { min-height: 64px; gap: 12px; }
-    .guest-access-layout { padding-top: 32px; }
-}
+/* Guest surfaces — a cover sheet and an access register. */
+.atlas-cover { display: flex; flex-direction: column; width: 100%; min-height: 100vh; max-width: 1180px; margin-inline: auto; padding-inline: 48px; }
+.atlas-cover-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; min-height: 76px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.atlas-cover-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-left: auto; }
+.atlas-cover-body { display: grid; flex: 1; grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: 48px 72px; padding: 64px 0 56px; }
+.atlas-cover-lead, .atlas-cover-register { min-width: 0; }
+.atlas-cover-lead { scroll-margin-top: 24px; }
+.atlas-cover-title { margin-top: 14px; font-family: var(--font-display); font-size: clamp(40px, 5.2vw, 66px); line-height: 1.03; font-weight: 600; letter-spacing: -.01em; }
+.atlas-cover-title--sm { font-size: clamp(34px, 4vw, 46px); }
+.atlas-cover-lede { margin-top: 20px; max-width: 46ch; font-size: 17px; line-height: 27px; color: var(--color-fg-muted); }
+.atlas-cover-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 30px; }
+.atlas-cover-note { margin-top: 24px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.6; letter-spacing: .03em; color: color-mix(in srgb, var(--cq-ink) 62%, transparent); }
+.atlas-cover-register-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-bottom: 10px; }
+.atlas-cover-register-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: .02em; }
+.atlas-cover-register-figure { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-cover-entry { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 14px; padding: 16px 0 18px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-cover-entry:first-of-type { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 45%, transparent); }
+.atlas-cover-index { padding-top: 3px; font-family: var(--font-mono); font-size: 12px; color: color-mix(in srgb, var(--cq-ink) 55%, transparent); }
+.atlas-cover-entry-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+.atlas-cover-entry-copy { margin-top: 4px; font-size: 14px; line-height: 22px; color: var(--color-fg-muted); }
+.atlas-cover-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding: 18px 0 44px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; color: color-mix(in srgb, var(--cq-ink) 62%, transparent); }
 
-/* Public introduction and component catalogue retain the guest reading rhythm. */
-.guest-public-intro { min-width: 0; scroll-margin-top: 24px; }
-.guest-public-intro h1 { margin: 0; color: var(--color-fg); font-size: 2rem; font-weight: 600; line-height: 1.25; }
-.guest-public-intro p { max-width: 42ch; margin-top: 24px; color: var(--color-fg-muted); font-size: 1rem; line-height: 1.625; }
-.guest-public-intro .btn-primary { min-height: 48px; margin-top: 32px; }
-.guest-public-evidence { min-width: 0; border-top: 1px solid var(--color-line); padding-top: 24px; }
-.guest-public-evidence h2 { margin: 0; color: var(--color-fg); font-size: 1.5rem; font-weight: 500; line-height: 1.333; }
-.guest-public-evidence dl { margin-top: 8px; }
-.guest-public-evidence dl > div { padding-block: 20px; border-bottom: 1px solid var(--color-line); }
-.guest-public-evidence dt { color: var(--color-fg); font-size: 0.875rem; font-weight: 600; }
-.guest-public-evidence dd { margin: 8px 0 0; color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.6; }
-.guest-public-footer { padding-block: 20px; border-top: 1px solid var(--color-line); color: var(--color-fg-muted); font-size: 0.875rem; line-height: 1.5; }
+/* Access register: the sign-in sheet. */
+.atlas-access-alert { margin-top: 26px; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--cq-danger) 45%, transparent); background: var(--cq-danger-soft); color: var(--color-fg); }
+.atlas-access-alert strong { display: block; font-family: var(--font-display); font-size: 15px; font-weight: 600; }
+.atlas-access-alert ul { display: grid; gap: 4px; margin-top: 6px; padding-left: 18px; list-style: disc; font-size: 14px; line-height: 21px; color: var(--color-fg-muted); }
+.atlas-access-alert a { text-decoration: underline; text-underline-offset: 3px; }
+.atlas-access-form { display: grid; gap: 18px; margin-top: 28px; max-width: 26rem; }
+.atlas-access-field { display: grid; gap: 6px; min-width: 0; }
+.atlas-access-field .terminal-input { min-height: 46px; }
+.atlas-access-form .btn { justify-self: start; }
+.atlas-access-notes { display: grid; gap: 12px; margin-top: 26px; padding-top: 16px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-access-notes p { font-size: 14px; line-height: 22px; color: var(--color-fg-muted); }
+
+/* Component catalogue (design-system demo) keeps a reading measure. */
 .guest-catalogue { max-width: 68ch; }
 .guest-catalogue .panel { padding: 24px 0; border: 0; border-top: 1px solid var(--color-line); background: transparent; }
 .guest-catalogue .panel > header { border: 0; padding-bottom: 0; }
-@media (max-width: 899.9px) { .guest-public-intro h1 { font-size: 1.75rem; } }
+@media (max-width: 899.9px) {
+    .atlas-cover { padding-inline: 24px; }
+    .atlas-cover-body { grid-template-columns: minmax(0, 1fr); gap: 40px; padding: 40px 0; }
+    .atlas-cover-title { font-size: clamp(34px, 8vw, 44px); }
+}
+@media (max-width: 479.9px) {
+    .atlas-cover { padding-inline: 16px; }
+    .atlas-cover-head { min-height: 64px; }
+    .atlas-cover-tools .atlas-stamp { display: none; }
+    .atlas-cover-foot { padding-bottom: 32px; }
+}
 
 /* ==========================================================================
    Student surfaces — merged from the former resources/css/student.css
