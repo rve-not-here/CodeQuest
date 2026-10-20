@@ -72,7 +72,7 @@
                                     <td data-label="Type"><span class="atlas-register-figure">{{ $course->type }}</span></td>
 
                                     <td data-label="Status">
-                                        <span class="atlas-stamp {{ $statusTone }}">{{ ucfirst($course->status) }}</span>
+                                        <span class="atlas-stamp {{ $statusTone }}"><x-icon :name="\App\Support\StampIcon::for(ucfirst($course->status)) ?? 'circle'" size="12" />{{ ucfirst($course->status) }}</span>
                                     </td>
 
                                     <td data-label="Sections">

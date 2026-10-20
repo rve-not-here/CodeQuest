@@ -98,7 +98,7 @@
                 <div class="atlas-dashboard-entry">
                     <span>{{ $entryNumber !== null ? 'Entry '.$entryNumber.' · ' : '' }}Current Objective</span>
                     @if ($entryStamp !== null)
-                        <span class="atlas-stamp atlas-stamp--{{ $entryStamp['tone'] }}">{{ $entryStamp['word'] }}</span>
+                        <span class="atlas-stamp atlas-stamp--{{ $entryStamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($entryStamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $entryStamp['word'] }}</span>
                     @endif
                 </div>
                 @if (! $hasLearnableCourses)
@@ -152,7 +152,7 @@
                         <p class="atlas-evidence-title">{{ $specimen->message }}</p>
                         <p class="atlas-evidence-meta">@if ($specimen->pts > 0)+{{ $specimen->pts }} XP · @endif{{ $specimen->created_at->format('M d, H:i') }}</p>
                     </div>
-                    <span class="atlas-stamp atlas-stamp--{{ $specimenStamp['tone'] }}">{{ $specimenStamp['word'] }}</span>
+                    <span class="atlas-stamp atlas-stamp--{{ $specimenStamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($specimenStamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $specimenStamp['word'] }}</span>
                 </div>
                 @if ($evidenceRows->isNotEmpty())
                     <ol class="atlas-dashboard-events">
@@ -161,7 +161,7 @@
                             <li>
                                 <time datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->format('M d · H:i') }}</time>
                                 <p>{{ $activity->message }}</p>
-                                <span class="atlas-stamp atlas-stamp--{{ $stamp['tone'] }}">{{ $stamp['word'] }}</span>
+                                <span class="atlas-stamp atlas-stamp--{{ $stamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stamp['word'] }}</span>
                             </li>
                         @endforeach
                     </ol>

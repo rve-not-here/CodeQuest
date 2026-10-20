@@ -56,7 +56,7 @@
                     <li class="atlas-record-entry" data-course-state="{{ strtolower(str_replace(' ', '-', $row['state'])) }}">
                         <div class="atlas-record-entry-head">
                             <span class="atlas-record-entry-label">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</span>
-                            <span class="atlas-stamp {{ $state['stamp'] }}">{{ $state['label'] }}</span>
+                            <span class="atlas-stamp {{ $state['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($state['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $state['label'] }}</span>
                         </div>
                         <h2 class="atlas-record-entry-title">{{ $course->name }}</h2>
                         @if ($course->description)

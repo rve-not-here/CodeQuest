@@ -52,6 +52,7 @@
         .system, .code { font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace; font-size: 10.5px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; }
         .system { padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); color: color-mix(in srgb, var(--ink) 75%, transparent); }
         main { max-width: 42rem; padding: 64px 0 56px 28px; border-left: 2px solid color-mix(in srgb, var(--accent) 80%, transparent); }
+        .alert { display: block; width: 30px; height: 30px; margin-bottom: 20px; color: var(--accent); }
         .code { display: inline-block; margin: 0 0 18px; padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); color: color-mix(in srgb, var(--ink) 72%, transparent); }
         h1 { margin: 0; font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-size: clamp(32px, 4vw, 44px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; }
         .message { margin: 16px 0 0; max-width: 60ch; color: var(--muted); overflow-wrap: anywhere; }
@@ -78,6 +79,11 @@
             <span class="system">System 404</span>
         </header>
         <main id="main" tabindex="-1">
+            <svg class="alert" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+                <path d="M12 9v4" />
+                <path d="M12 17h.01" />
+            </svg>
             <p class="code">HTTP @yield('code')</p>
             <h1>@yield('title')</h1>
             <p class="message">@yield('message')</p>

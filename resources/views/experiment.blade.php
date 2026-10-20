@@ -26,7 +26,7 @@
         <header class="atlas-reading-heading">
             <div class="atlas-lesson-entry">
                 <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Experiment</span>
-                <span class="atlas-stamp atlas-stamp--ink">Not recorded</span>
+                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="minus" size="12" />Not recorded</span>
             </div>
             <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
             <p class="atlas-check-lede">Ungraded experiment. Try changes and preview the result. Experiments do not submit answers, award XP, or change your progress.</p>
@@ -52,7 +52,7 @@
                 <button type="button" id="practice-output" data-practice-mode="output" aria-pressed="false" aria-controls="practice-output-panel" class="btn btn-ghost">Preview</button>
             </div>
             <div class="atlas-practice-actions">
-                <button type="button" id="experiment-run" class="btn btn-primary">Run preview <x-workspace-icon name="play" /></button>
+                <button type="button" id="experiment-run" class="btn btn-primary">Run preview <x-icon name="play" size="16" /></button>
                 <button type="button" id="experiment-reset" class="btn btn-ghost">Reset example</button>
             </div>
         </div>
@@ -66,7 +66,7 @@
                 <iframe id="experiment-preview" title="Experiment preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
             </section>
         </div>
-        <a href="{{ route('mission.show', $mission) }}" class="btn btn-secondary atlas-practice-return">Return to lesson <x-workspace-icon name="chevron-right" /></a>
+        <a href="{{ route('mission.show', $mission) }}" class="btn btn-secondary atlas-practice-return">Return to lesson <x-icon name="chevron-right" size="16" /></a>
     </div>
     @push('scripts')
     <script>

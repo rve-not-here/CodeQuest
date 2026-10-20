@@ -21,7 +21,7 @@
                 @if ($actionable && $accessible)
                     <a href="{{ $recommendation['href'] }}" class="btn {{ $key === $nextActionKey ? 'btn-primary' : 'btn-secondary' }}">{{ $recommendation['cta'] }} →</a>
                 @elseif (! $accessible)
-                    <span class="atlas-stamp atlas-stamp--ink">Locked</span>
+                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Locked</span>
                 @endif
             </div>
         </li>

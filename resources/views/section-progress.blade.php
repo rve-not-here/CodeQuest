@@ -56,7 +56,7 @@
                                     <div class="atlas-record-entry-row">
                                         <h3 class="atlas-record-entry-title">{{ $section?->title ?? 'Additional challenges' }}</h3>
                                         <span class="atlas-record-entry-figure">{{ $sectionProgress['completed'] }}/{{ $sectionProgress['total'] }} · {{ $sectionProgress['percent'] }}%</span>
-                                        <span class="atlas-stamp {{ $state['stamp'] }}">{{ $state['label'] }}</span>
+                                        <span class="atlas-stamp {{ $state['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($state['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $state['label'] }}</span>
                                     </div>
                                     @if ($sectionProgress['total'] > 0)
                                         <div class="progress atlas-record-entry-bar" role="progressbar" aria-label="{{ $section?->title ?? 'Additional challenges' }} challenge progress" aria-valuemin="0" aria-valuemax="{{ $sectionProgress['total'] }}" aria-valuenow="{{ $sectionProgress['completed'] }}" aria-valuetext="{{ $sectionProgress['completed'] }} of {{ $sectionProgress['total'] }} challenges complete">

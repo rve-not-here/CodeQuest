@@ -70,7 +70,7 @@
                     <li class="atlas-record-entry" data-competency-state="{{ $state }}">
                         <div class="atlas-record-entry-head">
                             <span class="atlas-record-entry-label">Course competency</span>
-                            <span class="atlas-stamp {{ $stateView['stamp'] }}">{{ $stateView['label'] }}</span>
+                            <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                         </div>
                         <h3 class="atlas-record-entry-title">{{ $row['name'] }}</h3>
                         <p class="atlas-record-entry-copy">{{ $reason }}</p>
@@ -98,7 +98,7 @@
                     <li class="atlas-record-entry atlas-record-entry--compact" data-skill-state="{{ $skill['state'] }}">
                         <div class="atlas-record-entry-row atlas-record-entry-row--tag">
                             <h3 class="atlas-record-entry-title">{{ $skill['label'] }}</h3>
-                            <span class="atlas-stamp {{ $skillView['stamp'] }}">{{ $skillView['label'] }}</span>
+                            <span class="atlas-stamp {{ $skillView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($skillView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $skillView['label'] }}</span>
                         </div>
                         <p class="atlas-record-meta">
                             <span>Knowledge Checks {{ $skill['kcTotal'] > 0 ? $skill['kcCorrect'].'/'.$skill['kcTotal'].' correct' : 'no evidence recorded' }}</span>

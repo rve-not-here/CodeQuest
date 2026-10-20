@@ -9,7 +9,7 @@
             @if ($role === 'teacher')
                 <a href="{{ route('classrooms') }}">My classrooms →</a>
             @else
-                <span class="atlas-stamp atlas-stamp--ink">System-wide</span>
+                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
             @endif
         </div>
 
@@ -165,18 +165,18 @@
                                     <td data-label="Progress">
                                         @if ($row['progress'] !== null)
                                             <span class="atlas-register-figure">{{ $row['progress']['completed'] }}/{{ $row['progress']['total'] }} · {{ $row['progress']['percent'] }}%</span>
-                                            <span class="atlas-stamp {{ $stateTones[$row['state']] ?? 'atlas-stamp--ink' }}">{{ $stateLabels[$row['state']] ?? $row['state'] }}</span>
+                                            <span class="atlas-stamp {{ $stateTones[$row['state']] ?? 'atlas-stamp--ink' }}">@if ($stampIcon = \App\Support\StampIcon::for($stateLabels[$row['state']] ?? $row['state']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateLabels[$row['state']] ?? $row['state'] }}</span>
                                         @else
-                                            <span class="atlas-stamp atlas-stamp--grn">All cleared</span>
+                                            <span class="atlas-stamp atlas-stamp--grn"><x-icon name="badge-check" size="12" />All cleared</span>
                                         @endif
                                     </td>
                                     <td data-label="Boss Challenge">
                                         @if ($row['assessment'] === 'READY')
-                                            <span class="atlas-stamp atlas-stamp--vio">Ready</span>
+                                            <span class="atlas-stamp atlas-stamp--vio"><x-icon name="flag" size="12" />Ready</span>
                                         @elseif ($row['assessment'] === 'ALL CLEARED')
-                                            <span class="atlas-stamp atlas-stamp--grn">Passed</span>
+                                            <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Passed</span>
                                         @else
-                                            <span class="atlas-stamp atlas-stamp--ink">Locked</span>
+                                            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Locked</span>
                                         @endif
                                     </td>
                                     <td data-label="Competency">{{ $competencyLabel }}</td>

@@ -23,6 +23,6 @@
         <div class="text-[15px] leading-snug text-static">{{ $slot }}</div>
     </div>
     @if ($dismissible)
-        <button type="button" class="ml-auto shrink-0 text-lg leading-none text-static hover:text-ink" data-dismiss aria-label="Dismiss">&times;</button>
+        <button type="button" class="ml-auto shrink-0 text-lg leading-none text-static hover:text-ink" data-dismiss aria-label="Dismiss"><x-icon name="x" size="16" /></button>
     @endif
 </div>

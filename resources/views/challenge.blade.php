@@ -17,7 +17,7 @@
                 <nav class="cq-workspace-tabs" role="tablist" aria-label="Workspace views" data-workspace-controls>
                     <button type="button" role="tab" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-selected="false" tabindex="-1" hidden>Instructions</button>
                     <button type="button" role="tab" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-selected="true" tabindex="0">Code</button>
-                    <button type="button" role="tab" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-selected="false" tabindex="-1"><x-workspace-icon name="eye" />Preview</button>
+                    <button type="button" role="tab" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-selected="false" tabindex="-1"><x-icon name="eye" size="16" />Preview</button>
                 </nav>
                 <div class="cq-workspace-actions" role="group" aria-label="Challenge actions">
                     <div class="cq-help-actions">
@@ -25,7 +25,7 @@
                             <form method="POST" action="{{ route('mission.hint', $mission) }}" data-challenge-action="hint" data-confirm-title="Reveal hint?" data-confirm-copy="This hint costs {{ $nextHintCost }} XP." data-confirm-label="Reveal hint">
                                 @csrf
                                 <input type="hidden" name="code" class="code-payload">
-                                <button type="submit" class="btn btn-secondary"><x-workspace-icon name="lightbulb" />Hint · {{ $nextHintCost }} XP</button>
+                                <button type="submit" class="btn btn-secondary"><x-icon name="lightbulb" size="16" />Hint · {{ $nextHintCost }} XP</button>
                             </form>
                         @endif
                         @if ($hints)
@@ -33,37 +33,37 @@
                         @endif
                     </div>
                     <div class="cq-evaluation-actions">
-                        <button type="button" id="run" class="btn btn-secondary"><x-workspace-icon name="play" />Run</button>
+                        <button type="button" id="run" class="btn btn-secondary"><x-icon name="play" size="16" />Run</button>
                         <form method="POST" action="{{ route('mission.submit', $mission) }}" class="workspace-submit" data-challenge-action="submit" data-confirm-title="Submit for evaluation?" data-confirm-copy="Submit sends your code for academic evaluation. A failed submission costs {{ $wrongPenalty }} XP. Run only updates the preview." data-confirm-label="Submit challenge">
                             @csrf
                             <input type="hidden" name="submission_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
                             <input type="hidden" name="code" class="code-payload">
-                            <button type="submit" class="btn btn-primary" aria-label="Submit challenge"><x-workspace-icon name="send" />Submit</button>
+                            <button type="submit" class="btn btn-primary" aria-label="Submit challenge"><x-icon name="send" size="16" />Submit</button>
                         </form>
                     </div>
                 </div>
                 <details class="cq-workspace-options" data-shell-disclosure data-workspace-options>
-                    <summary aria-label="Workspace options" title="Workspace options"><x-workspace-icon name="sliders-horizontal" /></summary>
+                    <summary aria-label="Workspace options" title="Workspace options"><x-icon name="sliders-horizontal" size="16" /></summary>
                     <div class="cq-workspace-menu">
                         <p class="cq-workspace-context">{{ $mission->title }}@if ($course)<span>{{ $course->name }}@if ($section) · {{ $section->title }}@endif</span>@endif</p>
                         <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
-                        @if ($completed)<p class="cq-workspace-state"><span class="atlas-stamp atlas-stamp--grn">Completed</span></p>@endif
+                        @if ($completed)<p class="cq-workspace-state"><span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span></p>@endif
                         <p id="draft-status" class="challenge-draft-status" data-state="{{ session('draft_saved') || $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
                         @if (! $completed)<p class="cq-workspace-help">Save draft: <kbd>Ctrl/⌘ + S</kbd> within the workspace.</p>@endif
-                        <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-icon="closed"><x-workspace-icon name="panel-left-close" /></span><span data-workspace-hide-icon="open" hidden><x-workspace-icon name="panel-left-open" /></span><span data-workspace-hide-label>Hide instructions</span></button>
+                        <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-icon="closed"><x-icon name="panel-left-close" size="16" /></span><span data-workspace-hide-icon="open" hidden><x-icon name="panel-left-open" size="16" /></span><span data-workspace-hide-label>Hide instructions</span></button>
                         <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="340" data-workspace-width></label>
                         <button type="button" class="btn btn-ghost" data-workspace-reset>Reset panes</button>
                         @if ($hints || (! $completed && $hasSolution))<button type="button" class="btn btn-ghost" data-workspace-assistance-open>Assistance</button>@endif
-                        <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><span data-workspace-fullscreen-icon="enter"><x-workspace-icon name="maximize" /></span><span data-workspace-fullscreen-icon="exit" hidden><x-workspace-icon name="minimize" /></span><span data-workspace-fullscreen-label>Fullscreen</span></button>
+                        <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><span data-workspace-fullscreen-icon="enter"><x-icon name="maximize" size="16" /></span><span data-workspace-fullscreen-icon="exit" hidden><x-icon name="minimize" size="16" /></span><span data-workspace-fullscreen-label>Fullscreen</span></button>
                     </div>
                 </details>
             </header>
             <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-title" tabindex="0">
-                <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="Back to lesson"><x-workspace-icon name="arrow-left" />Back to lesson</a></header>
+                <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="Back to lesson"><x-icon name="arrow-left" size="16" />Back to lesson</a></header>
                 <div class="challenge-pane-body cq-lesson-reading">
                     <div class="cq-brief-entry">
                         <span class="cq-brief-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge</span>
-                        @if ($completed)<span class="atlas-stamp atlas-stamp--grn">Completed</span>@endif
+                        @if ($completed)<span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>@endif
                     </div>
                     <h2 id="instructions-title">{{ $mission->title }}</h2>
                     <dl class="log-facts cq-brief-facts">
@@ -196,7 +196,7 @@
             >
                 <div class="completion-heading">
                     <h2 id="completion-title">Challenge complete</h2>
-                    <span class="atlas-stamp atlas-stamp--grn">Passed</span>
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Passed</span>
                 </div>
                 <p id="completion-summary" class="completion-summary">
                     {{ $mission->title }} passed server validation. Your progress is recorded.

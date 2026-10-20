@@ -6,7 +6,7 @@
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · System status · Platform scope</span>
-            <span class="atlas-stamp atlas-stamp--ink">Read-only</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />Read-only</span>
         </div>
 
         <header class="atlas-records-heading">
@@ -18,7 +18,7 @@
         <section class="atlas-record-group" aria-labelledby="application-title">
             <div class="atlas-record-group-head">
                 <h2 id="application-title" class="atlas-record-group-title">Application</h2>
-                <span class="atlas-stamp atlas-stamp--grn">Online</span>
+                <span class="atlas-stamp atlas-stamp--grn"><x-icon name="circle-check" size="12" />Online</span>
             </div>
 
             <div class="atlas-record-figures">
@@ -36,9 +36,9 @@
             <div class="atlas-record-group-head">
                 <h2 id="database-title" class="atlas-record-group-title">Database</h2>
                 @if ($database['connected'])
-                    <span class="atlas-stamp atlas-stamp--grn">Connected</span>
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="circle-check" size="12" />Connected</span>
                 @else
-                    <span class="atlas-stamp atlas-stamp--acc">Unreachable</span>
+                    <span class="atlas-stamp atlas-stamp--acc"><x-icon name="triangle-alert" size="12" />Unreachable</span>
                 @endif
             </div>
 
@@ -63,9 +63,9 @@
             <div class="atlas-record-group-head">
                 <h2 id="migrations-title" class="atlas-record-group-title">Migrations</h2>
                 @if ($migrations['readable'])
-                    <span class="atlas-stamp atlas-stamp--grn">Readable</span>
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="circle-check" size="12" />Readable</span>
                 @else
-                    <span class="atlas-stamp atlas-stamp--acc">Unreadable</span>
+                    <span class="atlas-stamp atlas-stamp--acc"><x-icon name="triangle-alert" size="12" />Unreadable</span>
                 @endif
             </div>
 
@@ -85,9 +85,9 @@
             <div class="atlas-record-group-head">
                 <h2 id="storage-title" class="atlas-record-group-title">Storage &amp; logs</h2>
                 @if ($storage['logs_writable'])
-                    <span class="atlas-stamp atlas-stamp--grn">Writable</span>
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="circle-check" size="12" />Writable</span>
                 @else
-                    <span class="atlas-stamp atlas-stamp--acc">Blocked</span>
+                    <span class="atlas-stamp atlas-stamp--acc"><x-icon name="lock" size="12" />Blocked</span>
                 @endif
             </div>
 
@@ -106,7 +106,7 @@
                 <p class="atlas-callout-label">No credentials surfaced</p>
                 <p class="atlas-callout-copy">This page never exposes passwords, application keys, session secrets or API keys. Every configuration value it reads passes an explicit allowlist inside SystemStatusService.</p>
             </div>
-            <span class="atlas-stamp atlas-stamp--ink">Allowlisted</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="shield-check" size="12" />Allowlisted</span>
         </div>
     </div>
 @endsection

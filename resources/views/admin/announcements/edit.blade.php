@@ -107,7 +107,7 @@
         <section class="atlas-record-group" aria-labelledby="delivery-title">
             <div class="atlas-record-group-head">
                 <h2 id="delivery-title" class="atlas-record-group-title">Delivery</h2>
-                <span class="atlas-stamp {{ $announcement->status === 'published' ? 'atlas-stamp--grn' : ($announcement->status === 'archived' ? 'atlas-stamp--ink' : 'atlas-stamp--amb') }}">{{ ucfirst($announcement->status) }}</span>
+                <span class="atlas-stamp {{ $announcement->status === 'published' ? 'atlas-stamp--grn' : ($announcement->status === 'archived' ? 'atlas-stamp--ink' : 'atlas-stamp--amb') }}"><x-icon :name="\App\Support\StampIcon::for(ucfirst($announcement->status)) ?? 'circle'" size="12" />{{ ucfirst($announcement->status) }}</span>
             </div>
 
             <div class="atlas-record-entry">

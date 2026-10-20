@@ -6,7 +6,7 @@
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · Analytics · Platform scope</span>
-            <span class="atlas-stamp atlas-stamp--ink">Read-only</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />Read-only</span>
         </div>
 
         <header class="atlas-records-heading">
@@ -63,7 +63,7 @@
         <section class="atlas-record-group" aria-labelledby="xp-administration-title">
             <div class="atlas-record-group-head">
                 <h2 id="xp-administration-title" class="atlas-record-group-title">XP administration</h2>
-                <span class="atlas-stamp atlas-stamp--ink">View only</span>
+                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />View only</span>
             </div>
 
             <div class="atlas-record-figures">

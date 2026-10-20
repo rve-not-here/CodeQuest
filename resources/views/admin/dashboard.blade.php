@@ -140,7 +140,7 @@
                                         @endif
                                     </td>
                                     <td data-label="Result">
-                                        <span class="atlas-stamp {{ $entry->result === 'success' ? 'atlas-stamp--grn' : 'atlas-stamp--acc' }}">{{ $entry->result === 'success' ? 'Success' : 'Failed' }}</span>
+                                        <span class="atlas-stamp {{ $entry->result === 'success' ? 'atlas-stamp--grn' : 'atlas-stamp--acc' }}"><x-icon :name="$entry->result === 'success' ? 'check' : 'x'" size="12" />{{ $entry->result === 'success' ? 'Success' : 'Failed' }}</span>
                                     </td>
                                     <td data-label="Recorded at"><time class="atlas-record-key" datetime="{{ $entry->created_at->toIso8601String() }}">{{ $entry->created_at->format('M d, Y · H:i') }}</time></td>
                                 </tr>

@@ -6,7 +6,7 @@
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · Classrooms · Platform scope</span>
-            <span class="atlas-stamp atlas-stamp--ink">System-wide</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
         </div>
 
         <header class="atlas-records-heading">
@@ -105,7 +105,7 @@
                                     <td data-label="Code"><span class="atlas-register-figure">{{ $classroom->code ?? '—' }}</span></td>
 
                                     <td data-label="Status">
-                                        <span class="atlas-stamp {{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ ucfirst($classroom->status) }}</span>
+                                        <span class="atlas-stamp {{ $classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}"><x-icon :name="$classroom->status === \App\Models\Classroom::STATUS_ACTIVE ? 'circle-check' : 'circle'" size="12" />{{ ucfirst($classroom->status) }}</span>
                                     </td>
 
                                     <td data-label="Teachers"><span class="atlas-register-figure">{{ $classroom->teachers_count }}</span></td>

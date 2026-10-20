@@ -97,9 +97,9 @@
                         <span class="atlas-record-entry-label">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</span>
                         <span class="atlas-record-entry-figures">
                             @if ($row['isPosition'])
-                                <span class="atlas-stamp atlas-stamp--vio">Current</span>
+                                <span class="atlas-stamp atlas-stamp--vio"><x-icon name="locate" size="12" />Current</span>
                             @endif
-                            <span class="atlas-stamp {{ $stateView['stamp'] }}">{{ $stateView['label'] }}</span>
+                            <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                         </span>
                     </div>
                     <h3 class="atlas-record-entry-title">{{ $course->name }}</h3>
@@ -137,7 +137,7 @@
                                             <th scope="row" data-label="Section">{{ $sectionRow['section']?->title ?? 'Additional challenges' }}</th>
                                             <td data-label="Completed"><span class="atlas-register-figure">{{ $sectionRow['progress']['completed'] }}/{{ $sectionRow['progress']['total'] }}</span></td>
                                             <td data-label="Section progress"><span class="atlas-register-figure">{{ $sectionRow['progress']['percent'] }}%</span></td>
-                                            <td data-label="State"><span class="atlas-stamp {{ $sectionView['stamp'] }}">{{ $sectionView['label'] }}</span></td>
+                                            <td data-label="State"><span class="atlas-stamp {{ $sectionView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($sectionView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $sectionView['label'] }}</span></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -246,7 +246,7 @@
                     <article class="atlas-record-entry">
                         <div class="atlas-record-entry-head">
                             <span class="atlas-record-entry-label">Boss Challenge record</span>
-                            <span class="atlas-stamp {{ $stateView['stamp'] }}">{{ $stateView['label'] }}</span>
+                            <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                         </div>
                         <h3 class="atlas-record-entry-title">{{ $rowCourse->name }}</h3>
                         <dl class="log-facts atlas-record-entry-facts atlas-record-entry-facts--wide">
@@ -277,7 +277,7 @@
                                 @endphp
                                 <tr>
                                     <th scope="row" data-label="Course">{{ $attempt['courseName'] }}</th>
-                                    <td data-label="Verdict"><span class="atlas-stamp {{ $attemptView['stamp'] }}">{{ $attemptView['label'] }}</span></td>
+                                    <td data-label="Verdict"><span class="atlas-stamp {{ $attemptView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($attemptView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $attemptView['label'] }}</span></td>
                                     <td data-label="Score"><span class="atlas-register-figure">{{ $attempt['score'] !== null ? $attempt['score'].'%' : '—' }}</span></td>
                                     <td data-label="Submitted"><span class="atlas-register-figure">{{ $attempt['submitted_at']?->format('M d, Y · H:i') ?? '—' }}</span></td>
                                 </tr>
@@ -320,7 +320,7 @@
                                 @endphp
                                 <tr>
                                     <th scope="row" data-label="Course">{{ $row['name'] }}</th>
-                                    <td data-label="State"><span class="atlas-stamp {{ $stateView['stamp'] }}">{{ $stateView['label'] }}</span></td>
+                                    <td data-label="State"><span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span></td>
                                     <td data-label="Challenges"><span class="atlas-register-figure">{{ $row['completedMissions'] }}/{{ $row['totalMissions'] }}</span></td>
                                     <td data-label="Progress"><span class="atlas-register-figure">{{ $row['percent'] }}%</span></td>
                                     <td data-label="Wrong submissions"><span class="atlas-register-figure">{{ $row['wrongSubmissions'] }}</span></td>
@@ -361,7 +361,7 @@
                                 @endphp
                                 <tr>
                                     <th scope="row" data-label="Skill">{{ $skill['label'] }}</th>
-                                    <td data-label="State"><span class="atlas-stamp {{ $skillView['stamp'] }}">{{ $skillView['label'] }}</span></td>
+                                    <td data-label="State"><span class="atlas-stamp {{ $skillView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($skillView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $skillView['label'] }}</span></td>
                                     <td data-label="Evidence">{{ $skill['percentage'] === null ? 'No evidence recorded yet.' : $skill['percentage'].'%' }}</td>
                                 </tr>
                             @endforeach

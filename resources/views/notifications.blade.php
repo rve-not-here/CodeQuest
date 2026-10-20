@@ -56,9 +56,21 @@
                     @php
                         $href = $links[$notification->id] ?? null;
                         $isUnread = $notification->read_at === null;
+                        $notificationIcon = match ($notification->type) {
+                            \App\Services\NotificationService::TYPE_MISSION_COMPLETED => 'check',
+                            \App\Services\NotificationService::TYPE_ASSESSMENT_UNLOCKED => 'lock-open',
+                            \App\Services\NotificationService::TYPE_ASSESSMENT_PASSED => 'badge-check',
+                            \App\Services\NotificationService::TYPE_ASSESSMENT_FAILED => 'x',
+                            \App\Services\NotificationService::TYPE_COURSE_COMPLETED => 'flag',
+                            \App\Services\NotificationService::TYPE_NEXT_COURSE_UNLOCKED => 'arrow-up-right',
+                            \App\Services\NotificationService::TYPE_ACHIEVEMENT_EARNED => 'award',
+                            \App\Services\NotificationService::TYPE_TEACHER_ATTENTION => 'triangle-alert',
+                            \App\Services\NotificationService::TYPE_SYSTEM_ANNOUNCEMENT => 'megaphone',
+                            default => 'bell',
+                        };
                     @endphp
                     <li class="atlas-notification" data-state="{{ $isUnread ? 'unread' : 'read' }}">
-                        <span class="atlas-notification-mark" aria-hidden="true"></span>
+                        <span class="atlas-notification-mark" aria-hidden="true"><x-icon :name="$notificationIcon" size="14" /></span>
                         <div class="atlas-notification-body">
                             <div class="atlas-notification-head">
                                 @if ($href !== null)
@@ -67,7 +79,7 @@
                                     <p class="atlas-notification-title">{{ $notification->title }}</p>
                                 @endif
                                 @if ($notification->type === \App\Services\NotificationService::TYPE_SYSTEM_ANNOUNCEMENT)
-                                    <span class="atlas-stamp atlas-stamp--amb">System</span>
+                                    <span class="atlas-stamp atlas-stamp--amb"><x-icon name="megaphone" size="12" />System</span>
                                 @endif
                             </div>
                             <p class="atlas-notification-copy">{{ $notification->message }}</p>
@@ -82,7 +94,7 @@
                                     <button type="submit" class="btn-ghost">Mark read</button>
                                 </form>
                             @else
-                                <span class="atlas-stamp atlas-stamp--ink">Read</span>
+                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="mail-open" size="12" />Read</span>
                             @endif
                         </div>
                     </li>

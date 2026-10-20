@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Support\IconMap;
+use App\Support\StampIcon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Process;
 use Tests\TestCase;
@@ -46,6 +48,25 @@ class IconTest extends TestCase
 
         $this->blade('<x-icon name="bell" size="30" />')
             ->assertSee('width="16" height="16"', false);
+    }
+
+    public function test_every_runtime_resolved_icon_name_is_generated(): void
+    {
+        $runtimeNames = [
+            'activity', 'archive', 'arrow-up-right', 'award', 'badge-check', 'bell', 'check',
+            'circle', 'circle-check', 'circle-dot', 'circle-question-mark', 'eye', 'flag',
+            'hourglass', 'lightbulb', 'loader-circle', 'locate', 'lock', 'lock-open', 'mail',
+            'mail-open', 'megaphone', 'minus', 'pencil', 'plus', 'sparkles', 'target',
+            'trending-up', 'triangle-alert', 'x',
+        ];
+
+        foreach ($runtimeNames as $name) {
+            $this->assertTrue(IconMap::has($name), "Missing runtime icon: {$name}");
+        }
+
+        foreach (StampIcon::icons() as $label => $icon) {
+            $this->assertTrue(IconMap::has($icon), "Stamp \"{$label}\" uses missing icon \"{$icon}\".");
+        }
     }
 
     public function test_unknown_icon_names_fall_back_to_the_dot_marker(): void

@@ -6,7 +6,7 @@
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · Users · Platform scope</span>
-            <span class="atlas-stamp atlas-stamp--ink">System-wide</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
         </div>
 
         <header class="atlas-records-heading">
@@ -118,7 +118,7 @@
                                         @endif
                                     </th>
                                     <td data-label="Role"><span class="atlas-stamp {{ $roleTone }}">{{ $roleLabel }}</span></td>
-                                    <td data-label="Status"><span class="atlas-stamp {{ $row['status'] === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ $row['status'] === 'active' ? 'Active' : 'Inactive' }}</span></td>
+                                    <td data-label="Status"><span class="atlas-stamp {{ $row['status'] === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}"><x-icon :name="$row['status'] === 'active' ? 'circle-check' : 'circle'" size="12" />{{ $row['status'] === 'active' ? 'Active' : 'Inactive' }}</span></td>
                                     <td data-label="Created">{{ $row['createdAt']->format('M d, Y') }}</td>
                                     <td data-label="Last activity">
                                         @if ($row['lastActivity'] !== null)

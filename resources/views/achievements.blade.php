@@ -40,9 +40,9 @@
                         <div class="atlas-record-entry-row atlas-record-entry-row--tag">
                             <h3 class="atlas-record-entry-title">{{ $row['name'] }}</h3>
                             @if ($row['awarded'])
-                                <span class="atlas-stamp atlas-stamp--grn">Unlocked</span>
+                                <span class="atlas-stamp atlas-stamp--grn"><x-icon name="lock-open" size="12" />Unlocked</span>
                             @else
-                                <span class="atlas-stamp atlas-stamp--ink">Locked</span>
+                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Locked</span>
                             @endif
                         </div>
                         <p class="atlas-record-entry-copy">{{ $row['description'] ?? 'Achievement description pending.' }}</p>

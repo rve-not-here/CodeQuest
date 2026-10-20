@@ -12,5 +12,5 @@
         @endif
         <span>{{ $slot }}</span>
     </div>
-    <button type="button" class="student-toast-close" data-toast-dismiss aria-label="Dismiss {{ $title ?: 'message' }}">&times;</button>
+    <button type="button" class="student-toast-close" data-toast-dismiss aria-label="Dismiss {{ $title ?: 'message' }}"><x-icon name="x" size="14" /></button>
 </div>

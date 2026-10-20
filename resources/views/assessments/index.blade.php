@@ -106,7 +106,7 @@
                                 <h2>{{ $course->name }}</h2>
                                 <p class="atlas-assessment-challenge">{{ $assessment?->title ?? 'No Boss Challenge authored for this course.' }}</p>
                             </div>
-                            <span class="atlas-stamp {{ $stamps[$state] }}">{{ $labels[$state] }}</span>
+                            <span class="atlas-stamp {{ $stamps[$state] }}">@if ($stampIcon = \App\Support\StampIcon::for($labels[$state]))<x-icon :name="$stampIcon" size="12" />@endif{{ $labels[$state] }}</span>
                         </div>
 
                         <div class="atlas-assessment-body">
@@ -135,16 +135,16 @@
 
                             <div class="atlas-assessment-actions">
                                 @if (! $row['unlocked'])
-                                    <a href="{{ route('learning-path') }}" class="btn btn-secondary">View learning path <x-workspace-icon name="chevron-right" /></a>
+                                    <a href="{{ route('learning-path') }}" class="btn btn-secondary">View learning path <x-icon name="chevron-right" size="16" /></a>
                                 @else
                                     @if ($state === 'ready')
                                         <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary">Start attempt <x-workspace-icon name="chevron-right" /></button>
+                                            <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" size="16" /></button>
                                         </form>
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-ghost">View briefing</a>
                                     @elseif ($state === 'in-progress')
-                                        <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-primary">Continue challenge <x-workspace-icon name="chevron-right" /></a>
+                                        <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-primary">Continue challenge <x-icon name="chevron-right" size="16" /></a>
                                     @elseif ($state === 'submitted')
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-secondary">View status</a>
                                     @elseif ($state === 'failed')
@@ -156,7 +156,7 @@
                                     @elseif (in_array($state, ['passed', 'failed-retry'], true))
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-secondary">Open challenge</a>
                                     @elseif ($state === 'sealed')
-                                        <a href="{{ route('missions') }}" class="btn btn-secondary">View challenges <x-workspace-icon name="chevron-right" /></a>
+                                        <a href="{{ route('missions') }}" class="btn btn-secondary">View challenges <x-icon name="chevron-right" size="16" /></a>
                                     @endif
                                 @endif
                             </div>

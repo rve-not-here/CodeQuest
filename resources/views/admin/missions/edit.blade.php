@@ -198,7 +198,7 @@
                         <div class="atlas-form-field atlas-form-field--wide">
                             <div class="flex flex-wrap items-center gap-3">
                                 <span class="atlas-lesson-entry-label">Solution code</span>
-                                <span class="atlas-stamp atlas-stamp--ink">View only</span>
+                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />View only</span>
                             </div>
                             <pre class="code-block whitespace-pre-wrap break-words">{{ $mission->solution_code ?? '(none)' }}</pre>
                         </div>
@@ -206,7 +206,7 @@
                         <div class="atlas-form-field atlas-form-field--wide">
                             <div class="flex flex-wrap items-center gap-3">
                                 <span class="atlas-lesson-entry-label">Validation rules</span>
-                                <span class="atlas-stamp atlas-stamp--ink">View only</span>
+                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />View only</span>
                             </div>
                             <pre class="code-block whitespace-pre-wrap break-words">{{ $mission->validate_rule ?? '(none)' }}</pre>
                         </div>

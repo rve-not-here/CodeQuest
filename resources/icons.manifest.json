@@ -1,4 +1,5 @@
 {
+  "_note": "aliases maps semantic view names to current Lucide filenames. always lists icons resolved at runtime (StampIcon, timeline marks, notification types) because the build script cannot see through variables.",
   "aliases": {
     "alert": "triangle-alert",
     "chart": "chart-column",
@@ -7,5 +8,37 @@
     "layout": "panels-top-left",
     "x-circle": "circle-x"
   },
-  "always": ["dot"]
+  "always": [
+    "activity",
+    "archive",
+    "arrow-up-right",
+    "award",
+    "badge-check",
+    "bell",
+    "check",
+    "circle",
+    "circle-check",
+    "circle-dot",
+    "circle-question-mark",
+    "dot",
+    "eye",
+    "flag",
+    "hourglass",
+    "lightbulb",
+    "loader-circle",
+    "locate",
+    "lock",
+    "lock-open",
+    "mail",
+    "mail-open",
+    "megaphone",
+    "minus",
+    "pencil",
+    "plus",
+    "sparkles",
+    "target",
+    "trending-up",
+    "triangle-alert",
+    "x"
+  ]
 }

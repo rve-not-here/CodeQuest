@@ -35,7 +35,7 @@
                 <h1 class="atlas-boss-title">{{ $assessment->title }}</h1>
             </div>
             <div class="atlas-boss-heading-meta">
-                <span class="atlas-stamp {{ $status['stamp'] }}">{{ $status['label'] }}</span>
+                <span class="atlas-stamp {{ $status['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($status['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $status['label'] }}</span>
                 <p class="atlas-boss-meta">Pass {{ $assessment->passing_score }}% · First pass +{{ $reward }} XP</p>
             </div>
         </header>
@@ -116,7 +116,7 @@
                         <p class="atlas-boss-state-copy">Begin an attempt to open the editor. Your work is scored on the server after submission.</p>
                         <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary">Start attempt <x-workspace-icon name="chevron-right" /></button>
+                            <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" size="16" /></button>
                         </form>
                     </section>
                 @elseif ($attempt?->status === 'submitted')
@@ -127,7 +127,7 @@
                         <form method="POST" action="{{ route('assessment.submit', $assessment) }}">
                             @csrf
                             <input type="hidden" name="code" value="{{ $code }}">
-                            <button type="submit" class="btn btn-primary">Resume verification <x-workspace-icon name="chevron-right" /></button>
+                            <button type="submit" class="btn btn-primary">Resume verification <x-icon name="chevron-right" size="16" /></button>
                         </form>
                     </section>
                 @else
@@ -138,7 +138,7 @@
                         </div>
                         @if (in_array($attempt?->status, ['passed', 'failed'], true))
                             <div class="atlas-boss-verdict" role="status" data-boss-verdict="{{ $attempt->status }}">
-                                <span class="atlas-stamp {{ $attempt->status === 'passed' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}">{{ $attempt->status === 'passed' ? 'Passed' : 'Failed' }}</span>
+                                <span class="atlas-stamp {{ $attempt->status === 'passed' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}"><x-icon :name="$attempt->status === 'passed' ? 'check' : 'x'" size="12" />{{ $attempt->status === 'passed' ? 'Passed' : 'Failed' }}</span>
                                 <p>Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. Submitting is closed; open a retry for a fresh attempt.</p>
                             </div>
                         @endif
@@ -146,12 +146,12 @@
                         <div id="editor-host" class="challenge-pane-editor"></div>
                         <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
                         <div class="atlas-boss-code-actions">
-                            <button type="button" id="run" class="btn btn-secondary">Run preview <x-workspace-icon name="play" /></button>
+                            <button type="button" id="run" class="btn btn-secondary">Run preview <x-icon name="play" size="16" /></button>
                             @if ($canEdit)
                                 <form id="assessment-submit" method="POST" action="{{ route('assessment.submit', $assessment) }}">
                                     @csrf
                                     <input type="hidden" name="code" class="code-payload">
-                                    <button type="submit" class="btn btn-primary">Submit <x-workspace-icon name="send" /></button>
+                                    <button type="submit" class="btn btn-primary">Submit <x-icon name="send" size="16" /></button>
                                 </form>
                             @endif
                             @if ($canRetry)

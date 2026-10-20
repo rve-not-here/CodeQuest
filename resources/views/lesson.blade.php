@@ -20,7 +20,7 @@
             <div class="atlas-lesson-entry">
                 <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Lesson</span>
                 @if ($completed)
-                    <span class="atlas-stamp atlas-stamp--grn">Completed</span>
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
                 @endif
             </div>
             <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
@@ -120,11 +120,11 @@
                                         </p>
                                     </div>
                                     @if ($latestAttempt)
-                                        <a href="{{ route('knowledge-check.show', [$mission, $check, $latestAttempt]) }}" class="btn btn-ghost btn-sm">{{ $latestAttempt->status === 'submitted' ? 'Review result' : 'Resume check' }} <x-workspace-icon name="chevron-right" /></a>
+                                        <a href="{{ route('knowledge-check.show', [$mission, $check, $latestAttempt]) }}" class="btn btn-ghost btn-sm">{{ $latestAttempt->status === 'submitted' ? 'Review result' : 'Resume check' }} <x-icon name="chevron-right" size="16" /></a>
                                     @else
                                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $check]) }}">
                                             @csrf
-                                            <button type="submit" class="btn btn-ghost btn-sm">Start check <x-workspace-icon name="chevron-right" /></button>
+                                            <button type="submit" class="btn btn-ghost btn-sm">Start check <x-icon name="chevron-right" size="16" /></button>
                                         </form>
                                     @endif
                                 </article>
@@ -142,14 +142,14 @@
                     </p>
                 </div>
                 <div class="atlas-lesson-next-actions">
-                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">Try it yourself <x-workspace-icon name="chevron-right" /></a>
+                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">Try it yourself <x-icon name="chevron-right" size="16" /></a>
                     @if ($outstandingRequiredCheck)
                         <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary w-full">Start required check <x-workspace-icon name="chevron-right" /></button>
+                            <button type="submit" class="btn btn-primary w-full">Start required check <x-icon name="chevron-right" size="16" /></button>
                         </form>
                     @else
-                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">Start challenge <x-workspace-icon name="chevron-right" /></a>
+                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">Start challenge <x-icon name="chevron-right" size="16" /></a>
                     @endif
                     <dl class="space-y-2 border-t border-line pt-4 text-sm">
                         <div class="flex justify-between gap-3"><dt class="text-fg-subtle">First pass</dt><dd class="font-mono text-success">+{{ $mission->points }} XP</dd></div>

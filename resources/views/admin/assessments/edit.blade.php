@@ -125,7 +125,7 @@
             <section class="atlas-record-group" aria-labelledby="grading-rules-title">
                 <div class="atlas-record-group-head">
                     <h2 id="grading-rules-title" class="atlas-record-group-title">Grading rules</h2>
-                    <span class="atlas-stamp atlas-stamp--ink">View only</span>
+                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />View only</span>
                 </div>
 
                 <div class="atlas-form">

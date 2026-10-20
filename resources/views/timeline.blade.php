@@ -5,15 +5,15 @@
 @section('content')
     @php
         $marks = [
-            'mission_completed' => ['✓', 'pass'],
-            'assessment_completed' => ['✓', 'pass'],
-            'assessment_passed' => ['✓', 'pass'],
-            'wrong_submission' => ['×', 'fail'],
-            'assessment_failed' => ['×', 'fail'],
-            'knowledge_check_completed' => ['?', 'info'],
-            'section_completed' => ['·', 'ink'],
-            'hint_used' => ['·', 'note'],
-            'solution_revealed' => ['·', 'note'],
+            'mission_completed' => ['check', 'pass'],
+            'assessment_completed' => ['check', 'pass'],
+            'assessment_passed' => ['check', 'pass'],
+            'wrong_submission' => ['x', 'fail'],
+            'assessment_failed' => ['x', 'fail'],
+            'knowledge_check_completed' => ['circle-question-mark', 'info'],
+            'section_completed' => ['flag', 'ink'],
+            'hint_used' => ['lightbulb', 'note'],
+            'solution_revealed' => ['eye', 'note'],
         ];
     @endphp
     <div class="atlas-records">
@@ -44,7 +44,7 @@
                         @foreach ($dailyEvents as $event)
                             @php([$mark, $tone] = $marks[$event['type']] ?? ['·', 'ink'])
                             <li class="atlas-timeline-event" data-event-type="{{ $event['type'] }}">
-                                <span class="atlas-timeline-mark atlas-timeline-mark--{{ $tone }}" aria-hidden="true">{{ $mark }}</span>
+                                <span class="atlas-timeline-mark atlas-timeline-mark--{{ $tone }}" aria-hidden="true"><x-icon :name="$mark" size="14" /></span>
                                 <div class="min-w-0">
                                     <p class="atlas-timeline-label">{{ $event['label'] }}</p>
                                     <time class="atlas-timeline-time" datetime="{{ $event['at']->toIso8601String() }}">{{ $event['at']->format('M d, Y · H:i') }}</time>

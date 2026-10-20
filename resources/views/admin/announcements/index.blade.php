@@ -6,7 +6,7 @@
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · Announcements · Platform scope</span>
-            <span class="atlas-stamp atlas-stamp--ink">System-wide</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
         </div>
 
         <header class="atlas-records-heading">
@@ -91,7 +91,7 @@
                                     </td>
 
                                     <td data-label="Status">
-                                        <span class="atlas-stamp {{ $statusTone }}">{{ ucfirst($announcement->status) }}</span>
+                                        <span class="atlas-stamp {{ $statusTone }}"><x-icon :name="\App\Support\StampIcon::for(ucfirst($announcement->status)) ?? 'circle'" size="12" />{{ ucfirst($announcement->status) }}</span>
                                     </td>
 
                                     <td data-label="Published">

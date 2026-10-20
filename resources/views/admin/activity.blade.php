@@ -6,7 +6,7 @@
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
             <span>Records · Audit trail · Platform scope</span>
-            <span class="atlas-stamp atlas-stamp--ink">Append-only</span>
+            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Append-only</span>
         </div>
 
         <header class="atlas-records-heading">
@@ -130,7 +130,7 @@
                                     </td>
 
                                     <td data-label="Result">
-                                        <span class="atlas-stamp {{ $event->result === 'success' ? 'atlas-stamp--grn' : 'atlas-stamp--acc' }}">{{ ucfirst($event->result) }}</span>
+                                        <span class="atlas-stamp {{ $event->result === 'success' ? 'atlas-stamp--grn' : 'atlas-stamp--acc' }}"><x-icon :name="$event->result === 'success' ? 'check' : 'x'" size="12" />{{ ucfirst($event->result) }}</span>
                                     </td>
 
                                     <td data-label="Target">

@@ -85,8 +85,9 @@ class StudentOverviewTest extends TestCase
             ->assertSee('cadet_inkling')
             ->assertSee($course->name)
             ->assertSee('1/2 · 50%')
-            ->assertSee('<span class="atlas-stamp atlas-stamp--ink">In progress</span>', false)
-            ->assertSee('<span class="atlas-stamp atlas-stamp--ink">Locked</span>', false)
+            ->assertSee('atlas-stamp atlas-stamp--ink', false)
+            ->assertSee('In progress')
+            ->assertSee('Locked')
             ->assertSee('Practicing 1')
             ->assertSee('Hint used on mission: alpha')
             ->assertSee('Needs attention');
@@ -194,9 +195,11 @@ class StudentOverviewTest extends TestCase
             ->assertSee('1/2 · 50%')
             ->assertSee('status_ready')
             ->assertSee('2/2 · 100%')
-            ->assertSee('<span class="atlas-stamp atlas-stamp--vio">Boss ready</span>', false)
+            ->assertSee('atlas-stamp atlas-stamp--vio', false)
+            ->assertSee('Boss ready')
             ->assertSee('status_cleared')
-            ->assertSee('<span class="atlas-stamp atlas-stamp--grn">All cleared</span>', false)
+            ->assertSee('atlas-stamp atlas-stamp--grn', false)
+            ->assertSee('All cleared')
             ->assertSee('Demonstrated 1');
 
         $inProgress = $this->rosterBody($this->actingAs($teacher)

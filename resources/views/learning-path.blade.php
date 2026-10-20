@@ -88,7 +88,7 @@
                                 <li id="section-{{ $sectionKey }}" class="atlas-path-section">
                                     <details @if ($sectionCurrent) open @endif>
                                         <summary class="atlas-path-checkpoint">
-                                            <span class="atlas-path-marker {{ $sectionCurrent ? 'is-current' : ($sectionComplete ? 'is-complete' : '') }}" aria-hidden="true">@if ($sectionComplete)<svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10" /></svg>@endif</span>
+                                            <span class="atlas-path-marker {{ $sectionCurrent ? 'is-current' : ($sectionComplete ? 'is-complete' : '') }}" aria-hidden="true">@if ($sectionComplete)<x-icon name="check" size="14" />@endif</span>
                                             <h3>{{ $sectionTitle }}</h3>
                                             <p class="atlas-path-meta">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }} challenges complete @if ($sectionComplete) · Complete @elseif ($sectionCurrent) · Current @elseif ($courseLocked) · Locked @endif</p>
                                         </summary>
@@ -101,7 +101,7 @@
                                                 @endphp
                                                 <li class="atlas-path-mission" data-state="{{ strtolower($state) }}" data-domain-state="{{ $row['state'] }}" @if ($isCurrent) aria-current="step" @endif>
                                                     <span class="atlas-path-marker" aria-hidden="true">
-                                                        @if ($state === 'Completed')<svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10" /></svg>@elseif ($state === 'Locked')<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>@endif
+                                                        @if ($state === 'Completed')<x-icon name="check" size="14" />@elseif ($state === 'Locked')<x-icon name="lock" size="14" />@endif
                                                     </span>
                                                     <div class="atlas-path-mission-content">
                                                         <p class="atlas-path-meta">{{ $state }}@if ($isCurrent) · You are here @endif</p>
@@ -128,11 +128,11 @@
                             <div class="atlas-path-boss-labels">
                                 <p class="atlas-path-meta">Final course milestone</p>
                                 @if ($boss['state'] === 'PASSED')
-                                    <span class="atlas-stamp atlas-stamp--grn">Passed</span>
+                                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Passed</span>
                                 @elseif ($boss['state'] === 'AVAILABLE')
-                                    <span class="atlas-stamp atlas-stamp--ink">Available</span>
+                                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="circle-dot" size="12" />Available</span>
                                 @elseif ($boss['assessment'] !== null)
-                                    <span class="atlas-stamp atlas-stamp--ink">Locked</span>
+                                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Locked</span>
                                 @endif
                             </div>
                             <h3 id="boss-{{ $pathCourse->id }}-title">{{ $boss['assessment']?->title ?? 'Boss Challenge' }}</h3>

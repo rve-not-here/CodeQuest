@@ -112,7 +112,7 @@
                                 @endphp
                                 <section id="mission-section-{{ $sectionId }}" class="atlas-index-section" aria-labelledby="mission-section-{{ $sectionId }}-title">
                                     <div class="atlas-index-section-head">
-                                        <span class="atlas-index-mark" aria-hidden="true">{{ $courseAccessible ? '○' : '×' }}</span>
+                                        <span class="atlas-index-mark" aria-hidden="true"><x-icon :name="$courseAccessible ? 'circle-dot' : 'lock'" size="12" /></span>
                                         <h3 id="mission-section-{{ $sectionId }}-title" class="atlas-index-section-title">{{ $listedSection?->title ?? 'Additional challenges' }}</h3>
                                         <span class="atlas-index-section-count">{{ $sectionRows->count() }} shown</span>
                                     </div>
@@ -123,11 +123,11 @@
                                                 $state = ! $row['accessible'] ? 'LOCKED' : $row['state'];
                                                 $isCurrent = $row['accessible'] && $currentMissionId === $mission->id;
                                                 $stateView = $stateStamps[$state] ?? $stateStamps['LOCKED'];
-                                                $glyph = match ($state) {
-                                                    'COMPLETED' => '✓',
-                                                    'IN PROGRESS' => '▶',
-                                                    'LOCKED' => '×',
-                                                    default => '○',
+                                                $mark = $isCurrent ? 'locate' : match ($state) {
+                                                    'COMPLETED' => 'check',
+                                                    'IN PROGRESS' => 'play',
+                                                    'LOCKED' => 'lock',
+                                                    default => 'circle-dot',
                                                 };
                                                 $action = match ($state) {
                                                     'COMPLETED' => 'Review',
@@ -141,7 +141,7 @@
                                             <li class="atlas-index-row" data-state="{{ $isCurrent ? 'current' : ($state === 'NOT STARTED' ? 'available' : strtolower(str_replace(' ', '-', $state))) }}">
                                                 @if ($row['accessible'])
                                                     <a href="{{ route('mission.show', $mission) }}" class="atlas-index-link" @if ($isCurrent) aria-current="step" @endif>
-                                                        <span class="atlas-index-node" aria-hidden="true">{{ $glyph }}</span>
+                                                        <span class="atlas-index-node" aria-hidden="true"><x-icon :name="$mark" size="12" /></span>
                                                         <span class="atlas-index-text">
                                                             <span class="atlas-index-line">
                                                                 <span class="atlas-index-number">{{ $mission->order_num }}</span>
@@ -154,17 +154,17 @@
                                                         </span>
                                                         <span class="atlas-index-action">
                                                             @if ($isCurrent)
-                                                                <span class="atlas-stamp atlas-stamp--acc">You are here</span>
+                                                                <span class="atlas-stamp atlas-stamp--acc"><x-icon name="locate" size="12" />You are here</span>
                                                                 <span class="btn btn-primary btn-sm">Continue →</span>
                                                             @else
-                                                                <span class="atlas-stamp {{ $stateView['stamp'] }}">{{ $stateView['label'] }}</span>
+                                                                <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                                                                 <span class="btn btn-secondary btn-sm">{{ $action }} →</span>
                                                             @endif
                                                         </span>
                                                     </a>
                                                 @else
                                                     <div class="atlas-index-link atlas-index-link--locked" aria-label="{{ $mission->title }}, locked">
-                                                        <span class="atlas-index-node" aria-hidden="true">{{ $glyph }}</span>
+                                                        <span class="atlas-index-node" aria-hidden="true"><x-icon :name="$mark" size="12" /></span>
                                                         <span class="atlas-index-text">
                                                             <span class="atlas-index-line">
                                                                 <span class="atlas-index-number">{{ $mission->order_num }}</span>
@@ -174,7 +174,7 @@
                                                             <span class="atlas-index-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span>
                                                         </span>
                                                         <span class="atlas-index-action">
-                                                            <span class="atlas-stamp atlas-stamp--ink">{{ $stateView['label'] }}</span>
+                                                            <span class="atlas-stamp atlas-stamp--ink">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                                                         </span>
                                                     </div>
                                                 @endif

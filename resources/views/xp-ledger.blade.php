@@ -37,7 +37,7 @@
                             : 'Spent';
                     @endphp
                     <li class="atlas-ledger-entry" data-direction="{{ $credit ? 'credit' : 'debit' }}">
-                        <span class="atlas-ledger-mark" aria-hidden="true">{{ $credit ? '+' : '−' }}</span>
+                        <span class="atlas-ledger-mark" aria-hidden="true"><x-icon :name="$credit ? 'plus' : 'minus'" size="14" /></span>
                         <div class="min-w-0">
                             <p class="atlas-ledger-reason">{{ $transaction['reason'] }}</p>
                             <p class="atlas-ledger-meta">
