@@ -1,92 +1,93 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', $course->name.' Missions')
+@section('title', $course->name.' challenges')
 
 @section('content')
-    <div class="admin-management">
-    <nav class="admin-crumbs" aria-label="Breadcrumb">
-        <a href="{{ route('admin.courses') }}">Courses</a>
-        <span aria-hidden="true">/</span>
-        <a href="{{ route('admin.courses.edit', $course) }}">{{ $course->name }}</a>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">Missions</span>
-    </nav>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · Challenges · {{ $course->name }}</span>
+            <div class="atlas-records-running-links">
+                <a href="{{ route('admin.courses.edit', $course) }}">← {{ $course->name }}</a>
+                <a href="{{ route('admin.courses') }}">All courses →</a>
+            </div>
+        </div>
 
-    <x-page-header title="Mission Management" subtitle="{{ $course->name }} · Manage challenge content and learning order.">
-        <x-slot:actions>
-            <x-badge tone="cyan">ORDERED BY ORDER_NUM</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
+            <h1 class="atlas-records-title">Challenges</h1>
+            <p class="atlas-records-lede">{{ $course->name }} · Manage challenge content and learning order. Points apply to future completions only.</p>
+        </header>
 
-    @if (session('status'))
-        <x-status-message type="success" title="RECORD SAVED" class="mb-4">
-            {{ session('status') }}
-        </x-status-message>
-    @endif
-
-    <x-panel title="Missions in {{ $course->name }}">
-        <x-slot:status>
-            <x-badge tone="dim">{{ $missions->count() }} {{ Str::plural('mission', $missions->count()) }}</x-badge>
-        </x-slot:status>
-
-        @if ($missions->isEmpty())
-            <x-status-message type="info" title="NO MISSIONS">
-                No missions are defined for this course.
-            </x-status-message>
-        @else
-            <div class="admin-table-region">
-                <table class="table-stack admin-table" role="table">
-                    <caption>Course missions</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">Order</th>
-                            <th scope="col">Mission</th>
-                            <th scope="col">Difficulty</th>
-                            <th scope="col">Points</th>
-                            <th scope="col">Section</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($missions as $mission)
-                            <tr>
-                                <td data-label="Order">
-                                    {{ $mission->order_num }}
-                                </td>
-
-                                <th scope="row" data-label="Mission">
-                                    <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}" class="text-accent hover:underline">
-                                        {{ $mission->title }}
-                                    </a>
-                                </th>
-
-                                <td data-label="Difficulty">
-                                    <x-badge tone="{{ match ($mission->difficulty) {
-                                        'HARD' => 'amber',
-                                        'MEDIUM' => 'cyan',
-                                        default => 'dim',
-                                    } }}">{{ $mission->difficulty }}</x-badge>
-                                </td>
-
-                                <td data-label="Points">
-                                    {{ $mission->points }}
-                                </td>
-
-                                <td data-label="Section">
-                                    {{ $mission->section?->title ?? '—' }}
-                                </td>
-
-                                <td data-label="Actions">
-                                    <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}" class="admin-row-link">
-                                        EDIT →
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        @if (session('status'))
+            <div class="atlas-records-alerts">
+                <div class="panel border-success/40 bg-success-soft px-4 py-3 text-sm" role="status">
+                    <strong class="text-success">Saved</strong>
+                    <span class="text-fg-muted">{{ session('status') }}</span>
+                </div>
             </div>
         @endif
-    </x-panel>
+
+        <section class="atlas-record-group" aria-labelledby="challenges-title">
+            <div class="atlas-record-group-head">
+                <h2 id="challenges-title" class="atlas-record-group-title">Challenges in {{ $course->name }}</h2>
+                <p class="atlas-record-group-figure">{{ $missions->count() }} {{ Str::plural('challenge', $missions->count()) }}</p>
+            </div>
+
+            @if ($missions->isEmpty())
+                <section class="atlas-records-empty" aria-labelledby="empty-challenges-title">
+                    <h3 id="empty-challenges-title" class="atlas-records-empty-title">No challenges</h3>
+                    <p class="atlas-records-empty-copy">No challenges are defined for this course.</p>
+                </section>
+            @else
+                <div class="atlas-register-table-wrap">
+                    <table class="table-stack atlas-register-table" role="table">
+                        <caption>Course challenges</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Order</th>
+                                <th scope="col">Challenge</th>
+                                <th scope="col">Difficulty</th>
+                                <th scope="col">Points</th>
+                                <th scope="col">Section</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($missions as $mission)
+                                @php
+                                    $difficultyTone = match ($mission->difficulty) {
+                                        'HARD' => 'atlas-stamp--amb',
+                                        'MEDIUM' => 'atlas-stamp--vio',
+                                        default => 'atlas-stamp--ink',
+                                    };
+                                @endphp
+
+                                <tr>
+                                    <td data-label="Order"><span class="atlas-register-figure">{{ $mission->order_num }}</span></td>
+
+                                    <th scope="row" data-label="Challenge">
+                                        <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}">{{ $mission->title }}</a>
+                                    </th>
+
+                                    <td data-label="Difficulty">
+                                        <span class="atlas-stamp {{ $difficultyTone }}">{{ ucfirst(strtolower($mission->difficulty)) }}</span>
+                                    </td>
+
+                                    <td data-label="Points"><span class="atlas-register-figure">+{{ $mission->points }} XP</span></td>
+
+                                    <td data-label="Section">{{ $mission->section?->title ?? '—' }}</td>
+
+                                    <td data-label="Actions">
+                                        <div class="atlas-row-actions">
+                                            <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}" class="atlas-row-action">Edit</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </section>
     </div>
 @endsection

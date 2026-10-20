@@ -91,8 +91,8 @@ class AdminMissionManagementTest extends TestCase
         $this->assertStringContainsString('data-label="Difficulty"', $row);
         $this->assertStringContainsString('data-label="Points"', $row);
         $this->assertStringContainsString('data-label="Section"', $row);
-        $this->assertStringContainsString('HARD', $row, 'the difficulty value must render in its row');
-        $this->assertMatchesRegularExpression('/data-label="Points">\s*150\s*</', $row);
+        $this->assertStringContainsString('Hard', $row, 'the difficulty value must render in its row');
+        $this->assertMatchesRegularExpression('/data-label="Points">\s*<span[^>]*>\+150 XP<\/span>/', $row);
         $this->assertStringContainsString('Arrays Rig', $row);
     }
 

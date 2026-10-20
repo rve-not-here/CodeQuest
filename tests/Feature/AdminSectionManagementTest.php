@@ -72,8 +72,8 @@ class AdminSectionManagementTest extends TestCase
 
         $row = substr($content, $titleAt, $rowEnd - $titleAt);
 
-        $this->assertStringContainsString('data-label="Missions"', $row);
-        $this->assertMatchesRegularExpression('/data-label="Missions">\s*3\s*</', $row, 'the section row must show its mission count');
+        $this->assertStringContainsString('data-label="Challenges"', $row);
+        $this->assertMatchesRegularExpression('/data-label="Challenges">\s*<span[^>]*>3<\/span>/', $row, 'the section row must show its challenge count');
     }
 
     public function test_edit_renders_the_current_section_values(): void
