@@ -1029,6 +1029,8 @@ body.console-ui .result-count { color: var(--color-static); font-variant-numeric
 .atlas-theme button:focus-visible { outline-offset: -3px; }
 .atlas-theme-label { display: none; }
 @media (min-width: 720px) { .atlas-theme-label { display: inline; } }
+/* Labels are hidden below 720px, so the theme glyphs carry the whole control — give them icon weight. */
+@media (max-width: 719.9px) { .atlas-theme button { font-size: 0.95rem; letter-spacing: 0; } }
 .atlas-mobile { display: none; }
 @media (min-width: 1600px) { .atlas-shell-inner { padding-inline: 48px; } }
 @media (max-width: 1199.9px) {
