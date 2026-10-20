@@ -875,7 +875,7 @@ main:has(.challenge-workspace) {
 .atlas-brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; color: var(--color-fg); font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; min-height: 44px; }
 .atlas-mark { display: block; width: 11px; height: 22px; flex-shrink: 0; background: var(--cq-accent); color: transparent; overflow: hidden; }
 .atlas-primary { display: flex; align-self: stretch; gap: 22px; }
-.atlas-primary a { display: flex; align-items: center; min-height: 44px; border-bottom: 2px solid transparent; color: color-mix(in srgb, var(--cq-ink) 84%, transparent); font-family: var(--font-display); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
+.atlas-primary a { display: flex; align-items: center; gap: 8px; min-height: 44px; border-bottom: 2px solid transparent; color: color-mix(in srgb, var(--cq-ink) 84%, transparent); font-family: var(--font-display); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
 .atlas-primary a[aria-current] { border-color: var(--color-accent); color: var(--color-fg); font-weight: 600; }
 .atlas-primary a:hover { color: var(--color-fg); border-color: var(--color-accent); }
 .atlas-shell-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
@@ -885,7 +885,7 @@ main:has(.challenge-workspace) {
 .atlas-disclosure summary:hover, .atlas-disclosure[open] > summary { background: var(--color-raised); border-color: var(--color-line-strong); color: var(--color-fg); }
 .atlas-popover { position: absolute; top: calc(100% + 8px); right: 0; z-index: 50; width: 256px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 88px); overflow-y: auto; overscroll-behavior: contain; padding: 8px; border: 1px solid var(--color-line-strong); border-radius: 2px; background: var(--color-overlay); box-shadow: 4px 4px 0 var(--cq-shadow); }
 .atlas-secondary .atlas-popover { left: 0; right: auto; }
-.atlas-popover :is(a, button) { display: flex; align-items: center; min-height: 44px; width: 100%; padding: 10px 12px; color: var(--color-fg); font: 400 0.875rem / 1.5 var(--font-sans); text-align: left; overflow-wrap: anywhere; }
+.atlas-popover :is(a, button) { display: flex; align-items: center; gap: 10px; min-height: 44px; width: 100%; padding: 10px 12px; color: var(--color-fg); font: 400 0.875rem / 1.5 var(--font-sans); text-align: left; overflow-wrap: anywhere; }
 .atlas-popover :is(a, button):hover { background: var(--color-raised); color: var(--color-accent); }
 .atlas-popover a[aria-current] { border-left: 2px solid var(--color-accent); font-weight: 600; }
 .atlas-popover :focus-visible { outline-offset: -3px; }
@@ -897,18 +897,24 @@ main:has(.challenge-workspace) {
 .atlas-notifications { display: grid; place-items: center; width: 44px; height: 44px; color: var(--color-fg-muted); }
 .atlas-xp { display: flex; align-items: center; gap: 8px; min-height: 44px; white-space: nowrap; color: var(--color-fg); font: 500 0.75rem / 1.5 var(--font-mono); }
 .atlas-xp span { color: var(--color-fg-muted); }
-.atlas-theme { display: inline-flex; align-items: stretch; border: 1px solid var(--color-line-strong); background: var(--cq-sheet); }
-.atlas-theme button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 0 9px; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; font-family: var(--font-display); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
-.atlas-theme button + button { border-left: 1px solid var(--color-line); }
-.atlas-theme button:hover { color: var(--color-accent); }
-.atlas-theme button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-primary-ink); }
-.atlas-theme button:focus-visible { outline-offset: -3px; }
-.atlas-theme-label { display: none; }
-@media (min-width: 720px) { .atlas-theme-label { display: inline; } }
-/* Labels are hidden below 720px, so the theme glyphs carry the whole control — give them icon weight. */
-@media (max-width: 719.9px) { .atlas-theme button { font-size: 0.95rem; letter-spacing: 0; } }
+.icon { display: inline-block; flex: none; vertical-align: -0.125em; }
+.atlas-theme-toggle { display: inline-flex; flex: none; }
+.atlas-theme-toggle-button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--color-line-strong); background: var(--cq-sheet); color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; transition: color 120ms ease, border-color 120ms ease; }
+.atlas-theme-toggle-button:hover { color: var(--color-accent); border-color: var(--color-accent); }
+.atlas-theme-toggle-button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
+.atlas-theme-toggle [data-theme-icon] { display: none; }
+.atlas-theme-toggle [data-theme-icon="system"] { display: block; }
+html[data-theme-mode="light"] .atlas-theme-toggle [data-theme-icon="system"],
+html[data-theme-mode="dark"] .atlas-theme-toggle [data-theme-icon="system"] { display: none; }
+html[data-theme-mode="light"] .atlas-theme-toggle [data-theme-icon="light"],
+html[data-theme-mode="dark"] .atlas-theme-toggle [data-theme-icon="dark"] { display: block; }
+@media (prefers-reduced-motion: reduce) { .atlas-theme-toggle-button { transition: none; } }
 .atlas-mobile { display: none; }
 @media (min-width: 1600px) { .atlas-shell-inner { padding-inline: 48px; } }
+@media (max-width: 1359.9px) {
+    /* The top bar keeps its labels on tighter desks; icons return in the popovers. */
+    .atlas-primary a .icon { display: none; }
+}
 @media (max-width: 1199.9px) {
     .atlas-primary, .atlas-secondary { display: none; }
     .atlas-mobile { display: block; position: static; }
@@ -921,8 +927,7 @@ main:has(.challenge-workspace) {
     .atlas-brand { gap: 8px; font-size: 1rem; }
     .atlas-mark { width: 26px; }
     .atlas-account-label, .atlas-xp, .atlas-mobile-label { display: none; }
-    .cq-account-menu summary > span[aria-hidden="true"]:last-child { display: none; }
-    .atlas-theme button { padding-inline: 7px; }
+    .cq-account-menu summary > .icon { display: none; }
     .atlas-account { position: fixed; top: 72px; right: 16px; }
 }
 @media (max-width: 379.9px) {
@@ -930,7 +935,7 @@ main:has(.challenge-workspace) {
 }
 /* Tablet widths: the full theme control stays, the account label and caret drop for room. */
 @media (min-width: 600px) and (max-width: 899.9px) {
-    .atlas-account-label, .cq-account-menu summary > span[aria-hidden="true"]:last-child { display: none; }
+    .atlas-account-label, .cq-account-menu summary > .icon { display: none; }
 }
 
 /* Guest surfaces — a cover sheet and an access register. */

@@ -13,15 +13,15 @@
         </a>
         <nav aria-label="Primary" class="atlas-primary">
             @foreach ($topItems as $item)
-                <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif>{{ $item['label'] }}</a>
+                <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif><x-icon :name="$item['icon']" size="14" />{{ $item['label'] }}</a>
             @endforeach
         </nav>
         @if ($secondaryItems)
             <details class="atlas-disclosure atlas-secondary" data-shell-disclosure>
-                <summary>{{ $secondaryLabel }} <span aria-hidden="true">⌄</span></summary>
+                <summary>{{ $secondaryLabel }} <x-icon name="chevron-down" size="14" /></summary>
                 <nav class="atlas-popover" aria-label="{{ $secondaryLabel }}">
                     @foreach ($secondaryItems as $item)
-                        <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif>{{ $item['label'] }}</a>
+                        <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif><x-icon :name="$item['icon']" size="16" />{{ $item['label'] }}</a>
                     @endforeach
                 </nav>
             </details>
@@ -33,36 +33,32 @@
                 @endisset
             @endif
             <details class="atlas-disclosure atlas-mobile" data-shell-disclosure data-navigation-disclosure>
-                <summary aria-label="Open navigation menu"><span class="atlas-mobile-label">Menu</span> <span aria-hidden="true">≡</span></summary>
+                <summary aria-label="Open navigation menu"><span class="atlas-mobile-label">Menu</span> <x-icon name="menu" size="18" /></summary>
                 <nav class="atlas-popover atlas-mobile-links" aria-label="Mobile navigation">
                     @foreach ($topItems as $item)
-                        <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif>{{ $item['label'] }}</a>
+                        <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif><x-icon :name="$item['icon']" size="16" />{{ $item['label'] }}</a>
                     @endforeach
                     @if ($secondaryItems)
                         <p class="atlas-group-label">{{ $secondaryLabel }}</p>
                         @foreach ($secondaryItems as $item)
-                            <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif>{{ $item['label'] }}</a>
+                            <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif><x-icon :name="$item['icon']" size="16" />{{ $item['label'] }}</a>
                         @endforeach
                     @endif
                 </nav>
             </details>
-            <div class="atlas-theme" role="group" aria-label="Colour theme">
-                <button type="button" data-theme-value="light" aria-pressed="false" aria-label="Light theme"><span aria-hidden="true">☀</span><span class="atlas-theme-label">Light</span></button>
-                <button type="button" data-theme-value="system" aria-pressed="true" aria-label="System theme"><span aria-hidden="true">◐</span><span class="atlas-theme-label">System</span></button>
-                <button type="button" data-theme-value="dark" aria-pressed="false" aria-label="Dark theme"><span aria-hidden="true">☾</span><span class="atlas-theme-label">Dark</span></button>
-            </div>
+            <x-theme-toggle />
             <a href="{{ route('notifications') }}" class="atlas-notifications" aria-label="Notifications">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6M9 19a3 3 0 0 0 6 0" /></svg>
+                <x-icon name="bell" size="18" :stroke="1.75" />
             </a>
             @auth
                 <details class="atlas-disclosure cq-account-menu" data-shell-disclosure data-account-disclosure>
-                    <summary aria-label="Open account menu"><span class="atlas-avatar" aria-hidden="true">{{ strtoupper(substr($displayName, 0, 1)) }}</span><span class="atlas-account-label">Account</span><span aria-hidden="true">⌄</span></summary>
+                    <summary aria-label="Open account menu"><span class="atlas-avatar" aria-hidden="true">{{ strtoupper(substr($displayName, 0, 1)) }}</span><span class="atlas-account-label">Account</span><x-icon name="chevron-down" size="14" /></summary>
                     <div class="atlas-popover atlas-account">
                         <p class="atlas-account-name">{{ $displayName }}</p>
                         <p class="atlas-group-label">{{ ucfirst($role) }} account</p>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" aria-label="Sign out">Sign out</button>
+                            <button type="submit" aria-label="Sign out"><x-icon name="log-out" size="16" />Sign out</button>
                         </form>
                     </div>
                 </details>

@@ -12,11 +12,7 @@
                 <span>CodeQuest</span>
             </a>
             <div class="atlas-cover-tools">
-                <div class="atlas-theme" role="group" aria-label="Colour theme">
-                    <button type="button" data-theme-value="light" aria-pressed="false" aria-label="Light theme"><span aria-hidden="true">☀</span><span class="atlas-theme-label">Light</span></button>
-                    <button type="button" data-theme-value="system" aria-pressed="true" aria-label="System theme"><span aria-hidden="true">◐</span><span class="atlas-theme-label">System</span></button>
-                    <button type="button" data-theme-value="dark" aria-pressed="false" aria-label="Dark theme"><span aria-hidden="true">☾</span><span class="atlas-theme-label">Dark</span></button>
-                </div>
+                <x-theme-toggle />
                 <span class="atlas-stamp atlas-stamp--ink">System 404</span>
             </div>
         </header>

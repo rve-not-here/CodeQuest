@@ -1,0 +1,11 @@
+{
+  "aliases": {
+    "alert": "triangle-alert",
+    "chart": "chart-column",
+    "check-circle": "circle-check",
+    "code": "code-xml",
+    "layout": "panels-top-left",
+    "x-circle": "circle-x"
+  },
+  "always": ["dot"]
+}

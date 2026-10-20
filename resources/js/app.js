@@ -69,27 +69,42 @@ window.matchMedia('(min-width: 1200px)').addEventListener('change', () => {
     });
 });
 
-// Colour theme: Light / System / Dark, stored as 'cq-theme' (absent = system).
-const themeButtons = [...document.querySelectorAll('[data-theme-value]')];
+// Colour theme: System → Light → Dark, stored as 'cq-theme' (absent = system).
+const themeModes = ['system', 'light', 'dark'];
+const themeLabels = { system: 'System', light: 'Light', dark: 'Dark' };
+const themeToggles = [...document.querySelectorAll('[data-theme-toggle]')];
 const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
 let themeMode = document.documentElement.dataset.themeMode || 'system';
 
-function applyTheme(mode) {
+function nextThemeMode(mode) {
+    return themeModes[(themeModes.indexOf(mode) + 1) % themeModes.length];
+}
+
+function applyTheme(mode, { announce = false } = {}) {
     themeMode = mode;
     const dark = mode === 'dark' || (mode === 'system' && systemDark.matches);
+    const next = nextThemeMode(mode);
 
     document.documentElement.classList.toggle('dark', dark);
     document.documentElement.dataset.themeMode = mode;
     document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
 
-    themeButtons.forEach((button) => {
-        button.setAttribute('aria-pressed', String(button.dataset.themeValue === mode));
+    themeToggles.forEach((button) => {
+        button.setAttribute('aria-label', `Theme: ${themeLabels[mode]}. Switch to ${themeLabels[next].toLowerCase()}.`);
+        button.title = `Theme: ${themeLabels[mode]}`;
+
+        if (announce) {
+            const announcer = button.parentElement?.querySelector('[data-theme-announcer]');
+            if (announcer) {
+                announcer.textContent = `Theme set to ${themeLabels[mode].toLowerCase()}.`;
+            }
+        }
     });
 }
 
-themeButtons.forEach((button) => {
+themeToggles.forEach((button) => {
     button.addEventListener('click', () => {
-        const mode = button.dataset.themeValue;
+        const mode = nextThemeMode(themeMode);
 
         try {
             if (mode === 'system') {
@@ -99,7 +114,7 @@ themeButtons.forEach((button) => {
             }
         } catch (e) {}
 
-        applyTheme(mode);
+        applyTheme(mode, { announce: true });
     });
 });
 
