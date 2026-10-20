@@ -6,9 +6,8 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | resources/views/admin/dashboard.blade.php, resources/views/admin/** | .ai/rules/admin.md |
 | app/** | .ai/rules/app.md |
-| resources/views/components/panel.blade.php | .ai/rules/components.md |
 | app/Http/{Controllers,Requests}/KnowledgeCheck*.php | .ai/rules/controllers-requests.md |
-| app/Http/Controllers/**, app/Http/Controllers/CompetencyController.php, app/Http/Controllers/StandbyController.php, app/Http/Controllers/NotificationController.php, app/Http/Controllers/StudentController.php, app/Http/Controllers/DashboardController.php | .ai/rules/controllers.md |
+| app/Http/Controllers/**, app/Http/Controllers/CompetencyController.php, app/Http/Controllers/NotificationController.php, app/Http/Controllers/StudentController.php, app/Http/Controllers/DashboardController.php | .ai/rules/controllers.md |
 | app/Exceptions/** | .ai/rules/exceptions.md |
 | tests/Feature/AssessmentIntegrationTest.php, tests/Feature/ProgressIntegrationTest.php, tests/Feature/JourneyIntegrationTest.php, tests/Feature/**, tests/Feature/TeacherDashboardTest.php, tests/Feature/AdminAuthorizationTest.php, tests/Feature/AdminDashboardTest.php, tests/Feature/AdminMissionManagementTest.php, tests/Feature/*Assessment*.php, tests/Feature/AdminSystemTest.php, tests/Feature/AdministrativeIntegrationTest.php, tests/Feature/StudentReminderTest.php, tests/Feature/NotificationSecurityTest.php | .ai/rules/feature.md |
 | .env, **, phpstan.neon, .scratch/phase*/** | .ai/rules/general.md |

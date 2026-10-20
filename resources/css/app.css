@@ -341,62 +341,6 @@
         box-shadow: 3px 3px 0 var(--cq-shadow);
     }
 
-    .panel-title {
-        color: var(--color-ink);
-        font-family: var(--font-display);
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-    }
-
-    /* Headline figures run as a ruled band beneath the panel label. */
-    .panel-figures {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px 32px;
-        margin: 0 0 16px;
-        padding: 0 0 12px;
-        border-bottom: 1px solid var(--color-line);
-    }
-
-    .panel-figures dt {
-        font: 600 0.6875rem / 1.25 var(--font-display);
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--color-fg-muted);
-    }
-
-    .panel-figures dd {
-        margin-top: 4px;
-        font: 700 1.375rem / 1.625rem var(--font-mono);
-        font-variant-numeric: tabular-nums;
-    }
-
-    /* The panel action chip: a compact link for panel headers. */
-    .panel-action {
-        display: inline-flex;
-        min-height: 2rem;
-        align-items: center;
-        border: 1px solid var(--color-border);
-        border-radius: 2px;
-        background: transparent;
-        color: var(--color-fg);
-        padding: 0 0.75rem;
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 500;
-        line-height: 1;
-        text-decoration: none;
-        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
-    }
-
-    .panel-action:hover {
-        border-color: var(--color-accent);
-        background: var(--color-accent-soft);
-        color: var(--color-accent);
-    }
-
     .btn-primary,
     .btn-ghost {
         display: inline-flex;
@@ -568,47 +512,6 @@
     display: none;
 }
 
-.cq-nav-heading {
-    margin: 1.35rem 0 0.35rem;
-    padding: 0 0.75rem;
-    color: color-mix(in srgb, var(--cq-ink) 70%, transparent);
-    font-family: var(--font-display);
-    font-size: 0.62rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
-.cq-nav-heading:first-child {
-    margin-top: 0;
-}
-
-.cq-side-link {
-    display: flex;
-    min-height: 2.6rem;
-    align-items: center;
-    gap: 0.55rem;
-    border-left: 1px solid transparent;
-    padding: 0.55rem 0.65rem;
-    color: var(--color-static);
-    font-size: 0.82rem;
-    text-decoration: none;
-}
-
-.cq-side-link:hover {
-    border-left-color: var(--cq-accent);
-    background: color-mix(in srgb, var(--cq-ink) 5%, transparent);
-    color: var(--color-ink);
-}
-
-.page-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--cq-line);
-    padding-bottom: 1rem;
-}
 
 .manual-footer {
     display: flex;
@@ -913,16 +816,6 @@ main:has(.challenge-workspace) {
 
 @media (max-width: 767.9px) {
 
-    .page-header {
-        flex-direction: column;
-    }
-
-    .page-header > :last-child {
-        width: 100%;
-        margin-left: 0;
-        justify-content: flex-start;
-    }
-
     .challenge-assistance .btn-ghost {
         min-height: 2.75rem;
     }
@@ -970,7 +863,6 @@ main:has(.challenge-workspace) {
 .atlas-ui .terminal-input { border-color: var(--color-line-strong); }
 .atlas-ui .terminal-input::placeholder { color: var(--color-fg-muted); }
 .atlas-ui .terminal-input:focus { box-shadow: none; outline: 3px solid var(--color-accent); outline-offset: 2px; }
-.atlas-ui .page-header { border-color: var(--color-line); }
 .atlas-ui .manual-footer { border-color: var(--cq-line-strong); background: var(--cq-ground); color: var(--cq-muted); }
 /* The log margin: a signal rule down the content's left edge. */
 .sheet-column { border-left: 2px solid color-mix(in srgb, var(--cq-accent) 80%, transparent); padding-left: 1.5rem; }

@@ -172,8 +172,8 @@ This is a Laravel 13 app ("CodeQuest"), a retro-terminal learning platform backe
 - **Laravel 13 quirk:** `FormRequest::safe()` requires an array — `$request->safe(['username'])` / `safe()->only(...)`, not `safe('username')` (throws TypeError).
 - **Tailwind v4 is CSS-first** — no `tailwind.config.*`. The design system is `@theme` retro-terminal tokens in `resources/css/app.css`. Fonts come via `laravel-vite-plugin` `bunny()` helper (`resources/js/app.js`, `app.css`).
 - **Layout:** pages `@extends('layouts.app', ['role' => 'student'|'instructor'])` with `@section('title')` / `@section('content')`. Never `<x-app-layout>`.
-- **Routes:** `/login` is guest-only, `/logout` + `/dashboard` are auth-only (see `.ai/rules/routes.md`). Placeholder feature routes are `StandbyController` shells — keep their route names when implementing real controllers.
-- **Controllers:** `Auth`, `Dashboard`, `Shell`, `Standby`. Business logic lives in `app/Services/` (`ActivityService`, `DashboardService`), not fat controllers.
+- **Routes:** `/login` is guest-only, `/logout` + `/dashboard` are auth-only (see `.ai/rules/routes.md`). Every Phase 1 placeholder route is now a real controller, so route names are the contract — keep them when extending a page.
+- **Controllers:** thin feature controllers under `app/Http/Controllers/` (`Auth`, `Dashboard`, `Mission`, `Assessment`, `Report`, `Admin*`); `Shell` serves the `/shell` design reference. Business logic lives in `app/Services/` (`ActivityService`, `DashboardService`), not fat controllers.
 
 ## Commands
 

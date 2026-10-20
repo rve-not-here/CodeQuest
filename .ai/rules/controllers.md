@@ -2,7 +2,6 @@
 paths:
   - 'app/Http/Controllers/**'
   - app/Http/Controllers/CompetencyController.php
-  - app/Http/Controllers/StandbyController.php
   - app/Http/Controllers/NotificationController.php
   - app/Http/Controllers/StudentController.php
   - app/Http/Controllers/DashboardController.php
@@ -30,9 +29,6 @@ StudentController (US-602) is the first teacher-facing student-data page and kee
 
 ## Per-student teacher-area pages bind the student via an optional path param (US-603)
 Phase 6 per-student detail pages (student-progress, US-603; US-604+ siblings) take their identifier as an OPTIONAL {} path param — /student-progress/{student?} — and authorize through the 'teacher' middleware (confirmed system-wide visibility) plus a $student->role !== 'student' abort(404). This is NOT the five-spelling IDOR guard, which stays reserved for identifier-less teacher pages like /students: a bound path param is the intended identifier, not a probe. Sections are added to the SAME page rather than new routes (US-604 Assessment Performance, US-605 Competency). Bare visit redirects to the roster. The param MUST stay optional even though the sidebar no longer links it (US-604 removed the standalone "Student Progress" item): the optional route is what turns a bare /student-progress hit into a friendly redirect to the roster instead of a 404. Never make it required.
-
-## Standby shells must derive the layout role from the authenticated user
-StandbyController passes 'role' => auth user's role (instanceof User ? role : 'student' for guests). Do NOT hardcode 'student' — it forces the student nav for authenticated teachers/operators on shells like /activity. The standby view (@extends('layouts.app', ['role' => $role ?? 'student'])) must not override with a literal either.
 
 ## /activity accepts a validated student filter, but rejects the other spellings (US-606)
 ActivityController (US-606) diverges from the five-spelling purge on PURPOSE: the cross-student teacher feed legitimately takes a server-side 'student' filter, and since the 'teacher' gate is system-wide a filter can only NARROW the roster — not reach another user. So 'student' is validated (nullable integer, exists in the404_users) and passed to TimelineService::feed(), while the OTHER user-scoping spellings user_id/userId/user/owner are still abort(403) BEFORE resolution, via $request->hasAny(). Timestamps (window/order) are server-computed, never accepted. The controller passes filters + the page's paginator query into the feed and renders the activity view; it builds no events itself (business logic stays in the service). ActivityFeedTest locks the spelling list and the server-side rejection of bad filters.
