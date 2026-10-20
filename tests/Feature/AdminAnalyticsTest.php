@@ -42,14 +42,14 @@ class AdminAnalyticsTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.analytics'));
 
         $response->assertOk()
-            ->assertSee('System Analytics')
+            ->assertSee('System analytics')
             ->assertSee('<caption>XP ledger sources</caption>', false)
-            ->assertSee('XP Administration')
-            ->assertSee('Fleet by Role')
+            ->assertSee('XP administration')
+            ->assertSee('Fleet by role')
             ->assertSee('Users')
             ->assertSee('Curriculum')
             ->assertSee('Learning')
-            ->assertSee('Per-Course Analysis')
+            ->assertSee('Per-course analysis')
             ->assertSee('View only');
 
         $content = $response->getContent();
@@ -182,7 +182,7 @@ class AdminAnalyticsTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('admin.analytics'));
 
-        $response->assertOk()->assertSee('REUSE');
+        $response->assertOk()->assertSee('Reused from course analytics');
 
         $serviceRows = app(CourseAnalyticsService::class)->overview();
 

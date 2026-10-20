@@ -1,120 +1,112 @@
 @extends('layouts.app', ['role' => $role])
 
-@section('title', 'System Status')
+@section('title', 'System status')
 
 @section('content')
-    <div class="admin-management">
-    <x-page-header title="System Status" subtitle="Operational health of the deployment: application build, live database connectivity, applied migrations, and storage/log writability. Checks are performed at request time; the page is strictly read-only.">
-        <x-slot:actions>
-            <x-badge tone="cyan">SYSTEM-WIDE</x-badge>
-            <x-badge tone="amber">READ-ONLY</x-badge>
-        </x-slot:actions>
-    </x-page-header>
+    <div class="atlas-records">
+        <div class="log-running atlas-records-running">
+            <span>Records · System status · Platform scope</span>
+            <span class="atlas-stamp atlas-stamp--ink">Read-only</span>
+        </div>
 
-    @php
-        $migrationFigures = $migrations['readable'] ? [
-            ['label' => 'Applied', 'value' => $migrations['applied'], 'metric' => 'migrations_applied'],
-            ['label' => 'Latest batch', 'value' => $migrations['latest_batch'], 'metric' => 'migrations_latest_batch'],
-        ] : null;
-    @endphp
+        <header class="atlas-records-heading">
+            <span class="atlas-lesson-entry-label">Records · Operations</span>
+            <h1 class="atlas-records-title">System status</h1>
+            <p class="atlas-records-lede">Operational health of the deployment: application build, live database connectivity, applied migrations and storage writability. Checks run at request time; the page is strictly read-only.</p>
+        </header>
 
-    <div class="admin-ledger">
-        <x-panel title="Application">
-            <x-slot:status><x-badge tone="phosphor">ONLINE</x-badge></x-slot:status>
-            <dl class="admin-property-list">
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Environment</dt>
-                    <dd><x-badge tone="cyan">{{ mb_strtoupper($application['environment']) }}</x-badge></dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Debug mode</dt>
-                    <dd>{{ $application['debug'] ? 'ON' : 'OFF' }}</dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Application</dt>
-                    <dd>{{ $application['name'] }}</dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Laravel</dt>
-                    <dd data-metric="laravel_version">{{ $application['laravel_version'] }}</dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">PHP</dt>
-                    <dd data-metric="php_version">{{ $application['php_version'] }}</dd>
-                </div>
-            </dl>
-        </x-panel>
+        <section class="atlas-record-group" aria-labelledby="application-title">
+            <div class="atlas-record-group-head">
+                <h2 id="application-title" class="atlas-record-group-title">Application</h2>
+                <span class="atlas-stamp atlas-stamp--grn">Online</span>
+            </div>
 
-        <x-panel title="Database">
-            <x-slot:status>
-                @if ($database['connected'])
-                    <x-badge tone="phosphor">CONNECTED</x-badge>
-                @else
-                    <x-badge tone="alert">UNREACHABLE</x-badge>
-                @endif
-            </x-slot:status>
-            @if ($database['connected'])
-                <dl class="admin-property-list">
-                    <div class="admin-property">
-                        <dt class="text-fg-muted">Driver</dt>
-                        <dd><x-badge tone="cyan">{{ $database['driver'] }}</x-badge></dd>
-                    </div>
-                    <div class="admin-property">
-                        <dt class="text-fg-muted">Server version</dt>
-                        <dd>{{ $database['server_version'] ?? '-' }}</dd>
-                    </div>
+            <div class="atlas-record-figures">
+                <dl class="log-facts" aria-label="Application properties">
+                    <div><dt>Environment</dt><dd>{{ ucfirst($application['environment']) }}</dd></div>
+                    <div><dt>Debug mode</dt><dd>{{ $application['debug'] ? 'On' : 'Off' }}</dd></div>
+                    <div><dt>Application</dt><dd>{{ $application['name'] }}</dd></div>
+                    <div><dt>Laravel</dt><dd class="is-numeric" data-metric="laravel_version">{{ $application['laravel_version'] }}</dd></div>
+                    <div><dt>PHP</dt><dd class="is-numeric" data-metric="php_version">{{ $application['php_version'] }}</dd></div>
                 </dl>
+            </div>
+        </section>
+
+        <section class="atlas-record-group" aria-labelledby="database-title">
+            <div class="atlas-record-group-head">
+                <h2 id="database-title" class="atlas-record-group-title">Database</h2>
+                @if ($database['connected'])
+                    <span class="atlas-stamp atlas-stamp--grn">Connected</span>
+                @else
+                    <span class="atlas-stamp atlas-stamp--acc">Unreachable</span>
+                @endif
+            </div>
+
+            @if ($database['connected'])
+                <div class="atlas-record-figures">
+                    <dl class="log-facts" aria-label="Database properties">
+                        <div><dt>Driver</dt><dd>{{ $database['driver'] }}</dd></div>
+                        <div><dt>Server version</dt><dd>{{ $database['server_version'] ?? '-' }}</dd></div>
+                    </dl>
+                </div>
             @else
-                <x-status-message type="error" title="Database connection failed">
-                    A live query failed. Application and log status below are still reported.
-                </x-status-message>
+                <div class="atlas-callout" data-state="flagged">
+                    <div>
+                        <p class="atlas-callout-label">Database connection failed</p>
+                        <p class="atlas-callout-copy">A live query failed. Application and log status below are still reported.</p>
+                    </div>
+                </div>
             @endif
-        </x-panel>
+        </section>
 
-        <x-panel title="Migrations" :figures="$migrationFigures">
-            <x-slot:status>
+        <section class="atlas-record-group" aria-labelledby="migrations-title">
+            <div class="atlas-record-group-head">
+                <h2 id="migrations-title" class="atlas-record-group-title">Migrations</h2>
                 @if ($migrations['readable'])
-                    <x-badge tone="phosphor">READABLE</x-badge>
+                    <span class="atlas-stamp atlas-stamp--grn">Readable</span>
                 @else
-                    <x-badge tone="alert">UNREADABLE</x-badge>
+                    <span class="atlas-stamp atlas-stamp--acc">Unreadable</span>
                 @endif
-            </x-slot:status>
-            @unless ($migrations['readable'])
-                <p class="font-body text-[15px] leading-snug text-ink">The migrations table could not be read; migration status is unavailable.</p>
-            @endunless
-        </x-panel>
+            </div>
 
-        <x-panel title="Storage & Logs">
-            <x-slot:status>
+            @if ($migrations['readable'])
+                <div class="atlas-record-figures">
+                    <dl class="log-facts" aria-label="Migration properties">
+                        <div><dt>Applied</dt><dd class="is-numeric" data-metric="migrations_applied">{{ $migrations['applied'] }}</dd></div>
+                        <div><dt>Latest batch</dt><dd class="is-numeric" data-metric="migrations_latest_batch">{{ $migrations['latest_batch'] }}</dd></div>
+                    </dl>
+                </div>
+            @else
+                <p class="atlas-record-group-note">The migrations table could not be read; migration status is unavailable.</p>
+            @endif
+        </section>
+
+        <section class="atlas-record-group" aria-labelledby="storage-title">
+            <div class="atlas-record-group-head">
+                <h2 id="storage-title" class="atlas-record-group-title">Storage &amp; logs</h2>
                 @if ($storage['logs_writable'])
-                    <x-badge tone="phosphor">WRITABLE</x-badge>
+                    <span class="atlas-stamp atlas-stamp--grn">Writable</span>
                 @else
-                    <x-badge tone="alert">BLOCKED</x-badge>
+                    <span class="atlas-stamp atlas-stamp--acc">Blocked</span>
                 @endif
-            </x-slot:status>
-            <dl class="admin-property-list">
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Log channel</dt>
-                    <dd><x-badge tone="cyan">{{ $storage['log_channel'] }}</x-badge></dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">laravel.log</dt>
-                    <dd>{{ $storage['log_file_exists'] ? 'PRESENT' : 'ABSENT' }}</dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Last write</dt>
-                    <dd>{{ $storage['log_file_last_modified'] ? \Illuminate\Support\Carbon::parse($storage['log_file_last_modified'])->diffForHumans() : '-' }}</dd>
-                </div>
-                <div class="admin-property">
-                    <dt class="text-fg-muted">Size</dt>
-                    <dd>{{ $storage['log_file_size'] !== null ? number_format($storage['log_file_size']).' bytes' : '-' }}</dd>
-                </div>
-            </dl>
-        </x-panel>
-    </div>
+            </div>
 
-    <x-status-message type="success" title="No credentials surfaced" class="mt-6">
-        This page never exposes passwords, application keys, session secrets, or API keys. Every configuration value it reads passes an explicit allowlist inside SystemStatusService.
-    </x-status-message>
+            <div class="atlas-record-figures">
+                <dl class="log-facts" aria-label="Storage properties">
+                    <div><dt>Log channel</dt><dd>{{ $storage['log_channel'] }}</dd></div>
+                    <div><dt>laravel.log</dt><dd>{{ $storage['log_file_exists'] ? 'Present' : 'Absent' }}</dd></div>
+                    <div><dt>Last write</dt><dd>{{ $storage['log_file_last_modified'] ? \Illuminate\Support\Carbon::parse($storage['log_file_last_modified'])->diffForHumans() : '-' }}</dd></div>
+                    <div><dt>Size</dt><dd class="is-numeric">{{ $storage['log_file_size'] !== null ? number_format($storage['log_file_size']).' bytes' : '-' }}</dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <div class="atlas-callout" data-state="clear">
+            <div>
+                <p class="atlas-callout-label">No credentials surfaced</p>
+                <p class="atlas-callout-copy">This page never exposes passwords, application keys, session secrets or API keys. Every configuration value it reads passes an explicit allowlist inside SystemStatusService.</p>
+            </div>
+            <span class="atlas-stamp atlas-stamp--ink">Allowlisted</span>
+        </div>
     </div>
 @endsection

@@ -23,13 +23,13 @@ class AdminSystemTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.system'));
 
         $response->assertOk()
-            ->assertSee('System Status')
-            ->assertSee('ONLINE')
-            ->assertSee('CONNECTED')
-            ->assertSee('READABLE')
-            ->assertSee('WRITABLE')
+            ->assertSee('System status')
+            ->assertSee('Online')
+            ->assertSee('Connected')
+            ->assertSee('Readable')
+            ->assertSee('Writable')
             ->assertSee('No credentials surfaced')
-            ->assertSee(mb_strtoupper((string) config('app.env')))
+            ->assertSee(ucfirst((string) config('app.env')))
             ->assertSee(app()->version())
             ->assertSee(PHP_VERSION);
 
@@ -63,10 +63,10 @@ class AdminSystemTest extends TestCase
             $response = $this->actingAs($admin)->get(route('admin.system'));
 
             $response->assertOk()
-                ->assertSee('System Status')
-                ->assertSee('UNREACHABLE')
+                ->assertSee('System status')
+                ->assertSee('Unreachable')
                 ->assertSee('Database connection failed')
-                ->assertDontSee('CONNECTED');
+                ->assertDontSee('Connected');
 
             $this->assertStringNotContainsString('no-such-', $response->getContent());
         } finally {
@@ -92,7 +92,7 @@ class AdminSystemTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.system'));
 
         $response->assertOk()
-            ->assertSee('System Status')
+            ->assertSee('System status')
             ->assertDontSee('DB_PASSWORD_SENTINEL_114')
             ->assertDontSee('MAIL_PASSWORD_SENTINEL_881')
             ->assertDontSee('API_SECRET_SENTINEL_227')

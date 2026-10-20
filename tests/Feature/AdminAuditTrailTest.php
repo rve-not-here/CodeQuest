@@ -25,7 +25,7 @@ class AdminAuditTrailTest extends TestCase
         $response->assertOk()
             ->assertSee('<caption>Administrative audit records</caption>', false)
             ->assertSee('<th scope="col">Recorded action</th>', false)
-            ->assertSee('Administrative Audit Trail')
+            ->assertSee('Audit trail')
             ->assertSee('trail_admin')
             ->assertSee('Role changed: student → teacher')
             ->assertSee('User updated: username → \'old\'');
@@ -148,13 +148,13 @@ class AdminAuditTrailTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.activity'))
             ->assertOk()
-            ->assertSee('SHOWING PAGE 1 OF 2')
+            ->assertSee('Page 1 of 2')
             ->assertSee("name → 'Paged 50'")
             ->assertDontSee("name → 'Paged 1'");
 
         $this->actingAs($admin)->get(route('admin.activity', ['page' => 2]))
             ->assertOk()
-            ->assertSee('SHOWING PAGE 2 OF 2')
+            ->assertSee('Page 2 of 2')
             ->assertSee("name → 'Paged 1'")
             ->assertDontSee("name → 'Paged 50'");
     }
@@ -195,7 +195,7 @@ class AdminAuditTrailTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.activity'))
             ->assertOk()
-            ->assertSee('NO EVENTS');
+            ->assertSee('No events');
     }
 
     private function auditRow(User $admin, string $action, string $summary, Carbon $at, string $result = 'success'): AdminAudit
