@@ -20,6 +20,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Requests/AdminUserStoreRequest.php, app/Http/Requests/AdminCourseUpdateRequest.php, app/Http/Requests/AdminMissionUpdateRequest.php, app/Http/Requests/Admin*Request.php, app/Http/Requests/**, app/Http/Requests/{ActivityFeedRequest,StudentOverviewRequest}.php, app/Http/Requests/{AdminAssessmentUpdateRequest,AdminMissionUpdateRequest}.php | .ai/rules/requests.md |
 | resources/css/** | .ai/rules/resources-css.md |
 | routes/web.php, routes/** | .ai/rules/routes.md |
+| database/seeders/CurriculumContentSeeder.php | .ai/rules/seeders.md |
 | app/Services/**, app/Services/*.php, app/Services/XpService.php, app/Services/AssessmentService.php, app/Services/CompetencyService.php, app/Services/RecommendationService.php, app/Services/StudentService.php, app/Services/AttentionService.php, app/Services/TeacherDashboardService.php, app/Services/UserService.php, app/Services/CourseService.php, app/Services/Admin*Service.php, app/Services/SystemStatusService.php, app/Services/NotificationService.php, app/Services/AttentionNotificationService.php, app/Services/StudentReminderService.php, app/Services/ReportAuthorizationService.php, app/Services/ClassroomAccessService.php | .ai/rules/services.md |
 | tests/** | .ai/rules/tests.md |
 | resources/views/**, resources/views/dashboard.blade.php, resources/views/students.blade.php, resources/views/learning-path.blade.php, resources/views/lesson.blade.php | .ai/rules/views.md |

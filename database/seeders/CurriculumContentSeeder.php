@@ -541,7 +541,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "<title>My Page</title>\n<h1>Hello World</h1>",
                             'solution_code' => "<!DOCTYPE html>\n<html>\n  <head>\n    <title>My Page</title>\n  </head>\n  <body>\n    <h1>Hello World</h1>\n  </body>\n</html>",
-                            'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;color:#33ff00;font-family:monospace;line-height:2'><div style='color:#ffb000'>✓ DOCTYPE declared</div><div>✓ html wraps everything</div><div>✓ head contains title</div><div>✓ body contains h1</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;color:#6fc49a;font-family:monospace;line-height:2'><div style='color:#d9a94f'>✓ DOCTYPE declared</div><div>✓ html wraps everything</div><div>✓ head contains title</div><div>✓ body contains h1</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['<!DOCTYPE html>', '<html>', '<head>', '<body>', '</body>', '</html>']]]),
                             'hints' => json_encode(['Every HTML file starts with <!DOCTYPE html>.', 'html element wraps the entire document.', 'head = meta info; body = visible content.']),
                         ],
@@ -580,8 +580,8 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "p {\n  font-size: 16px;\n}",
                             'solution_code' => "p {\n  font-size: 16px;\n  color: green;\n}",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00'><p style='color:green;font-family:monospace;margin:0'>SIGNAL ONLINE — color restored.</p></div>",
-                            'validate_rule' => json_encode([['type' => 'contains', 'value' => 'color'], ['type' => 'contains_any', 'values' => ['green', '#008000', '#0f0', 'rgb(0,128,0)', 'rgb(0, 128, 0)']]]),
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a'><p style='color:green;font-family:monospace;margin:0'>SIGNAL ONLINE — color restored.</p></div>",
+                            'validate_rule' => json_encode([['type' => 'contains', 'value' => 'color'], ['type' => 'contains_any', 'values' => ['green', '#008000', '#0f0', 'rgb(0,128,0)', 'rgb(0, 128, 0)', '#6fc49a', '#6FC49A', '#2e6b4f', '#2E6B4F']]]),
                             'hints' => json_encode(['The color property sets text color.', 'Syntax: color: value;', 'Use a named color like green, or a hex like #008000.']),
                         ],
                         [
@@ -599,9 +599,9 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "body {\n  font-family: monospace;\n}",
                             'solution_code' => "body {\n  font-family: monospace;\n  background-color: black;\n}",
-                            'target_html' => "<div style='background:black;padding:1.5rem;border:1px solid #33ff00'><span style='color:#33ff00;font-family:monospace'>DISPLAY BLACKOUT RESOLVED</span></div>",
-                            'validate_rule' => json_encode([['type' => 'contains', 'value' => 'background-color'], ['type' => 'contains_any', 'values' => ['black', '#000', 'rgb(0,0,0)', 'rgb(0, 0, 0)']]]),
-                            'hints' => json_encode(['background-color sets the element background.', 'Syntax: background-color: value;', 'black or #000000 are both valid values.']),
+                            'target_html' => "<div style='background:black;padding:1.5rem;border:1px solid #6fc49a'><span style='color:#6fc49a;font-family:monospace'>DISPLAY BLACKOUT RESOLVED</span></div>",
+                            'validate_rule' => json_encode([['type' => 'contains', 'value' => 'background-color'], ['type' => 'contains_any', 'values' => ['black', '#000', '#000000', '#14161b', '#14161B', '#171b21', '#171B21', 'rgb(0,0,0)', 'rgb(0, 0, 0)', 'rgb(20,22,27)', 'rgb(20, 22, 27)']]]),
+                            'hints' => json_encode(['background-color sets the element background.', 'Syntax: background-color: value;', 'black or #14161b are both valid values.']),
                         ],
                         [
                             'title' => 'Font_Frequency_Calibration',
@@ -616,9 +616,9 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the broadcast header kept its color but lost its size. Set its font-size to 32px.
                                 TEXT,
-                            'broken_code' => "h1 {\n  color: #33ff00;\n}",
-                            'solution_code' => "h1 {\n  color: #33ff00;\n  font-size: 32px;\n}",
-                            'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><h1 style='color:#33ff00;font-size:32px;margin:0;font-family:monospace'>BROADCAST HEADER</h1></div>",
+                            'broken_code' => "h1 {\n  color: #6fc49a;\n}",
+                            'solution_code' => "h1 {\n  color: #6fc49a;\n  font-size: 32px;\n}",
+                            'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><h1 style='color:#6fc49a;font-size:32px;margin:0;font-family:monospace'>BROADCAST HEADER</h1></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['font-size', '32px']]]),
                             'hints' => json_encode(['font-size controls text size.', 'Syntax: font-size: 32px;', 'px stands for pixels — a fixed unit.']),
                         ],
@@ -641,9 +641,9 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the shield box has border and background but its content touches the edges. Add 20px of padding.
                                 TEXT,
-                            'broken_code' => ".box {\n  border: 2px solid #33ff00;\n  background: #001100;\n}",
-                            'solution_code' => ".box {\n  border: 2px solid #33ff00;\n  background: #001100;\n  padding: 20px;\n}",
-                            'target_html' => "<div style='border:2px solid #33ff00;background:#001100;padding:20px'><span style='color:#33ff00;font-family:monospace'>CONTENT WITH PADDING</span></div>",
+                            'broken_code' => ".box {\n  border: 2px solid #6fc49a;\n  background: #171b21;\n}",
+                            'solution_code' => ".box {\n  border: 2px solid #6fc49a;\n  background: #171b21;\n  padding: 20px;\n}",
+                            'target_html' => "<div style='border:2px solid #6fc49a;background:#171b21;padding:20px'><span style='color:#6fc49a;font-family:monospace'>CONTENT WITH PADDING</span></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['padding', '20px']]]),
                             'hints' => json_encode(['padding adds space inside an element.', 'Syntax: padding: 20px;', 'This applies 20px on all four sides.']),
                         ],
@@ -660,9 +660,9 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the panel lost its perimeter. Add a 2px solid cyan border to the rule.
                                 TEXT,
-                            'broken_code' => ".panel {\n  background: #001a1a;\n  padding: 1rem;\n}",
-                            'solution_code' => ".panel {\n  background: #001a1a;\n  padding: 1rem;\n  border: 2px solid cyan;\n}",
-                            'target_html' => "<div style='background:#001a1a;padding:1rem;border:2px solid cyan'><span style='color:cyan;font-family:monospace'>PERIMETER SECURED</span></div>",
+                            'broken_code' => ".panel {\n  background: #1c1f26;\n  padding: 1rem;\n}",
+                            'solution_code' => ".panel {\n  background: #1c1f26;\n  padding: 1rem;\n  border: 2px solid cyan;\n}",
+                            'target_html' => "<div style='background:#1c1f26;padding:1rem;border:2px solid cyan'><span style='color:cyan;font-family:monospace'>PERIMETER SECURED</span></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['border', '2px', 'solid', 'cyan']]]),
                             'hints' => json_encode(['border shorthand sets width, style, and color.', 'Syntax: border: 2px solid cyan;', 'Three values: thickness, style (solid/dashed), color.']),
                         ],
@@ -679,9 +679,9 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the nav has spacing but its items stack and sit high. Add both flex declarations so they form a centered row.
                                 TEXT,
-                            'broken_code' => ".nav {\n  background: #001100;\n  padding: 1rem;\n  gap: 1rem;\n}",
-                            'solution_code' => ".nav {\n  background: #001100;\n  padding: 1rem;\n  gap: 1rem;\n  display: flex;\n  align-items: center;\n}",
-                            'target_html' => "<div style='background:#001100;padding:1rem;display:flex;align-items:center;gap:1rem;border:1px solid #33ff00'><span style='color:#33ff00;font-family:monospace'>NAV</span><span style='color:#ffb000;font-family:monospace'>ITEM 1</span><span style='color:#ffb000;font-family:monospace'>ITEM 2</span><span style='color:#ffb000;font-family:monospace'>ITEM 3</span></div>",
+                            'broken_code' => ".nav {\n  background: #171b21;\n  padding: 1rem;\n  gap: 1rem;\n}",
+                            'solution_code' => ".nav {\n  background: #171b21;\n  padding: 1rem;\n  gap: 1rem;\n  display: flex;\n  align-items: center;\n}",
+                            'target_html' => "<div style='background:#171b21;padding:1rem;display:flex;align-items:center;gap:1rem;border:1px solid #6fc49a'><span style='color:#6fc49a;font-family:monospace'>NAV</span><span style='color:#d9a94f;font-family:monospace'>ITEM 1</span><span style='color:#d9a94f;font-family:monospace'>ITEM 2</span><span style='color:#d9a94f;font-family:monospace'>ITEM 3</span></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['display', 'flex', 'align-items', 'center']]]),
                             'hints' => json_encode(['display: flex turns an element into a flex container.', 'align-items: center vertically centers children.', 'Both properties are needed on the parent element.']),
                         ],
@@ -723,9 +723,9 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the badge rule has colors but no placement. Add absolute positioning with top 0 and right 0 so it locks to the container corner.
                                 TEXT,
-                            'broken_code' => ".container {\n  position: relative;\n  background: #001100;\n  padding: 2rem;\n  border: 1px solid #33ff00;\n}\n.badge {\n  background: #33ff00;\n  color: #000;\n  padding: 0.3rem 0.6rem;\n  font-size: 0.75rem;\n}",
-                            'solution_code' => ".container {\n  position: relative;\n  background: #001100;\n  padding: 2rem;\n  border: 1px solid #33ff00;\n}\n.badge {\n  background: #33ff00;\n  color: #000;\n  padding: 0.3rem 0.6rem;\n  font-size: 0.75rem;\n  position: absolute;\n  top: 0;\n  right: 0;\n}",
-                            'target_html' => "<div style='position:relative;background:#001100;padding:2rem;border:1px solid #33ff00'><span style='background:#33ff00;color:#000;padding:0.3rem 0.6rem;font-size:0.75rem;position:absolute;top:0;right:0;font-family:monospace'>LIVE</span><span style='color:#33ff00;font-family:monospace'>Container content</span></div>",
+                            'broken_code' => ".container {\n  position: relative;\n  background: #171b21;\n  padding: 2rem;\n  border: 1px solid #6fc49a;\n}\n.badge {\n  background: #6fc49a;\n  color: #14161b;\n  padding: 0.3rem 0.6rem;\n  font-size: 0.75rem;\n}",
+                            'solution_code' => ".container {\n  position: relative;\n  background: #171b21;\n  padding: 2rem;\n  border: 1px solid #6fc49a;\n}\n.badge {\n  background: #6fc49a;\n  color: #14161b;\n  padding: 0.3rem 0.6rem;\n  font-size: 0.75rem;\n  position: absolute;\n  top: 0;\n  right: 0;\n}",
+                            'target_html' => "<div style='position:relative;background:#171b21;padding:2rem;border:1px solid #6fc49a'><span style='background:#6fc49a;color:#14161b;padding:0.3rem 0.6rem;font-size:0.75rem;position:absolute;top:0;right:0;font-family:monospace'>LIVE</span><span style='color:#6fc49a;font-family:monospace'>Container content</span></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['position', 'absolute', 'top', '0', 'right']]]),
                             'hints' => json_encode(['position: absolute takes an element out of normal flow.', 'top and right set distance from the container edges.', 'The parent needs position: relative to contain it.']),
                         ],
@@ -742,9 +742,9 @@ class CurriculumContentSeeder extends Seeder
 
                                 Your task: the button hover snaps. Add the background transition to the base .btn rule.
                                 TEXT,
-                            'broken_code' => ".btn {\n  background: #1a8000;\n  color: #fff;\n  padding: 0.8rem 1.5rem;\n  border: none;\n  cursor: pointer;\n}\n.btn:hover {\n  background: #33ff00;\n  color: #000;\n}",
-                            'solution_code' => ".btn {\n  background: #1a8000;\n  color: #fff;\n  padding: 0.8rem 1.5rem;\n  border: none;\n  cursor: pointer;\n  transition: background 0.3s ease;\n}",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00'><button style='background:#1a8000;color:#fff;padding:0.8rem 1.5rem;border:none;cursor:pointer;transition:background 0.3s ease;font-family:monospace' onmouseover=\"this.style.background='#33ff00';this.style.color='#000'\" onmouseout=\"this.style.background='#1a8000';this.style.color='#fff'\">HOVER ME</button></div>",
+                            'broken_code' => ".btn {\n  background: #2e6b4f;\n  color: #f4f6ed;\n  padding: 0.8rem 1.5rem;\n  border: none;\n  cursor: pointer;\n}\n.btn:hover {\n  background: #6fc49a;\n  color: #14161b;\n}",
+                            'solution_code' => ".btn {\n  background: #2e6b4f;\n  color: #f4f6ed;\n  padding: 0.8rem 1.5rem;\n  border: none;\n  cursor: pointer;\n  transition: background 0.3s ease;\n}",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a'><button style='background:#2e6b4f;color:#f4f6ed;padding:0.8rem 1.5rem;border:none;cursor:pointer;transition:background 0.3s ease;font-family:monospace' onmouseover=\"this.style.background='#6fc49a';this.style.color='#14161b'\" onmouseout=\"this.style.background='#2e6b4f';this.style.color='#f4f6ed'\">HOVER ME</button></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['transition', 'background', '0.3s', 'ease']]]),
                             'hints' => json_encode(['transition animates property changes over time.', 'Syntax: transition: property duration easing;', 'Example: transition: background 0.3s ease;']),
                         ],
@@ -763,7 +763,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => ".grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 1rem;\n}",
                             'solution_code' => ".grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 1rem;\n}\n@media (max-width: 600px) {\n  .grid {\n    display: block;\n  }\n}",
-                            'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00;margin-bottom:.5rem'>✓ Grid: 2-col on desktop</div><div style='color:#ffb000'>✓ @media (max-width:600px) → display:block</div><div style='color:#33ff00;margin-top:.5rem;font-size:.85rem'>Responsive layout secured.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a;margin-bottom:.5rem'>✓ Grid: 2-col on desktop</div><div style='color:#d9a94f'>✓ @media (max-width:600px) → display:block</div><div style='color:#6fc49a;margin-top:.5rem;font-size:.85rem'>Responsive layout secured.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['@media', 'max-width', '600px', 'display', 'block']]]),
                             'hints' => json_encode(['@media queries apply styles at specific screen sizes.', 'Syntax: @media (max-width: 600px) { ... }', 'Inside the query, override the .grid display property.']),
                         ],
@@ -802,7 +802,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "// Signal status register is empty\nconsole.log(signalStatus);",
                             'solution_code' => "let signalStatus = \"ONLINE\";\nconsole.log(signalStatus);",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>ONLINE</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Variable declared and assigned.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>ONLINE</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Variable declared and assigned.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['let', 'signalStatus']], ['type' => 'contains_any', 'values' => ['"ONLINE"', "'ONLINE'"]]]),
                             'hints' => json_encode(['Use let to declare a variable.', 'Syntax: let name = value;', 'String values go inside quotes.']),
                         ],
@@ -821,7 +821,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "let baseScore = 100;\nlet bonusScore = 50;\nlet totalScore = baseScore - bonusScore;\nconsole.log(totalScore);",
                             'solution_code' => "let baseScore = 100;\nlet bonusScore = 50;\nlet totalScore = baseScore + bonusScore;\nconsole.log(totalScore);",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>150</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Arithmetic core restored.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>150</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Arithmetic core restored.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains', 'value' => 'totalScore'], ['type' => 'contains_any', 'values' => ['baseScore + bonusScore', 'baseScore+bonusScore']]]),
                             'hints' => json_encode(['The - operator subtracts. You need addition.', 'Use the + operator to add two values.', 'baseScore + bonusScore should equal 150.']),
                         ],
@@ -840,7 +840,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "let clearanceLevel = 4;\nif (clearanceLevel > 10) {\n  console.log(\"ACCESS GRANTED\");\n} else {\n  console.log(\"ACCESS DENIED\");\n}",
                             'solution_code' => "let clearanceLevel = 4;\nif (clearanceLevel >= 3) {\n  console.log(\"ACCESS GRANTED\");\n} else {\n  console.log(\"ACCESS DENIED\");\n}",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>ACCESS GRANTED</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Gate condition restored.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>ACCESS GRANTED</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Gate condition restored.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains', 'value' => 'if'], ['type' => 'contains_any', 'values' => ['>= 3', '>=3']], ['type' => 'contains', 'value' => 'ACCESS GRANTED']]),
                             'hints' => json_encode(['The condition > 10 is never true for 4.', 'Use >= to check greater than OR equal to.', 'Syntax: if (clearanceLevel >= 3)']),
                         ],
@@ -865,7 +865,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "// Signal needs to repeat 5 times\n// Write your for loop here",
                             'solution_code' => "for (let i = 1; i <= 5; i++) {\n  console.log(i);\n}",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>1<br>2<br>3<br>4<br>5</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Loop transmitter restored.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>1<br>2<br>3<br>4<br>5</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Loop transmitter restored.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['for', 'let i']], ['type' => 'contains_any', 'values' => ['i <= 5', 'i<=5', 'i < 6', 'i<6']], ['type' => 'contains', 'value' => 'i++']]),
                             'hints' => json_encode(['A for loop has three parts: init; condition; increment.', 'Syntax: for (let i = 1; i <= 5; i++)', 'console.log(i) prints the current value.']),
                         ],
@@ -884,7 +884,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "// Greeting protocol offline\n// Define greetOperator here\n\nconsole.log(greetOperator(\"Chen\"));",
                             'solution_code' => "function greetOperator(name) {\n  return \"WELCOME, \" + name.toUpperCase();\n}\n\nconsole.log(greetOperator(\"Chen\"));",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>WELCOME, CHEN</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Greeting protocol online.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>WELCOME, CHEN</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Greeting protocol online.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['function greetOperator', 'name', 'return', 'WELCOME,', 'toUpperCase()']]]),
                             'hints' => json_encode(['Declare with: function greetOperator(name) { ... }', 'Use return to send back a value.', 'String concatenation: "WELCOME, " + name.toUpperCase()']),
                         ],
@@ -903,7 +903,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "let operators = [];\nconsole.log(operators.length);",
                             'solution_code' => "let operators = [\"CHEN\", \"REYES\", \"OKAFOR\"];\nconsole.log(operators.length);",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>3</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Registry loaded: 3 operators.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>3</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Registry loaded: 3 operators.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['operators', 'CHEN', 'REYES', 'OKAFOR', '[', ']']]]),
                             'hints' => json_encode(['Arrays use square brackets: [ ]', 'Separate elements with commas.', 'String elements need quotes: ["A", "B", "C"]']),
                         ],
@@ -922,7 +922,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "let operatorRecord = {};\nconsole.log(operatorRecord.name);",
                             'solution_code' => "let operatorRecord = {\n  name: \"CHEN\",\n  clearance: 4,\n  active: true\n};\nconsole.log(operatorRecord.name);",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>CHEN</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Operator record restored.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>CHEN</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Operator record restored.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['operatorRecord', 'clearance', '4', 'active', 'true']], ['type' => 'contains_any', 'values' => ['"CHEN"', "'CHEN'"]]]),
                             'hints' => json_encode(['Objects use curly braces: { }', 'Each property is a key: value pair.', 'Syntax: { name: "CHEN", clearance: 4, active: true }']),
                         ],
@@ -947,7 +947,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "/* Preview HTML:\n<div id=\"status\">OFFLINE</div>\n*/\n\n// DOM node is unresponsive\n// Select and update the element below\n\n// <div id=\"status\">OFFLINE</div>",
                             'solution_code' => "document.getElementById(\"status\").textContent = \"SIGNAL ACTIVE\";\n\n// <div id=\"status\">OFFLINE</div>",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ DOM UPDATE:</div><div id='status' style='color:#ffb000;margin-top:.5rem;border:1px solid #ffb000;padding:.5rem'>SIGNAL ACTIVE</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ DOM node updated successfully.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ DOM UPDATE:</div><div id='status' style='color:#d9a94f;margin-top:.5rem;border:1px solid #d9a94f;padding:.5rem'>SIGNAL ACTIVE</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ DOM node updated successfully.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains', 'value' => 'getElementById'], ['type' => 'contains_any', 'values' => ['"status"', "'status'"]], ['type' => 'contains', 'value' => 'textContent'], ['type' => 'contains_any', 'values' => ['"SIGNAL ACTIVE"', "'SIGNAL ACTIVE'"]]]),
                             'hints' => json_encode(['Use document.getElementById("id") to select an element.', 'The textContent property sets the text inside an element.', 'Syntax: element.textContent = "new text";']),
                         ],
@@ -966,7 +966,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "/* Preview HTML:\n<button id=\"emergencyBtn\" type=\"button\">Activate emergency protocol</button>\n*/\n\n// Button is unresponsive — wire it up\nconst btn = document.getElementById(\"emergencyBtn\");\n\n// Add your event listener here",
                             'solution_code' => "const btn = document.getElementById(\"emergencyBtn\");\nbtn.addEventListener(\"click\", function() {\n  console.log(\"EMERGENCY PROTOCOL ACTIVATED\");\n});",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ EVENT WIRED:</div><div style='color:#ffb000;margin-top:.5rem'>btn.addEventListener(\"click\", handler)</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Emergency button is now responsive.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ EVENT WIRED:</div><div style='color:#d9a94f;margin-top:.5rem'>btn.addEventListener(\"click\", handler)</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Emergency button is now responsive.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains', 'value' => 'addEventListener'], ['type' => 'contains_any', 'values' => ['"click"', "'click'"]], ['type' => 'contains', 'value' => 'EMERGENCY PROTOCOL ACTIVATED']]),
                             'hints' => json_encode(['addEventListener takes two arguments: event name and a callback function.', 'Syntax: element.addEventListener("click", function() { ... })', 'The event name "click" must be a string.']),
                         ],
@@ -987,7 +987,7 @@ class CurriculumContentSeeder extends Seeder
                                 TEXT,
                             'broken_code' => "// Uplink subroutine missing\n// Define fetchSignal here\n\nfetchSignal().then(data => console.log(data));",
                             'solution_code' => "async function fetchSignal() {\n  const response = await fetch(\"/api/signal\");\n  const data = await response.json();\n  return data;\n}\n\nfetchSignal().then(data => console.log(data));",
-                            'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ ASYNC UPLINK:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>async function fetchSignal() {<br>&nbsp;&nbsp;const response = await fetch(\"/api/signal\");<br>&nbsp;&nbsp;const data = await response.json();<br>&nbsp;&nbsp;return data;<br>}</div><div style='color:#33ff00;margin-top:1rem;font-size:.85rem'>✓ Fetch transmission protocol restored.</div></div>",
+                            'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ ASYNC UPLINK:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>async function fetchSignal() {<br>&nbsp;&nbsp;const response = await fetch(\"/api/signal\");<br>&nbsp;&nbsp;const data = await response.json();<br>&nbsp;&nbsp;return data;<br>}</div><div style='color:#6fc49a;margin-top:1rem;font-size:.85rem'>✓ Fetch transmission protocol restored.</div></div>",
                             'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['async', 'fetchSignal', 'await', 'fetch', '/api/signal', '.json()', 'return']]]),
                             'hints' => json_encode(['Mark the function with async to use await inside it.', 'await fetch(url) sends the HTTP request and waits.', 'Call await response.json() to parse the JSON body.']),
                         ],
@@ -1099,7 +1099,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "<head>\n  <title>Signal Page</title>\n</head>",
                         'solution_code' => "<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Signal Page</title>\n</head>",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;color:#33ff00;font-family:monospace'><div>✓ charset declared</div><div>✓ viewport configured</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;color:#6fc49a;font-family:monospace'><div>✓ charset declared</div><div>✓ viewport configured</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['charset', 'viewport', 'width=device-width']]]),
                         'hints' => json_encode(['charset declares the text encoding.', 'viewport controls mobile rendering.', 'Both are void meta elements in head.']),
                     ],
@@ -1194,7 +1194,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "p {\n  color: red;\n}",
                         'solution_code' => ".panel .title {\n  color: red;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><div style='border:1px dashed #559260;padding:.5rem'><span style='color:red;font-family:monospace'>Panel title (red)</span></div><p style='color:#91a198;font-family:monospace;margin:.5rem 0 0'>Plain paragraph (untouched)</p></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><div style='border:1px dashed #a9b0a5;padding:.5rem'><span style='color:red;font-family:monospace'>Panel title (red)</span></div><p style='color:#a9b0a5;font-family:monospace;margin:.5rem 0 0'>Plain paragraph (untouched)</p></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['.panel', '.title', 'color']]]),
                         'hints' => json_encode(['Start both parts with a dot for classes.', 'A space between them means descendant.', 'The p selector is too broad.']),
                     ],
@@ -1213,7 +1213,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => ".msg {\n  color: gray;\n}",
                         'solution_code' => ".msg {\n  color: gray;\n}\n#emergency {\n  color: red;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><span style='color:red;font-family:monospace'>EMERGENCY (red wins)</span></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><span style='color:red;font-family:monospace'>EMERGENCY (red wins)</span></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['#emergency', 'color', 'red']]]),
                         'hints' => json_encode(['ID selectors start with #.', 'An ID beats any class selector.', 'Keep the old rule, add the stronger one.']),
                     ],
@@ -1238,7 +1238,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => ".grid {\n  display: block;\n}",
                         'solution_code' => ".grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 1rem;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-family:monospace'><span style='color:#33ff00'>CELL 1</span><span style='color:#33ff00'>CELL 2</span><span style='color:#33ff00'>CELL 3</span></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-family:monospace'><span style='color:#6fc49a'>CELL 1</span><span style='color:#6fc49a'>CELL 2</span><span style='color:#6fc49a'>CELL 3</span></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['display', 'grid', 'repeat', '1fr']]]),
                         'hints' => json_encode(['display: grid enables the grid.', 'repeat(3, 1fr) means three equal tracks.', 'gap adds gutters between cells.']),
                     ],
@@ -1255,9 +1255,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the card below overflows because padding adds to its width. Apply border-box sizing and center it with auto margins.
                             TEXT,
-                        'broken_code' => ".card {\n  width: 300px;\n  padding: 20px;\n  background: #001100;\n}",
-                        'solution_code' => ".card {\n  width: 300px;\n  padding: 20px;\n  background: #001100;\n  box-sizing: border-box;\n  margin: 0 auto;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><div style='width:300px;max-width:100%;padding:20px;background:#0a140d;box-sizing:border-box;margin:0 auto;color:#33ff00;font-family:monospace'>CENTERED CARD</div></div>",
+                        'broken_code' => ".card {\n  width: 300px;\n  padding: 20px;\n  background: #171b21;\n}",
+                        'solution_code' => ".card {\n  width: 300px;\n  padding: 20px;\n  background: #171b21;\n  box-sizing: border-box;\n  margin: 0 auto;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><div style='width:300px;max-width:100%;padding:20px;background:#1c1f26;box-sizing:border-box;margin:0 auto;color:#6fc49a;font-family:monospace'>CENTERED CARD</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['box-sizing', 'border-box']]]),
                         'hints' => json_encode(['box-sizing: border-box keeps width final.', 'margin: 0 auto centers a fixed-width block.', 'Keep the existing declarations.']),
                     ],
@@ -1268,15 +1268,15 @@ class CurriculumContentSeeder extends Seeder
                         'description' => <<<'TEXT'
                             Two properties lift flat boxes off the page. The border-radius rounds corners (50% turns a square into a circle), and box-shadow paints a soft offset copy behind the element using horizontal offset, vertical offset, blur, and color.
 
-                            Syntax: .badge { border-radius: 8px; box-shadow: 0 0 12px #33ff00; }.
+                            Syntax: .badge { border-radius: 8px; box-shadow: 0 0 12px #6fc49a; }.
 
                             Example: a status badge with rounded corners and a green glow reads as lit rather than printed.
 
                             Your task: the badge below is a sharp flat square. Round its corners and give it a green glow shadow.
                             TEXT,
-                        'broken_code' => ".badge {\n  background: #33ff00;\n  color: #000;\n  padding: 0.4rem 0.8rem;\n}",
-                        'solution_code' => ".badge {\n  background: #33ff00;\n  color: #000;\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  box-shadow: 0 0 12px #33ff00;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00'><span style='background:#33ff00;color:#000;padding:0.4rem 0.8rem;border-radius:8px;box-shadow:0 0 12px #33ff00;font-family:monospace'>ONLINE</span></div>",
+                        'broken_code' => ".badge {\n  background: #6fc49a;\n  color: #14161b;\n  padding: 0.4rem 0.8rem;\n}",
+                        'solution_code' => ".badge {\n  background: #6fc49a;\n  color: #14161b;\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  box-shadow: 0 0 12px #6fc49a;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a'><span style='background:#6fc49a;color:#14161b;padding:0.4rem 0.8rem;border-radius:8px;box-shadow:0 0 12px #6fc49a;font-family:monospace'>ONLINE</span></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['border-radius', 'box-shadow']]]),
                         'hints' => json_encode(['border-radius rounds the corners.', 'box-shadow needs offsets, blur, and color.', 'Glow: 0 0 12px with the signal color.']),
                     ],
@@ -1299,9 +1299,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the lamp below is static. Define the pulse keyframes and attach a 2-second infinite animation.
                             TEXT,
-                        'broken_code' => ".lamp {\n  background: #33ff00;\n  width: 2rem;\n  height: 2rem;\n}",
-                        'solution_code' => "@keyframes pulse {\n  from { opacity: 1; }\n  to { opacity: 0.3; }\n}\n.lamp {\n  background: #33ff00;\n  width: 2rem;\n  height: 2rem;\n  animation: pulse 2s infinite;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00'><div style='background:#33ff00;width:2rem;height:2rem;animation:pulse 2s infinite'></div><div style='color:#33ff00;font-family:monospace;margin-top:.75rem;font-size:.85rem'>Pulsing lamp</div></div>",
+                        'broken_code' => ".lamp {\n  background: #6fc49a;\n  width: 2rem;\n  height: 2rem;\n}",
+                        'solution_code' => "@keyframes pulse {\n  from { opacity: 1; }\n  to { opacity: 0.3; }\n}\n.lamp {\n  background: #6fc49a;\n  width: 2rem;\n  height: 2rem;\n  animation: pulse 2s infinite;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a'><div style='background:#6fc49a;width:2rem;height:2rem;animation:pulse 2s infinite'></div><div style='color:#6fc49a;font-family:monospace;margin-top:.75rem;font-size:.85rem'>Pulsing lamp</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['@keyframes', 'pulse', 'animation']]]),
                         'hints' => json_encode(['@keyframes names the motion timeline.', 'from/to define the start and end states.', 'animation: name duration repeat attaches it.']),
                     ],
@@ -1312,15 +1312,15 @@ class CurriculumContentSeeder extends Seeder
                         'description' => <<<'TEXT'
                             Custom properties store reusable values under a -- name. Declared once on :root so every rule inherits them, they are read back with var(), which also takes a fallback used when the token is missing. One edit to the token repaints every consumer, which beats hunting hex codes file-wide.
 
-                            Syntax: :root { --signal: #33ff00; } then .lamp { color: var(--signal, green); }.
+                            Syntax: :root { --signal: #6fc49a; } then .lamp { color: var(--signal, green); }.
 
                             Example: signal lamps across the page all track one token, with green as the safety fallback.
 
                             Your task: the lamp below hardcodes its color. Move the value into a --signal token on :root and consume it with a fallback.
                             TEXT,
-                        'broken_code' => ".lamp {\n  color: #33ff00;\n}",
-                        'solution_code' => ":root {\n  --signal: #33ff00;\n}\n.lamp {\n  color: var(--signal, green);\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00'><span style='color:#33ff00;font-family:monospace'>TOKEN LAMP</span></div>",
+                        'broken_code' => ".lamp {\n  color: #6fc49a;\n}",
+                        'solution_code' => ":root {\n  --signal: #6fc49a;\n}\n.lamp {\n  color: var(--signal, green);\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a'><span style='color:#6fc49a;font-family:monospace'>TOKEN LAMP</span></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => [':root', '--signal', 'var(']]]),
                         'hints' => json_encode(['Custom properties start with --.', ':root makes the token global.', 'var(--signal, green) reads it with a fallback.']),
                     ],
@@ -1350,9 +1350,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the copy block below has no type settings. Give it the stack, normal weight, and 1.8 line height.
                             TEXT,
-                        'broken_code' => ".copy {\n  color: #e1ece4;\n}",
-                        'solution_code' => ".copy {\n  color: #e1ece4;\n  font-family: monospace, Consolas, monospace;\n  font-weight: 400;\n  line-height: 1.8;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><p style='color:#e1ece4;font-family:monospace;line-height:1.8;margin:0'>Readable copy block.</p></div>",
+                        'broken_code' => ".copy {\n  color: #e6e9de;\n}",
+                        'solution_code' => ".copy {\n  color: #e6e9de;\n  font-family: monospace, Consolas, monospace;\n  font-weight: 400;\n  line-height: 1.8;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><p style='color:#e6e9de;font-family:monospace;line-height:1.8;margin:0'>Readable copy block.</p></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['font-family', 'font-weight', 'line-height']]]),
                         'hints' => json_encode(['Stacks list favorites first, generic last.', 'font-weight 400 is normal, 700 is bold.', 'line-height 1.8 means roomy leading.']),
                     ],
@@ -1369,9 +1369,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the kicker below is plain left-aligned text. Center it, uppercase it, and track it out.
                             TEXT,
-                        'broken_code' => ".kicker {\n  color: #559260;\n  font-size: 0.7rem;\n}",
-                        'solution_code' => ".kicker {\n  color: #559260;\n  font-size: 0.7rem;\n  text-align: center;\n  text-transform: uppercase;\n  letter-spacing: 0.12em;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><p style='color:#559260;font-size:0.7rem;text-align:center;text-transform:uppercase;letter-spacing:0.12em;font-family:monospace;margin:0'>SYSTEM KICKER</p></div>",
+                        'broken_code' => ".kicker {\n  color: #a9b0a5;\n  font-size: 0.7rem;\n}",
+                        'solution_code' => ".kicker {\n  color: #a9b0a5;\n  font-size: 0.7rem;\n  text-align: center;\n  text-transform: uppercase;\n  letter-spacing: 0.12em;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><p style='color:#a9b0a5;font-size:0.7rem;text-align:center;text-transform:uppercase;letter-spacing:0.12em;font-family:monospace;margin:0'>SYSTEM KICKER</p></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['text-align', 'text-transform', 'letter-spacing']]]),
                         'hints' => json_encode(['text-align centers the block.', 'text-transform changes case without retyping.', 'letter-spacing opens the tracking.']),
                     ],
@@ -1390,7 +1390,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => ".hero {\n  font-size: 48px;\n}",
                         'solution_code' => ".hero {\n  font-size: clamp(1.5rem, 4vw, 3rem);\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00'><p style='color:#e1ece4;font-size:clamp(1.5rem,4vw,3rem);font-family:monospace;margin:0'>Fluid hero</p></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a'><p style='color:#e6e9de;font-size:clamp(1.5rem,4vw,3rem);font-family:monospace;margin:0'>Fluid hero</p></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['clamp(', '1.5rem', '3rem']]]),
                         'hints' => json_encode(['clamp takes min, preferred, max.', 'vw units track the viewport width.', 'rem tracks the root font size.']),
                     ],
@@ -1413,9 +1413,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the rules below style too broadly. Rewrite them as a child selector, an adjacent-sibling selector, and an attribute selector.
                             TEXT,
-                        'broken_code' => "li {\n  color: #33ff00;\n}\np {\n  margin-top: 0;\n}\ninput {\n  border: 1px solid #33ff00;\n}",
-                        'solution_code' => ".menu > li {\n  color: #33ff00;\n}\nh2 + p {\n  margin-top: 0;\n}\ninput[type=\"text\"] {\n  border: 1px solid #33ff00;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace;color:#33ff00'><div>.menu &gt; li, h2 + p, input[type]</div></div>",
+                        'broken_code' => "li {\n  color: #6fc49a;\n}\np {\n  margin-top: 0;\n}\ninput {\n  border: 1px solid #6fc49a;\n}",
+                        'solution_code' => ".menu > li {\n  color: #6fc49a;\n}\nh2 + p {\n  margin-top: 0;\n}\ninput[type=\"text\"] {\n  border: 1px solid #6fc49a;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace;color:#6fc49a'><div>.menu &gt; li, h2 + p, input[type]</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['>', '+', '[type=']]]),
                         'hints' => json_encode(['> means direct children only.', '+ means the very next sibling.', '[type="text"] filters by attribute.']),
                     ],
@@ -1432,9 +1432,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the stylesheet below has no state rules. Add hover, focus-visible, checked, and a ::before marker rule.
                             TEXT,
-                        'broken_code' => "a {\n  color: #49d8e8;\n}\n.tag {\n  color: #91a198;\n}",
-                        'solution_code' => "a {\n  color: #49d8e8;\n}\na:hover {\n  color: #33ff00;\n}\n:focus-visible {\n  outline: 3px solid #49d8e8;\n}\ninput:checked + label {\n  color: #33ff00;\n}\n.tag::before {\n  content: \"> \";\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace;color:#49d8e8'><div>&gt; tagged link (hover me)</div></div>",
+                        'broken_code' => "a {\n  color: #9c97e8;\n}\n.tag {\n  color: #a9b0a5;\n}",
+                        'solution_code' => "a {\n  color: #9c97e8;\n}\na:hover {\n  color: #6fc49a;\n}\n:focus-visible {\n  outline: 3px solid #9c97e8;\n}\ninput:checked + label {\n  color: #6fc49a;\n}\n.tag::before {\n  content: \"> \";\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace;color:#9c97e8'><div>&gt; tagged link (hover me)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => [':hover', ':focus-visible', ':checked', '::before']]]),
                         'hints' => json_encode([':hover fires under the pointer.', ':focus-visible serves keyboard users.', '::before injects decorative content.']),
                     ],
@@ -1457,9 +1457,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the card below snaps on hover with no motion. Add the transform transition and the lift-and-grow hover rule.
                             TEXT,
-                        'broken_code' => ".card {\n  background: #0b1610;\n  padding: 1rem;\n}\n.card:hover {\n  background: #0d1b12;\n}",
-                        'solution_code' => ".card {\n  background: #0b1610;\n  padding: 1rem;\n  transition: transform 0.2s ease;\n}\n.card:hover {\n  background: #0d1b12;\n  transform: translateY(-4px) scale(1.02);\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00'><div style='background:#0b1610;padding:1rem;color:#33ff00;font-family:monospace;transition:transform 0.2s ease'>Hover card (lifts)</div></div>",
+                        'broken_code' => ".card {\n  background: #1c1f26;\n  padding: 1rem;\n}\n.card:hover {\n  background: #242830;\n}",
+                        'solution_code' => ".card {\n  background: #1c1f26;\n  padding: 1rem;\n  transition: transform 0.2s ease;\n}\n.card:hover {\n  background: #242830;\n  transform: translateY(-4px) scale(1.02);\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a'><div style='background:#1c1f26;padding:1rem;color:#6fc49a;font-family:monospace;transition:transform 0.2s ease'>Hover card (lifts)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['transform', 'translateY', 'scale']]]),
                         'hints' => json_encode(['transform moves without reflowing layout.', 'translateY lifts, scale grows.', 'Transition the transform property.']),
                     ],
@@ -1470,16 +1470,16 @@ class CurriculumContentSeeder extends Seeder
                         'description' => <<<'TEXT'
                             Gradients blend colors across a surface without image files. The linear-gradient function takes a direction and color stops, while background-size and background-position control how any background image fills its box. One declaration can carry atmosphere an entire image used to provide.
 
-                            Syntax: .banner { background: linear-gradient(180deg, #001100, #003300); }.
+                            Syntax: .banner { background: linear-gradient(180deg, #171b21, #242830); }.
 
-                            Example: a banner fading from near-black to deep green behind its headline.
+                            Example: a banner fading from the deep pad up to a lighter plate behind its headline.
 
-                            Your task: the flat banner below needs depth. Give it a top-to-bottom gradient across two greens.
+                            Your task: the flat banner below needs depth. Give it a top-to-bottom gradient across two stops.
                             TEXT,
-                        'broken_code' => ".banner {\n  background: #001100;\n  padding: 2rem;\n}",
-                        'solution_code' => ".banner {\n  background: linear-gradient(180deg, #001100, #003300);\n  padding: 2rem;\n}",
-                        'target_html' => "<div style='background:linear-gradient(180deg,#001100,#003300);padding:2rem;border:1px solid #33ff00;color:#33ff00;font-family:monospace'>GRADIENT BANNER</div>",
-                        'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['linear-gradient', '#001100', '#003300']]]),
+                        'broken_code' => ".banner {\n  background: #171b21;\n  padding: 2rem;\n}",
+                        'solution_code' => ".banner {\n  background: linear-gradient(180deg, #171b21, #242830);\n  padding: 2rem;\n}",
+                        'target_html' => "<div style='background:linear-gradient(180deg,#171b21,#242830);padding:2rem;border:1px solid #6fc49a;color:#6fc49a;font-family:monospace'>GRADIENT BANNER</div>",
+                        'validate_rule' => json_encode([['type' => 'regex', 'pattern' => 'linear-gradient(?=[^)]*#(?:001100|171[Bb]21))(?=[^)]*#(?:003300|242830))']]),
                         'hints' => json_encode(['linear-gradient blends across a direction.', '180deg runs top to bottom.', 'List two or more color stops.']),
                     ],
                     [
@@ -1489,15 +1489,15 @@ class CurriculumContentSeeder extends Seeder
                         'description' => <<<'TEXT'
                             Form controls must stay visibly focused. Styling inputs and buttons is welcome, but removing the native outline without a replacement strands keyboard users. The :focus-visible selector shows a strong ring for keyboard focus only, and :disabled styles the unavailable state so it reads as inactive rather than broken.
 
-                            Syntax: input { border: ...; } input:focus-visible { outline: 3px solid #49d8e8; } button:disabled { opacity: 0.5; }.
+                            Syntax: input { border: ...; } input:focus-visible { outline: 3px solid #9c97e8; } button:disabled { opacity: 0.5; }.
 
                             Example: dark inputs with a cyan keyboard ring and dimmed disabled buttons.
 
                             Your task: the controls below have no focus or disabled styling. Add an accessible focus-visible ring and a dimmed disabled state.
                             TEXT,
-                        'broken_code' => "input {\n  background: #08110b;\n  color: #e1ece4;\n  padding: 0.6rem;\n}\nbutton {\n  background: #33ff00;\n  color: #000;\n  padding: 0.6rem 1rem;\n}",
-                        'solution_code' => "input {\n  background: #08110b;\n  color: #e1ece4;\n  padding: 0.6rem;\n  border: 1px solid #33ff00;\n}\ninput:focus-visible {\n  outline: 3px solid #49d8e8;\n}\nbutton:disabled {\n  opacity: 0.5;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace'><div style='border:1px solid #33ff00;padding:.6rem;color:#e1ece4'>Tab to me (cyan ring)</div></div>",
+                        'broken_code' => "input {\n  background: #171b21;\n  color: #e6e9de;\n  padding: 0.6rem;\n}\nbutton {\n  background: #6fc49a;\n  color: #14161b;\n  padding: 0.6rem 1rem;\n}",
+                        'solution_code' => "input {\n  background: #171b21;\n  color: #e6e9de;\n  padding: 0.6rem;\n  border: 1px solid #6fc49a;\n}\ninput:focus-visible {\n  outline: 3px solid #9c97e8;\n}\nbutton:disabled {\n  opacity: 0.5;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace'><div style='border:1px solid #6fc49a;padding:.6rem;color:#e6e9de'>Tab to me (cyan ring)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => [':focus-visible', 'outline', ':disabled']]]),
                         'hints' => json_encode([':focus-visible fires for keyboard focus.', 'The outline must be strong and visible.', ':disabled styles the inactive state.']),
                     ],
@@ -1529,7 +1529,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let status = \"ONLINE\";\nlet sector = 7;\nlet line = \"STATUS:\" + status + \"- SECTOR\" + sector;\nconsole.log(line);",
                         'solution_code' => "let status = \"ONLINE\";\nlet sector = 7;\nlet line = `STATUS: \${status} - SECTOR \${sector}`;\nconsole.log(line);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>STATUS: ONLINE - SECTOR 7</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>STATUS: ONLINE - SECTOR 7</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['`', '${status}', '${sector}']]]),
                         'hints' => json_encode(['Template literals use backticks, not quotes.', '${} embeds any value inline.', 'One template replaces the whole chain.']),
                     ],
@@ -1548,7 +1548,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let band = \"VHF\";\n// Dispatch on band here\nconsole.log(\"ready\");",
                         'solution_code' => "let band = \"VHF\";\nswitch (band) {\n  case \"UHF\":\n    console.log(\"UHF LINK\");\n    break;\n  case \"VHF\":\n    console.log(\"VHF LINK\");\n    break;\n  default:\n    console.log(\"NO SIGNAL\");\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>VHF LINK</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>VHF LINK</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['switch', 'case', 'break', 'default']]]),
                         'hints' => json_encode(['switch (band) selects on one value.', 'Each case needs a break.', 'default catches the rest.']),
                     ],
@@ -1567,7 +1567,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let n = 3;\n// Count down from 3 here",
                         'solution_code' => "let n = 3;\nwhile (n > 0) {\n  console.log(n);\n  n--;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>3<br>2<br>1</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>3<br>2<br>1</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['while', 'n > 0', 'n--']]]),
                         'hints' => json_encode(['while checks its condition each pass.', 'The body must decrement toward the exit.', 'Log n before decrementing.']),
                     ],
@@ -1592,7 +1592,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let readings = [-5, 10, -2, 20];\n// Filter negatives, double the rest\nconsole.log(readings);",
                         'solution_code' => "let readings = [-5, 10, -2, 20];\nconst clean = readings.filter(r => r >= 0).map(r => r * 2);\nconsole.log(clean);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>[ 20, 40 ]</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>[ 20, 40 ]</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['filter', 'map', '=>']]]),
                         'hints' => json_encode(['filter keeps elements passing the test.', 'map transforms each survivor.', 'Chain: filter first, then map.']),
                     ],
@@ -1611,7 +1611,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let operator = { name: \"CHEN\", band: \"UHF\" };\nlet backup = [\"REYES\", \"OKAFOR\"];\nlet crew = [];\nconsole.log(crew.length);",
                         'solution_code' => "let operator = { name: \"CHEN\", band: \"UHF\" };\nlet backup = [\"REYES\", \"OKAFOR\"];\nconst { name, band } = operator;\nconst crew = [name, ...backup];\nconsole.log(crew.length);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>3</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>3</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['{ name', '} = operator', '...backup']]]),
                         'hints' => json_encode(['const { name } = operator unpacks a property.', '...backup spreads the array inline.', 'Build crew from name plus the spread.']),
                     ],
@@ -1630,7 +1630,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let payload = \"{corrupt\";\nconst data = JSON.parse(payload);\nconsole.log(data);",
                         'solution_code' => "let payload = \"{corrupt\";\ntry {\n  const data = JSON.parse(payload);\n  console.log(data);\n} catch (e) {\n  console.log(\"BAD PAYLOAD\");\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>BAD PAYLOAD</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>BAD PAYLOAD</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['try', 'catch', 'JSON.parse', 'BAD PAYLOAD']]]),
                         'hints' => json_encode(['try wraps the risky parse call.', 'catch runs only when parsing throws.', 'Log the fallback inside catch.']),
                     ],
@@ -1655,7 +1655,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview HTML:\n<div class=\"lamp\">Lamp 1</div>\n<div class=\"lamp\">Lamp 2</div>\n<div class=\"lamp\">Lamp 3</div>\n*/\n\n// Three .lamp elements stay dark\n// Light them all up here",
                         'solution_code' => 'document.querySelectorAll(".lamp").forEach(el => el.classList.add("on"));',
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ LAMPS:</div><div style='color:#ffb000;margin-top:.5rem'>3 lamps ON</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ LAMPS:</div><div style='color:#d9a94f;margin-top:.5rem'>3 lamps ON</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['querySelectorAll', 'classList', 'forEach']]]),
                         'hints' => json_encode(['querySelectorAll returns every match.', 'classList.add attaches a class.', 'forEach walks the whole list.']),
                     ],
@@ -1674,7 +1674,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let pings = 0;\nfunction tick() {\n  pings++;\n  console.log(\"ping \" + pings);\n}\n// Schedule and stop here",
                         'solution_code' => "let pings = 0;\nfunction tick() {\n  pings++;\n  console.log(\"ping \" + pings);\n  if (pings >= 3) {\n    clearInterval(timer);\n  }\n}\nconst timer = setInterval(tick, 1000);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ BEACON:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>ping 1<br>ping 2<br>ping 3<br>(silent)</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ BEACON:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>ping 1<br>ping 2<br>ping 3<br>(silent)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['setInterval', 'clearInterval', 'tick']]]),
                         'hints' => json_encode(['setInterval runs a callback repeatedly.', 'Store its return value as the timer id.', 'clearInterval stops it after 3 pings.']),
                     ],
@@ -1695,7 +1695,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let record = { name: \"CHEN\" };\n// Persist and reload here\nconsole.log(record.name);",
                         'solution_code' => "let record = { name: \"CHEN\" };\nlocalStorage.setItem(\"callsign\", JSON.stringify(record));\nconst saved = JSON.parse(localStorage.getItem(\"callsign\"));\nconsole.log(saved.name);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ STORAGE:</div><div style='color:#ffb000;margin-top:.5rem'>CHEN (persisted)</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ STORAGE:</div><div style='color:#d9a94f;margin-top:.5rem'>CHEN (persisted)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['localStorage', 'setItem', 'getItem']]]),
                         'hints' => json_encode(['setItem stores a string under a key.', 'Stringify objects before storing.', 'Parse the stored string when reading.']),
                     ],
@@ -1727,7 +1727,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "var sector = 7;\nvar limit = 3;\nconsole.log(sector + limit);",
                         'solution_code' => "const sector = 7;\nlet limit = 3;\nconsole.log(sector + limit);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>10</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>10</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['const sector', 'let limit']]]),
                         'hints' => json_encode(['const suits values never reassigned.', 'let suits values that change.', 'var has no place in new code.']),
                     ],
@@ -1746,7 +1746,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "function makeCounter() {\n  let n = 0;\n  return function () {\n    return 0;\n  };\n}\nconst next = makeCounter();\nconsole.log(next());",
                         'solution_code' => "function makeCounter() {\n  let n = 0;\n  return function () {\n    n++;\n    return n;\n  };\n}\nconst next = makeCounter();\nconsole.log(next());",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>1</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>1</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['return function', 'n++', 'return n']]]),
                         'hints' => json_encode(['The inner function outlives the outer call.', 'n++ moves the shared count forward.', 'Return n so callers see it.']),
                     ],
@@ -1765,7 +1765,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let readings = [10, 20, 30];\nreadings.forEach(function (r) {\n  console.log(r);\n});",
                         'solution_code' => "let readings = [10, 20, 30];\nreadings.forEach(r => console.log(r));",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>10<br>20<br>30</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>10<br>20<br>30</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['forEach', '=>']]]),
                         'hints' => json_encode(['Drop function and keep the parameter.', '=> separates parameter from body.', 'Single expressions skip the braces.']),
                     ],
@@ -1790,7 +1790,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let readings = [10, 20, 30];\nlet firstOver = 0;\nlet total = 0;\nconsole.log(firstOver, total);",
                         'solution_code' => "let readings = [10, 20, 30];\nconst firstOver = readings.find(r => r > 15);\nconst total = readings.reduce((sum, r) => sum + r, 0);\nconsole.log(firstOver, total);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>20 60</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>20 60</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['find', 'reduce', '=>']]]),
                         'hints' => json_encode(['find returns the first passing element.', 'reduce carries an accumulator across elements.', 'Start the total at 0.']),
                     ],
@@ -1809,7 +1809,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let station = { name: \"Relay 7\", radio: { band: \"UHF\" } };\nconsole.log(\"keys?\");\nconsole.log(\"band?\");",
                         'solution_code' => "let station = { name: \"Relay 7\", radio: { band: \"UHF\" } };\nconsole.log(Object.keys(station));\nconsole.log(station.radio.band);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>[ 'name', 'radio' ]<br>UHF</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>[ 'name', 'radio' ]<br>UHF</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['Object.keys', 'station.radio.band']]]),
                         'hints' => json_encode(['Object.keys returns the property names.', 'Chained dots reach nested values.', 'station.radio.band reads two levels down.']),
                     ],
@@ -1828,7 +1828,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "function makeOperator(name) {\n  return { name: name };\n}\nconst op = makeOperator(\"CHEN\");\nconsole.log(op.name);",
                         'solution_code' => "class Operator {\n  constructor(name) {\n    this.name = name;\n  }\n  report() {\n    return this.name + \" READY\";\n  }\n}\nconst op = new Operator(\"CHEN\");\nconsole.log(op.report());",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>CHEN READY</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>CHEN READY</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['class Operator', 'constructor', 'new Operator']]]),
                         'hints' => json_encode(['class names the blueprint.', 'constructor stores per-instance data.', 'new Operator builds the instance.']),
                     ],
@@ -1853,7 +1853,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview HTML:\n<ul id=\"bands\"></ul>\n*/\n\n// <ul id=\"bands\"></ul> present on the page\n// Add a UHF entry here",
                         'solution_code' => "const li = document.createElement(\"li\");\nli.textContent = \"UHF\";\ndocument.querySelector(\"#bands\").appendChild(li);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ LIST:</div><div style='color:#ffb000;margin-top:.5rem'>• UHF (appended)</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ LIST:</div><div style='color:#d9a94f;margin-top:.5rem'>• UHF (appended)</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['createElement', 'appendChild', 'querySelector']]]),
                         'hints' => json_encode(['createElement builds a detached node.', 'textContent fills it safely.', 'querySelector finds the parent, appendChild grafts.']),
                     ],
@@ -1872,7 +1872,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview HTML:\n<form id=\"signup\">\n<label for=\"callsign\">Callsign</label>\n<input id=\"callsign\" name=\"callsign\">\n<button type=\"submit\">Check callsign</button>\n</form>\n*/\n\nconst form = document.querySelector(\"#signup\");\nconst input = document.querySelector(\"#callsign\");\n// Validate on submit here",
                         'solution_code' => "const form = document.querySelector(\"#signup\");\nconst input = document.querySelector(\"#callsign\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  if (input.value.length < 3) {\n    console.log(\"TOO SHORT\");\n  } else {\n    console.log(\"ACCEPTED\");\n  }\n});",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ FORM:</div><div style='color:#ffb000;margin-top:.5rem'>submit guarded, short rejected</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ FORM:</div><div style='color:#d9a94f;margin-top:.5rem'>submit guarded, short rejected</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['addEventListener', '"submit"', 'preventDefault', '.value']]]),
                         'hints' => json_encode(['Listen for submit on the form.', 'preventDefault stops the reload.', 'Read input.value to validate.']),
                     ],
@@ -1891,7 +1891,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview HTML:\n<ul id=\"bands\"><li>UHF</li><li>VHF</li></ul>\n*/\n\nconst list = document.querySelector(\"#bands\");\n// Report clicks on any item here",
                         'solution_code' => "const list = document.querySelector(\"#bands\");\nlist.addEventListener(\"click\", function (e) {\n  console.log(e.target.textContent);\n});",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ DELEGATION:</div><div style='color:#ffb000;margin-top:.5rem'>one listener, every item covered</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ DELEGATION:</div><div style='color:#d9a94f;margin-top:.5rem'>one listener, every item covered</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['addEventListener', '"click"', 'e.target']]]),
                         'hints' => json_encode(['One listener on the parent covers all children.', 'e.target is the true click origin.', 'Bubbling carries the event upward.']),
                     ],
@@ -1918,7 +1918,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "fetch(\"/api/signal\")\n  .then(r => r.json())\n  .then(d => console.log(d));",
                         'solution_code' => "fetch(\"/api/signal\")\n  .then(r => {\n    if (!r.ok) {\n      throw new Error(\"down\");\n    }\n    return r.json();\n  })\n  .then(d => console.log(d))\n  .catch(e => console.log(\"FAILED\"));",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ CHAIN:</div><div style='color:#ffb000;margin-top:.5rem'>ok checked, failures caught</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ CHAIN:</div><div style='color:#d9a94f;margin-top:.5rem'>ok checked, failures caught</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['.then', '.catch', 'r.ok', 'throw']]]),
                         'hints' => json_encode(['then handles the fulfilled path.', 'Check r.ok before parsing the body.', 'catch closes the chain on failure.']),
                     ],
@@ -1937,7 +1937,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview source only */\n\n// radio.js\nconst band = \"UHF\";\n\n// dashboard.js\nconsole.log(\"band?\");",
                         'solution_code' => "// radio.js\nexport const band = \"UHF\";\n\n// dashboard.js\nimport { band } from \"./radio.js\";\nconsole.log(band);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ MODULES:</div><div style='color:#ffb000;margin-top:.5rem'>band shared across files</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ MODULES:</div><div style='color:#d9a94f;margin-top:.5rem'>band shared across files</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['export', 'import', './radio.js']]]),
                         'hints' => json_encode(['export publishes a binding.', 'import names it with braces.', 'The path points at the source file.']),
                     ],
@@ -2591,9 +2591,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the stylesheet below styles one headline and one row only. Broaden it with a reset, a grouped headline rule, a general-sibling rule, an even-row rule, and an ::after marker.
                             TEXT,
-                        'broken_code' => "h1 {\n  color: #33ff00;\n}\ntr {\n  background: #001100;\n}",
-                        'solution_code' => "* {\n  margin: 0;\n}\nh1, h2 {\n  color: #33ff00;\n}\nh2 ~ p {\n  color: #91a198;\n}\ntr:nth-child(even) {\n  background: #0a140d;\n}\n.tag::after {\n  content: \"!\";\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace;color:#33ff00'><div>Headlines, zebra rows, flagged tags</div></div>",
+                        'broken_code' => "h1 {\n  color: #6fc49a;\n}\ntr {\n  background: #171b21;\n}",
+                        'solution_code' => "* {\n  margin: 0;\n}\nh1, h2 {\n  color: #6fc49a;\n}\nh2 ~ p {\n  color: #a9b0a5;\n}\ntr:nth-child(even) {\n  background: #1c1f26;\n}\n.tag::after {\n  content: \"!\";\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace;color:#6fc49a'><div>Headlines, zebra rows, flagged tags</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['*', 'h1, h2', '~', 'nth-child', '::after']]]),
                         'hints' => json_encode(['* matches everything for resets.', 'Commas group selectors sharing a rule.', '~ reaches all later siblings.']),
                     ],
@@ -2610,15 +2610,15 @@ class CurriculumContentSeeder extends Seeder
                         'description' => <<<'TEXT'
                             Background images layer over background colors. The url() function points at the file, no-repeat stops the tiling, position centers the single copy, and size cover scales it to fill without stretching. When the image fails, the color underneath still shows, which is why both belong together.
 
-                            Syntax: .panel { background-color: #001100; background-image: url("grid.png"); background-repeat: no-repeat; background-position: center; background-size: cover; }.
+                            Syntax: .panel { background-color: #171b21; background-image: url("grid.png"); background-repeat: no-repeat; background-position: center; background-size: cover; }.
 
                             Example: a panel with a centered, covering grid texture over its dark base.
 
                             Your task: the panel below has color but no texture. Layer the grid image centered and covering without tiling.
                             TEXT,
-                        'broken_code' => ".panel {\n  background-color: #001100;\n  padding: 2rem;\n}",
-                        'solution_code' => ".panel {\n  background-color: #001100;\n  background-image: url(\"grid.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  padding: 2rem;\n}",
-                        'target_html' => "<div style='background-color:#001100;background-image:url(grid.png);background-repeat:no-repeat;background-position:center;background-size:cover;padding:2rem;border:1px solid #33ff00;color:#33ff00;font-family:monospace'>TEXTURED PANEL</div>",
+                        'broken_code' => ".panel {\n  background-color: #171b21;\n  padding: 2rem;\n}",
+                        'solution_code' => ".panel {\n  background-color: #171b21;\n  background-image: url(\"grid.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  padding: 2rem;\n}",
+                        'target_html' => "<div style='background-color:#171b21;background-image:url(grid.png);background-repeat:no-repeat;background-position:center;background-size:cover;padding:2rem;border:1px solid #6fc49a;color:#6fc49a;font-family:monospace'>TEXTURED PANEL</div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['background-image', 'no-repeat', 'center', 'cover']]]),
                         'hints' => json_encode(['url() points at the image file.', 'no-repeat stops the tiling.', 'cover scales to fill the box.']),
                     ],
@@ -2637,7 +2637,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => ".card {\n  width: 800px;\n  padding: 16px;\n}\n.frame {\n  width: 800px;\n  height: 450px;\n}",
                         'solution_code' => ".card {\n  width: min(100%, 40rem);\n  padding: calc(1rem + 2vw);\n}\n.frame {\n  aspect-ratio: 16 / 9;\n  object-fit: cover;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace;color:#33ff00'><div>min() card, calc padding, 16:9 frame</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace;color:#6fc49a'><div>min() card, calc padding, 16:9 frame</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['min(', 'calc(', 'aspect-ratio']]]),
                         'hints' => json_encode(['min() caps the width fluidly.', 'calc mixes units in one expression.', 'aspect-ratio holds box proportions.']),
                     ],
@@ -2660,9 +2660,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the row below neither wraps nor spreads. Add wrapping, edge-to-edge justification, and double growth on the lead item.
                             TEXT,
-                        'broken_code' => ".row {\n  display: flex;\n  gap: 1rem;\n}\n.lead {\n  background: #0a140d;\n}",
-                        'solution_code' => ".row {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 1rem;\n}\n.lead {\n  background: #0a140d;\n  flex-grow: 2;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;display:flex;gap:1rem;font-family:monospace;color:#33ff00'><span>LEAD x2</span><span>ITEM</span><span>ITEM</span></div>",
+                        'broken_code' => ".row {\n  display: flex;\n  gap: 1rem;\n}\n.lead {\n  background: #1c1f26;\n}",
+                        'solution_code' => ".row {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 1rem;\n}\n.lead {\n  background: #1c1f26;\n  flex-grow: 2;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;display:flex;gap:1rem;font-family:monospace;color:#6fc49a'><span>LEAD x2</span><span>ITEM</span><span>ITEM</span></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['flex-wrap', 'justify-content', 'flex-grow']]]),
                         'hints' => json_encode(['flex-wrap lets rows flow on.', 'space-between pushes edges outward.', 'flex-grow shares leftover room.']),
                     ],
@@ -2679,9 +2679,9 @@ class CurriculumContentSeeder extends Seeder
 
                             Your task: the bar below scrolls away and the headers never stick. Pin the bar fixed with stacking and make headers sticky.
                             TEXT,
-                        'broken_code' => ".bar {\n  background: #040806;\n  padding: 1rem;\n}\n.sub {\n  background: #0a140d;\n  padding: 0.5rem;\n}",
-                        'solution_code' => ".bar {\n  background: #040806;\n  padding: 1rem;\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 50;\n}\n.sub {\n  background: #0a140d;\n  padding: 0.5rem;\n  position: sticky;\n  top: 0;\n}",
-                        'target_html' => "<div style='background:#001100;padding:1rem;border:1px solid #33ff00;font-family:monospace;color:#33ff00'><div>pinned bar, sticky headers</div></div>",
+                        'broken_code' => ".bar {\n  background: #171b21;\n  padding: 1rem;\n}\n.sub {\n  background: #1c1f26;\n  padding: 0.5rem;\n}",
+                        'solution_code' => ".bar {\n  background: #171b21;\n  padding: 1rem;\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 50;\n}\n.sub {\n  background: #1c1f26;\n  padding: 0.5rem;\n  position: sticky;\n  top: 0;\n}",
+                        'target_html' => "<div style='background:#171b21;padding:1rem;border:1px solid #6fc49a;font-family:monospace;color:#6fc49a'><div>pinned bar, sticky headers</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['fixed', 'sticky', 'z-index']]]),
                         'hints' => json_encode(['fixed pins to the viewport.', 'sticky flows until its threshold.', 'z-index stacks positioned layers.']),
                     ],
@@ -2713,7 +2713,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "const input = \"7\";\nconst n = Number(input);\nlet label = \"?\";\nif (n == 7) {\n  label = \"LUCKY\";\n}\nconsole.log(label);",
                         'solution_code' => "const input = \"7\";\nconst n = Number(input);\nconst label = n === 7 ? \"LUCKY\" : \"ORDINARY\";\nconsole.log(typeof label + \":\" + label);",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem'>string:LUCKY</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem'>string:LUCKY</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['===', '?', 'typeof']]]),
                         'hints' => json_encode(['=== checks value and type together.', 'Ternary picks between two values inline.', 'typeof names the result type.']),
                     ],
@@ -2732,7 +2732,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let readings = [10, -5, 20, -1, 30];\nfor (let i = 0; i < readings.length; i++) {\n  console.log(readings[i]);\n}",
                         'solution_code' => "let readings = [10, -5, 20, -1, 30];\nfor (const r of readings) {\n  if (r < 0) {\n    continue;\n  }\n  if (r > 25) {\n    break;\n  }\n  console.log(r);\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>10<br>20</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>10<br>20</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => [' of ', 'continue', 'break']]]),
                         'hints' => json_encode(['for-of walks values, not indexes.', 'continue skips one pass.', 'break exits the whole loop.']),
                     ],
@@ -2757,7 +2757,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "let station = { name: \"Relay 7\", band: \"UHF\" };\nconsole.log(\"Relay 7, UHF\");",
                         'solution_code' => "let station = { name: \"Relay 7\", band: \"UHF\" };\nconsole.log(Object.values(station).join(\", \"));\nfor (const [k, v] of Object.entries(station)) {\n  console.log(k + \"=\" + v);\n}",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ OUTPUT:</div><div style='color:#ffb000;margin-top:.5rem;line-height:1.8'>Relay 7, UHF<br>name=Relay 7<br>band=UHF</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ OUTPUT:</div><div style='color:#d9a94f;margin-top:.5rem;line-height:1.8'>Relay 7, UHF<br>name=Relay 7<br>band=UHF</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['Object.values', 'Object.entries']]]),
                         'hints' => json_encode(['Object.values lists every value.', 'Object.entries pairs keys with values.', 'Loop the pairs with for-of.']),
                     ],
@@ -2782,7 +2782,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview HTML:\n<label for=\"callsign\">Callsign</label>\n<input id=\"callsign\" name=\"callsign\">\n*/\n\nconst input = document.querySelector(\"#callsign\");\n// React to typing here",
                         'solution_code' => "const input = document.querySelector(\"#callsign\");\ninput.addEventListener(\"input\", function (e) {\n  console.log(e.currentTarget.value);\n});\ninput.addEventListener(\"change\", function () {\n  console.log(\"saved\");\n});",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ EVENTS:</div><div style='color:#ffb000;margin-top:.5rem'>live echo, commit saved</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ EVENTS:</div><div style='color:#d9a94f;margin-top:.5rem'>live echo, commit saved</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['"input"', '"change"', 'currentTarget']]]),
                         'hints' => json_encode(['input streams every keystroke.', 'change fires on commit.', 'currentTarget is the listening element.']),
                     ],
@@ -2801,7 +2801,7 @@ class CurriculumContentSeeder extends Seeder
                             TEXT,
                         'broken_code' => "/* Preview HTML:\n<form id=\"signup\">\n<label for=\"callsign\">Callsign</label>\n<input id=\"callsign\" name=\"callsign\">\n<button type=\"submit\">Read callsign</button>\n</form>\n*/\n\nconst form = document.querySelector(\"#signup\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  console.log(\"?\");\n});",
                         'solution_code' => "const form = document.querySelector(\"#signup\");\nform.addEventListener(\"submit\", function (e) {\n  e.preventDefault();\n  const data = new FormData(form);\n  console.log(data.get(\"callsign\"));\n});",
-                        'target_html' => "<div style='background:#001100;padding:1.5rem;border:1px solid #33ff00;font-family:monospace'><div style='color:#33ff00'>▶ FORMDATA:</div><div style='color:#ffb000;margin-top:.5rem'>callsign read by name</div></div>",
+                        'target_html' => "<div style='background:#171b21;padding:1.5rem;border:1px solid #6fc49a;font-family:monospace'><div style='color:#6fc49a'>▶ FORMDATA:</div><div style='color:#d9a94f;margin-top:.5rem'>callsign read by name</div></div>",
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['FormData', '.get(']]]),
                         'hints' => json_encode(['new FormData(form) wraps the whole form.', '.get("name") reads one field.', 'It pairs with preventDefault.']),
                     ],
