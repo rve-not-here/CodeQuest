@@ -2265,16 +2265,19 @@ body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 
 .cq-draft[data-state="saved"] { color: var(--color-info); }
 .cq-draft[data-state="dirty"] { color: var(--color-warning); }
 .cq-draft[data-state="saving"] { color: var(--color-warning); }
-.cq-draft-hint { font-family: var(--font-display); font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 50%, transparent); }
+/* The keyboard tip is a quiet aside to the draft state, not a headline: it
+   speaks in the world's mono voice and never shouts. */
+.cq-draft-hint { font-family: var(--font-mono); font-size: 11px; font-weight: 400; letter-spacing: .02em; text-transform: none; color: color-mix(in srgb, var(--cq-ink) 45%, transparent); }
 .cq-icon-button { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border: 1px solid transparent; border-radius: 2px; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; transition: color 120ms ease-out, border-color 120ms ease-out; }
 .cq-icon-button:hover { border-color: var(--cq-line-strong); color: var(--color-accent); }
 .cq-icon-button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 /* When the workspace collapses to tabs, the strip states its identity first:
    entry, then registers, then the actions that judge the work. */
 @media (max-width: 1100px) {
-    .cq-case-plate { gap: 14px; padding: 10px 14px 12px; }
-    .cq-case-facts { min-width: 0; flex: 1 1 100%; }
-    .cq-case-state { margin-left: 0; }
+    .cq-case-band { gap: 10px 12px; padding: 6px 14px; }
+    .cq-case-registers { flex-wrap: wrap; white-space: normal; }
+    .cq-case-state-group { margin-left: 0; }
+    .cq-case-job-row { padding: 6px 14px 7px; }
     .cq-workspace-heading { gap: 8px 12px; }
     .cq-workspace-tabs { order: 2; margin-right: 0; }
     .cq-workspace-actions { order: 3; margin-left: auto; }
@@ -2295,15 +2298,26 @@ body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color
 /* The brief is its own scroll region: the page never scrolls behind it, the
    column keeps its width when the scrollbar appears, and the sheet's edge
    shadows appear only while there is more to read. */
-/* The challenge is a case file: the docket above the bench carries the entry,
-   the concept and the stakes; the brief is the exercise's document bundle. */
-.cq-case-plate { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 8px 16px 10px; border-bottom: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); background: var(--cq-sheet); }
-.cq-case-title { min-width: 0; }
-.cq-case-title h1 { margin: 2px 0 0; font-family: var(--font-display); font-size: clamp(20px, 2vw, 26px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
-.cq-case-concept { margin: 3px 0 0; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 60%, transparent); }
-.cq-case-facts { min-width: 280px; }
-.cq-case-state { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
-.cq-case-state .cq-draft { margin: 0; }
+/* The challenge is a case file: the band carries identity, registers and
+   state; the job row below it states the job (the lesson panel's grammar);
+   the brief keeps the teaching and the expected result. */
+.cq-case-plate { display: flex; flex-direction: column; background: var(--cq-sheet); border-bottom: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); }
+.cq-case-band { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 16px; flex-wrap: wrap; border-bottom: 1px solid var(--cq-line); }
+.cq-case-index { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--cq-ink); border: 1px solid var(--cq-line-strong); padding: 5px 7px; white-space: nowrap; }
+.cq-case-title { margin: 0; font-family: var(--font-display); font-size: clamp(20px, 2vw, 26px); line-height: 1; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.cq-case-rule { width: 1px; align-self: stretch; background: var(--cq-line); }
+.cq-case-concept { margin: 0; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--cq-muted); white-space: nowrap; }
+.cq-case-registers { display: inline-flex; align-items: center; gap: 8px; margin: 0; list-style: none; padding: 0; font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; color: var(--cq-muted); white-space: nowrap; }
+.cq-case-registers > div { position: relative; padding-left: 12px; }
+.cq-case-registers > div + div::before { content: '·'; position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--cq-line-strong); }
+.cq-case-registers dd { margin: 0; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.cq-case-registers dd.is-numeric { color: var(--cq-ink); }
+.cq-case-state-group { margin-left: auto; display: flex; align-items: baseline; gap: 10px; }
+.cq-case-state-group .cq-draft { margin: 0; }
+.cq-case-state-group .atlas-stamp { font-size: 11px; }
+.cq-case-job-row { display: flex; align-items: baseline; gap: 14px; padding: 7px 16px 8px; flex-wrap: wrap; }
+.cq-case-course { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--cq-muted); white-space: nowrap; }
+.cq-case-job { margin: 0; padding-left: 12px; border-left: 3px solid var(--cq-accent); font-size: 15px; line-height: 1.4; color: var(--cq-ink); }
 .cq-doc-label { margin: 24px 0 8px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .cq-doc-label:first-child { margin-top: 0; }
 /* The run log reads as the machine's own account, not as floating cards. */
@@ -2335,7 +2349,6 @@ body.student-ui .cq-workspace .cq-lesson-reading {
     background-attachment: local, local, scroll, scroll;
 }
 .cq-lesson-context p { margin: 0 0 12px; }
-.cq-brief-task { margin: 18px 0 0; padding: 12px 14px; border-left: 3px solid var(--color-accent); background: var(--color-accent-soft); color: var(--color-fg); font-size: 14.5px; line-height: 25px; }
 .cq-reference { margin-top: 22px; }
 .cq-reference > summary span:last-child { display: none; }
 .cq-reference .atlas-lesson-reference-frame iframe { height: 130px; }
@@ -2385,12 +2398,15 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
     .cq-workspace .cq-instructions, .cq-workspace .cq-code-pane, .cq-workspace .cq-preview-pane { grid-column: 1; grid-row: 2; }
 }
 @media (max-width: 640px) {
-    /* The docket keeps its values and drops its labels: one ruled line of facts. */
-    .cq-case-facts { display: flex; flex-wrap: wrap; gap: 0 16px; }
-    .cq-case-facts dt { display: none; }
-    .cq-case-facts > div { padding: 8px 0; }
-    .cq-case-facts > div + div { padding-left: 0; border-left: 0; }
-    .cq-case-facts dd { margin: 0; }
+    /* The band stacks: identity, then registers, then state; the job row stacks course over sentence. */
+    .cq-case-band { gap: 6px 10px; padding: 6px 12px; }
+    .cq-case-title { font-size: 20px; }
+    .cq-case-index { padding: 3px 5px; }
+    .cq-case-rule { display: none; }
+    .cq-case-registers { flex-wrap: wrap; white-space: normal; }
+    .cq-case-state-group { margin-left: 0; flex-basis: 100%; justify-content: flex-start; }
+    .cq-case-job-row { flex-direction: column; gap: 4px; padding: 6px 12px 7px; }
+    .cq-case-job { padding-left: 10px; font-size: 14px; }
     .cq-runlog-line { flex-direction: column; gap: 1px; }
     .cq-runlog-line b { width: auto; }
     body.student-ui:has(.cq-challenge) .atlas-shell-inner { padding-inline: 16px; gap: 8px; }

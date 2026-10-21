@@ -71,35 +71,38 @@
     @endphp
     <article class="cq-challenge" data-workspace-fullscreen-root>
         <header class="cq-case-plate">
-            <div class="cq-case-title">
-                <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge @if ($course) · Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }} {{ $course->name }} @endif</span>
-                <h1 id="challenge-title">{{ $mission->title }}</h1>
+            <div class="cq-case-band">
+                <span class="cq-case-index" aria-hidden="true">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }}</span>
+                <h1 id="challenge-title" class="cq-case-title">{{ $mission->title }}</h1>
+                <span class="cq-case-rule" aria-hidden="true"></span>
                 @if ($section?->title)
-                    <p class="cq-case-concept">Concept · {{ $section->title }}</p>
+                    <p class="cq-case-concept">{{ $section->title }}</p>
                 @endif
-            </div>
-            <dl class="log-facts cq-case-facts">
-                <div>
-                    <dt>Difficulty</dt>
-                    <dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd>
-                </div>
-                <div>
-                    <dt>Reward</dt>
-                    <dd class="is-numeric">+{{ $mission->points }} XP</dd>
-                </div>
-                <div>
-                    <dt>Wrong attempt</dt>
-                    <dd class="is-numeric">−{{ $wrongPenalty }} XP</dd>
-                </div>
-            </dl>
-            <div class="cq-case-state">
+                <span class="cq-case-rule" aria-hidden="true"></span>
+                <dl class="cq-case-registers">
+                    <div><dt class="sr-only">Difficulty</dt><dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd></div>
+                    <div><dt class="sr-only">Reward</dt><dd class="is-numeric">+{{ $mission->points }} XP</dd></div>
+                    <div><dt class="sr-only">Wrong attempt</dt><dd class="is-numeric">−{{ $wrongPenalty }} XP</dd></div>
+                </dl>
                 @if ($completed)
-                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
+                    <span class="atlas-stamp atlas-stamp--grn cq-case-state-group"><x-icon name="check" size="12" />Completed</span>
                 @else
-                    <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
-                    <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
+                    <span class="cq-case-state-group">
+                        <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
+                        <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
+                    </span>
                 @endif
             </div>
+            @if ($task || $course)
+                <div class="cq-case-job-row">
+                    @if ($course)
+                        <span class="cq-case-course">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $course->name }}</span>
+                    @endif
+                    @if ($task)
+                        <p class="cq-case-job">{{ $task }}</p>
+                    @endif
+                </div>
+            @endif
         </header>
         <div class="challenge-workspace cq-workspace" data-workspace data-workspace-layout="tabs">
             <header class="cq-workspace-heading">
@@ -157,10 +160,6 @@
                         </div>
                     @else
                         <p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>
-                    @endif
-                    @if ($task)
-                        <p class="cq-doc-label">Your task</p>
-                        <p class="cq-brief-task">{{ $task }}</p>
                     @endif
                     @if ($target !== '')
                         <p class="cq-doc-label">Expected result</p>
