@@ -1126,6 +1126,7 @@ body.student-ui h4 {
     }
 
     body.student-ui:has(.challenge-workspace) > div,
+    body.student-ui:has(.challenge-workspace) > div > div,
     body.student-ui:has(.challenge-workspace) main,
     body.student-ui:has(.challenge-workspace) main > div {
         min-height: 0;
@@ -2248,7 +2249,14 @@ a.atlas-notification-title:focus-visible { outline: 2px solid var(--color-accent
 body.student-ui:has(.cq-challenge) .atlas-shell-inner { min-height: 52px; padding-inline: 24px; gap: 20px; }
 body.student-ui:has(.cq-challenge) .atlas-brand { gap: 8px; font-size: 16px; }
 body.student-ui:has(.cq-challenge) .atlas-mark { width: 28px; height: 26px; }
-.cq-challenge { display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; }
+/* The article takes the page's height so the workspace grid resolves against a
+   definite height: otherwise the brief's own content sizes the row, the panel
+   grows past the viewport, and the rest of the instructions is unreachable
+   (the body cannot scroll). The wrapper between <main> and the article has to
+   carry that height down. */
+body.student-ui:has(.cq-challenge) main { min-height: 0; }
+body.student-ui:has(.cq-challenge) main > div { height: 100%; }
+.cq-challenge { display: flex; flex: 1; min-width: 0; min-height: 0; height: 100%; flex-direction: column; }
 body.student-ui .cq-workspace[data-workspace] { display: grid; grid-template-columns: var(--brief-width, 380px) var(--brief-handle, 8px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; padding: 0; gap: 0; }
 .cq-workspace [hidden] { display: none !important; }
 body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 0; border: 0; }
