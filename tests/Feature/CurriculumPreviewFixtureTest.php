@@ -161,7 +161,7 @@ class CurriculumPreviewFixtureTest extends TestCase
         $student = User::factory()->create();
         $original = (string) Js::from($mission->broken_code);
 
-        $this->actingAs($student)->get(route('mission.experiment', $mission))
+        $this->actingAs($student)->get(route('mission.show', $mission))
             ->assertSee('var initial = '.$original, false)
             ->assertSee('type, initial)', false)
             ->assertDontSee((string) Js::from($mission->solution_code), false)

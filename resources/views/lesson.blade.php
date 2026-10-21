@@ -3,32 +3,64 @@
 @section('title', $mission->title)
 
 @section('content')
-    <div class="atlas-lesson">
-        @if ($course)
-            <div class="log-running">
-                <span>Log sheet {{ str_pad((string) $course->order_num, 3, '0', STR_PAD_LEFT) }} · {{ $course->name }}</span>
-                <a href="{{ route('learning-path') }}">Learning path →</a>
-            </div>
-        @else
-            <div class="log-running">
-                <span>Lesson</span>
-                <a href="{{ route('learning-path') }}">Learning path →</a>
-            </div>
-        @endif
+    @php
+        $language = match ($course?->type) {
+            'css' => 'CSS',
+            'js', 'javascript' => 'JavaScript',
+            default => 'HTML',
+        };
 
-        <header class="atlas-reading-heading">
+        // The brief teaches; the last paragraph states the job. Lift the job out of
+        // the prose so it can head the panel without being read twice.
+        $paragraphs = preg_split('/\r\n\r\n|\n\n/', trim((string) $mission->description)) ?: [];
+        $task = null;
+        if ($paragraphs !== []) {
+            $last = trim((string) end($paragraphs));
+            if (str_starts_with($last, 'Your task:')) {
+                $task = trim(substr($last, strlen('Your task:')));
+                array_pop($paragraphs);
+            }
+        }
+    @endphp
+
+    <div class="atlas-lesson">
+        <header class="atlas-lesson-head">
             <div class="atlas-lesson-entry">
-                <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Lesson</span>
+                <span class="atlas-lesson-entry-label">
+                    Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Lesson
+                    @if ($course) · Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }} {{ $course->name }} @endif
+                </span>
                 @if ($completed)
                     <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
+                @else
+                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="minus" size="12" />Not recorded</span>
                 @endif
             </div>
-            <h1 class="atlas-reading-title">{{ $mission->title }}</h1>
-            <p class="mt-2 max-w-[65ch] text-sm leading-6 text-fg-muted">Read the brief and inspect the starter, then apply what you learned in the coding challenge.</p>
-            <div class="atlas-reading-meta">
-                <span class="atlas-reading-metadata">{{ $mission->difficulty }}</span>
-                <span class="atlas-reading-metadata">+{{ $mission->points }} XP on first pass</span>
-            </div>
+
+            <h1 class="atlas-lesson-title">{{ $mission->title }}</h1>
+
+            @if ($task)
+                <p class="atlas-lesson-task">{{ $task }}</p>
+            @endif
+
+            <dl class="log-facts atlas-lesson-facts">
+                <div>
+                    <dt>Difficulty</dt>
+                    <dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd>
+                </div>
+                <div>
+                    <dt>Reward</dt>
+                    <dd class="is-numeric">+{{ $mission->points }} XP</dd>
+                </div>
+                <div>
+                    <dt>Wrong attempt</dt>
+                    <dd class="is-numeric">−{{ $wrongPenalty }} XP</dd>
+                </div>
+                <div>
+                    <dt>Section</dt>
+                    <dd>{{ $section?->title ?? 'Course' }}</dd>
+                </div>
+            </dl>
         </header>
 
         @if (session('mission_success'))
@@ -47,58 +79,34 @@
             <div class="panel mb-5 border-danger/40 bg-danger-soft px-4 py-3" role="alert"><strong class="text-sm text-danger">Knowledge Check unavailable.</strong> <span class="text-sm text-fg-muted">{{ session('knowledge_check_error') }}</span></div>
         @endif
 
-        <div class="atlas-lesson-body">
-            <div class="atlas-lesson-document">
-                <section class="atlas-lesson-section" aria-labelledby="lesson-objective">
-                    <div class="atlas-lesson-section-heading">
-                        <div class="flex items-center gap-3 mt-1 flex-wrap">
-                            <h2 id="lesson-objective" class="text-lg font-semibold">What you will build</h2>
-                        </div>
-                    </div>
-                    <div class="atlas-lesson-prose">
-                        @if ($mission->description)
-                            <p class="whitespace-pre-line">{{ $mission->description }}</p>
-                        @else
-                            <p>No lesson brief has been added yet. Review the starter below, then open the coding challenge.</p>
-                        @endif
-                    </div>
-                </section>
-
-                @if ($mission->target_html)
-                    <section class="atlas-lesson-section" aria-labelledby="lesson-output">
-                        <div class="atlas-lesson-section-heading">
-                            <div class="flex items-center gap-3 mt-1 flex-wrap">
-                            <h2 id="lesson-output" class="text-lg font-semibold">Expected output</h2>
-                        </div>
-                            <p class="mt-1 text-sm text-fg-muted">Use this reference to understand the intended result.</p>
-                        </div>
-                        <div class="atlas-lesson-example">
-                            <pre class="code-block overflow-x-auto" tabindex="0"><code>{{ $mission->target_html }}</code></pre>
+        <div class="atlas-lesson-grid">
+            <div class="atlas-lesson-brief">
+                @if ($paragraphs !== [])
+                    <section class="atlas-lesson-section" aria-labelledby="lesson-objective">
+                        <h2 id="lesson-objective">What you will build</h2>
+                        <div class="atlas-lesson-prose">
+                            @foreach ($paragraphs as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
                         </div>
                     </section>
                 @endif
 
-                @if ($mission->broken_code)
-                    <section class="atlas-lesson-section" aria-labelledby="lesson-starter">
-                        <div class="atlas-lesson-section-heading">
-                            <div class="flex items-center gap-3 mt-1 flex-wrap">
-                            <h2 id="lesson-starter" class="text-lg font-semibold">Start from this code</h2>
-                        </div>
-                            <p class="mt-1 text-sm text-fg-muted">This is a read-only example. The editor and preview are in the coding challenge.</p>
-                        </div>
-                        <div class="atlas-lesson-example">
-                            <pre class="code-block overflow-x-auto" tabindex="0"><code>{{ $mission->broken_code }}</code></pre>
-                        </div>
-                    </section>
+                @if ($mission->target_html)
+                    <details class="atlas-lesson-reference">
+                        <summary>
+                            <span>Reference output</span>
+                            <span>Target markup</span>
+                        </summary>
+                        <pre tabindex="0"><code>{{ $mission->target_html }}</code></pre>
+                    </details>
                 @endif
 
                 @if ($knowledgeChecks->isNotEmpty())
                     <section class="atlas-lesson-section" aria-labelledby="lesson-checks">
-                        <div class="atlas-lesson-section-heading">
-                            <h2 id="lesson-checks" class="mt-1 text-lg font-semibold">Knowledge Check</h2>
-                            <p class="mt-1 text-sm leading-6 text-fg-muted">Your result guides review and does not replace the coding challenge.</p>
-                        </div>
-                        <div class="divide-y divide-line">
+                        <h2 id="lesson-checks">Knowledge Check</h2>
+                        <p class="atlas-lesson-note">Your result guides review and does not replace the coding challenge.</p>
+                        <div class="atlas-lesson-checks">
                             @foreach ($knowledgeChecks as $summary)
                                 @php
                                     $check = $summary['check'];
@@ -107,10 +115,10 @@
                                 <article class="atlas-lesson-check">
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <h3 class="text-[15px] font-medium">{{ $check->title }}</h3>
+                                            <h3 class="atlas-lesson-check-title">{{ $check->title }}</h3>
                                             <span class="atlas-stamp {{ $check->is_required ? 'atlas-stamp--amb' : 'atlas-stamp--ink' }}">{{ $check->is_required ? 'Required' : 'Optional' }}</span>
                                         </div>
-                                        <p class="mt-1 text-xs leading-5 text-fg-subtle">
+                                        <p class="atlas-lesson-check-meta">
                                             {{ $summary['questionCount'] }} {{ Str::plural('question', $summary['questionCount']) }}
                                             @if ($latestAttempt?->status === 'submitted')
                                                 · Latest: {{ $latestAttempt->score }} / {{ $latestAttempt->total_questions }} ({{ $latestAttempt->percentage }}%)
@@ -134,30 +142,96 @@
                 @endif
             </div>
 
-            <section class="atlas-lesson-next" aria-labelledby="lesson-next">
-                <div class="atlas-lesson-next-heading">
-                    <h2 id="lesson-next" class="mt-1 text-lg font-semibold">{{ $outstandingRequiredCheck ? 'Complete the required check' : 'Apply what you learned' }}</h2>
-                    <p class="mt-2 text-sm leading-6 text-fg-muted">
-                        {{ $outstandingRequiredCheck ? 'This check must be submitted before the coding challenge opens.' : 'Open the editor to run a preview and complete this challenge.' }}
-                    </p>
+            <aside class="atlas-lesson-bench" aria-label="Try it yourself">
+                <div class="atlas-bench">
+                    <div class="atlas-bench-head">
+                        <span class="atlas-bench-title">Try it yourself</span>
+                        <span class="atlas-stamp atlas-stamp--amb"><x-icon name="minus" size="12" />Ungraded</span>
+                        <div class="atlas-bench-actions">
+                            <button type="button" id="experiment-reset" class="btn btn-ghost">Reset</button>
+                            <button type="button" id="experiment-run" class="btn btn-secondary">Run preview <x-icon name="play" size="16" /></button>
+                        </div>
+                    </div>
+
+                    <div class="atlas-bench-modes" role="group" aria-label="Practice views">
+                        <button type="button" id="practice-code" data-practice-mode="code" aria-pressed="true" aria-controls="practice-code-panel" class="btn btn-ghost">Code</button>
+                        <button type="button" id="practice-output" data-practice-mode="output" aria-pressed="false" aria-controls="practice-output-panel" class="btn btn-ghost">Preview</button>
+                    </div>
+
+                    <div id="practice-workspace" class="atlas-bench-workspace" data-mode="code">
+                        <section id="practice-code-panel" class="atlas-bench-pane atlas-bench-code" aria-labelledby="bench-code-title">
+                            <header class="atlas-bench-pane-head">
+                                <h2 id="bench-code-title">Code</h2>
+                                <span>{{ $language }}</span>
+                            </header>
+                            <div id="editor-host"></div>
+                        </section>
+                        <section id="practice-output-panel" class="atlas-bench-pane atlas-bench-output" aria-labelledby="bench-preview-title">
+                            <header class="atlas-bench-pane-head">
+                                <h2 id="bench-preview-title">Preview</h2>
+                            </header>
+                            <iframe id="experiment-preview" title="Try it yourself preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                        </section>
+                    </div>
+
+                    <div class="atlas-bench-foot">
+                        @if ($outstandingRequiredCheck)
+                            <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-primary">Start required check <x-icon name="chevron-right" size="16" /></button>
+                            </form>
+                        @else
+                            <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary">Start challenge <x-icon name="chevron-right" size="16" /></a>
+                        @endif
+                        <p class="atlas-bench-note">Experiments are ungraded — nothing is submitted.</p>
+                    </div>
                 </div>
-                <div class="atlas-lesson-next-actions">
-                    <a href="{{ route('mission.experiment', $mission) }}" class="btn btn-secondary w-full">Try it yourself <x-icon name="chevron-right" size="16" /></a>
-                    @if ($outstandingRequiredCheck)
-                        <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-primary w-full">Start required check <x-icon name="chevron-right" size="16" /></button>
-                        </form>
-                    @else
-                        <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary w-full">Start challenge <x-icon name="chevron-right" size="16" /></a>
-                    @endif
-                    <dl class="space-y-2 border-t border-line pt-4 text-sm">
-                        <div class="flex justify-between gap-3"><dt class="text-fg-subtle">First pass</dt><dd class="font-mono text-success">+{{ $mission->points }} XP</dd></div>
-                        <div class="flex justify-between gap-3"><dt class="text-fg-subtle">Wrong attempt</dt><dd class="font-mono text-fg-muted">−{{ $wrongPenalty }} XP</dd></div>
-                    </dl>
-                    <a href="{{ route('learning-path') }}" class="inline-flex min-h-11 items-center text-sm text-fg-muted hover:text-fg">← Back to Learning Path</a>
-                </div>
-            </section>
+            </aside>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            var initial = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
+            var type = {{ Illuminate\Support\Js::from($course?->type ?? 'html') }};
+            function init(cq) {
+                var CM = cq.CodeMirror;
+                var language = type === 'js' || type === 'javascript' ? CM.javascript() : (type === 'css' ? CM.css() : CM.html());
+                var editor = new CM.EditorView({
+                    doc: initial,
+                    parent: document.getElementById('editor-host'),
+                    extensions: [CM.basicSetup, language, CM.foundry],
+                });
+                var preview = document.getElementById('experiment-preview');
+                preview.sandbox.value = cq.previewSandbox(type, initial);
+                function run() { preview.srcdoc = cq.previewDocument(editor.state.doc.toString(), type, initial); }
+                document.getElementById('experiment-run').addEventListener('click', run);
+                document.getElementById('experiment-reset').addEventListener('click', function () {
+                    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: initial } });
+                    run();
+                    showMode('code');
+                    editor.focus();
+                });
+                var workspace = document.getElementById('practice-workspace');
+                var codeButton = document.getElementById('practice-code');
+                var outputButton = document.getElementById('practice-output');
+                function showMode(mode) {
+                    workspace.dataset.mode = mode;
+                    codeButton.setAttribute('aria-pressed', String(mode === 'code'));
+                    outputButton.setAttribute('aria-pressed', String(mode === 'output'));
+                    editor.requestMeasure();
+                }
+                codeButton.addEventListener('click', function () { showMode('code'); });
+                outputButton.addEventListener('click', function () { showMode('output'); });
+                run();
+            }
+            if (window.CodeQuest && window.CodeQuest.CodeMirror) {
+                init(window.CodeQuest);
+            } else {
+                window.addEventListener('cq:codemirror-ready', function () { init(window.CodeQuest); }, { once: true });
+            }
+        })();
+    </script>
+@endpush

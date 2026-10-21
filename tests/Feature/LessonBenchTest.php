@@ -11,7 +11,12 @@ use Illuminate\Support\Facades\Process;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-class ExperimentTest extends TestCase
+/**
+ * The ungraded workbench — "try it yourself" — now lives on the mission panel
+ * itself, so the old /experiment URL folds into the lesson instead of rendering
+ * a second page.
+ */
+class LessonBenchTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -27,12 +32,12 @@ class ExperimentTest extends TestCase
     }
 
     #[DataProvider('languages')]
-    public function test_rendered_experiment_uses_language_preview_and_preserves_sandbox(string $type, string $source): void
+    public function test_lesson_bench_uses_language_preview_and_preserves_sandbox(string $type, string $source): void
     {
         $student = User::factory()->create();
         $course = Course::factory()->create(['type' => $type]);
         $mission = Mission::factory()->create(['course_id' => $course->id, 'broken_code' => $source]);
-        $response = $this->actingAs($student)->get(route('mission.experiment', $mission))->assertOk();
+        $response = $this->actingAs($student)->get(route('mission.show', $mission))->assertOk();
         $this->assertSame(1, preg_match('/<script>\s*(\(function[\s\S]*?)<\/script>/', $response->getContent(), $matches));
         $result = Process::timeout(5)->input($matches[1])->run(['node', '--input-type=module', '-e', <<<'JS'
 import vm from 'node:vm';
@@ -69,18 +74,25 @@ JS]);
         $this->assertDatabaseCount('the404_xp_transactions', 0);
     }
 
-    public function test_experiment_is_available_before_required_checks_and_cannot_submit_academic_state(): void
+    public function test_lesson_panel_owns_the_bench_and_the_experiment_url_folds_into_it(): void
     {
         $student = User::factory()->create();
         $mission = Mission::factory()->create(['broken_code' => '<h1>Try this</h1>', 'solution_code' => 'PRIVATE SOLUTION']);
         KnowledgeCheck::factory()->required()->create(['mission_id' => $mission->id]);
 
-        $this->actingAs($student)->get(route('mission.show', $mission))->assertSee(route('mission.experiment', $mission));
-        $this->get(route('mission.experiment', $mission))
-            ->assertOk()->assertSee('Ungraded experiment')->assertSee('Reset example')
+        $lesson = $this->actingAs($student)->get(route('mission.show', $mission))->assertOk();
+
+        $lesson->assertSee('Try it yourself')
+            ->assertSee('Ungraded')
             ->assertSee('data-practice-mode="code"', false)
             ->assertSee('data-practice-mode="output"', false)
-            ->assertDontSee('PRIVATE SOLUTION')->assertDontSee('SUBMIT CHALLENGE');
+            ->assertSee('Start required check')
+            ->assertDontSee(route('mission.experiment', $mission))
+            ->assertDontSee('PRIVATE SOLUTION')
+            ->assertDontSee('SUBMIT CHALLENGE');
+
+        $this->get(route('mission.experiment', $mission))
+            ->assertRedirect(route('mission.show', $mission));
         $this->post(route('mission.experiment', $mission), ['code' => 'valid', 'passed' => true, 'xp' => 10000])->assertStatus(405);
         $this->get(route('mission.challenge', $mission))->assertRedirect(route('mission.show', $mission));
         foreach (['the404_progress', 'the404_xp_transactions', 'the404_assessment_attempts', 'the404_knowledge_check_attempts', 'the404_user_achievements', 'the404_mission_drafts'] as $table) {
@@ -88,13 +100,13 @@ JS]);
         }
     }
 
-    public function test_experiment_preserves_authentication_role_and_course_gates(): void
+    public function test_experiment_url_preserves_authentication_role_and_course_gates(): void
     {
         $mission = Mission::factory()->create();
         $url = route('mission.experiment', $mission);
         $this->get($url)->assertRedirect(route('login'));
         $this->actingAs(User::factory()->create(['role' => 'teacher']))->get($url)->assertForbidden();
-        $this->actingAs(User::factory()->create())->get($url)->assertOk();
+        $this->actingAs(User::factory()->create())->get($url)->assertRedirect(route('mission.show', $mission));
         $mission->course->update(['status' => 'locked']);
         $this->get($url)->assertForbidden();
         $mission->course->update(['status' => 'active']);

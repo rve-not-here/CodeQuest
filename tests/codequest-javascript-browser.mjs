@@ -367,7 +367,6 @@ async function course(type) {
         await navigate(`/missions/${mission.id}`);
         check(`${mission.title} lesson owns title`, (await page.locator('main').innerText()).includes(mission.title));
         if (type === 'js' && mission === firstRemaining) {
-            await page.getByRole('link', { name: 'TRY IT YOURSELF', exact: false }).click();
             await code(mission.solution);
             const frame = await run('#experiment-preview', '#experiment-run');
             if (domTitles.includes(mission.title)) await previewDom(mission, frame);
@@ -462,7 +461,6 @@ try {
     if (process.env.CODEQUEST_BROWSER_DOM_ONLY === '1') {
         for (const mission of missions.filter(mission => domTitles.includes(mission.title))) {
             await navigate(`/missions/${mission.id}`);
-            await page.getByRole('link', { name: 'TRY IT YOURSELF', exact: false }).click();
             const before = academicState();
             const errors = report.pageErrors.length;
             const consoleErrors = report.consoleErrors.length;

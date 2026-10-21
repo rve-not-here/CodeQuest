@@ -4,6 +4,7 @@ paths:
   - resources/views/dashboard.blade.php
   - resources/views/students.blade.php
   - resources/views/learning-path.blade.php
+  - resources/views/lesson.blade.php
 ---
 
 # Views
@@ -76,3 +77,6 @@ No page h1/lede: course names are h2 and carry the hierarchy. Scoreboard strip (
 
 ## Learning Path chapters are native disclosures
 Each course is a <details class="atlas-path-course"> with its head as <summary> (h2 + state + figure + chevron); the current course and sealed courses start `open`, every other course starts collapsed so the page opens short. Keep the h2 inside the summary (heading content is allowed there; keep spans, not <p>, for the meta). The chevron is decorative and rotates via `.atlas-path-course[open]`, so expanding must never need JS. app.js only reveals a chapter when a hash link points inside it (rail or boss anchor). Course separation tightens after a collapsed chapter via `.atlas-path-course:not([open]) + .atlas-path-course`. No accordion behavior: chapters toggle independently.
+
+## The mission panel is the split bench
+The mission lesson page (mission.show) is one panel in Direction A: the brief keeps its 68ch measure in the left column and the ungraded 'try it yourself' workbench is docked sticky in the right column (`.atlas-lesson-grid` → `.atlas-lesson-brief` + `.atlas-lesson-bench`). The workbench lives ON the panel — the old /missions/{mission}/experiment page is gone and that route now redirects to mission.show, so never link to it or reintroduce a second page. The bench keeps the experiment DOM contract on purpose: #editor-host, #experiment-preview, #experiment-run, #experiment-reset, #practice-workspace, #practice-code-panel, #practice-output-panel, [data-practice-mode] — the browser suites and LessonBenchTest assert on those ids. Redundancy rules: no .log-running strip, no 'Try it yourself' link to another page, no 'Return to lesson' bounce, no 'Back to Learning Path' link, no static 'Start from this code' block (the starter is already in the editor), no duplicated XP/penalty facts (one `.log-facts` strip), one primary CTA in the bench foot (Start challenge, red via --cq-cta; 'Start required check' when a required check is outstanding). The task paragraph is lifted out of the description into the `.atlas-lesson-task` callout so it is never read twice. The bench must stay short enough to fit above the fold (sticky), so keep the editor ~240px and the preview ~160px.

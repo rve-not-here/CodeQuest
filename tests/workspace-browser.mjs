@@ -173,7 +173,8 @@ try {
         assert.deepEqual(await evaluate(`({visible: document.querySelector('#practice-code-panel').getBoundingClientRect().width > 0, focused: document.activeElement === experimentView.contentDOM, mode: document.querySelector('#practice-workspace').dataset.mode})`), {visible: true, focused: true, mode: 'code'});
 
         assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Try this</h1>');
-        assert.equal(await evaluate(`document.querySelectorAll('form[action*="/missions/"]').length`), 0);
+        assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form[action*="/missions/"]').length`), 0);
+        assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form').length`), 0);
     } else if (mode.startsWith('challenge')) {
         let checks = 0;
         async function check(expression, expected = true) {

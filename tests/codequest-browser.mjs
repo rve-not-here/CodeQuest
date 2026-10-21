@@ -386,13 +386,11 @@ try {
 
         await navigate(page, lesson);
         await inspectLayout(page, 'lesson');
-        await page.getByRole('link', { name: 'TRY IT YOURSELF', exact: false }).click();
         await page.locator('.cm-content').waitFor();
-        await page.getByRole('button', { name: 'RUN / PREVIEW', exact: true }).press('Enter');
-        check('experiment stays ungraded', await page.locator('form[action*="/missions/"]').count(), 0);
+        await page.getByRole('button', { name: /Run preview/i }).press('Enter');
+        check('experiment stays ungraded', await page.locator('.atlas-bench form').count(), 0);
         check('experiment preview has isolated origin', await page.locator('#experiment-preview').getAttribute('sandbox'), '');
-        await page.getByRole('link', { name: 'RETURN TO LESSON', exact: false }).click();
-        await page.getByRole('link', { name: 'START CHALLENGE', exact: false }).click();
+        await page.getByRole('link', { name: /Start challenge/i }).click();
         await page.locator('.cm-content').waitFor();
         await inspectLayout(page, 'challenge');
         await editorCode(page, '<h1>EMERGENCY BROADCAST</h1>');

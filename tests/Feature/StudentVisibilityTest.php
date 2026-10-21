@@ -133,7 +133,6 @@ class StudentVisibilityTest extends TestCase
         foreach ([
             route('mission.show', $mission),
             route('mission.challenge', $mission),
-            route('mission.experiment', $mission),
             route('dashboard'),
         ] as $url) {
             $response = $this->actingAs($student)->get($url);
@@ -540,7 +539,6 @@ class StudentVisibilityTest extends TestCase
             'missions' => route('missions'),
             'mission.show' => route('mission.show', $mission),
             'mission.challenge' => route('mission.challenge', $mission),
-            'mission.experiment' => route('mission.experiment', $mission),
             'knowledge-check.show' => route('knowledge-check.show', [$mission, $check, $attempt]),
             'assessments' => route('assessments'),
             'assessment.show' => route('assessment.show', $assessment),

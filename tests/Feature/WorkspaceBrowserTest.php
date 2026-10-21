@@ -88,7 +88,7 @@ class WorkspaceBrowserTest extends TestCase
         return [
             'challenge' => ['challenge', 'mission.challenge'],
             'challenge-unavailable' => ['challenge-unavailable', 'mission.challenge'],
-            'experiment' => ['experiment', 'mission.experiment'],
+            'experiment' => ['experiment', 'mission.show'],
             'boss' => ['boss', 'assessment.show'],
             'boss-ready' => ['boss-ready', 'assessment.show'],
             'boss-pending' => ['boss-pending', 'assessment.show'],

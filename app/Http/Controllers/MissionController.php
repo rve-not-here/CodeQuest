@@ -68,7 +68,11 @@ class MissionController extends Controller
         return view('challenge', $this->viewData($user, $mission));
     }
 
-    public function experiment(Mission $mission): View
+    /**
+     * The ungraded workbench now lives on the mission panel itself, so the old
+     * experiment URL folds into the lesson instead of rendering a second page.
+     */
+    public function experiment(Mission $mission): RedirectResponse
     {
         $this->ensureCourseActive($mission);
 
@@ -76,7 +80,7 @@ class MissionController extends Controller
         $user = auth()->user();
         $this->ensureCourseReached($user, $mission);
 
-        return view('experiment', $this->lessonData($user, $mission));
+        return redirect()->route('mission.show', $mission);
     }
 
     public function submit(Request $request, Mission $mission): RedirectResponse
