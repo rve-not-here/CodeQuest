@@ -103,6 +103,17 @@ JS]);
         }
     }
 
+    public function test_lesson_reference_output_uses_the_canonical_listing(): void
+    {
+        $student = User::factory()->create();
+        $mission = Mission::factory()->create(['target_html' => '<header>Site header</header>']);
+
+        $this->actingAs($student)->get(route('mission.show', $mission))->assertOk()
+            ->assertSee('<details class="atlas-lesson-reference">', false)
+            ->assertSee('class="log-listing" tabindex="0" aria-label="Reference output"', false)
+            ->assertSee('&lt;header&gt;Site header&lt;/header&gt;', false);
+    }
+
     public function test_experiment_url_preserves_authentication_role_and_course_gates(): void
     {
         $mission = Mission::factory()->create();

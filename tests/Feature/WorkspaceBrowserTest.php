@@ -33,6 +33,13 @@ class WorkspaceBrowserTest extends TestCase
         $student = User::factory()->create();
         Vite::useHotFile(storage_path('framework/testing-browser-no-hot'));
         $mission = Mission::factory()->create(['broken_code' => '<h1>Try this</h1>']);
+        if ($mode === 'experiment') {
+            // A long single line of markup: the reference output must stay in
+            // its column and scroll itself instead of widening the page.
+            $mission->update([
+                'target_html' => '<header>Site header</header><nav>Nav links</nav><main>Main story</main><footer>Footer notes</footer>',
+            ]);
+        }
         if (str_starts_with($mode, 'challenge')) {
             $mission->update([
                 'description' => "Authored lesson context.\n\nExample: <h1>A heading</h1>.\n\n<script>window.lessonLeak = true</script>",

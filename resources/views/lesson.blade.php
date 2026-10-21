@@ -98,7 +98,7 @@
                             <span>Reference output</span>
                             <span>Target markup</span>
                         </summary>
-                        <pre tabindex="0"><code>{{ $mission->target_html }}</code></pre>
+                        <pre class="log-listing" tabindex="0" aria-label="Reference output"><code>{{ $mission->target_html }}</code></pre>
                     </details>
                 @endif
 

@@ -75,8 +75,14 @@ try {
     const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
     const readOnlyModes = ['dashboard', 'learning-path'];
     const isReadOnly = readOnlyModes.includes(mode);
-    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : '.cm-content');
+    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : (mode === 'experiment' ? '[data-bench]' : '.cm-content'));
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
+    if (mode === 'experiment') {
+        // The bench loads its editor when it comes near the viewport, so the
+        // page is brought to it before the editor is driven.
+        await evaluate(`document.querySelector('[data-bench]').scrollIntoView({ block: 'center' })`);
+        await evaluate(`new Promise((resolve) => { const timer = setInterval(() => { if (document.querySelector('.cm-editor') && document.querySelector('#experiment-preview').srcdoc) { clearInterval(timer); resolve(true); } }, 60); setTimeout(() => { clearInterval(timer); resolve(false); }, 10000); })`);
+    }
     assert.equal(await evaluate(`document.querySelectorAll('.sort-code').length`), 0);
     if (!waitingForAttempt && !isReadOnly) {
         assert.equal(await evaluate(`document.querySelector('.cm-content').getAttribute('aria-label')`), 'Code editor');
@@ -155,12 +161,28 @@ try {
 
         }
     } else if (mode === 'experiment') {
-        // The bench loads its editor when it comes near the viewport, so the
-        // page is brought to it before the editor is driven.
-        await evaluate(`document.querySelector('[data-bench]').scrollIntoView({ block: 'center' })`);
-        await evaluate(`new Promise((resolve) => { const timer = setInterval(() => { if (document.querySelector('.cm-editor') && document.querySelector('#experiment-preview').srcdoc) { clearInterval(timer); resolve(true); } }, 60); setTimeout(() => { clearInterval(timer); resolve(false); }, 10000); })`);
         assert.equal(await evaluate(`document.querySelectorAll('.cm-editor').length`), 1);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc.includes('Try this')`), true);
+
+        // The reference output opens inside the reading column: it must never
+        // widen past its column into the bench, and the listing scrolls itself.
+        await evaluate(`document.querySelector('.atlas-lesson-reference').open = true`);
+        const reference = await evaluate(`(() => {
+            const box = document.querySelector('.atlas-lesson-reference').getBoundingClientRect();
+            const column = document.querySelector('.atlas-lesson-brief').getBoundingClientRect();
+            const bench = document.querySelector('.atlas-lesson-bench').getBoundingClientRect();
+            const listing = document.querySelector('.atlas-lesson-reference pre');
+            const stacked = bench.y >= box.bottom - 1;
+            return {
+                boxWidth: Math.round(box.width),
+                columnWidth: Math.round(column.width),
+                listingScrolls: listing.scrollWidth > listing.clientWidth,
+                overlaps: !stacked && box.right > bench.x,
+            };
+        })()`);
+        assert.equal(reference.boxWidth <= reference.columnWidth + 1, true, 'reference output must stay inside its column');
+        assert.equal(reference.overlaps, false, 'reference output must not run under the bench');
+        assert.equal(reference.listingScrolls, true, 'a long line of markup scrolls inside the listing');
         await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc`), '<h1>Changed example</h1>');
         for (const width of [390, 768, 1366, 1920]) {
