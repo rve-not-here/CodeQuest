@@ -2249,13 +2249,10 @@ body.student-ui:has(.cq-challenge) .atlas-shell-inner { min-height: 52px; paddin
 body.student-ui:has(.cq-challenge) .atlas-brand { gap: 8px; font-size: 16px; }
 body.student-ui:has(.cq-challenge) .atlas-mark { width: 28px; height: 26px; }
 .cq-challenge { display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; }
-body.student-ui .cq-workspace[data-workspace] { display: grid; grid-template-columns: var(--brief-width, 360px) var(--brief-handle, 8px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; padding: 0; gap: 0; }
+body.student-ui .cq-workspace[data-workspace] { display: grid; grid-template-columns: var(--brief-width, 380px) var(--brief-handle, 8px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; padding: 0; gap: 0; }
 .cq-workspace [hidden] { display: none !important; }
 body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 0; border: 0; }
 .cq-workspace-heading { grid-column: 3; grid-row: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; min-width: 0; padding: 8px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--cq-sheet); }
-.cq-workspace-id { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
-.cq-workspace-id .atlas-lesson-entry-label { white-space: nowrap; }
-.cq-workspace-id .atlas-stamp { border-width: 1.5px; padding: 3px 8px; }
 .cq-draft { margin: 0; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .cq-draft[data-state="saved"] { color: var(--color-info); }
 .cq-draft[data-state="dirty"] { color: var(--color-warning); }
@@ -2267,8 +2264,10 @@ body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 
 /* When the workspace collapses to tabs, the strip states its identity first:
    entry, then registers, then the actions that judge the work. */
 @media (max-width: 1100px) {
+    .cq-case-plate { gap: 14px; padding: 10px 14px 12px; }
+    .cq-case-facts { min-width: 0; flex: 1 1 100%; }
+    .cq-case-state { margin-left: 0; }
     .cq-workspace-heading { gap: 8px 12px; }
-    .cq-workspace-id { order: 1; flex: 1 1 100%; }
     .cq-workspace-tabs { order: 2; margin-right: 0; }
     .cq-workspace-actions { order: 3; margin-left: auto; }
 }
@@ -2288,6 +2287,26 @@ body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color
 /* The brief is its own scroll region: the page never scrolls behind it, the
    column keeps its width when the scrollbar appears, and the sheet's edge
    shadows appear only while there is more to read. */
+/* The challenge is a case file: the docket above the bench carries the entry,
+   the concept and the stakes; the brief is the exercise's document bundle. */
+.cq-case-plate { display: flex; align-items: flex-end; gap: 26px; flex-wrap: wrap; padding: 12px 16px 14px; border-bottom: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); background: var(--cq-sheet); }
+.cq-case-title { min-width: 0; }
+.cq-case-title h1 { margin: 4px 0 0; font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 32px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.cq-case-concept { margin: 5px 0 0; font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 60%, transparent); }
+.cq-case-facts { min-width: 330px; }
+.cq-case-state { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+.cq-case-state .cq-draft { margin: 0; }
+.cq-doc-label { margin: 24px 0 8px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-doc-label:first-child { margin-top: 0; }
+/* The run log reads as the machine's own account, not as floating cards. */
+.cq-runlog { flex: none; max-height: 180px; overflow: auto; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--cq-raised); }
+.cq-runlog-head { margin: 0; padding: 8px 14px 2px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-runlog-line { display: flex; gap: 12px; margin: 0; padding: 5px 14px; font-size: 13.5px; line-height: 21px; }
+.cq-runlog-line + .cq-runlog-line { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 10%, transparent); }
+.cq-runlog-line b { flex: none; width: 68px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-runlog-line--ok b { color: var(--color-success); }
+.cq-runlog-line--warn b { color: var(--color-warning); }
+.cq-runlog-line--bad b { color: var(--color-danger); }
 body.student-ui .cq-workspace .cq-lesson-reading {
     flex: 1;
     overflow: auto;
@@ -2316,11 +2335,7 @@ body.student-ui .cq-workspace .cq-lesson-reading {
 .cq-workspace .student-toast { border: 0; border-left: 3px solid var(--student-toast-tone); border-radius: 0; background: var(--cq-raised); box-shadow: none; }
 .cq-workspace .student-toast-dot { display: none; }
 .cq-workspace .student-toast-copy { font-size: 13.5px; line-height: 21px; }
-.cq-brief-entry { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }
-.cq-brief-entry-label { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); }
-.cq-brief-entry .atlas-stamp { border-width: 1.5px; padding: 3px 8px; }
 .cq-lesson-reading h2 { margin-top: 8px; font-family: var(--font-display); font-size: clamp(21px, 2vw, 26px); line-height: 1.1; font-weight: 600; letter-spacing: -.01em; color: var(--color-fg); overflow-wrap: anywhere; }
-.cq-brief-facts { margin: 14px 0 18px; }
 .cq-lesson-context { overflow-wrap: anywhere; }
 .cq-lesson-reading h3 { margin: 24px 0 10px; font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 body.student-ui .cq-workspace .editor-pane { display: flex; flex: 1; min-height: 0; overflow: hidden; padding: 0; }
@@ -2362,12 +2377,20 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
     .cq-workspace .cq-instructions, .cq-workspace .cq-code-pane, .cq-workspace .cq-preview-pane { grid-column: 1; grid-row: 2; }
 }
 @media (max-width: 640px) {
+    /* The docket keeps its values and drops its labels: one ruled line of facts. */
+    .cq-case-facts { display: flex; flex-wrap: wrap; gap: 0 16px; }
+    .cq-case-facts dt { display: none; }
+    .cq-case-facts > div { padding: 8px 0; }
+    .cq-case-facts > div + div { padding-left: 0; border-left: 0; }
+    .cq-case-facts dd { margin: 0; }
+    .cq-runlog-line { flex-direction: column; gap: 1px; }
+    .cq-runlog-line b { width: auto; }
     body.student-ui:has(.cq-challenge) .atlas-shell-inner { padding-inline: 16px; gap: 8px; }
     .cq-workspace-heading { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 4px 8px; padding: 6px 12px; }
-    .cq-workspace-id { grid-column: 1 / -1; grid-row: 1; }
-    body.student-ui .cq-workspace-tabs { grid-column: 1; grid-row: 2; margin: 0; }
+    .cq-workspace-heading > .cq-icon-button { grid-column: 2; grid-row: 1; }
+    body.student-ui .cq-workspace-tabs { grid-column: 1; grid-row: 1; margin: 0; }
     body.student-ui .cq-workspace-tabs [data-pane-toggle] { font-size: 12px; padding-inline: 8px; }
-    .cq-workspace-actions { grid-column: 1 / -1; grid-row: 3; justify-content: space-between; }
+    .cq-workspace-actions { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; }
     .cq-evaluation-actions { margin-left: auto; }
     body.student-ui .cq-workspace .cq-lesson-reading { padding: 20px 16px; }
 }

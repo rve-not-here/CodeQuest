@@ -34,20 +34,75 @@
         $target = (string) $mission->target_html;
         $referenceIsMarkup = $course?->type === 'html'
             && ! preg_match('/\sstyle\s*=/i', $target);
+
+        // The machine's own record of what happened, read as a list rather than
+        // as floating cards: kind first, then what was done.
+        $runRecords = [];
+        if ($info = session('mission_info')) {
+            $runRecords[] = ['Submit', $info['title'].' — '.$info['message'], 'ok'];
+        }
+        if ($failure = session('mission_error')) {
+            $runRecords[] = ['Submit', $failure['title'].' — '.$failure['message'], 'bad'];
+        }
+        if ($hintError = session('hint_error')) {
+            $runRecords[] = ['Hint', 'Insufficient XP — the hint costs '.$hintError['cost'].' XP and your balance is '.$hintError['balance'].'.', 'bad'];
+        }
+        if ($revealError = session('reveal_error')) {
+            $runRecords[] = ['Solution', 'Insufficient XP — revealing costs '.$revealError['cost'].' XP and your balance is '.$revealError['balance'].'.', 'bad'];
+        }
+        if ($hintRevealed = session('hint_revealed')) {
+            $runRecords[] = ['Hint', 'Hint '.$hintRevealed.' revealed — open View hints to read it.', 'warn'];
+        }
+        if (session('hint_flat')) {
+            $runRecords[] = ['Hint', 'No hints remaining — all hints revealed, or none were available.', 'warn'];
+        }
+        if (session('reveal_flat')) {
+            $runRecords[] = ['Solution', 'Not needed — no solution is available, or this challenge is already complete.', 'warn'];
+        }
+        if (session('solution_revealed')) {
+            $runRecords[] = ['Solution', 'The reference solution has been loaded.', 'warn'];
+        }
+        if (session('draft_saved')) {
+            $runRecords[] = ['Draft', 'Saved to the pad — your code is ready when you return.', 'ok'];
+        }
+        if ($errors->any()) {
+            $runRecords[] = ['Submit', 'Check your code — '.$errors->first(), 'bad'];
+        }
     @endphp
     <article class="cq-challenge" data-workspace-fullscreen-root>
-        <h1 class="sr-only">{{ $mission->title }}</h1>
+        <header class="cq-case-plate">
+            <div class="cq-case-title">
+                <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge @if ($course) · Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }} {{ $course->name }} @endif</span>
+                <h1 id="challenge-title">{{ $mission->title }}</h1>
+                @if ($section?->title)
+                    <p class="cq-case-concept">Concept · {{ $section->title }}</p>
+                @endif
+            </div>
+            <dl class="log-facts cq-case-facts">
+                <div>
+                    <dt>Difficulty</dt>
+                    <dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd>
+                </div>
+                <div>
+                    <dt>Reward</dt>
+                    <dd class="is-numeric">+{{ $mission->points }} XP</dd>
+                </div>
+                <div>
+                    <dt>Wrong attempt</dt>
+                    <dd class="is-numeric">−{{ $wrongPenalty }} XP</dd>
+                </div>
+            </dl>
+            <div class="cq-case-state">
+                @if ($completed)
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
+                @else
+                    <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
+                    <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
+                @endif
+            </div>
+        </header>
         <div class="challenge-workspace cq-workspace" data-workspace data-workspace-layout="tabs">
             <header class="cq-workspace-heading">
-                <div class="cq-workspace-id">
-                    <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · {{ $course?->name ?? 'Challenge' }}</span>
-                    @if ($completed)
-                        <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
-                    @else
-                        <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
-                        <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
-                    @endif
-                </div>
                 <nav class="cq-workspace-tabs" role="tablist" aria-label="Workspace views" data-workspace-controls>
                     <button type="button" role="tab" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-selected="false" tabindex="-1" hidden>Instructions</button>
                     <button type="button" role="tab" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-selected="true" tabindex="0">Code</button>
@@ -82,9 +137,9 @@
                     <span class="sr-only" data-workspace-fullscreen-label>Fullscreen</span>
                 </button>
             </header>
-            <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-title" tabindex="0">
+            <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-heading" tabindex="0">
                 <header class="cq-instructions-heading">
-                    <span>Instructions</span>
+                    <span id="instructions-heading">Instructions</span>
                     <a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="Back to lesson"><x-icon name="arrow-left" size="16" />Back to lesson</a>
                     <button type="button" class="cq-icon-button" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true">
                         <span data-workspace-hide-icon="closed"><x-icon name="panel-left-close" size="16" /></span>
@@ -93,21 +148,7 @@
                     </button>
                 </header>
                 <div class="challenge-pane-body cq-lesson-reading">
-                    <div class="cq-brief-entry">
-                        <span class="cq-brief-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge</span>
-                        @if ($completed)<span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>@endif
-                    </div>
-                    <h2 id="instructions-title">{!! str_replace('_', '_<wbr>', e($mission->title)) !!}</h2>
-                    <dl class="log-facts cq-brief-facts">
-                        <div>
-                            <dt>Difficulty</dt>
-                            <dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd>
-                        </div>
-                        <div>
-                            <dt>Reward</dt>
-                            <dd class="is-numeric">+{{ $mission->points }} XP</dd>
-                        </div>
-                    </dl>
+                    <p class="cq-doc-label">The brief</p>
                     @if ($briefParagraphs !== [])
                         <div class="cq-lesson-context">
                             @foreach ($briefParagraphs as $paragraph)
@@ -118,13 +159,15 @@
                         <p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>
                     @endif
                     @if ($task)
+                        <p class="cq-doc-label">Your task</p>
                         <p class="cq-brief-task">{{ $task }}</p>
                     @endif
                     @if ($target !== '')
+                        <p class="cq-doc-label">Expected result</p>
                         <details class="atlas-lesson-reference cq-reference">
                             <summary>
                                 <span>Reference output</span>
-                                <span>Expected result</span>
+                                <span>{{ $referenceIsMarkup ? 'Result and markup' : 'Result' }}</span>
                             </summary>
                             <div class="atlas-lesson-reference-part">
                                 <p class="atlas-lesson-reference-label">Result</p>
@@ -149,64 +192,13 @@
                     <div id="editor-host" class="challenge-pane-editor"></div>
                     <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
                 </div>
-                @if ($hasWorkspaceMessages)
-                    <section class="cq-feedback" aria-labelledby="workspace-feedback-title">
-                        <div class="flex items-center gap-3 flex-wrap"><h2 id="workspace-feedback-title">{{ session('mission_error') ? 'Submission feedback' : 'Workspace messages' }}</h2></div>
-    <div class="challenge-toast-stack" aria-label="Challenge messages">
-    @if (session('mission_info'))
-        <x-student-toast type="info" title="{{ session('mission_info')['title'] }}">
-            {{ session('mission_info')['message'] }}
-        </x-student-toast>
-    @endif
-    @if (session('mission_error'))
-        <x-student-toast type="error" title="{{ session('mission_error')['title'] }}">
-            {{ session('mission_error')['message'] }}
-        </x-student-toast>
-    @endif
-    @if (session('hint_error') && session('mission_error') === null)
-        <x-student-toast type="error" title="Insufficient XP">
-            Hint costs {{ session('hint_error')['cost'] }} XP. Your balance is {{ session('hint_error')['balance'] }}.
-        </x-student-toast>
-    @endif
-    @if (session('reveal_error') && session('mission_error') === null)
-        <x-student-toast type="error" title="Insufficient XP">
-            Solution reveal costs {{ session('reveal_error')['cost'] }} XP. Your balance is {{ session('reveal_error')['balance'] }}.
-        </x-student-toast>
-    @endif
-    @if (session('hint_revealed'))
-        <x-student-toast type="warning" title="Hint {{ session('hint_revealed') }} revealed">
-            Open View hints to read it.
-        </x-student-toast>
-    @endif
-    @if (session('hint_flat'))
-        <x-student-toast type="info" title="No hints remaining">
-            All hints revealed or no hints available.
-        </x-student-toast>
-    @endif
-    @if (session('reveal_flat'))
-        <x-student-toast type="info" title="Not needed">
-            No solution is available, or this challenge is already complete.
-        </x-student-toast>
-    @endif
-    @if (session('solution_revealed'))
-        <x-student-toast type="warning" title="Solution revealed">
-            The reference solution has been loaded.
-        </x-student-toast>
-    @endif
-    @if (session('draft_saved'))
-        <x-student-toast type="success" title="Draft saved">
-            Your code is ready when you return.
-        </x-student-toast>
-    @endif
-    @if ($errors->any())
-        <x-student-toast type="error" title="Check your code">
-            {{ $errors->first() }}
-        </x-student-toast>
-    @endif
-    </div>
-
-                    </section>
-                @endif
+                <section class="cq-runlog" aria-labelledby="workspace-log-title">
+                    <p class="cq-runlog-head" id="workspace-log-title">Run log</p>
+                    @foreach ($runRecords as [$kind, $text, $tone])
+                        <p class="cq-runlog-line cq-runlog-line--{{ $tone }}"><b>{{ $kind }}</b><span>{{ $text }}</span></p>
+                    @endforeach
+                    <div data-runlog-live></div>
+                </section>
             </section>
             <section class="challenge-pane cq-preview-pane" id="workspace-preview" data-workspace-pane="preview" role="tabpanel" aria-labelledby="workspace-tab-preview" tabindex="0" hidden>
                 <p class="cq-preview-note"><span>Preview only. No result is recorded.</span><span data-preview-state>{{ $hasDraft ? 'Restored draft' : 'Not run' }}</span></p>
@@ -302,11 +294,21 @@
     @push('scripts')
     <script>
         (function () {
-            document.querySelectorAll('[data-toast-dismiss]').forEach(function (button) {
-                button.addEventListener('click', function () {
-                    button.closest('.student-toast')?.remove();
-                });
-            });
+            var runLog = document.querySelector('[data-runlog-live]');
+
+            // The run log is the machine's own account of what it just did.
+            function record(kind, text) {
+                if (!runLog) return;
+                var line = document.createElement('p');
+                line.className = 'cq-runlog-line';
+                var label = document.createElement('b');
+                label.textContent = kind;
+                var copy = document.createElement('span');
+                copy.textContent = text;
+                line.appendChild(label);
+                line.appendChild(copy);
+                runLog.appendChild(line);
+            }
 
             var starter = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
             var initial = {{ Illuminate\Support\Js::from($initialCode) }};
@@ -399,6 +401,7 @@
                     confirmAction('Run preview?', 'Run displays your code in the preview. It does not grade, award XP or record a submission.', function () {
                         frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
                         document.querySelector('[data-preview-state]').textContent = 'Updated locally';
+                        record('Preview', 'Updated locally \u2014 no result recorded, no XP spent.');
                         document.getElementById('workspace-status').textContent = 'Preview updated. Your code was not graded.';
                         document.dispatchEvent(new CustomEvent('cq:workspace-pane', { detail: 'preview' }));
                     }, 'Run preview', false);

@@ -9,7 +9,7 @@ export function initializeTabbedWorkspace(root, workspace) {
     const narrow = window.matchMedia('(max-width: 1100px)');
     let selected = 'editor';
     let briefHidden = false;
-    let width = 360;
+    let width = 380;
 
     function maximumWidth() {
         return Math.max(240, Math.min(480, workspace.getBoundingClientRect().width - 408));
@@ -23,7 +23,7 @@ export function initializeTabbedWorkspace(root, workspace) {
             const name = pane.dataset.workspacePane;
             pane.hidden = name === 'brief' ? (narrow.matches ? selected !== name : briefHidden) : selected !== name;
             pane.setAttribute('role', name === 'brief' && !narrow.matches ? 'region' : 'tabpanel');
-            pane.setAttribute('aria-labelledby', name === 'brief' && !narrow.matches ? 'instructions-title' : `workspace-tab-${name}`);
+            pane.setAttribute('aria-labelledby', name === 'brief' && !narrow.matches ? 'instructions-heading' : `workspace-tab-${name}`);
         }
         for (const tab of tabs) {
             const active = tab.dataset.paneToggle === selected;
@@ -70,7 +70,7 @@ export function initializeTabbedWorkspace(root, workspace) {
         });
     }
     reset?.addEventListener('click', () => {
-        width = 360;
+        width = 380;
         briefHidden = false;
         selected = 'editor';
         render();

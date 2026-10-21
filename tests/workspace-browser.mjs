@@ -277,7 +277,8 @@ try {
         await key('Home', 'Home', 36);
         await check(`document.activeElement.id`, 'workspace-tab-brief');
         await check(`!document.querySelector('[data-workspace-pane="brief"]').hidden`);
-        await check(`document.querySelector('#instructions-title').textContent === document.querySelector('.cq-challenge h1').textContent`);
+        await check(`document.querySelector('#challenge-title').textContent.length > 0`);
+        await check(`document.querySelector('#instructions-heading').textContent`, 'Instructions');
         await check(`document.querySelector('.cq-lesson-context').textContent.includes('Authored lesson context')`);
         await key('End', 'End', 35);
         await check(`document.activeElement.id`, 'workspace-tab-preview');
