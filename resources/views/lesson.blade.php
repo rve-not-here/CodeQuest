@@ -10,8 +10,9 @@
             default => 'HTML',
         };
 
-        // The brief teaches; the last paragraph states the job. Lift the job out of
-        // the prose so it can head the panel without being read twice.
+        // The task paragraph states the job; the last paragraph of the brief
+        // states it. Lift the job out of the prose so it can head the panel
+        // without being read twice.
         $paragraphs = preg_split('/\r\n\r\n|\n\n/', trim((string) $mission->description)) ?: [];
         $task = null;
         if ($paragraphs !== []) {
@@ -21,6 +22,15 @@
                 array_pop($paragraphs);
             }
         }
+
+        // The reference output is what the finished work should look like. In the
+        // HTML course that is the markup the student writes; in the CSS and
+        // JavaScript courses it is a rendered console panel the student's own
+        // code has to produce, and its inline-style source is noise. A target
+        // that carries its own presentation is always a result, never a source.
+        $target = (string) $mission->target_html;
+        $referenceIsMarkup = $course?->type === 'html'
+            && ! preg_match('/\sstyle\s*=/i', $target);
     @endphp
 
     <div class="atlas-lesson">
@@ -92,13 +102,24 @@
                     </section>
                 @endif
 
-                @if ($mission->target_html)
+                @if ($target !== '')
                     <details class="atlas-lesson-reference">
                         <summary>
                             <span>Reference output</span>
-                            <span>Target markup</span>
+                            <span>Expected result</span>
                         </summary>
-                        <pre class="log-listing" tabindex="0" aria-label="Reference output"><code>{{ $mission->target_html }}</code></pre>
+                        <div class="atlas-lesson-reference-part">
+                            <p class="atlas-lesson-reference-label">Result</p>
+                            <div class="atlas-lesson-reference-frame">
+                                <iframe id="reference-preview" title="Reference output" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                            </div>
+                        </div>
+                        @if ($referenceIsMarkup)
+                            <div class="atlas-lesson-reference-part">
+                                <p class="atlas-lesson-reference-label">Markup</p>
+                                <pre class="log-listing" tabindex="0" aria-label="Reference markup"><code>{{ $target }}</code></pre>
+                            </div>
+                        @endif
                     </details>
                 @endif
 
@@ -198,8 +219,10 @@
         (function () {
             var initial = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
             var type = {{ Illuminate\Support\Js::from($course?->type ?? 'html') }};
+            var target = {{ Illuminate\Support\Js::from($target) }};
             var editor = null;
             var preview = document.getElementById('experiment-preview');
+            var reference = document.getElementById('reference-preview');
             var frame = document.querySelector('.atlas-bench-frame');
             var workspace = document.getElementById('practice-workspace');
             var codeButton = document.getElementById('practice-code');
@@ -261,6 +284,12 @@
             });
             codeButton.addEventListener('click', function () { showMode('code'); });
             outputButton.addEventListener('click', function () { showMode('output'); });
+
+            // The reference output is the finished work, shown as it will look —
+            // not the inline styles that produced it.
+            if (reference) {
+                reference.srcdoc = target;
+            }
 
             if (window.CodeQuest && window.CodeQuest.previewDocument) {
                 render();

@@ -33,12 +33,22 @@ class WorkspaceBrowserTest extends TestCase
         $student = User::factory()->create();
         Vite::useHotFile(storage_path('framework/testing-browser-no-hot'));
         $mission = Mission::factory()->create(['broken_code' => '<h1>Try this</h1>']);
-        if ($mode === 'experiment') {
-            // A long single line of markup: the reference output must stay in
-            // its column and scroll itself instead of widening the page.
-            $mission->update([
-                'target_html' => '<header>Site header</header><nav>Nav links</nav><main>Main story</main><footer>Footer notes</footer>',
-            ]);
+        if (str_starts_with($mode, 'experiment')) {
+            if ($mode === 'experiment-result') {
+                // A CSS course: the target is the console panel the student's own
+                // code must produce, so the reference shows the result and never
+                // the inline styles that produced it.
+                $mission->course->update(['type' => 'css']);
+                $mission->update([
+                    'target_html' => '<div style="background:#001100;padding:1rem;border:1px solid #33ff00;color:#33ff00;font-family:monospace"><div style="color:#ffb000">✓ DOCTYPE declared</div><div>✓ html wraps everything</div></div>',
+                ]);
+            } else {
+                // A long single line of markup: the reference output must stay
+                // in its column and scroll itself instead of widening the page.
+                $mission->update([
+                    'target_html' => '<header>Site header</header><nav>Nav links</nav><main>Main story</main><footer>Footer notes</footer>',
+                ]);
+            }
         }
         if (str_starts_with($mode, 'challenge')) {
             $mission->update([
@@ -96,6 +106,7 @@ class WorkspaceBrowserTest extends TestCase
             'challenge' => ['challenge', 'mission.challenge'],
             'challenge-unavailable' => ['challenge-unavailable', 'mission.challenge'],
             'experiment' => ['experiment', 'mission.show'],
+            'experiment-result' => ['experiment-result', 'mission.show'],
             'boss' => ['boss', 'assessment.show'],
             'boss-ready' => ['boss-ready', 'assessment.show'],
             'boss-pending' => ['boss-pending', 'assessment.show'],

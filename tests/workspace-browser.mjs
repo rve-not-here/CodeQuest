@@ -75,9 +75,9 @@ try {
     const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
     const readOnlyModes = ['dashboard', 'learning-path'];
     const isReadOnly = readOnlyModes.includes(mode);
-    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : (mode === 'experiment' ? '[data-bench]' : '.cm-content'));
+    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : (mode.startsWith('experiment') ? '[data-bench]' : '.cm-content'));
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
-    if (mode === 'experiment') {
+    if (mode.startsWith('experiment')) {
         // The bench loads its editor when it comes near the viewport, so the
         // page is brought to it before the editor is driven.
         await evaluate(`document.querySelector('[data-bench]').scrollIntoView({ block: 'center' })`);
@@ -160,7 +160,7 @@ try {
             assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
 
         }
-    } else if (mode === 'experiment') {
+    } else if (mode.startsWith('experiment')) {
         assert.equal(await evaluate(`document.querySelectorAll('.cm-editor').length`), 1);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc.includes('Try this')`), true);
 
@@ -171,37 +171,50 @@ try {
             const box = document.querySelector('.atlas-lesson-reference').getBoundingClientRect();
             const column = document.querySelector('.atlas-lesson-brief').getBoundingClientRect();
             const bench = document.querySelector('.atlas-lesson-bench').getBoundingClientRect();
-            const listing = document.querySelector('.atlas-lesson-reference pre');
+            const listing = document.querySelector('.atlas-lesson-reference .log-listing');
             const stacked = bench.y >= box.bottom - 1;
             return {
                 boxWidth: Math.round(box.width),
                 columnWidth: Math.round(column.width),
-                listingScrolls: listing.scrollWidth > listing.clientWidth,
                 overlaps: !stacked && box.right > bench.x,
+                hasListing: listing !== null,
+                listingScrolls: listing ? listing.scrollWidth > listing.clientWidth : false,
+                result: document.querySelector('#reference-preview').srcdoc,
             };
         })()`);
         assert.equal(reference.boxWidth <= reference.columnWidth + 1, true, 'reference output must stay inside its column');
         assert.equal(reference.overlaps, false, 'reference output must not run under the bench');
-        assert.equal(reference.listingScrolls, true, 'a long line of markup scrolls inside the listing');
-        await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
-        assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc`), '<h1>Changed example</h1>');
-        for (const width of [390, 768, 1366, 1920]) {
-            await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: false });
-            await evaluate(`experimentView.dispatch({selection: {anchor: 4}}); document.querySelector('[data-practice-mode="output"]').click();`);
-            assert.equal(await evaluate(`document.querySelector('#practice-output').getAttribute('aria-pressed')`), 'true');
-            await evaluate(`document.querySelector('[data-practice-mode="code"]').click()`);
-            assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === experimentView`), true);
-            assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Changed example</h1>');
-            assert.equal(await evaluate(`experimentView.state.selection.main.anchor`), 4);
-            assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
-        }
-        await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
-        await evaluate(`document.querySelector('[data-practice-mode="output"]').click(); document.querySelector('#experiment-reset').click()`);
-        assert.deepEqual(await evaluate(`({visible: document.querySelector('#practice-code-panel').getBoundingClientRect().width > 0, focused: document.activeElement === experimentView.contentDOM, mode: document.querySelector('#practice-workspace').dataset.mode})`), {visible: true, focused: true, mode: 'code'});
 
-        assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Try this</h1>');
-        assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form[action*="/missions/"]').length`), 0);
-        assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form').length`), 0);
+        if (mode === 'experiment-result') {
+            // A result target: the reference shows the finished work, never the
+            // inline styles that produced it.
+            assert.equal(reference.hasListing, false, 'a result target shows no markup listing');
+            assert.equal(reference.result.includes('DOCTYPE declared'), true, 'the reference renders the expected result');
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form').length`), 0);
+        } else {
+            assert.equal(reference.hasListing, true, 'a markup target keeps its listing');
+            assert.equal(reference.listingScrolls, true, 'a long line of markup scrolls inside the listing');
+
+            await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
+            assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc`), '<h1>Changed example</h1>');
+            for (const width of [390, 768, 1366, 1920]) {
+                await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: false });
+                await evaluate(`experimentView.dispatch({selection: {anchor: 4}}); document.querySelector('[data-practice-mode="output"]').click();`);
+                assert.equal(await evaluate(`document.querySelector('#practice-output').getAttribute('aria-pressed')`), 'true');
+                await evaluate(`document.querySelector('[data-practice-mode="code"]').click()`);
+                assert.equal(await evaluate(`CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')) === experimentView`), true);
+                assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Changed example</h1>');
+                assert.equal(await evaluate(`experimentView.state.selection.main.anchor`), 4);
+                assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
+            }
+            await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
+            await evaluate(`document.querySelector('[data-practice-mode="output"]').click(); document.querySelector('#experiment-reset').click()`);
+            assert.deepEqual(await evaluate(`({visible: document.querySelector('#practice-code-panel').getBoundingClientRect().width > 0, focused: document.activeElement === experimentView.contentDOM, mode: document.querySelector('#practice-workspace').dataset.mode})`), {visible: true, focused: true, mode: 'code'});
+
+            assert.equal(await evaluate(`experimentView.state.doc.toString()`), '<h1>Try this</h1>');
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form[action*="/missions/"]').length`), 0);
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-bench form').length`), 0);
+        }
     } else if (mode.startsWith('challenge')) {
         let checks = 0;
         async function check(expression, expected = true) {

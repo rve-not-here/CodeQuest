@@ -103,15 +103,32 @@ JS]);
         }
     }
 
-    public function test_lesson_reference_output_uses_the_canonical_listing(): void
+    public function test_lesson_reference_output_shows_the_result_and_the_markup_it_asks_for(): void
     {
         $student = User::factory()->create();
-        $mission = Mission::factory()->create(['target_html' => '<header>Site header</header>']);
+        $course = Course::factory()->create(['type' => 'html', 'status' => 'active', 'order_num' => 1]);
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'target_html' => '<header>Site header</header>',
+        ]);
+
+        // An HTML mission: the target is the markup the student writes, so the
+        // reference shows the rendered result and the markup behind it.
+        $this->actingAs($student)->get(route('mission.show', $mission))->assertOk()
+            ->assertSee('id="reference-preview"', false)
+            ->assertSee('aria-label="Reference markup"', false)
+            ->assertSee('&lt;header&gt;Site header&lt;/header&gt;', false);
+
+        // A CSS mission: the target is the console panel the student's own code
+        // must produce, so the reference shows the result and never the inline
+        // styles that produced it.
+        $course->update(['type' => 'css']);
+        $mission->update(['target_html' => '<div style="background:#001100;color:#33ff00">✓ DOCTYPE declared</div>']);
 
         $this->actingAs($student)->get(route('mission.show', $mission))->assertOk()
-            ->assertSee('<details class="atlas-lesson-reference">', false)
-            ->assertSee('class="log-listing" tabindex="0" aria-label="Reference output"', false)
-            ->assertSee('&lt;header&gt;Site header&lt;/header&gt;', false);
+            ->assertSee('id="reference-preview"', false)
+            ->assertDontSee('aria-label="Reference markup"')
+            ->assertDontSee('class="log-listing" tabindex="0" aria-label="Reference markup"', false);
     }
 
     public function test_experiment_url_preserves_authentication_role_and_course_gates(): void

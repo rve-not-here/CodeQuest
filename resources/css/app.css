@@ -1733,6 +1733,13 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 /* The reference output is the same listing the challenge page shows, set flush
    inside the specimen: one frame, one ink, one shadow. */
 .atlas-lesson-reference .log-listing { margin: 0; border: 0; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 0; box-shadow: none; }
+.atlas-lesson-reference-part + .atlas-lesson-reference-part { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
+.atlas-lesson-reference[open] > summary { border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
+.atlas-lesson-reference-label { margin: 0; padding: 8px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+/* The result is a specimen taped to the pad: the sheet stays white, because the
+   student's own render is never tokenised. */
+.atlas-lesson-reference-frame { padding: 10px; background: var(--cq-raised); }
+.atlas-lesson-reference-frame iframe { display: block; width: 100%; height: 140px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: white; }
 .atlas-lesson-checks { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
 .atlas-lesson-check { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-block: 18px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-size: 16px; }
 .atlas-lesson-check-title { font-size: 16px; font-weight: 500; }
