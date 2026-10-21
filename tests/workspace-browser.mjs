@@ -155,6 +155,11 @@ try {
 
         }
     } else if (mode === 'experiment') {
+        // The bench loads its editor when it comes near the viewport, so the
+        // page is brought to it before the editor is driven.
+        await evaluate(`document.querySelector('[data-bench]').scrollIntoView({ block: 'center' })`);
+        await evaluate(`new Promise((resolve) => { const timer = setInterval(() => { if (document.querySelector('.cm-editor') && document.querySelector('#experiment-preview').srcdoc) { clearInterval(timer); resolve(true); } }, 60); setTimeout(() => { clearInterval(timer); resolve(false); }, 10000); })`);
+        assert.equal(await evaluate(`document.querySelectorAll('.cm-editor').length`), 1);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc.includes('Try this')`), true);
         await evaluate(`window.experimentView = CodeQuest.CodeMirror.EditorView.findFromDOM(document.querySelector('.cm-editor')); experimentView.dispatch({ changes: {from: 0, to: experimentView.state.doc.length, insert: '<h1>Changed example</h1>'} }); document.querySelector('#experiment-run').click();`);
         assert.equal(await evaluate(`document.querySelector('#experiment-preview').srcdoc`), '<h1>Changed example</h1>');

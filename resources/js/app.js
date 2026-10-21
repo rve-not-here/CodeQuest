@@ -9,10 +9,51 @@ const workspaceReady = document.querySelector('[data-workspace]')
     : Promise.resolve();
 
 if (editorHost) {
-    workspaceReady.then(() => import('./editor.js')).catch((error) => {
-        editorHost.setAttribute('role', 'alert');
-        editorHost.textContent = 'Editor could not load. Reload this page to try again.';
-        console.error('CodeQuest editor failed to load.', error);
+    let editorLoading = false;
+    const loadEditor = () => {
+        if (editorLoading) {
+            return;
+        }
+        editorLoading = true;
+        import('./editor.js').catch((error) => {
+            editorHost.setAttribute('role', 'alert');
+            editorHost.textContent = 'Editor could not load. Reload this page to try again.';
+            console.error('CodeQuest editor failed to load.', error);
+        });
+    };
+
+    if (document.querySelector('[data-workspace]')) {
+        // The graded workspace needs the editor the moment it opens.
+        workspaceReady.then(loadEditor);
+    } else if (typeof IntersectionObserver === 'undefined') {
+        loadEditor();
+    } else {
+        // The lesson bench is optional, and the editor bundle is heavy. A reading
+        // page must not pay for it: the editor arrives when the bench comes near
+        // the viewport, or the moment the student reaches for it.
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                observer.disconnect();
+                loadEditor();
+            }
+        }, { rootMargin: '300px 0px' });
+
+        observer.observe(editorHost);
+        editorHost.addEventListener('pointerdown', () => {
+            observer.disconnect();
+            loadEditor();
+        }, { once: true });
+    }
+}
+
+// The bench renders its preview before the editor exists, so the preview
+// helpers travel ahead of CodeMirror.
+if (document.querySelector('[data-bench]')) {
+    import('./preview.js').then((preview) => {
+        window.CodeQuest = window.CodeQuest || {};
+        window.CodeQuest.previewDocument = preview.previewDocument;
+        window.CodeQuest.previewSandbox = preview.previewSandbox;
+        window.dispatchEvent(new CustomEvent('cq:preview-ready'));
     });
 }
 

@@ -1734,20 +1734,28 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 /* The bench is an ungraded pad: a code cell, a preview cell, and the way to the
    graded challenge. It is docked, so it never scrolls out of reach. */
 .atlas-lesson-bench { position: sticky; top: 88px; min-width: 0; }
-.atlas-bench { border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
+.atlas-bench { max-height: calc(100dvh - 104px); overflow-y: auto; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
 .atlas-bench-head { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
-.atlas-bench-title { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-bench-title { margin: 0; font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
 .atlas-bench-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; }
 .atlas-bench-modes { display: none; }
 .atlas-bench-workspace { display: grid; grid-template-columns: minmax(0, 1fr); }
 .atlas-bench-pane { display: flex; flex-direction: column; min-width: 0; }
 .atlas-bench-pane + .atlas-bench-pane { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
 .atlas-bench-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; padding: 6px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
-.atlas-bench-code #editor-host { flex: 1; min-width: 0; height: 240px; }
+.atlas-bench-pane-head h3 { margin: 0; font: inherit; }
+.atlas-bench-code #editor-host { flex: 1; min-width: 0; height: clamp(200px, 26vh, 320px); }
 .atlas-bench-code .cm-editor { height: 100%; }
 .atlas-bench-code .cm-scroller { overflow: auto; }
-/* The preview is the student's own render: its white ground is truthful and never tokenised. */
-.atlas-bench-output iframe { display: block; width: 100%; height: 160px; border: 0; background: white; }
+/* The render is a specimen taped to the pad: the mat is the pad, the sheet stays
+   white because the student's own render is never tokenised. */
+.atlas-bench-frame { padding: 10px; background: var(--cq-raised); }
+.atlas-bench-frame iframe { display: block; width: 100%; height: clamp(140px, 16vh, 200px); border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: white; }
+.atlas-bench-frame.is-refreshed { animation: atlas-bench-press 180ms cubic-bezier(.23, 1, .32, 1); }
+@keyframes atlas-bench-press {
+    from { box-shadow: 0 0 0 2px var(--color-accent); }
+    to { box-shadow: 0 0 0 0 transparent; }
+}
 .atlas-bench-foot { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; padding: 14px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
 .atlas-bench-foot .btn-primary { border-color: var(--cq-cta); background: var(--cq-cta); color: var(--cq-cta-ink); }
 .atlas-bench-foot .btn-primary:hover { border-color: var(--cq-cta-hover); background: var(--cq-cta-hover); }
@@ -1838,7 +1846,8 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     .atlas-check-review-answers { grid-template-columns: minmax(0, 1fr); gap: 14px; }
     .atlas-practice-actions { width: 100%; }
     .atlas-practice-actions .btn { flex: 1 1 auto; justify-content: center; }
-    .atlas-bench-code #editor-host, .atlas-bench-output iframe { height: 340px; }
+    .atlas-bench-code #editor-host { height: clamp(220px, 30vh, 340px); }
+    .atlas-bench-frame iframe { height: clamp(160px, 20vh, 240px); }
 }
 @media (max-width: 480px) {
     .atlas-reading-title { font-size: clamp(24px, 7vw, 30px); line-height: 1.2; }

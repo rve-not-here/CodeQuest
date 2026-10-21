@@ -367,6 +367,8 @@ async function course(type) {
         await navigate(`/missions/${mission.id}`);
         check(`${mission.title} lesson owns title`, (await page.locator('main').innerText()).includes(mission.title));
         if (type === 'js' && mission === firstRemaining) {
+            await page.locator('[data-bench]').scrollIntoViewIfNeeded();
+            await page.locator('.cm-content').waitFor();
             await code(mission.solution);
             const frame = await run('#experiment-preview', '#experiment-run');
             if (domTitles.includes(mission.title)) await previewDom(mission, frame);

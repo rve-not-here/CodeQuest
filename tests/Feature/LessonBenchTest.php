@@ -45,10 +45,13 @@ import { previewDocument, previewSandbox } from './resources/js/preview.js';
 let script = '';
 for await (const chunk of process.stdin) script += chunk;
 const elements = new Map();
-const document = { getElementById(id) {
-    if (!elements.has(id)) elements.set(id, { sandbox: { value: '' }, addEventListener() {} });
-    return elements.get(id);
-} };
+const document = {
+    getElementById(id) {
+        if (!elements.has(id)) elements.set(id, { sandbox: { value: '' }, addEventListener() {}, setAttribute() {} });
+        return elements.get(id);
+    },
+    querySelector() { return null; },
+};
 const CM = {
     html() {}, css() {}, javascript() {},
     EditorView: class { constructor(options) { this.state = { doc: { toString: () => options.doc } }; } },

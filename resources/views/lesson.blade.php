@@ -17,7 +17,7 @@
         if ($paragraphs !== []) {
             $last = trim((string) end($paragraphs));
             if (str_starts_with($last, 'Your task:')) {
-                $task = trim(substr($last, strlen('Your task:')));
+                $task = ucfirst(trim(substr($last, strlen('Your task:'))));
                 array_pop($paragraphs);
             }
         }
@@ -142,13 +142,13 @@
                 @endif
             </div>
 
-            <aside class="atlas-lesson-bench" aria-label="Try it yourself">
+            <aside class="atlas-lesson-bench" aria-label="Try it yourself" data-bench>
                 <div class="atlas-bench">
                     <div class="atlas-bench-head">
-                        <span class="atlas-bench-title">Try it yourself</span>
+                        <h2 class="atlas-bench-title">Try it yourself</h2>
                         <span class="atlas-stamp atlas-stamp--amb"><x-icon name="minus" size="12" />Ungraded</span>
                         <div class="atlas-bench-actions">
-                            <button type="button" id="experiment-reset" class="btn btn-ghost">Reset</button>
+                            <button type="button" id="experiment-reset" class="btn btn-ghost">Reset starter</button>
                             <button type="button" id="experiment-run" class="btn btn-secondary">Run preview <x-icon name="play" size="16" /></button>
                         </div>
                     </div>
@@ -161,16 +161,18 @@
                     <div id="practice-workspace" class="atlas-bench-workspace" data-mode="code">
                         <section id="practice-code-panel" class="atlas-bench-pane atlas-bench-code" aria-labelledby="bench-code-title">
                             <header class="atlas-bench-pane-head">
-                                <h2 id="bench-code-title">Code</h2>
+                                <h3 id="bench-code-title">Code</h3>
                                 <span>{{ $language }}</span>
                             </header>
-                            <div id="editor-host"></div>
+                            <div id="editor-host" class="atlas-bench-editor"></div>
                         </section>
                         <section id="practice-output-panel" class="atlas-bench-pane atlas-bench-output" aria-labelledby="bench-preview-title">
                             <header class="atlas-bench-pane-head">
-                                <h2 id="bench-preview-title">Preview</h2>
+                                <h3 id="bench-preview-title">Preview</h3>
                             </header>
-                            <iframe id="experiment-preview" title="Try it yourself preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                            <div class="atlas-bench-frame">
+                                <iframe id="experiment-preview" title="Try it yourself preview" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                            </div>
                         </section>
                     </div>
 
@@ -196,41 +198,80 @@
         (function () {
             var initial = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
             var type = {{ Illuminate\Support\Js::from($course?->type ?? 'html') }};
-            function init(cq) {
+            var editor = null;
+            var preview = document.getElementById('experiment-preview');
+            var frame = document.querySelector('.atlas-bench-frame');
+            var workspace = document.getElementById('practice-workspace');
+            var codeButton = document.getElementById('practice-code');
+            var outputButton = document.getElementById('practice-output');
+            var runButton = document.getElementById('experiment-run');
+            var resetButton = document.getElementById('experiment-reset');
+
+            function render() {
+                var source = editor ? editor.state.doc.toString() : initial;
+                preview.srcdoc = window.CodeQuest.previewDocument(source, type, initial);
+                preview.sandbox.value = window.CodeQuest.previewSandbox(type, initial);
+            }
+
+            // The run presses the frame once, so a re-render is seen rather than
+            // assumed. Reduced motion keeps the frame still.
+            function press() {
+                if (!frame || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+                    return;
+                }
+                frame.classList.remove('is-refreshed');
+                void frame.offsetWidth;
+                frame.classList.add('is-refreshed');
+                frame.addEventListener('animationend', function () {
+                    frame.classList.remove('is-refreshed');
+                }, { once: true });
+            }
+
+            function showMode(mode) {
+                workspace.dataset.mode = mode;
+                codeButton.setAttribute('aria-pressed', String(mode === 'code'));
+                outputButton.setAttribute('aria-pressed', String(mode === 'output'));
+                if (editor) {
+                    editor.requestMeasure();
+                }
+            }
+
+            function mount(cq) {
                 var CM = cq.CodeMirror;
                 var language = type === 'js' || type === 'javascript' ? CM.javascript() : (type === 'css' ? CM.css() : CM.html());
-                var editor = new CM.EditorView({
+                editor = new CM.EditorView({
                     doc: initial,
                     parent: document.getElementById('editor-host'),
                     extensions: [CM.basicSetup, language, CM.foundry],
                 });
-                var preview = document.getElementById('experiment-preview');
-                preview.sandbox.value = cq.previewSandbox(type, initial);
-                function run() { preview.srcdoc = cq.previewDocument(editor.state.doc.toString(), type, initial); }
-                document.getElementById('experiment-run').addEventListener('click', run);
-                document.getElementById('experiment-reset').addEventListener('click', function () {
-                    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: initial } });
-                    run();
-                    showMode('code');
-                    editor.focus();
-                });
-                var workspace = document.getElementById('practice-workspace');
-                var codeButton = document.getElementById('practice-code');
-                var outputButton = document.getElementById('practice-output');
-                function showMode(mode) {
-                    workspace.dataset.mode = mode;
-                    codeButton.setAttribute('aria-pressed', String(mode === 'code'));
-                    outputButton.setAttribute('aria-pressed', String(mode === 'output'));
-                    editor.requestMeasure();
-                }
-                codeButton.addEventListener('click', function () { showMode('code'); });
-                outputButton.addEventListener('click', function () { showMode('output'); });
-                run();
+                render();
             }
-            if (window.CodeQuest && window.CodeQuest.CodeMirror) {
-                init(window.CodeQuest);
+
+            runButton.addEventListener('click', function () { render(); press(); });
+            resetButton.addEventListener('click', function () {
+                if (editor) {
+                    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: initial } });
+                }
+                render();
+                showMode('code');
+                press();
+                if (editor) {
+                    editor.focus();
+                }
+            });
+            codeButton.addEventListener('click', function () { showMode('code'); });
+            outputButton.addEventListener('click', function () { showMode('output'); });
+
+            if (window.CodeQuest && window.CodeQuest.previewDocument) {
+                render();
             } else {
-                window.addEventListener('cq:codemirror-ready', function () { init(window.CodeQuest); }, { once: true });
+                window.addEventListener('cq:preview-ready', function () { render(); }, { once: true });
+            }
+
+            if (window.CodeQuest && window.CodeQuest.CodeMirror) {
+                mount(window.CodeQuest);
+            } else {
+                window.addEventListener('cq:codemirror-ready', function () { mount(window.CodeQuest); }, { once: true });
             }
         })();
     </script>

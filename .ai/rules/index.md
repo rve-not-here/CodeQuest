@@ -11,6 +11,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Exceptions/** | .ai/rules/exceptions.md |
 | tests/Feature/AssessmentIntegrationTest.php, tests/Feature/ProgressIntegrationTest.php, tests/Feature/JourneyIntegrationTest.php, tests/Feature/**, tests/Feature/TeacherDashboardTest.php, tests/Feature/AdminAuthorizationTest.php, tests/Feature/AdminDashboardTest.php, tests/Feature/AdminMissionManagementTest.php, tests/Feature/*Assessment*.php, tests/Feature/AdminSystemTest.php, tests/Feature/AdministrativeIntegrationTest.php, tests/Feature/StudentReminderTest.php, tests/Feature/NotificationSecurityTest.php | .ai/rules/feature.md |
 | .env, **, phpstan.neon, .scratch/phase*/** | .ai/rules/general.md |
+| resources/js/app.js | .ai/rules/js.md |
 | resources/views/layouts/** | .ai/rules/layouts.md |
 | app/Http/Middleware/EnsureUserIsActive.php | .ai/rules/middleware.md |
 | database/migrations/the404_*.php, database/migrations/**, database/migrations/*knowledge_check* | .ai/rules/migrations.md |
