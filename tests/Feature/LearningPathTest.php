@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
@@ -219,6 +220,35 @@ class LearningPathTest extends TestCase
             ->assertSee('Locked')
             ->assertSee('This course is not currently active.')
             ->assertDontSee(route('mission.show', $mission));
+    }
+
+    public function test_learning_path_collapses_every_course_except_the_current_one(): void
+    {
+        $user = User::factory()->create();
+
+        $complete = Course::factory()->create(['status' => 'active', 'order_num' => 1]);
+        $completeMission = Mission::factory()->create(['course_id' => $complete->id]);
+        $completeBoss = Assessment::factory()->create(['course_id' => $complete->id, 'status' => 'active']);
+        Progress::factory()->create(['user_id' => $user->id, 'mission_id' => $completeMission->id]);
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $completeBoss->id,
+            'user_id' => $user->id,
+            'status' => 'passed',
+            'score' => 100,
+            'passed_at' => now(),
+        ]);
+
+        $current = Course::factory()->create(['status' => 'active', 'order_num' => 2]);
+        Mission::factory()->create(['course_id' => $current->id]);
+
+        $sealed = Course::factory()->create(['status' => 'locked', 'order_num' => 3]);
+
+        $response = $this->actingAs($user)->get(route('learning-path'))->assertOk();
+
+        $response->assertSee('<details id="course-'.$complete->id.'" class="atlas-path-course">', false);
+        $response->assertSee('<details id="course-'.$current->id.'" class="atlas-path-course" open>', false);
+        $response->assertSee('<details id="course-'.$sealed->id.'" class="atlas-path-course" open>', false);
+        $response->assertSee('atlas-path-course-toggle', false);
     }
 
     public function test_learning_path_presents_the_boss_challenge_as_an_authoritative_milestone(): void

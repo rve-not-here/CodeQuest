@@ -57,6 +57,19 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+// A course index link may point inside a chapter that starts collapsed; reveal it first.
+function revealCourseTarget() {
+    const target = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    const chapter = target?.closest('details.atlas-path-course');
+
+    if (chapter && !chapter.open) {
+        chapter.open = true;
+    }
+}
+
+revealCourseTarget();
+window.addEventListener('hashchange', revealCourseTarget);
+
 window.matchMedia('(min-width: 1200px)').addEventListener('change', () => {
     disclosures.forEach((disclosure) => {
         if (disclosure.open && !disclosure.getClientRects().length) {

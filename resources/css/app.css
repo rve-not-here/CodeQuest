@@ -1600,7 +1600,15 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-path-column { min-width: 0; }
 .atlas-path-course { scroll-margin-top: 96px; }
 .atlas-path-course + .atlas-path-course { margin-top: 44px; padding-top: 26px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
-.atlas-path-course-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.atlas-path-course:not([open]) + .atlas-path-course { margin-top: 26px; padding-top: 18px; }
+.atlas-path-course-head { position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; padding-right: 38px; cursor: pointer; list-style: none; }
+.atlas-path-course-head::-webkit-details-marker { display: none; }
+.atlas-path-course-head:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+.atlas-path-course-toggle { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid color-mix(in srgb, var(--cq-ink) 32%, transparent); color: color-mix(in srgb, var(--cq-ink) 70%, transparent); transition: color 120ms ease-out, border-color 120ms ease-out; }
+.atlas-path-course-toggle svg { width: 16px; height: 16px; transition: transform 160ms ease-out; }
+.atlas-path-course-head:hover .atlas-path-course-toggle { border-color: var(--color-accent); color: var(--color-accent); }
+.atlas-path-course[open] > .atlas-path-course-head .atlas-path-course-toggle svg { transform: rotate(180deg); }
+.atlas-path-course-body { min-width: 0; }
 .atlas-path-course-head h2 { font-family: var(--font-display); font-size: 32px; line-height: 1.06; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .atlas-path-course-state { font-family: var(--font-display); font-size: 11px; line-height: 1.3; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-path-course-figure { margin-left: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.3; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); white-space: nowrap; }

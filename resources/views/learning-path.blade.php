@@ -90,126 +90,132 @@
                             $isCurrentCourse = $course?->id === $pathCourse->id && ! $courseLocked;
                             $boss = $courseNode['boss'];
                             $courseState = $courseLocked ? 'Locked' : ($boss['state'] === 'PASSED' ? 'Complete' : ($isCurrentCourse ? 'Current' : 'Available'));
+                            // The course being worked on (and a sealed one, whose only content is its reason)
+                            // starts expanded; every other chapter stays one click away.
+                            $courseOpen = $isCurrentCourse || $courseLocked;
                         @endphp
-                        <article id="course-{{ $pathCourse->id }}" class="atlas-path-course" aria-labelledby="course-{{ $pathCourse->id }}-title">
-                            <header class="atlas-path-course-head">
+                        <details id="course-{{ $pathCourse->id }}" class="atlas-path-course"{{ $courseOpen ? ' open' : '' }}>
+                            <summary class="atlas-path-course-head">
                                 <h2 id="course-{{ $pathCourse->id }}-title">{{ $pathCourse->name }}</h2>
-                                <p class="atlas-path-course-state">Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseState }}</p>
-                                <p class="atlas-path-course-figure">{{ $courseNode['progress']['completed'] }} / {{ $courseNode['progress']['total'] }}@if ($courseNode['progress']['total'] > 0) · {{ $courseNode['progress']['percent'] }}%@endif</p>
-                            </header>
-                            @if ($pathCourse->description)
-                                <p class="atlas-path-description">{{ $pathCourse->description }}</p>
-                            @endif
+                                <span class="atlas-path-course-state">Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $courseState }}</span>
+                                <span class="atlas-path-course-figure">{{ $courseNode['progress']['completed'] }} / {{ $courseNode['progress']['total'] }}@if ($courseNode['progress']['total'] > 0) · {{ $courseNode['progress']['percent'] }}%@endif</span>
+                                <span class="atlas-path-course-toggle" aria-hidden="true"><x-icon name="chevron-down" size="16" /></span>
+                            </summary>
+                            <div class="atlas-path-course-body">
+                                @if ($pathCourse->description)
+                                    <p class="atlas-path-description">{{ $pathCourse->description }}</p>
+                                @endif
 
-                            @if ($courseLocked)
-                                <p class="atlas-path-lock-reason">{{ $courseNode['locked_reason'] }}</p>
-                            @else
-                                @foreach ($courseNode['sections'] as $sectionNode)
-                                    @php
-                                        $pathSection = $sectionNode['section'];
-                                        $sectionTitle = $pathSection?->title ?? 'Additional challenges';
-                                        $sectionKey = $pathSection?->id ?? 'additional-'.$pathCourse->id;
-                                    @endphp
-                                    <section id="section-{{ $sectionKey }}" class="atlas-path-section" aria-label="{{ $sectionTitle }}">
-                                        <div class="atlas-path-checkpoint">
-                                            <h3>{{ $sectionTitle }}</h3>
-                                            <span class="atlas-path-checkpoint-meta">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }}</span>
-                                        </div>
-                                        <ol class="atlas-path-missions">
-                                            @foreach ($sectionNode['missions'] as $row)
-                                                @php
-                                                    $mission = $row['mission'];
-                                                    $isCurrent = $nextMission !== null && $nextMission->id === $mission->id;
-                                                    $state = $row['state'] === 'COMPLETED' ? 'Completed' : ($isCurrent ? 'Current' : 'Available');
-                                                @endphp
-                                                @if ($isCurrent && $entryTotal > 0)
-                                                    <li class="atlas-path-mission atlas-path-entry-mission" data-state="current" data-domain-state="{{ $row['state'] }}" aria-current="step">
-                                                        <article class="atlas-path-entry" aria-labelledby="current-challenge-title">
-                                                            <header class="atlas-path-entry-head">
-                                                                <p class="atlas-path-entry-line">
-                                                                    <span class="atlas-path-entry-number">Entry {{ str_pad((string) $entryPosition, 3, '0', STR_PAD_LEFT) }}</span>
-                                                                    <span class="atlas-path-entry-divider" aria-hidden="true">/</span>
-                                                                    <span>Current challenge</span>
-                                                                </p>
-                                                                @if ($row['state'] === 'IN PROGRESS')
-                                                                    <span class="atlas-stamp atlas-stamp--acc">Draft saved</span>
-                                                                @endif
-                                                            </header>
-                                                            <div class="atlas-path-entry-body">
-                                                                <div class="atlas-path-entry-copy">
-                                                                    <p class="atlas-path-entry-context">
-                                                                        Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }}
+                                @if ($courseLocked)
+                                    <p class="atlas-path-lock-reason">{{ $courseNode['locked_reason'] }}</p>
+                                @else
+                                    @foreach ($courseNode['sections'] as $sectionNode)
+                                        @php
+                                            $pathSection = $sectionNode['section'];
+                                            $sectionTitle = $pathSection?->title ?? 'Additional challenges';
+                                            $sectionKey = $pathSection?->id ?? 'additional-'.$pathCourse->id;
+                                        @endphp
+                                        <section id="section-{{ $sectionKey }}" class="atlas-path-section" aria-label="{{ $sectionTitle }}">
+                                            <div class="atlas-path-checkpoint">
+                                                <h3>{{ $sectionTitle }}</h3>
+                                                <span class="atlas-path-checkpoint-meta">{{ $sectionNode['progress']['completed'] }} / {{ $sectionNode['progress']['total'] }}</span>
+                                            </div>
+                                            <ol class="atlas-path-missions">
+                                                @foreach ($sectionNode['missions'] as $row)
+                                                    @php
+                                                        $mission = $row['mission'];
+                                                        $isCurrent = $nextMission !== null && $nextMission->id === $mission->id;
+                                                        $state = $row['state'] === 'COMPLETED' ? 'Completed' : ($isCurrent ? 'Current' : 'Available');
+                                                    @endphp
+                                                    @if ($isCurrent && $entryTotal > 0)
+                                                        <li class="atlas-path-mission atlas-path-entry-mission" data-state="current" data-domain-state="{{ $row['state'] }}" aria-current="step">
+                                                            <article class="atlas-path-entry" aria-labelledby="current-challenge-title">
+                                                                <header class="atlas-path-entry-head">
+                                                                    <p class="atlas-path-entry-line">
+                                                                        <span class="atlas-path-entry-number">Entry {{ str_pad((string) $entryPosition, 3, '0', STR_PAD_LEFT) }}</span>
                                                                         <span class="atlas-path-entry-divider" aria-hidden="true">/</span>
-                                                                        <span class="atlas-path-entry-section">{{ $sectionTitle }}</span>
+                                                                        <span>Current challenge</span>
                                                                     </p>
-                                                                    <h3 id="current-challenge-title">@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h3>
                                                                     @if ($row['state'] === 'IN PROGRESS')
-                                                                        <p class="atlas-path-entry-note">Saved draft detected. Resume this lesson.</p>
+                                                                        <span class="atlas-stamp atlas-stamp--acc">Draft saved</span>
                                                                     @endif
-                                                                    <dl class="atlas-path-entry-chips">
-                                                                        <div class="atlas-path-entry-chip">
-                                                                            <dt>Difficulty</dt>
-                                                                            <dd>{{ $mission->difficulty }}</dd>
+                                                                </header>
+                                                                <div class="atlas-path-entry-body">
+                                                                    <div class="atlas-path-entry-copy">
+                                                                        <p class="atlas-path-entry-context">
+                                                                            Course {{ str_pad((string) $pathCourse->order_num, 2, '0', STR_PAD_LEFT) }}
+                                                                            <span class="atlas-path-entry-divider" aria-hidden="true">/</span>
+                                                                            <span class="atlas-path-entry-section">{{ $sectionTitle }}</span>
+                                                                        </p>
+                                                                        <h3 id="current-challenge-title">@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h3>
+                                                                        @if ($row['state'] === 'IN PROGRESS')
+                                                                            <p class="atlas-path-entry-note">Saved draft detected. Resume this lesson.</p>
+                                                                        @endif
+                                                                        <dl class="atlas-path-entry-chips">
+                                                                            <div class="atlas-path-entry-chip">
+                                                                                <dt>Difficulty</dt>
+                                                                                <dd>{{ $mission->difficulty }}</dd>
+                                                                            </div>
+                                                                            <div class="atlas-path-entry-chip">
+                                                                                <dt>Completion reward</dt>
+                                                                                <dd>+{{ $mission->points }} XP</dd>
+                                                                            </div>
+                                                                        </dl>
+                                                                    </div>
+                                                                    <aside class="atlas-path-entry-order" aria-label="Position in course">
+                                                                        <p class="atlas-path-entry-kicker">Challenges logged</p>
+                                                                        <p class="atlas-path-entry-position" aria-hidden="true">
+                                                                            <span class="atlas-path-entry-position-number">{{ str_pad((string) $entryPosition, 2, '0', STR_PAD_LEFT) }}</span>
+                                                                            <span class="atlas-path-entry-position-total">/ {{ str_pad((string) $entryTotal, 2, '0', STR_PAD_LEFT) }}</span>
+                                                                        </p>
+                                                                        <div class="atlas-path-ruler" aria-hidden="true">
+                                                                            @for ($step = 1; $step <= $entryTotal; $step++)
+                                                                                <span class="atlas-path-ruler-step {{ $step === $entryPosition ? 'is-current' : ($step <= $courseNode['progress']['completed'] ? 'is-complete' : '') }}"></span>
+                                                                            @endfor
                                                                         </div>
-                                                                        <div class="atlas-path-entry-chip">
-                                                                            <dt>Completion reward</dt>
-                                                                            <dd>+{{ $mission->points }} XP</dd>
+                                                                        <p class="atlas-path-entry-caption">Challenge {{ $entryPosition }} of {{ $entryTotal }}</p>
+                                                                        <div class="atlas-path-entry-actions">
+                                                                            <a href="{{ route('mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $row['state'] === 'IN PROGRESS' ? 'Resume challenge' : 'Start challenge' }} →</a>
                                                                         </div>
-                                                                    </dl>
+                                                                    </aside>
                                                                 </div>
-                                                                <aside class="atlas-path-entry-order" aria-label="Position in course">
-                                                                    <p class="atlas-path-entry-kicker">Challenges logged</p>
-                                                                    <p class="atlas-path-entry-position" aria-hidden="true">
-                                                                        <span class="atlas-path-entry-position-number">{{ str_pad((string) $entryPosition, 2, '0', STR_PAD_LEFT) }}</span>
-                                                                        <span class="atlas-path-entry-position-total">/ {{ str_pad((string) $entryTotal, 2, '0', STR_PAD_LEFT) }}</span>
-                                                                    </p>
-                                                                    <div class="atlas-path-ruler" aria-hidden="true">
-                                                                        @for ($step = 1; $step <= $entryTotal; $step++)
-                                                                            <span class="atlas-path-ruler-step {{ $step === $entryPosition ? 'is-current' : ($step <= $courseNode['progress']['completed'] ? 'is-complete' : '') }}"></span>
-                                                                        @endfor
-                                                                    </div>
-                                                                    <p class="atlas-path-entry-caption">Challenge {{ $entryPosition }} of {{ $entryTotal }}</p>
-                                                                    <div class="atlas-path-entry-actions">
-                                                                        <a href="{{ route('mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $row['state'] === 'IN PROGRESS' ? 'Resume challenge' : 'Start challenge' }} →</a>
-                                                                    </div>
-                                                                </aside>
-                                                            </div>
-                                                        </article>
-                                                    </li>
-                                                @else
-                                                    <li class="atlas-path-mission" data-state="{{ strtolower($state) }}" data-domain-state="{{ $row['state'] }}">
-                                                        <span class="atlas-path-marker {{ $state === 'Completed' ? 'is-complete' : '' }}" aria-hidden="true">@if ($state === 'Completed')<x-icon name="check" size="14" />@endif</span>
-                                                        <h4>@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h4>
-                                                        <p class="atlas-path-mission-meta"><span class="atlas-path-state">{{ $state }}</span> · {{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
-                                                        <a href="{{ route('mission.show', $mission) }}" class="atlas-path-mission-link" @if ($state === 'Completed') aria-label="Review: {{ $mission->title }}" @endif>{{ $state === 'Completed' ? 'Review' : 'Open lesson' }} →</a>
-                                                    </li>
-                                                @endif
-                                            @endforeach
-                                        </ol>
-                                    </section>
-                                @endforeach
+                                                            </article>
+                                                        </li>
+                                                    @else
+                                                        <li class="atlas-path-mission" data-state="{{ strtolower($state) }}" data-domain-state="{{ $row['state'] }}">
+                                                            <span class="atlas-path-marker {{ $state === 'Completed' ? 'is-complete' : '' }}" aria-hidden="true">@if ($state === 'Completed')<x-icon name="check" size="14" />@endif</span>
+                                                            <h4>@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h4>
+                                                            <p class="atlas-path-mission-meta"><span class="atlas-path-state">{{ $state }}</span> · {{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
+                                                            <a href="{{ route('mission.show', $mission) }}" class="atlas-path-mission-link" @if ($state === 'Completed') aria-label="Review: {{ $mission->title }}" @endif>{{ $state === 'Completed' ? 'Review' : 'Open lesson' }} →</a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            </ol>
+                                        </section>
+                                    @endforeach
 
-                                <section id="boss-{{ $pathCourse->id }}" class="atlas-path-boss" aria-label="Final course milestone">
-                                    <p class="atlas-path-boss-label">Final course milestone</p>
-                                    @if ($boss['assessment'] !== null)
-                                        <h3>{{ $boss['assessment']->title }}</h3>
-                                    @endif
-                                    <p class="atlas-path-note">{{ $boss['reason'] }}</p>
-                                    <div class="atlas-path-boss-act">
-                                        @if ($boss['state'] === 'PASSED')
-                                            <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Passed</span>
-                                        @elseif ($boss['state'] === 'AVAILABLE')
-                                            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="circle-dot" size="12" />Available</span>
-                                        @elseif ($boss['assessment'] !== null)
-                                            <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Locked</span>
+                                    <section id="boss-{{ $pathCourse->id }}" class="atlas-path-boss" aria-label="Final course milestone">
+                                        <p class="atlas-path-boss-label">Final course milestone</p>
+                                        @if ($boss['assessment'] !== null)
+                                            <h3>{{ $boss['assessment']->title }}</h3>
                                         @endif
-                                        @if ($boss['assessment'] !== null && $boss['accessible'])
-                                            <a href="{{ route('assessment.show', $boss['assessment']) }}" class="btn btn-secondary">{{ $boss['state'] === 'PASSED' ? 'Review challenge' : 'Start challenge' }} →</a>
-                                        @endif
-                                    </div>
-                                </section>
-                            @endif
-                        </article>
+                                        <p class="atlas-path-note">{{ $boss['reason'] }}</p>
+                                        <div class="atlas-path-boss-act">
+                                            @if ($boss['state'] === 'PASSED')
+                                                <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Passed</span>
+                                            @elseif ($boss['state'] === 'AVAILABLE')
+                                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="circle-dot" size="12" />Available</span>
+                                            @elseif ($boss['assessment'] !== null)
+                                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Locked</span>
+                                            @endif
+                                            @if ($boss['assessment'] !== null && $boss['accessible'])
+                                                <a href="{{ route('assessment.show', $boss['assessment']) }}" class="btn btn-secondary">{{ $boss['state'] === 'PASSED' ? 'Review challenge' : 'Start challenge' }} →</a>
+                                            @endif
+                                        </div>
+                                    </section>
+                                @endif
+                            </div>
+                        </details>
                     @endforeach
 
                     @if ($recommendations->isNotEmpty())
