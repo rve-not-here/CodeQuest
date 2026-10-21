@@ -1,13 +1,16 @@
 @php
     $authUser = auth()->user();
+    $themePreference = $authUser !== null
+        ? app(\App\Services\ThemePreferenceService::class)->for($authUser)
+        : null;
     $role = $authUser?->role ?? $role ?? 'student';
     $homeRoute = \App\Support\RoleHome::routeName($role);
     $displayName = $authUser?->username ?? $profileName ?? 'OPERATOR';
 
     $studentItems = [
         ['heading' => 'Journey'],
-        ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'gauge'],
-        ['route' => 'learning-path', 'label' => 'Learning Path', 'icon' => 'route'],
+        ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'gauge', 'primaryIcon' => false],
+        ['route' => 'learning-path', 'label' => 'Learning Path', 'icon' => 'route', 'primaryIcon' => false],
         ['heading' => 'Learning record'],
         ['route' => 'progress', 'label' => 'Course Progress', 'icon' => 'chart-no-axes-column'],
         ['route' => 'section-progress', 'label' => 'Section Progress', 'icon' => 'list-tree'],
@@ -57,7 +60,7 @@
 
     $activeRoute = request()->route()?->getName();
     $primaryRoutes = match ($role) {
-        'student' => ['dashboard', 'learning-path', 'assessments'],
+        'student' => ['dashboard', 'learning-path'],
         'teacher', 'instructor' => ['students', 'classrooms', 'needs-attention', 'reports.teacher'],
         'admin' => ['admin.dashboard', 'admin.users', 'admin.classrooms', 'admin.courses'],
         default => [],
@@ -92,15 +95,26 @@
     <title>@yield('title', 'CodeQuest') · CodeQuest</title>
     <script>
         // Apply the stored colour mode before first paint so dark never flashes.
+        // An account-saved preference wins over this browser's localStorage and
+        // is written back, so every device (and the asset-free error pages that
+        // only read localStorage) converge on the account's choice.
         (function () {
-            var mode = 'system';
+            var stored = @json($themePreference);
+            var mode = 'light';
             try {
-                mode = localStorage.getItem('cq-theme') || 'system';
+                mode = localStorage.getItem('cq-theme') || 'light';
             } catch (e) {}
-            var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (stored === 'dark' || stored === 'light') {
+                mode = stored;
+                try {
+                    localStorage.setItem('cq-theme', mode);
+                } catch (e) {}
+            }
+            mode = mode === 'dark' ? 'dark' : 'light';
+            var dark = mode === 'dark';
             document.documentElement.classList.toggle('dark', dark);
             document.documentElement.dataset.themeMode = mode;
-            document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+            document.documentElement.style.colorScheme = mode;
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

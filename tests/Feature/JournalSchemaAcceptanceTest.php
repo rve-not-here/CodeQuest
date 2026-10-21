@@ -45,7 +45,7 @@ class JournalSchemaAcceptanceTest extends TestCase
 
     public function test_populated_pre_journal_upgrade_preserves_academic_history_and_accepts_new_work(): void
     {
-        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--path' => self::MIGRATION, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable(self::JOURNAL));
         $this->seed(AchievementSeeder::class);
         [$student, $mission] = $this->academicHistory();
@@ -67,7 +67,7 @@ class JournalSchemaAcceptanceTest extends TestCase
         $before = $this->historySnapshot();
         $this->assertDatabaseCount(self::JOURNAL, 1);
 
-        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--path' => self::MIGRATION, '--force' => true])->assertSuccessful();
         $result = app(MissionService::class)->submit($student, $mission, 'valid', (string) Str::uuid());
 
         $this->assertFalse(Schema::hasTable(self::JOURNAL));

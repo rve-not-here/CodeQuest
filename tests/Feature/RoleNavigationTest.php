@@ -19,9 +19,13 @@ class RoleNavigationTest extends TestCase
             preg_match('/<nav aria-label="Primary"[^>]*>(.*?)<\/nav>/s', $response->getContent(), $primary);
             $this->assertStringContainsString('Dashboard', $primary[1]);
             $this->assertStringContainsString('Learn', $primary[1]);
-            $this->assertStringContainsString('Boss Challenges', $primary[1]);
+            $this->assertStringNotContainsString('Boss Challenges', $primary[1]);
+            $this->assertStringNotContainsString('class="icon"', $primary[1]);
             $this->assertStringNotContainsString('Missions', $primary[1]);
             $this->assertStringNotContainsString('Assessments', $primary[1]);
+
+            preg_match('/<nav class="atlas-popover" aria-label="Learning record">(.*?)<\/nav>/s', $response->getContent(), $secondary);
+            $this->assertStringContainsString('Boss Challenges', $secondary[1]);
             $response->assertSee('aria-label="Learning record"', false);
         }
     }

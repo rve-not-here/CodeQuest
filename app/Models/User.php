@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -39,6 +40,12 @@ class User extends Authenticatable
     public function missionDrafts(): HasMany
     {
         return $this->hasMany(MissionDraft::class, 'user_id');
+    }
+
+    /** @return HasOne<UserPreference, $this> */
+    public function preference(): HasOne
+    {
+        return $this->hasOne(UserPreference::class, 'user_id');
     }
 
     public function xpTransactions(): HasMany

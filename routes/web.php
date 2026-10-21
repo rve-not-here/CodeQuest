@@ -33,6 +33,7 @@ use App\Http\Controllers\SectionProgressController;
 use App\Http\Controllers\ShellController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentProgressController;
+use App\Http\Controllers\ThemePreferenceController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\XpLedgerController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,10 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Account-persisted Light/Dark preference; role-agnostic, target is always
+    // the authenticated caller.
+    Route::post('/theme', ThemePreferenceController::class)->name('theme.update');
 
     Route::get('/dashboard', DashboardController::class)->middleware('student')->name('dashboard');
 

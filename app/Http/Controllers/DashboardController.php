@@ -7,7 +7,6 @@ use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
 use App\Models\User;
-use App\Services\CompetencyService;
 use App\Services\DashboardService;
 use App\Services\RecommendationService;
 use App\Services\ResumeService;
@@ -21,7 +20,6 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly DashboardService $dashboard,
-        private readonly CompetencyService $competencies,
         private readonly ResumeService $resume,
         private readonly RecommendationService $recommendations,
         private readonly StudentReminderService $reminders,
@@ -43,10 +41,8 @@ class DashboardController extends Controller
             ->exists();
         $progress = $course !== null ? $this->dashboard->courseProgress($user, $course) : null;
         $resume = $this->resume->resolve($user);
-        $competencies = $this->competencies->overview($user);
-        $competencySummary = $course === null
-            ? $competencies->last()
-            : $competencies->first(fn (array $row): bool => $row['course']->is($course));
+        $focusCard = $this->recommendations->recommendations($user)
+            ->first(fn (array $card): bool => $card['slot'] !== 1);
 
         // US-809: the student's reminders are synced lazily from the dashboard
         // — the same deliberate write side-effect on an otherwise read-only
@@ -61,16 +57,13 @@ class DashboardController extends Controller
             'course' => $course,
             'hasLearnableCourses' => $hasLearnableCourses,
             'courseProgress' => $progress,
-            'totalXp' => $this->dashboard->totalXp($user),
-            'learnerStats' => $this->dashboard->learnerStats($user),
             'recentActivity' => $this->dashboard->recentActivity($user)
                 ->reject(fn (Activity $activity): bool => in_array($activity->type, TimelineService::NON_LEARNING_ACTIVITY_TYPES, true))
                 ->take(4)
                 ->values(),
             'resume' => $this->resumeViewData($resume),
             'resumeHasDraft' => $this->resumeHasDraft($user, $resume),
-            'competencySummary' => $competencySummary,
-            'recommendations' => $this->recommendations->recommendations($user),
+            'focusCard' => $focusCard,
         ]);
     }
 

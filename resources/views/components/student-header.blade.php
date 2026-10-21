@@ -13,7 +13,7 @@
         </a>
         <nav aria-label="Primary" class="atlas-primary">
             @foreach ($topItems as $item)
-                <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif><x-icon :name="$item['icon']" size="14" />{{ $item['label'] }}</a>
+                <a href="{{ route($item['route']) }}" @if ($isCurrent($item)) aria-current="page" @endif>@if ($item['primaryIcon'] ?? true)<x-icon :name="$item['icon']" size="14" />@endif{{ $item['label'] }}</a>
             @endforeach
         </nav>
         @if ($secondaryItems)
@@ -46,7 +46,10 @@
                     @endif
                 </nav>
             </details>
-            <x-theme-toggle />
+            <x-theme-toggle
+                :endpoint="auth()->check() ? route('theme.update') : null"
+                :stored="$themePreference ?? null"
+            />
             <a href="{{ route('notifications') }}" class="atlas-notifications" aria-label="Notifications">
                 <x-icon name="bell" size="18" :stroke="1.75" />
             </a>

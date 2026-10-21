@@ -69,20 +69,18 @@ window.matchMedia('(min-width: 1200px)').addEventListener('change', () => {
     });
 });
 
-// Colour theme: System → Light → Dark, stored as 'cq-theme' (absent = system).
-const themeModes = ['system', 'light', 'dark'];
-const themeLabels = { system: 'System', light: 'Light', dark: 'Dark' };
+// Colour theme: Light ↔ Dark, stored as 'cq-theme' (absent = light).
+const themeLabels = { light: 'Light', dark: 'Dark' };
 const themeToggles = [...document.querySelectorAll('[data-theme-toggle]')];
-const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
-let themeMode = document.documentElement.dataset.themeMode || 'system';
+let themeMode = document.documentElement.dataset.themeMode === 'dark' ? 'dark' : 'light';
 
 function nextThemeMode(mode) {
-    return themeModes[(themeModes.indexOf(mode) + 1) % themeModes.length];
+    return mode === 'dark' ? 'light' : 'dark';
 }
 
 function applyTheme(mode, { announce = false } = {}) {
     themeMode = mode;
-    const dark = mode === 'dark' || (mode === 'system' && systemDark.matches);
+    const dark = mode === 'dark';
     const next = nextThemeMode(mode);
 
     document.documentElement.classList.toggle('dark', dark);
@@ -107,21 +105,26 @@ themeToggles.forEach((button) => {
         const mode = nextThemeMode(themeMode);
 
         try {
-            if (mode === 'system') {
-                localStorage.removeItem('cq-theme');
-            } else {
-                localStorage.setItem('cq-theme', mode);
-            }
+            localStorage.setItem('cq-theme', mode);
         } catch (e) {}
 
         applyTheme(mode, { announce: true });
-    });
-});
 
-systemDark.addEventListener('change', () => {
-    if (themeMode === 'system') {
-        applyTheme('system');
-    }
+        const endpoint = button.dataset.themeEndpoint;
+        if (endpoint) {
+            fetch(endpoint, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+                },
+                body: JSON.stringify({ theme: mode }),
+                keepalive: true,
+            }).catch(() => {});
+        }
+    });
 });
 
 applyTheme(themeMode);

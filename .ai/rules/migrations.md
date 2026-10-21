@@ -27,3 +27,6 @@ Knowledge Check curriculum and attempt/response foreign keys use restrict-on-del
 
 ## MariaDB caps identifiers at 64 chars; name long indexes/FKs explicitly
 MySQL/MariaDB reject identifiers longer than 64 characters (error 1059); SQLite has no such limit, so an overlong auto-generated index/foreign name migrates fine on SQLite and fails only under MariaDB. Laravel's default name stitches table + every column, so wide composite indexes on long `the404_*` table names overrun it. Pass an explicit short name as the 2nd/3rd arg: `$table->unique([...], 'kcq_check_order_unique')`, `$table->index([...], 'kco_..._index')`, `$table->foreign('col', 'kcr_attempt_foreign')`. See 2026_09_17_004929_create_the404_knowledge_check_tables.php for the reference names.
+
+## the404_user_preferences stores account Light/Dark
+2026_10_21 creates the404_user_preferences: unsignedInteger id, user_id unique FK cascadeOnDelete (explicit short names upref_user_unique/upref_user_foreign; MariaDB 64-char cap), theme string(8) default light, timestamps. One row per user. Like every the404 migration it builds only the SQLite test schema via RefreshDatabase; prod system404 needs the matching CREATE TABLE with explicit approval.

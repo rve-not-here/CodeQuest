@@ -16,12 +16,13 @@ class ThemeToggleTest extends TestCase
             $this->get($uri)
                 ->assertOk()
                 ->assertSee('data-theme-toggle', false)
-                ->assertSee('data-theme-icon="system"', false)
                 ->assertSee('data-theme-icon="light"', false)
                 ->assertSee('data-theme-icon="dark"', false)
-                ->assertSee('aria-label="Theme: System. Switch to light."', false)
+                ->assertDontSee('data-theme-icon="system"', false)
+                ->assertSee('aria-label="Theme: Light. Switch to dark."', false)
                 ->assertSee('data-theme-announcer', false)
                 ->assertDontSee('data-theme-value', false)
+                ->assertDontSee('data-theme-endpoint', false)
                 ->assertDontSee('atlas-theme"', false);
         }
     }
@@ -34,14 +35,16 @@ class ThemeToggleTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('data-theme-toggle', false)
-            ->assertSee('aria-label="Theme: System. Switch to light."', false)
+            ->assertSee('aria-label="Theme: Light. Switch to dark."', false)
+            ->assertSee('data-theme-endpoint="'.route('theme.update').'"', false)
+            ->assertDontSee('data-theme-icon="system"', false)
             ->assertDontSee('data-theme-value', false)
             ->assertDontSee('Light theme', false)
             ->assertDontSee('System theme', false)
             ->assertDontSee('Dark theme', false);
     }
 
-    public function test_the_top_navigation_items_carry_icons_next_to_their_labels(): void
+    public function test_the_shell_keeps_icons_in_its_controls_and_menus(): void
     {
         $user = User::factory()->create();
 
@@ -49,8 +52,6 @@ class ThemeToggleTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('class="icon"', false)
-            ->assertSee('Dashboard', false)
-            ->assertSee('Learning Path', false)
             ->assertSee('Boss Challenges', false)
             ->assertSee('M3.262 15.326', false);
     }

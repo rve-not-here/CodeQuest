@@ -77,3 +77,6 @@ admin.announcements, .create, .store, .edit (GET), .update (PUT), .publish (POST
 
 ## Student academic routes require current student role
 US-1102: student dashboard, learning/progression, mission and assessment actions, academic self-views, and student report export require auth plus the student role middleware. Notifications and logout remain available to every active authenticated role. Role middleware runs before implicit model binding to avoid resource-existence leaks; guests still authenticate first.
+
+## theme.update is auth-only and role-agnostic
+POST /theme (theme.update, ThemePreferenceController) lives in the auth group next to logout/notifications, not behind the student middleware: every active role has a theme. It validates theme in light|dark and always writes the authenticated caller, so no request field can target another account.

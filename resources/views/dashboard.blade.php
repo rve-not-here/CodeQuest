@@ -3,14 +3,8 @@
 @php
     $mission = $resume !== null && $resume['type'] === 'mission' ? $resume['mission'] : null;
     $section = $resume['section'] ?? null;
-    $competencyState = $competencySummary === null
-        ? null
-        : ucfirst(str_replace('_', ' ', $competencySummary['state']));
     $position = $mission !== null && $courseProgress !== null
         ? 'Challenge '.$mission->order_num.' of '.$courseProgress['total']
-        : null;
-    $sheetNumber = $course !== null && $course->order_num > 0
-        ? str_pad((string) $course->order_num, 3, '0', STR_PAD_LEFT)
         : null;
     $entryNumber = $mission !== null ? str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) : null;
     $entryStamp = match (true) {
@@ -41,93 +35,95 @@
 
 @section('content')
     <div class="atlas-dashboard">
-        <div class="log-running">
-            <span>{{ $course !== null ? 'Log sheet'.($sheetNumber !== null ? ' '.$sheetNumber : '').' · '.$course->name : 'Learning log' }}</span>
-            <a href="{{ route('learning-path') }}">Learning path →</a>
-        </div>
-
-        <dl class="atlas-dashboard-wall" aria-label="Standing record">
-            <div class="atlas-dashboard-figure">
-                <dt>XP balance</dt>
-                <dd class="atlas-dashboard-fig"><a class="atlas-dashboard-fig-link" href="{{ route('xp-ledger') }}" aria-label="XP balance {{ number_format($totalXp) }}. Open XP ledger">{{ number_format($totalXp) }}</a><span class="atlas-dashboard-fig-unit">XP</span></dd>
-                @if ($totalXp === 0)
-                    <p class="atlas-dashboard-figure-note">No XP yet — complete a challenge to start.</p>
-                @endif
-            </div>
-            <div class="atlas-dashboard-figure">
-                <dt>Completed challenges</dt>
-                @if ($courseProgress !== null)
-                    <dd class="atlas-dashboard-fig"><a class="atlas-dashboard-fig-link" href="{{ route('progress') }}" aria-label="{{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} challenges complete. Open the course record">{{ $courseProgress['completed'] }}</a><span class="atlas-dashboard-fig-muted"> / {{ $courseProgress['total'] }}</span></dd>
-                    <div class="progress" role="progressbar" aria-label="{{ $course->name }} progress" aria-valuemin="0" aria-valuemax="{{ $courseProgress['total'] }}" aria-valuenow="{{ $courseProgress['completed'] }}" aria-valuetext="{{ $courseProgress['completed'] }} of {{ $courseProgress['total'] }} challenges complete"><span style="width: {{ $courseProgress['percent'] }}%"></span></div>
-                @else
-                    <dd class="atlas-dashboard-figure-note">{{ $hasLearnableCourses ? 'All active courses complete' : 'No active lessons' }}</dd>
-                    @if ($hasLearnableCourses)
-                        <p class="atlas-dashboard-figure-note">Your completed work remains in your learning record.</p>
-                    @else
-                        <p class="atlas-dashboard-figure-note">Check back when your courses are ready.</p>
-                    @endif
-                @endif
-            </div>
-            <div class="atlas-dashboard-figure">
-                <dt>Section</dt>
-                @if ($section !== null)
-                    <dd class="atlas-dashboard-figure-text"><a class="atlas-dashboard-fig-link-text" href="{{ route('section-progress') }}" aria-label="Section {{ $section->title }}. Open the section record">{{ $section->title }}</a></dd>
-                @else
-                    <dd class="atlas-dashboard-figure-text">{{ $course?->name ?? '—' }}</dd>
-                @endif
-            </div>
-            <div class="atlas-dashboard-figure">
-                <dt>Competency</dt>
-                <dd class="atlas-dashboard-figure-text"><a class="atlas-dashboard-fig-link-text" href="{{ route('competency') }}" aria-label="Competency {{ $competencySummary['name'] ?? 'No active skill area' }}. View competency evidence">{{ $competencySummary['name'] ?? 'No active skill area' }}@if ($competencyState !== null) · {{ $competencyState }}@endif</a></dd>
-            </div>
-            <div class="atlas-dashboard-figure">
-                <dt>Boss Challenges passed</dt>
-                <dd class="atlas-dashboard-fig"><a class="atlas-dashboard-fig-link" href="{{ route('assessments') }}" aria-label="{{ $learnerStats['boss_challenges_passed'] }} Boss Challenges passed. Open Boss Challenges">{{ $learnerStats['boss_challenges_passed'] }}</a></dd>
-            </div>
-            <div class="atlas-dashboard-figure">
-                <dt>Achievements</dt>
-                <dd class="atlas-dashboard-fig"><a class="atlas-dashboard-fig-link" href="{{ route('achievements') }}" aria-label="{{ $learnerStats['achievements'] }} {{ $learnerStats['achievements'] === 1 ? 'achievement' : 'achievements' }}. Open achievements">{{ $learnerStats['achievements'] }}</a></dd>
-            </div>
-        </dl>
-
         <section class="atlas-dashboard-objective" aria-labelledby="objective-title">
-            @if ($entryNumber !== null)
-                <span class="atlas-dashboard-goal" aria-hidden="true">{{ $entryNumber }}</span>
-            @endif
-            <div class="atlas-dashboard-objective-copy">
+            <header class="atlas-dashboard-objective-head">
                 <div class="atlas-dashboard-entry">
-                    <span>{{ $entryNumber !== null ? 'Entry '.$entryNumber.' · ' : '' }}Current Objective</span>
-                    @if ($entryStamp !== null)
-                        <span class="atlas-stamp atlas-stamp--{{ $entryStamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($entryStamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $entryStamp['word'] }}</span>
+                    @if ($entryNumber !== null)
+                        <span>Entry <span class="atlas-dashboard-entry-number">{{ $entryNumber }}</span></span>
+                        <span class="atlas-dashboard-entry-divider" aria-hidden="true">/</span>
                     @endif
+                    <span>Current Objective</span>
                 </div>
+                @if ($entryStamp !== null)
+                    <span class="atlas-stamp atlas-stamp--{{ $entryStamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($entryStamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $entryStamp['word'] }}</span>
+                @endif
+            </header>
+
+            <div class="atlas-dashboard-objective-copy">
+                @if ($course !== null)
+                    <p class="atlas-dashboard-course">
+                        {{ $course->name }}@if ($section !== null) <span class="atlas-dashboard-course-divider" aria-hidden="true">/</span> Section {{ str_pad((string) $section->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $section->title }}@endif
+                    </p>
+                @endif
                 @if (! $hasLearnableCourses)
                     <h1 id="objective-title">No lessons available yet</h1>
                     <p class="atlas-dashboard-description">There are no active courses with challenges. Your learning path will appear here when lessons are available.</p>
                 @elseif ($course === null)
                     <h1 id="objective-title">Course complete</h1>
-                    <p class="atlas-dashboard-description">You have cleared every active course. Review your learning record.</p>
+                    <p class="atlas-dashboard-description">You have cleared every active course.@if ($focusCard !== null && $focusCard['slot'] === 4) Your next course is ready below.@else Review your learning record.@endif</p>
                 @elseif ($mission !== null)
                     <h1 id="objective-title">@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h1>
                     <p class="atlas-dashboard-description">{{ $resumeHasDraft ? 'Saved work detected. Your draft is ready to continue.' : 'Open the lesson, then work through the coding challenge.' }}</p>
-                    <dl class="atlas-dashboard-mission-meta">
-                        <div><dt>Type</dt><dd>Coding challenge</dd></div>
-                        <div><dt>Difficulty</dt><dd>{{ ucfirst($mission->difficulty) }}</dd></div>
-                        <div><dt>Completion reward</dt><dd class="font-mono">+{{ $mission->points }} XP</dd></div>
-                        <div><dt>Position</dt><dd class="font-mono">{{ $position ?? 'Challenge '.$mission->order_num.' of course' }}</dd></div>
+                    <dl class="atlas-dashboard-chips">
+                        <div class="atlas-dashboard-chip"><dt>Type</dt><dd>Coding challenge</dd></div>
+                        <div class="atlas-dashboard-chip"><dt>Difficulty</dt><dd>{{ ucfirst($mission->difficulty) }}</dd></div>
                     </dl>
                 @else
                     <h1 id="objective-title">Boss Challenge ready</h1>
                     <p class="atlas-dashboard-description">Return to the Learning Path to inspect the course milestone.</p>
                 @endif
             </div>
-            <div class="atlas-dashboard-actions">
-                @if ($mission !== null)
-                    <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $resumeHasDraft ? 'Resume challenge' : 'Continue learning' }} →</a>
-                @else
-                    <a href="{{ route('learning-path') }}" class="btn btn-primary btn-lg">{{ $course === null ? 'View learning path' : 'Continue learning' }} →</a>
+
+            <aside class="atlas-dashboard-order" aria-label="Next action">
+                <div class="atlas-dashboard-order-head">
+                    <p class="atlas-dashboard-order-kicker">{{ $mission !== null && $resumeHasDraft ? 'Resume entry' : 'Next action' }}</p>
+                    @if ($mission !== null && $courseProgress !== null && $courseProgress['total'] > 0)
+                        <p class="atlas-dashboard-order-logged">
+                            <span>Challenges logged</span>
+                            <span class="font-mono">{{ str_pad((string) $courseProgress['completed'], 2, '0', STR_PAD_LEFT) }} / {{ str_pad((string) $courseProgress['total'], 2, '0', STR_PAD_LEFT) }}</span>
+                        </p>
+                    @endif
+                </div>
+
+                @if ($mission !== null && $courseProgress !== null && $courseProgress['total'] > 0)
+                    <div class="atlas-dashboard-order-position" aria-hidden="true">
+                        <span class="atlas-dashboard-position-number">{{ str_pad((string) $mission->order_num, 2, '0', STR_PAD_LEFT) }}</span>
+                        <span class="atlas-dashboard-position-total">/ {{ str_pad((string) $courseProgress['total'], 2, '0', STR_PAD_LEFT) }}</span>
+                    </div>
+                    <div class="atlas-dashboard-progress" aria-hidden="true">
+                        @foreach (range(1, $courseProgress['total']) as $step)
+                            <span @class([
+                                'atlas-dashboard-progress-step',
+                                'is-complete' => $step <= $courseProgress['completed'],
+                                'is-current' => $step === $courseProgress['completed'] + 1,
+                            ])></span>
+                        @endforeach
+                    </div>
+                    <p class="atlas-dashboard-order-caption">{{ $position }}</p>
+                @elseif ($mission !== null)
+                    <p class="atlas-dashboard-order-caption">Challenge {{ $mission->order_num }} of course</p>
                 @endif
-            </div>
+
+                @if ($mission !== null)
+                    <dl class="atlas-dashboard-order-figures">
+                        <div><dt>Completion reward</dt><dd class="font-mono">+{{ $mission->points }} XP</dd></div>
+                    </dl>
+                @elseif (! $hasLearnableCourses)
+                    <p class="atlas-dashboard-order-note">No active lessons are open yet.</p>
+                @elseif ($course === null)
+                    <p class="atlas-dashboard-order-note">All active courses are cleared.</p>
+                @else
+                    <p class="atlas-dashboard-order-note">The course milestone is next.</p>
+                @endif
+
+                <div class="atlas-dashboard-actions">
+                    @if ($mission !== null)
+                        <a href="{{ route($resumeHasDraft ? 'mission.challenge' : 'mission.show', $mission) }}" class="btn btn-primary btn-lg">{{ $resumeHasDraft ? 'Resume challenge' : 'Continue learning' }} →</a>
+                    @else
+                        <a href="{{ route('learning-path') }}" class="btn btn-primary btn-lg">{{ $course === null ? 'View learning path' : 'Continue learning' }} →</a>
+                    @endif
+                </div>
+            </aside>
         </section>
 
         <section class="atlas-dashboard-evidence" aria-labelledby="evidence-heading">
@@ -139,14 +135,15 @@
                 @php $specimenStamp = $stampFor($specimen); @endphp
                 <div class="atlas-evidence-specimen">
                     <div class="atlas-sheet" aria-hidden="true">
-                        <span class="atlas-tape atlas-tape--l"></span>
-                        <span class="atlas-tape atlas-tape--r"></span>
                         <span class="atlas-sheet-rule" style="width: 100%"></span>
                         <span class="atlas-sheet-rule" style="width: 62%"></span>
                         <span class="atlas-sheet-rule" style="width: 84%"></span>
                         <span class="atlas-sheet-rule" style="width: 44%"></span>
-                        <span class="atlas-sheet-rule" style="width: 70%"></span>
-                        <span class="atlas-sheet-caret"></span>
+                        <span class="atlas-sheet-rule" style="width: 52%"></span>
+                        <span class="atlas-sheet-tail">
+                            <span class="atlas-sheet-rule" style="width: 70%"></span>
+                            <span class="atlas-sheet-caret"></span>
+                        </span>
                     </div>
                     <div class="atlas-evidence-copy">
                         <p class="atlas-evidence-title">{{ $specimen->message }}</p>
@@ -159,37 +156,46 @@
                         @foreach ($evidenceRows as $activity)
                             @php $stamp = $stampFor($activity); @endphp
                             <li>
-                                <time datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->format('M d · H:i') }}</time>
-                                <p>{{ $activity->message }}</p>
+                                <time datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->format('M d, H:i') }}</time>
+                                <p>{{ $activity->message }}@if ($activity->pts > 0)<span class="atlas-dashboard-event-points">+{{ $activity->pts }} XP</span>@endif</p>
                                 <span class="atlas-stamp atlas-stamp--{{ $stamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stamp['word'] }}</span>
                             </li>
                         @endforeach
                     </ol>
                 @endif
             @else
-                <p class="atlas-dashboard-no-evidence">No learning activity recorded yet.</p>
+                <div class="atlas-evidence-specimen atlas-evidence-specimen--empty">
+                    <div class="atlas-sheet" aria-hidden="true">
+                        <span class="atlas-sheet-rule" style="width: 58%"></span>
+                        <span class="atlas-sheet-rule" style="width: 82%"></span>
+                        <span class="atlas-sheet-rule" style="width: 44%"></span>
+                    </div>
+                    <div class="atlas-evidence-copy">
+                        <p class="atlas-evidence-title">No entries yet</p>
+                        <p class="atlas-evidence-meta">Finish a challenge and the first record will be mounted here.</p>
+                    </div>
+                </div>
             @endif
         </section>
 
-        <section class="atlas-dashboard-focus" aria-labelledby="focus-heading">
-            <div class="atlas-dashboard-focus-copy">
-                <h2 id="focus-heading">Where to focus</h2>
-                @if ($recommendations->isNotEmpty())
-                    @php $focus = $recommendations->first(); @endphp
-                    <p class="atlas-dashboard-focus-title">{{ $focus['title'] }}</p>
-                    <p class="atlas-dashboard-focus-subtitle">{{ $focus['subtitle'] }}</p>
-                @else
-                    <p class="atlas-dashboard-focus-title">You're on track</p>
-                    <p class="atlas-dashboard-focus-subtitle">No priority actions right now. Keep going.</p>
-                @endif
-            </div>
-            @php
-                $focus = $recommendations->first();
-                $focusIsAssessment = $focus !== null && str_contains($focus['href'], '/assessments/');
-                $focusHref = $focusIsAssessment ? route('recommendations') : ($focus['href'] ?? route('recommendations'));
-                $focusCta = $focusIsAssessment ? 'View recommendations' : ($focus['cta'] ?? 'View recommendations');
-            @endphp
-            <a href="{{ $focusHref }}" class="btn btn-secondary">{{ $focusCta }}</a>
-        </section>
+        @if ($focusCard !== null)
+            <section class="atlas-dashboard-focus" aria-labelledby="focus-heading">
+                <div class="atlas-dashboard-focus-copy">
+                    <h2 id="focus-heading">Where to focus</h2>
+                    <p class="atlas-dashboard-focus-title">{{ $focusCard['title'] }}</p>
+                    <p class="atlas-dashboard-focus-subtitle">{{ $focusCard['subtitle'] }}</p>
+                </div>
+                @php
+                    $focusIsAssessment = str_contains($focusCard['href'], '/assessments/');
+                    $focusHref = $focusIsAssessment ? route('recommendations') : $focusCard['href'];
+                    $focusCta = $focusIsAssessment ? 'View recommendations' : $focusCard['cta'];
+                @endphp
+                <a href="{{ $focusHref }}" class="btn btn-secondary">{{ $focusCta }}</a>
+            </section>
+        @endif
+
+        <footer class="atlas-dashboard-foot" aria-hidden="true">
+            <span>End of entries</span>
+        </footer>
     </div>
 @endsection

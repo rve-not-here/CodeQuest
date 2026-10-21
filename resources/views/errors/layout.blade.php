@@ -7,20 +7,21 @@
     <script>
         // Match the application theme before first paint; this page never loads built assets.
         (function () {
-            var mode = 'system';
+            var mode = 'light';
             try {
-                mode = localStorage.getItem('cq-theme') || 'system';
+                mode = localStorage.getItem('cq-theme') === 'dark' ? 'dark' : 'light';
             } catch (e) {}
-            var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            var dark = mode === 'dark';
             document.documentElement.classList.toggle('dark', dark);
-            document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.style.colorScheme = mode;
         })();
     </script>
     <style>
         /* Standalone Engineer's Log fallback: no application assets, so an error still renders. */
         :root {
             color-scheme: light;
-            --ground: #E9EDDF; --sheet: #FCFDF8; --ink: #1F242C; --muted: #565E67;
+            --ground: #FFFFFF; --sheet: #FCFDF8; --ink: #1F242C; --muted: #565E67;
             --line-strong: #7D857C; --accent: #B23A2E; --accent-ink: #F4F6ED;
             --grid-minor: rgba(31, 36, 44, 0.05); --grid-major: rgba(31, 36, 44, 0.09);
         }

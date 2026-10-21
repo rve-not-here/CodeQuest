@@ -22,3 +22,6 @@ Student and teacher screens use the application top bar for their primary destin
 
 ## Guest pages opt out of every shell
 `@extends('layouts.app', ['standalone' => true, 'guest' => true, 'role' => 'student'])` marks a public page. `$guestShell` forces `$studentPrototype`/`$teacherShell`/`$adminShell` false, sets `$isGuest` (body `guest-ui`) and hides the header, footer and sheet column, so `welcome`, `auth/login` and any future public page control their own full-page layout inside `@section('content')`. Always pass `guest` as well as `standalone` — standalone alone does not stop an authenticated student/admin from getting the atlas chrome. Error pages do not use this layout at all (see errors/layout.blade.php, which is asset-free).
+
+## Account theme wins over localStorage before paint
+layouts/app computes $themePreference for the authenticated user; the pre-paint script uses the saved account value when present, writes it into localStorage, and otherwise falls back to the device value. The toggle POSTs to theme.update for authenticated users only. Error pages stay localStorage-only on purpose (they must not query the DB during a 500), so the write-through is what keeps them in sync.

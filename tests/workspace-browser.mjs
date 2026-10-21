@@ -82,16 +82,16 @@ try {
         assert.equal(await evaluate(`document.querySelector('.cm-content').getAttribute('aria-label')`), 'Code editor');
     }
     if (isReadOnly) {
-        const heading = mode === 'dashboard' ? 'Current Objective' : 'Learning Path';
+        const heading = mode === 'dashboard' ? 'Paragraph reflow' : 'Learning Path';
         assert.equal(await evaluate(`document.querySelector('h1').textContent.trim()`), heading);
         if (mode === 'dashboard') {
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-heading') === null`), true);
-            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta') !== null`), true);
-            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('Coding challenge')`), true);
-            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('Easy')`), true);
-            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-mission-meta').textContent.includes('60')`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-chips') !== null`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-chips').textContent.includes('Coding challenge')`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-chips').textContent.includes('Easy')`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-order-figures').textContent.includes('60')`), true);
             // display voice: the objective heading carries a display size, not body text
-            const objectiveSize = await evaluate(`getComputedStyle(document.querySelector('.atlas-dashboard-objective h2')).fontSize`);
+            const objectiveSize = await evaluate(`getComputedStyle(document.querySelector('.atlas-dashboard-objective h1')).fontSize`);
             assert.equal(parseFloat(objectiveSize) >= 28, true);
         }
         if (mode === 'learning-path') {
