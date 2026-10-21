@@ -623,16 +623,7 @@ main:has(.challenge-workspace) {
     border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
 }
 
-.challenge-draft-status {
-    color: var(--color-static);
-    font-size: 0.66rem;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-}
 
-.challenge-draft-status span {
-    color: var(--color-fg-muted);
-}
 
 .challenge-pane-body {
     min-height: 0;
@@ -1249,12 +1240,6 @@ body.student-ui .challenge-pane + .challenge-pane {
     border-left: 1px solid var(--color-line);
 }
 body.student-ui .challenge-draft-status,
-body.student-ui .challenge-draft-status span {
-    color: var(--color-fg-subtle);
-    font-family: var(--font-mono);
-    font-size: 0.67rem;
-    letter-spacing: normal;
-}
 
 body.student-ui .challenge-pane-body {
     color: var(--color-fg);
@@ -1879,7 +1864,6 @@ body.student-ui .atlas-workbench-controls [data-workspace-reset] { margin-left: 
 body.student-ui .challenge-workspace[data-workspace] { padding: 0; gap: 0; }
 body.student-ui .challenge-pane-body { padding: 20px 16px; overflow-wrap: anywhere; }
 body.student-ui .challenge-pane-body.editor-pane, body.student-ui .challenge-pane-body.is-frame { padding: 0; }
-body.student-ui .challenge-draft-status, body.student-ui .challenge-draft-status span { font-size: 12px; }
 
 body.student-ui .challenge-toast-stack { position: static; flex: none; width: auto; max-height: 144px; padding-inline: 16px; pointer-events: auto; }
 body.student-ui .challenge-assistance { border-top: 1px solid var(--color-line-strong); padding-top: 20px; }
@@ -2265,13 +2249,21 @@ body.student-ui:has(.cq-challenge) .atlas-shell-inner { min-height: 52px; paddin
 body.student-ui:has(.cq-challenge) .atlas-brand { gap: 8px; font-size: 16px; }
 body.student-ui:has(.cq-challenge) .atlas-mark { width: 28px; height: 26px; }
 .cq-challenge { display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; }
-body.student-ui .cq-workspace[data-workspace] { display: grid; grid-template-columns: var(--brief-width, 288px) var(--brief-handle, 8px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; padding: 0; gap: 0; }
+body.student-ui .cq-workspace[data-workspace] { display: grid; grid-template-columns: var(--brief-width, 360px) var(--brief-handle, 8px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; padding: 0; gap: 0; }
 .cq-workspace [hidden] { display: none !important; }
 body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 0; border: 0; }
 .cq-workspace-heading { grid-column: 3; grid-row: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; min-width: 0; padding: 8px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--cq-sheet); }
 .cq-workspace-id { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
 .cq-workspace-id .atlas-lesson-entry-label { white-space: nowrap; }
 .cq-workspace-id .atlas-stamp { border-width: 1.5px; padding: 3px 8px; }
+.cq-draft { margin: 0; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-draft[data-state="saved"] { color: var(--color-info); }
+.cq-draft[data-state="dirty"] { color: var(--color-warning); }
+.cq-draft[data-state="saving"] { color: var(--color-warning); }
+.cq-draft-hint { font-family: var(--font-display); font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 50%, transparent); }
+.cq-icon-button { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border: 1px solid transparent; border-radius: 2px; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; transition: color 120ms ease-out, border-color 120ms ease-out; }
+.cq-icon-button:hover { border-color: var(--cq-line-strong); color: var(--color-accent); }
+.cq-icon-button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 /* When the workspace collapses to tabs, the strip states its identity first:
    entry, then registers, then the actions that judge the work. */
 @media (max-width: 1100px) {
@@ -2279,7 +2271,6 @@ body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 
     .cq-workspace-id { order: 1; flex: 1 1 100%; }
     .cq-workspace-tabs { order: 2; margin-right: 0; }
     .cq-workspace-actions { order: 3; margin-left: auto; }
-    .cq-workspace-options { order: 4; }
 }
 
 body.student-ui .cq-workspace-tabs { display: flex; align-items: stretch; margin-right: auto; }
@@ -2289,22 +2280,38 @@ body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color
 .cq-workspace .cq-instructions { grid-column: 1; grid-row: 1 / 3; background: var(--cq-sheet); border-right: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
 .cq-workspace .cq-code-pane, .cq-workspace .cq-preview-pane { grid-column: 3; grid-row: 2; }
 .cq-workspace .workspace-separator { grid-column: 2; grid-row: 1 / 3; background: color-mix(in srgb, var(--cq-ink) 6%, transparent); border-inline: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
-.cq-instructions-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: var(--cq-sheet); }
+.cq-instructions-heading { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 12px 6px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: var(--cq-sheet); }
 .cq-instructions-heading > span { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-instructions-heading .cq-back-to-lesson { margin-left: auto; }
 .cq-back-to-lesson { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-family: var(--font-display); font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--cq-ink) 50%, transparent); text-underline-offset: 4px; white-space: nowrap; }
 .cq-back-to-lesson:hover { color: var(--color-accent); text-decoration-color: var(--color-accent); }
-body.student-ui .cq-workspace .cq-lesson-reading { flex: 1; overflow: auto; padding: 18px 18px 28px; font-size: 14.5px; line-height: 25px; }
+/* The brief is its own scroll region: the page never scrolls behind it, the
+   column keeps its width when the scrollbar appears, and the sheet's edge
+   shadows appear only while there is more to read. */
+body.student-ui .cq-workspace .cq-lesson-reading {
+    flex: 1;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding: 18px 18px 28px;
+    font-size: 14.5px;
+    line-height: 25px;
+    background-color: var(--cq-sheet);
+    background-image:
+        linear-gradient(var(--cq-sheet) 40%, transparent),
+        linear-gradient(transparent, var(--cq-sheet) 60%),
+        radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--cq-ink) 16%, transparent), transparent),
+        radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--cq-ink) 16%, transparent), transparent);
+    background-position: top, bottom, top, bottom;
+    background-size: 100% 26px, 100% 26px, 100% 12px, 100% 12px;
+    background-repeat: no-repeat;
+    background-attachment: local, local, scroll, scroll;
+}
 .cq-lesson-context p { margin: 0 0 12px; }
 .cq-brief-task { margin: 18px 0 0; padding: 12px 14px; border-left: 3px solid var(--color-accent); background: var(--color-accent-soft); color: var(--color-fg); font-size: 14.5px; line-height: 25px; }
 .cq-reference { margin-top: 22px; }
 .cq-reference > summary span:last-child { display: none; }
 .cq-reference .atlas-lesson-reference-frame iframe { height: 130px; }
-.cq-pane-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 34px; padding: 6px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); background: var(--cq-ground); font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
-.cq-pane-head .cq-pane-language { color: color-mix(in srgb, var(--cq-ink) 55%, transparent); }
-.cq-pane-head .cq-pane-draft { margin: 0; font: inherit; color: inherit; }
-.cq-pane-head .cq-pane-draft[data-state="saved"] { color: var(--color-info); }
-.cq-pane-head .cq-pane-draft[data-state="dirty"] { color: var(--color-warning); }
-.cq-pane-head .cq-pane-shortcut { margin-left: auto; color: color-mix(in srgb, var(--cq-ink) 55%, transparent); }
 /* The workspace reports like a log: a ruled line with a tone, not a floating card. */
 .cq-workspace .student-toast { border: 0; border-left: 3px solid var(--student-toast-tone); border-radius: 0; background: var(--cq-raised); box-shadow: none; }
 .cq-workspace .student-toast-dot { display: none; }
@@ -2331,22 +2338,6 @@ body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0;
 .cq-workspace-actions { gap: 12px; }
 .cq-workspace-actions form { display: flex; margin: 0; }
 .cq-workspace .btn, .cq-confirm .btn, .cq-assistance .btn { min-height: 32px; padding: 4px 10px; gap: 6px; font-size: 12px; line-height: 20px; white-space: nowrap; }
-.cq-workspace-options { position: relative; flex: none; }
-.cq-workspace-options > summary { display: grid; place-items: center; width: 32px; min-height: 32px; border: 1px solid transparent; border-radius: 2px; color: var(--color-fg-muted); list-style: none; cursor: pointer; }
-.cq-workspace-options > summary::-webkit-details-marker { display: none; }
-.cq-workspace-options[open] > summary, .cq-workspace-options > summary:hover { border-color: var(--color-line-strong); color: var(--color-fg); }
-.cq-workspace-menu { position: absolute; z-index: 50; top: calc(100% + 8px); right: 0; width: 280px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 148px); overflow: auto; padding: 12px; border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
-.cq-workspace-menu > .btn { width: 100%; justify-content: flex-start; white-space: normal; }
-.cq-workspace-context { font-size: 14px; overflow-wrap: anywhere; }
-.cq-workspace-context > span { display: block; margin-top: 4px; color: var(--color-fg-muted); font-size: 12px; }
-.cq-workspace-metadata, .cq-workspace-help, .cq-workspace-menu #draft-status { margin-block: 8px; color: var(--color-fg-muted); font-size: 12px; line-height: 20px; }
-.cq-workspace-help kbd { display: inline-block; padding: 1px 5px; border: 1px solid color-mix(in srgb, var(--cq-ink) 30%, transparent); border-radius: 2px; background: var(--cq-raised); font-size: 11px; }
-.cq-workspace-state { margin-block: 8px; }
-body.student-ui .challenge-draft-status[data-state="saved"] span { color: var(--color-info); font-weight: 600; }
-body.student-ui .challenge-draft-status[data-state="dirty"] span { color: var(--color-warning); font-weight: 600; }
-body.student-ui .challenge-draft-status[data-state="saving"] span { color: var(--color-fg); }
-.cq-workspace-width { display: grid; gap: 4px; padding: 12px 8px; border-block: 1px solid var(--color-line); font-size: 12px; }
-.cq-workspace-width input { min-width: 0; width: 100%; min-height: 44px; accent-color: var(--color-accent); }
 .cq-feedback { flex: none; max-height: 180px; overflow: auto; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--cq-raised); }
 .cq-feedback > h2, .cq-feedback h2 { padding: 10px 16px 0; font-family: var(--font-display); font-size: 11.5px; line-height: 1.3; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 body.student-ui .cq-feedback .challenge-toast-stack { padding: 8px 16px; max-height: none; }
@@ -2365,12 +2356,10 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
 .challenge-hint p { margin-top: 4px; font-size: 14px; line-height: 22px; color: var(--color-fg); overflow-wrap: anywhere; }
 .cq-challenge:fullscreen { width: 100%; height: 100dvh; background: var(--color-canvas); }
 .cq-challenge :is(button, a, summary, input, pre):focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
-.cq-workspace-menu :focus-visible { outline-offset: -3px; }
 @media (max-width: 1100px) {
     body.student-ui .cq-workspace[data-workspace] { grid-template-columns: minmax(0, 1fr); }
     .cq-workspace-heading { grid-column: 1; }
     .cq-workspace .cq-instructions, .cq-workspace .cq-code-pane, .cq-workspace .cq-preview-pane { grid-column: 1; grid-row: 2; }
-    .cq-workspace-menu [data-workspace-hide-brief], .cq-workspace-menu [data-workspace-reset], .cq-workspace-width { display: none; }
 }
 @media (max-width: 640px) {
     body.student-ui:has(.cq-challenge) .atlas-shell-inner { padding-inline: 16px; gap: 8px; }
@@ -2378,14 +2367,12 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
     .cq-workspace-id { grid-column: 1 / -1; grid-row: 1; }
     body.student-ui .cq-workspace-tabs { grid-column: 1; grid-row: 2; margin: 0; }
     body.student-ui .cq-workspace-tabs [data-pane-toggle] { font-size: 12px; padding-inline: 8px; }
-    .cq-workspace-options { grid-column: 2; grid-row: 2; }
     .cq-workspace-actions { grid-column: 1 / -1; grid-row: 3; justify-content: space-between; }
     .cq-evaluation-actions { margin-left: auto; }
     body.student-ui .cq-workspace .cq-lesson-reading { padding: 20px 16px; }
 }
 @media (pointer: coarse), (max-width: 640px) {
     .cq-workspace .btn, .cq-confirm .btn, .cq-assistance .btn, .atlas-boss-workspace .btn, body.student-ui .cq-workspace-tabs [data-pane-toggle], .atlas-workbench-tab { min-height: 44px; }
-    .cq-workspace-options > summary { width: 44px; min-height: 44px; }
     .cq-back-to-lesson { min-height: 44px; }
 }
 @media (max-height: 500px) {

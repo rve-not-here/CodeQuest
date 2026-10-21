@@ -9,7 +9,7 @@ export function initializeTabbedWorkspace(root, workspace) {
     const narrow = window.matchMedia('(max-width: 1100px)');
     let selected = 'editor';
     let briefHidden = false;
-    let width = 288;
+    let width = 360;
 
     function maximumWidth() {
         return Math.max(240, Math.min(480, workspace.getBoundingClientRect().width - 408));
@@ -70,7 +70,7 @@ export function initializeTabbedWorkspace(root, workspace) {
         });
     }
     reset?.addEventListener('click', () => {
-        width = 288;
+        width = 360;
         briefHidden = false;
         selected = 'editor';
         render();
@@ -118,11 +118,8 @@ export function initializeTabbedWorkspace(root, workspace) {
     const fullscreenRoot = root.querySelector('[data-workspace-fullscreen-root]');
     if (fullscreenButton && fullscreenRoot) {
         fullscreenButton.addEventListener('click', async () => {
-            const options = root.querySelector('[data-workspace-options]');
-            if (options) options.open = false;
             if (root.fullscreenElement) await root.exitFullscreen();
             else await fullscreenRoot.requestFullscreen();
-            options?.querySelector('summary')?.focus();
         });
         root.addEventListener('fullscreenchange', () => {
             fullscreenButton.setAttribute('aria-pressed', String(Boolean(root.fullscreenElement)));

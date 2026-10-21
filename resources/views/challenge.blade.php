@@ -43,10 +43,9 @@
                     <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · {{ $course?->name ?? 'Challenge' }}</span>
                     @if ($completed)
                         <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
-                    @elseif ($hasDraft)
-                        <span class="atlas-stamp atlas-stamp--vio"><x-icon name="pencil" size="12" />Draft saved</span>
                     @else
-                        <span class="atlas-stamp atlas-stamp--ink"><x-icon name="minus" size="12" />Not recorded</span>
+                        <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
+                        <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
                     @endif
                 </div>
                 <nav class="cq-workspace-tabs" role="tablist" aria-label="Workspace views" data-workspace-controls>
@@ -63,8 +62,8 @@
                                 <button type="submit" class="btn btn-secondary"><x-icon name="lightbulb" size="16" />Hint · {{ $nextHintCost }} XP</button>
                             </form>
                         @endif
-                        @if ($hints)
-                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>View hints</button>
+                        @if ($hints || (! $completed && $hasSolution))
+                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>{{ $hints ? 'View hints' : 'Show solution' }}</button>
                         @endif
                     </div>
                     <div class="cq-evaluation-actions">
@@ -77,22 +76,22 @@
                         </form>
                     </div>
                 </div>
-                <details class="cq-workspace-options" data-shell-disclosure data-workspace-options>
-                    <summary aria-label="Workspace options" title="Workspace options"><x-icon name="sliders-horizontal" size="16" /></summary>
-                    <div class="cq-workspace-menu">
-                        <p class="cq-workspace-context">{{ $mission->title }}@if ($course)<span>{{ $course->name }}@if ($section) · {{ $section->title }}@endif</span>@endif</p>
-                        <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
-                        @if ($completed)<p class="cq-workspace-state"><span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span></p>@endif
-                        <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-icon="closed"><x-icon name="panel-left-close" size="16" /></span><span data-workspace-hide-icon="open" hidden><x-icon name="panel-left-open" size="16" /></span><span data-workspace-hide-label>Hide instructions</span></button>
-                        <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="288" data-workspace-width></label>
-                        <button type="button" class="btn btn-ghost" data-workspace-reset>Reset panes</button>
-                        @if ($hints || (! $completed && $hasSolution))<button type="button" class="btn btn-ghost" data-workspace-assistance-open>Assistance</button>@endif
-                        <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><span data-workspace-fullscreen-icon="enter"><x-icon name="maximize" size="16" /></span><span data-workspace-fullscreen-icon="exit" hidden><x-icon name="minimize" size="16" /></span><span data-workspace-fullscreen-label>Fullscreen</span></button>
-                    </div>
-                </details>
+                <button type="button" class="cq-icon-button" data-workspace-fullscreen aria-pressed="false" aria-label="Fullscreen">
+                    <span data-workspace-fullscreen-icon="enter"><x-icon name="maximize" size="16" /></span>
+                    <span data-workspace-fullscreen-icon="exit" hidden><x-icon name="minimize" size="16" /></span>
+                    <span class="sr-only" data-workspace-fullscreen-label>Fullscreen</span>
+                </button>
             </header>
             <section class="challenge-pane cq-instructions" id="workspace-brief" data-workspace-pane="brief" role="region" aria-labelledby="instructions-title" tabindex="0">
-                <header class="cq-instructions-heading"><span>Instructions</span><a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="Back to lesson"><x-icon name="arrow-left" size="16" />Back to lesson</a></header>
+                <header class="cq-instructions-heading">
+                    <span>Instructions</span>
+                    <a href="{{ route('mission.show', $mission) }}" class="cq-back-to-lesson" aria-label="Back to lesson"><x-icon name="arrow-left" size="16" />Back to lesson</a>
+                    <button type="button" class="cq-icon-button" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true">
+                        <span data-workspace-hide-icon="closed"><x-icon name="panel-left-close" size="16" /></span>
+                        <span data-workspace-hide-icon="open" hidden><x-icon name="panel-left-open" size="16" /></span>
+                        <span class="sr-only" data-workspace-hide-label>Hide instructions</span>
+                    </button>
+                </header>
                 <div class="challenge-pane-body cq-lesson-reading">
                     <div class="cq-brief-entry">
                         <span class="cq-brief-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge</span>
@@ -146,12 +145,6 @@
             <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize instructions" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="240" aria-valuemax="480" aria-valuenow="340" data-workspace-resize="brief"></div>
             <section class="challenge-pane cq-code-pane" id="workspace-editor" data-workspace-pane="editor" role="tabpanel" aria-labelledby="workspace-tab-editor" tabindex="0">
                 <h2 class="sr-only">Code editor</h2>
-                <header class="cq-pane-head">
-                    <span>Code</span>
-                    <span class="cq-pane-language">{{ $language }}</span>
-                    <p id="draft-status" class="cq-pane-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
-                    <span class="cq-pane-shortcut">Save draft · Ctrl/⌘ + S</span>
-                </header>
                 <div class="challenge-pane-body editor-pane">
                     <div id="editor-host" class="challenge-pane-editor"></div>
                     <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
@@ -243,7 +236,7 @@
                 @else<p>No hints have been revealed.</p>@endif
                 @if (! $completed && $hasSolution)
                     <form method="POST" action="{{ route('mission.reveal', $mission) }}" data-challenge-action="reveal" data-confirm-title="Reveal reference solution?" data-confirm-copy="Revealing the reference solution costs {{ $revealCost }} XP." data-confirm-label="Reveal solution">
-                        @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">Show solution · {{ $revealCost }} XP</button>
+                        @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">Reveal solution · {{ $revealCost }} XP</button>
                     </form>
                 @endif
             </dialog>
@@ -438,13 +431,13 @@
                 var assistanceReturn = null;
                 document.querySelectorAll('[data-workspace-assistance-open]').forEach(function (button) {
                     button.addEventListener('click', function () {
-                        assistanceReturn = button.closest('[data-workspace-options]')?.querySelector('summary') || button;
+                        assistanceReturn = button;
                         assistanceDialog.showModal();
                     });
                 });
                 assistanceDialog?.addEventListener('close', function () { assistanceReturn?.focus(); });
                 if (assistanceDialog && {{ Illuminate\Support\Js::from((bool) session('hint_revealed')) }} && !completionOverlay) {
-                    assistanceReturn = document.querySelector('[data-workspace-options] summary');
+                    assistanceReturn = document.querySelector('[data-workspace-assistance-open]');
                     assistanceDialog.showModal();
                 }
 
