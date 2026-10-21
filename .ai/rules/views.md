@@ -5,6 +5,7 @@ paths:
   - resources/views/students.blade.php
   - resources/views/learning-path.blade.php
   - resources/views/lesson.blade.php
+  - resources/views/challenge.blade.php
 ---
 
 # Views
@@ -86,3 +87,6 @@ A grid item's automatic minimum size is its min-content, and a line of markup in
 
 ## The reference output shows the result, not the source of the result
 In this curriculum `target_html` means 'what the finished work should look like', and it means two different things. In the HTML course it is the markup the student writes; in the CSS and JavaScript courses (and in two HTML missions) it is a rendered console panel the student's own code must produce, so its inline-style source is noise. The lesson therefore renders the target in a specimen frame (a sandboxed iframe, #reference-preview) under a 'RESULT' label, and shows the 'MARKUP' listing only when the target really is the code to write — an HTML course target that carries no inline style of its own. Never print a styled artifact's source to the student: the reference is the finished work, and the markup listing appears only for markup missions. The same target is graded by validate_rule against the student's submitted code, so the artifact is never what the student types.
+
+## The student challenge panel is the margin brief
+The student challenge workspace is Direction A (margin brief, chosen 2026-10-21): the workbench leads, the Instructions sit in a 288px margin column with a hairline grip, and the strip states the entry first — 'Entry NNN · Course' plus a state stamp (Completed / Draft saved / Not recorded) — before the Code/Preview registers and the Run/Submit actions. The brief reads as the lesson panel does: the description is split into paragraphs, the task paragraph is lifted into one accent callout, and the reference output is the rendered Result specimen plus the Markup listing (the same rule as the lesson: a target that carries its own presentation is a result, never a source). The draft state lives in the code pane head ('Draft: Saved' and 'Save draft · Ctrl/⌘ + S') — not in the options menu. The binding contract still holds: Code and Preview share one work area behind tabs with Code first, Instructions sit alongside on desktop and become a tab when narrow, Hint stays separate, there is no footer toolbar and no Save button, drafts save on Ctrl/⌘+S, and Run and Submit remain separate and separately confirmed. Keep the DOM contract: #editor-host, #preview-frame, #run, #reference-preview, #draft-status, [data-pane-toggle], [data-workspace-pane], [data-workspace-resize].

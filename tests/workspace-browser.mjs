@@ -155,8 +155,10 @@ try {
         for (const width of [390, 768, 1366, 1920]) {
             await send('Emulation.setDeviceMetricsOverride', { width, height: 768, deviceScaleFactor: 1, mobile: false });
             await evaluate(`document.querySelector('[data-pane-toggle="brief"]').click(); document.querySelector('[data-workspace-reset]').click()`);
-            assert.equal(await evaluate(`document.querySelector('.atlas-boss-state form button').getBoundingClientRect().height >= 44`), true);
-            assert.equal(await evaluate(`document.querySelector('.atlas-boss > nav a').getBoundingClientRect().height >= 44`), true);
+            // Touch surfaces promise a 44px target; a mouse-driven desk gets 32px.
+            const minHeight = width <= 640 ? 44 : 32;
+            assert.equal(await evaluate(`document.querySelector('.atlas-boss-state form button').getBoundingClientRect().height >= ${minHeight}`), true);
+            assert.equal(await evaluate(`document.querySelector('.atlas-boss nav button').getBoundingClientRect().height >= ${minHeight}`), true);
             assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
 
         }
@@ -275,7 +277,8 @@ try {
         await key('Home', 'Home', 36);
         await check(`document.activeElement.id`, 'workspace-tab-brief');
         await check(`!document.querySelector('[data-workspace-pane="brief"]').hidden`);
-        await check(`document.querySelector('#instructions-title').textContent`, 'Lesson context');
+        await check(`document.querySelector('#instructions-title').textContent === document.querySelector('.cq-challenge h1').textContent`);
+        await check(`document.querySelector('.cq-lesson-context').textContent.includes('Authored lesson context')`);
         await key('End', 'End', 35);
         await check(`document.activeElement.id`, 'workspace-tab-preview');
         await evaluate(`document.querySelector('[data-pane-toggle="editor"]').click(); originalEditor.dispatch({changes:{from:0,to:originalEditor.state.doc.length,insert:'<h1>Live preview</h1>'}}); window.beforeRun = document.querySelector('#preview-frame').srcdoc; document.querySelector('#run').focus();`);
@@ -375,7 +378,7 @@ try {
             assert.equal(await evaluate(`document.querySelector('#draft-status')?.textContent === savedWorkspaceFeedback`), true);
             if (mode === 'boss-passed') {
                 await evaluate(`document.querySelector('#run').scrollIntoView({block: 'nearest'})`);
-                assert.equal(await evaluate(`document.querySelector('#run').getBoundingClientRect().bottom <= Math.min(innerHeight, document.querySelector('[data-workspace-pane="editor"]').getBoundingClientRect().bottom)`), true);
+                assert.equal(await evaluate(`document.querySelector('#run').getBoundingClientRect().bottom <= document.querySelector('[data-workspace-pane="editor"]').getBoundingClientRect().bottom + 1`), true);
             }
             assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true);
         }

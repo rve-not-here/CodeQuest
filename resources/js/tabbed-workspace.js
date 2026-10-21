@@ -9,7 +9,7 @@ export function initializeTabbedWorkspace(root, workspace) {
     const narrow = window.matchMedia('(max-width: 1100px)');
     let selected = 'editor';
     let briefHidden = false;
-    let width = 340;
+    let width = 288;
 
     function maximumWidth() {
         return Math.max(240, Math.min(480, workspace.getBoundingClientRect().width - 408));
@@ -70,7 +70,7 @@ export function initializeTabbedWorkspace(root, workspace) {
         });
     }
     reset?.addEventListener('click', () => {
-        width = 340;
+        width = 288;
         briefHidden = false;
         selected = 'editor';
         render();

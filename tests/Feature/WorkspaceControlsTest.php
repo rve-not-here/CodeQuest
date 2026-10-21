@@ -46,7 +46,8 @@ class WorkspaceControlsTest extends TestCase
         ]);
 
         $this->actingAs($student)->get(route('mission.challenge', $mission))->assertOk()
-            ->assertSee($description)
+            ->assertSee('Authored context <script>alert(1)</script>.')
+            ->assertSee('Authored task stays intact.')
             ->assertSee('<h1>Public reference</h1>')
             ->assertDontSee('<script>alert(1)</script>', false)
             ->assertDontSee('validator-secret')

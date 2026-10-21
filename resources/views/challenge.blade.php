@@ -9,11 +9,46 @@
         $hasWorkspaceMessages = $errors->any() || session('mission_info') || session('mission_error')
             || session('hint_error') || session('reveal_error') || session('hint_revealed')
             || session('hint_flat') || session('reveal_flat') || session('solution_revealed') || session('draft_saved');
+
+        $language = match ($course?->type) {
+            'css' => 'CSS',
+            'js', 'javascript' => 'JavaScript',
+            default => 'HTML',
+        };
+
+        // The brief teaches; the last paragraph states the job. Lift the job out of
+        // the prose so it can head the reading column without being read twice.
+        $briefParagraphs = preg_split('/\r\n\r\n|\n\n/', trim((string) $mission->description)) ?: [];
+        $task = null;
+        if ($briefParagraphs !== []) {
+            $last = trim((string) end($briefParagraphs));
+            if (str_starts_with($last, 'Your task:')) {
+                $task = ucfirst(trim(substr($last, strlen('Your task:'))));
+                array_pop($briefParagraphs);
+            }
+        }
+
+        // In the HTML course the target is the markup the student writes; in the
+        // CSS and JavaScript courses it is the console panel their own code must
+        // produce, and its inline-style source is noise.
+        $target = (string) $mission->target_html;
+        $referenceIsMarkup = $course?->type === 'html'
+            && ! preg_match('/\sstyle\s*=/i', $target);
     @endphp
     <article class="cq-challenge" data-workspace-fullscreen-root>
         <h1 class="sr-only">{{ $mission->title }}</h1>
         <div class="challenge-workspace cq-workspace" data-workspace data-workspace-layout="tabs">
             <header class="cq-workspace-heading">
+                <div class="cq-workspace-id">
+                    <span class="atlas-lesson-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · {{ $course?->name ?? 'Challenge' }}</span>
+                    @if ($completed)
+                        <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
+                    @elseif ($hasDraft)
+                        <span class="atlas-stamp atlas-stamp--vio"><x-icon name="pencil" size="12" />Draft saved</span>
+                    @else
+                        <span class="atlas-stamp atlas-stamp--ink"><x-icon name="minus" size="12" />Not recorded</span>
+                    @endif
+                </div>
                 <nav class="cq-workspace-tabs" role="tablist" aria-label="Workspace views" data-workspace-controls>
                     <button type="button" role="tab" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-selected="false" tabindex="-1" hidden>Instructions</button>
                     <button type="button" role="tab" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-selected="true" tabindex="0">Code</button>
@@ -48,10 +83,8 @@
                         <p class="cq-workspace-context">{{ $mission->title }}@if ($course)<span>{{ $course->name }}@if ($section) · {{ $section->title }}@endif</span>@endif</p>
                         <p class="cq-workspace-metadata">{{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
                         @if ($completed)<p class="cq-workspace-state"><span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span></p>@endif
-                        <p id="draft-status" class="challenge-draft-status" data-state="{{ session('draft_saved') || $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ session('draft_saved') || $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
-                        @if (! $completed)<p class="cq-workspace-help">Save draft: <kbd>Ctrl/⌘ + S</kbd> within the workspace.</p>@endif
                         <button type="button" class="btn btn-ghost" data-workspace-hide-brief aria-controls="workspace-brief" aria-expanded="true"><span data-workspace-hide-icon="closed"><x-icon name="panel-left-close" size="16" /></span><span data-workspace-hide-icon="open" hidden><x-icon name="panel-left-open" size="16" /></span><span data-workspace-hide-label>Hide instructions</span></button>
-                        <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="340" data-workspace-width></label>
+                        <label class="cq-workspace-width">Instructions width<input type="range" min="240" max="480" step="1" value="288" data-workspace-width></label>
                         <button type="button" class="btn btn-ghost" data-workspace-reset>Reset panes</button>
                         @if ($hints || (! $completed && $hasSolution))<button type="button" class="btn btn-ghost" data-workspace-assistance-open>Assistance</button>@endif
                         <button type="button" class="btn btn-ghost" data-workspace-fullscreen aria-pressed="false"><span data-workspace-fullscreen-icon="enter"><x-icon name="maximize" size="16" /></span><span data-workspace-fullscreen-icon="exit" hidden><x-icon name="minimize" size="16" /></span><span data-workspace-fullscreen-label>Fullscreen</span></button>
@@ -65,27 +98,60 @@
                         <span class="cq-brief-entry-label">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }} · Challenge</span>
                         @if ($completed)<span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>@endif
                     </div>
-                    <h2 id="instructions-title">{{ $mission->title }}</h2>
+                    <h2 id="instructions-title">{!! str_replace('_', '_<wbr>', e($mission->title)) !!}</h2>
                     <dl class="log-facts cq-brief-facts">
                         <div>
                             <dt>Difficulty</dt>
-                            <dd>{{ $mission->difficulty }}</dd>
+                            <dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd>
                         </div>
                         <div>
                             <dt>Reward</dt>
                             <dd class="is-numeric">+{{ $mission->points }} XP</dd>
                         </div>
                     </dl>
-                    @if ($mission->description)<div class="cq-lesson-context whitespace-pre-line">{{ $mission->description }}</div>@else<p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>@endif
-                    @if ($mission->target_html)
-                        <h3>Example</h3>
-                        <pre class="log-listing" tabindex="0" aria-label="Reference output"><code>{{ $mission->target_html }}</code></pre>
+                    @if ($briefParagraphs !== [])
+                        <div class="cq-lesson-context">
+                            @foreach ($briefParagraphs as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        </div>
+                    @else
+                        <p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>
+                    @endif
+                    @if ($task)
+                        <p class="cq-brief-task">{{ $task }}</p>
+                    @endif
+                    @if ($target !== '')
+                        <details class="atlas-lesson-reference cq-reference">
+                            <summary>
+                                <span>Reference output</span>
+                                <span>Expected result</span>
+                            </summary>
+                            <div class="atlas-lesson-reference-part">
+                                <p class="atlas-lesson-reference-label">Result</p>
+                                <div class="atlas-lesson-reference-frame">
+                                    <iframe id="reference-preview" title="Reference output" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                                </div>
+                            </div>
+                            @if ($referenceIsMarkup)
+                                <div class="atlas-lesson-reference-part">
+                                    <p class="atlas-lesson-reference-label">Markup</p>
+                                    <pre class="log-listing" tabindex="0" aria-label="Reference markup"><code>{{ $target }}</code></pre>
+                                </div>
+                            @endif
+                        </details>
                     @endif
                 </div>
             </section>
             <div class="workspace-separator" role="separator" tabindex="0" aria-label="Resize instructions" aria-controls="workspace-brief" aria-orientation="vertical" aria-valuemin="240" aria-valuemax="480" aria-valuenow="340" data-workspace-resize="brief"></div>
             <section class="challenge-pane cq-code-pane" id="workspace-editor" data-workspace-pane="editor" role="tabpanel" aria-labelledby="workspace-tab-editor" tabindex="0">
                 <h2 class="sr-only">Code editor</h2>
+                <header class="cq-pane-head">
+                    <span>Code</span>
+                    <span class="cq-pane-language">{{ $language }}</span>
+                    <p id="draft-status" class="cq-pane-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
+                    <span class="cq-pane-shortcut">Save draft · Ctrl/⌘ + S</span>
+                </header>
                 <div class="challenge-pane-body editor-pane">
                     <div id="editor-host" class="challenge-pane-editor"></div>
                     <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
@@ -251,13 +317,21 @@
 
             var starter = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
             var initial = {{ Illuminate\Support\Js::from($initialCode) }};
+            var target = {{ Illuminate\Support\Js::from($target) }};
             var host = document.getElementById('editor-host');
             var source = document.getElementById('editor-source');
             var runBtn = document.getElementById('run');
             var frame = document.getElementById('preview-frame');
+            var reference = document.getElementById('reference-preview');
             var draftStatus = document.querySelector('#draft-status span');
             var draftForm = document.getElementById('draft-form');
             var completionOverlay = document.querySelector('[data-completion-overlay]');
+
+            // The reference output is the finished work, shown as it will look —
+            // not the inline styles that produced it.
+            if (reference) {
+                reference.srcdoc = target;
+            }
 
             function setDraftState(state, text) {
                 if (!draftStatus) return;
