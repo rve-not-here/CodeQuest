@@ -3,6 +3,7 @@ paths:
   - 'resources/views/**'
   - resources/views/dashboard.blade.php
   - resources/views/students.blade.php
+  - resources/views/learning-path.blade.php
 ---
 
 # Views
@@ -69,3 +70,6 @@ Every admin view renders inside the atlas shell (`body.atlas-ui.admin-ui`) — t
 
 ## Dashboard entry plate owns the entry number
 The current objective is one bordered Entry plate: a full-width header (`Entry NNN / Current Objective` + optional stamp), a copy column that closes on a two-cell Type/Difficulty meta strip, and a right action tile with Challenges logged, the oversized `NN / TT` position, the challenge ruler, the caption, Completion reward, and the CTA. The entry number lives in the plate header at every width; there is no red margin index and no separate work-order slip. The action tile stacks below the copy <=900px and becomes a single flex column <=700px. Keep `Challenges logged`, `01 / 03`, `<dt>Completion reward</dt>`, and `Challenge N of M` as test bindings; the old `<dt>Position</dt>` row is gone.
+
+## Learning Path is the index-margin sheet (Direction C)
+No page h1/lede: course names are h2 and carry the hierarchy. Scoreboard strip (XP + completed/total + meter) renders even when the tree is empty — LearningPathTest expects `XP 0`. A sticky 236px course rail (>960px) becomes an index grid <=960px and a horizontal scroll strip <=700px; it lists courses only, plus the current course's milestone item when that course actually has an assessment. Each mission row has one meta line (`State · difficulty · +N XP`) and one link (Review / Open lesson); the current mission is replaced by one Entry plate rendered inside its own `<li class="atlas-path-mission atlas-path-entry-mission">` so workspace-browser still counts `.atlas-path-mission`. Locked courses render only the head and a single lock reason — no rows, no mission links, no boss block. Do not reintroduce the old `.log-running` strip, continue card, overall-progress band, per-mission notes, or repeated lock reasons. Keep `Recommended next actions` (x-recommendation-cards), `Final course milestone`, `atlas-stamp atlas-stamp--ink` available-boss stamp, and the sentence-case state words (Completed/Current/Available/Locked) as test bindings.

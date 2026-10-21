@@ -103,9 +103,9 @@
                 </dl>
             </div>
             <div class="atlas-record-entry">
-                <div class="atlas-path-course-progress">
-                    <p class="atlas-path-meta">Course position</p>
-                    <p class="atlas-path-meta">4 / 10 challenges complete · 40%</p>
+                <div>
+                    <p class="atlas-path-entry-context">Course position</p>
+                    <p class="atlas-path-summary-count">4 / 10 challenges complete · 40%</p>
                     <div class="progress" role="progressbar" aria-label="Example course progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="4"><span style="width: 40%"></span></div>
                 </div>
             </div>

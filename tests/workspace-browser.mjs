@@ -82,9 +82,8 @@ try {
         assert.equal(await evaluate(`document.querySelector('.cm-content').getAttribute('aria-label')`), 'Code editor');
     }
     if (isReadOnly) {
-        const heading = mode === 'dashboard' ? 'Paragraph reflow' : 'Learning Path';
-        assert.equal(await evaluate(`document.querySelector('h1').textContent.trim()`), heading);
         if (mode === 'dashboard') {
+            assert.equal(await evaluate(`document.querySelector('h1').textContent.trim()`), 'Paragraph reflow');
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-heading') === null`), true);
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-chips') !== null`), true);
             assert.equal(await evaluate(`document.querySelector('.atlas-dashboard-chips').textContent.includes('Coding challenge')`), true);
@@ -95,6 +94,9 @@ try {
             assert.equal(parseFloat(objectiveSize) >= 28, true);
         }
         if (mode === 'learning-path') {
+            // The page has no title heading: the course names carry the hierarchy.
+            assert.equal(await evaluate(`document.querySelector('main h1') === null`), true);
+            assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-course h2').length`), 1);
             assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-course').length`), 1);
             assert.equal(await evaluate(`document.querySelectorAll('.atlas-path-mission').length`), 3);
         }
