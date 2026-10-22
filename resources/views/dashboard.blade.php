@@ -47,6 +47,7 @@
                 @if ($entryStamp !== null)
                     <span class="atlas-stamp atlas-stamp--{{ $entryStamp['tone'] }}">@if ($stampIcon = \App\Support\StampIcon::for($entryStamp['word']))<x-icon :name="$stampIcon" size="12" />@endif{{ $entryStamp['word'] }}</span>
                 @endif
+                <button type="button" class="atlas-dashboard-help" data-dialog-open="how-codequest-works">How it works</button>
             </header>
 
             <div class="atlas-dashboard-objective-copy">
@@ -129,16 +130,14 @@
         <section class="atlas-dashboard-evidence" aria-labelledby="evidence-heading">
             <div class="atlas-dashboard-section-heading">
                 <h2 id="evidence-heading">Recent learning evidence</h2>
-                <a href="{{ route('timeline') }}" class="atlas-dashboard-link">View timeline →</a>
             </div>
             @if ($specimen !== null)
                 @php $specimenStamp = $stampFor($specimen); @endphp
                 <div class="atlas-evidence-specimen">
                     <div class="atlas-sheet" aria-hidden="true">
+                        <span class="atlas-sheet-caption">Record #{{ $specimen->id }}</span>
                         <span class="atlas-sheet-rule" style="width: 100%"></span>
-                        <span class="atlas-sheet-rule" style="width: 62%"></span>
-                        <span class="atlas-sheet-rule" style="width: 84%"></span>
-                        <span class="atlas-sheet-rule" style="width: 44%"></span>
+                        <span class="atlas-sheet-rule" style="width: 74%"></span>
                         <span class="atlas-sheet-rule" style="width: 52%"></span>
                         <span class="atlas-sheet-tail">
                             <span class="atlas-sheet-rule" style="width: 70%"></span>
@@ -186,11 +185,16 @@
                     <p class="atlas-dashboard-focus-subtitle">{{ $focusCard['subtitle'] }}</p>
                 </div>
                 @php
+                    $focusAccessible = $focusCard['accessible'] ?? true;
                     $focusIsAssessment = str_contains($focusCard['href'], '/assessments/');
                     $focusHref = $focusIsAssessment ? route('recommendations') : $focusCard['href'];
                     $focusCta = $focusIsAssessment ? 'View recommendations' : $focusCard['cta'];
                 @endphp
-                <a href="{{ $focusHref }}" class="btn btn-secondary">{{ $focusCta }}</a>
+                @if ($focusAccessible)
+                    <a href="{{ $focusHref }}" class="btn btn-secondary">{{ $focusCta }}</a>
+                @else
+                    <p class="atlas-dashboard-focus-locked">{{ $focusCard['locked_reason'] ?? 'Not available yet.' }}</p>
+                @endif
             </section>
         @endif
 

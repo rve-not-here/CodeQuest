@@ -2221,3 +2221,287 @@ A separate read-only reviewer confirmed the JSON_ARRAY/JSON_OBJECT root cause, e
 Branch `main`; HEAD `9a6cd6484d0767a8cb7f66d8a890afc2b977687f`; all 69 pending paths preserved. No product code changed, no commit or push occurred, and `git diff --check` passed. Unslop review removed no safeguards or production code. Publication, migration, post-deployment tests and configured application smoke tests have not run. Execution must resume with a verified freeze, repeat read-only checks, protected backup and verified isolated restoration before any configured write.
 
 Deployment verdict: **BLOCKED** pending the operational prerequisites above. The previously reported checksum blocker is resolved.
+
+## Deferred remediation completed and strict container acceptance verified — 2026-10-22
+
+No configured-database write, deployment, curriculum publication, commit or branch change was performed in this pass. Verification ran against the PHPUnit in-memory SQLite connection and disposable local containers only.
+
+### Deferred domain items implemented
+
+| Item | Implementation | Evidence |
+| --- | --- | --- |
+| Boss behavioural grading (F01 follow-through for the Boss path) | `the404_assessment_behavior_tests` + `AssessmentBehaviorTest`, `AssessmentGradingService` over the shared `GraderClient`, `BehaviorTestDefinition` as the single shaping path for both parents. Combined score = (passedRules + passedTests) / (totalRules + totalTests). Pass needs a valid configuration, at least one check, the score at or above the threshold, every pattern rule passing and every configured hidden test passing. An assessment with no hidden tests keeps the legacy pattern-only path and leaves `tests_total`/`tests_passed` NULL. | `tests/Feature/AssessmentBehavioralGradingTest.php` (6 tests), `docs/BEHAVIORAL_GRADING.md` |
+| Grader unavailability is infrastructure, not a student failure | Transport failure, malformed response or oversized payload leaves the attempt `submitted` with neutral `failure_feedback`, no score, no XP, no Activity row; resubmitting the latest attempt re-evaluates because no terminal verdict was written. | `AssessmentBehavioralGradingTest`, mission grader-timeout assertion |
+| Unfrozen Boss criteria | `grading_rule` is an audited admin write validated by `ValidationService::isValidDefinition`, version-bumped on a material change, and omitted keys preserve the stored rule. | `AdminAssessmentUpdateRequest`, `AdminAssessmentService`, `tests/Feature/AdminAssessmentManagementTest.php` |
+| Required Knowledge Check administration | New `admin.courses.missions.checks` index/edit screens with a metadata-only write (title, instructions, required flag, status), hierarchy-checked Course → Mission → Check, audited with a failed row before every refusal. | `AdminKnowledgeCheckService`, `AdminKnowledgeCheckController`, `tests/Feature/AdminKnowledgeCheckManagementTest.php` (7 tests) |
+| Ungradable-submission analytics | `the404_activity` gained a nullable `mission_id`; `grading_unavailable` rows count as attempts (not failures, not completions) and unattributed historical rows stay unattributed. | `tests/Feature/ChallengeAnalyticsTest.php` (3 tests) |
+| Boss ledger parity and competency evidence | Boss verdicts write `assessment_passed`/`assessment_failed` Activity rows for the raw ledger while the timeline composes its single Boss beat from `AssessmentAttempt` (`COMPOSED_ELSEWHERE_ACTIVITY_TYPES`). Competency gained a third Boss component: ever passed = 100%, attempted without a pass = 0%, no attempt = no component, read from the `skill_keys` snapshot. | `tests/Feature/TimelineTest.php`, `tests/Feature/SkillCompetencyTest.php` |
+
+### Strict container acceptance: previously blocked, now proven
+
+The audit recorded the strict grader-container acceptance as blocked because no container runtime was reachable. Podman 6.1.4 rootless is available on this host, so the previously unrunnable gate was executed rather than deferred again:
+
+```
+CODEQUEST_REQUIRE_SANDBOX_TESTS=1 GRADER_RUNTIME=podman sh grader/test/integration-container.sh
+pass=24 fail=0 runtime=podman mode=rootless podman
+```
+
+All 24 checks passed: valid and alternative valid solutions, a server-authored curriculum probe, hard-coded and wrong-logic failures, comment-only console output, infinite-loop timeout, output-bomb bound, unavailable `fs`/`https` modules, a forged execution verdict failing closed, blocked live egress, no bind or volume mounts, `/tmp` tmpfs exactly `rw,size=16m,noexec`, container network mode `none`, absent host home and project paths, read-only root, writable `/tmp`, denied `/tmp` execution, service timeout failing closed, no leftover container after timeout, non-root identity `65534` with the enforced cgroup limits, `NoNewPrivs=1`, and `Seccomp=2`.
+
+Two supporting changes make that gate reproducible rather than local-only:
+
+- `grader/test/integration-container.sh` accepts an explicit `GRADER_RUNTIME` (`podman` or `docker`); without it the script prefers podman and falls back to docker. A pinned runtime cannot silently change between hosts.
+- CI gained a `grader-container-tests` job that runs the same suite with the runner's Docker, with `set -o pipefail` so the script's exit code survives the log pipe, and with a `^Runtime: ` assertion so an unavailable runtime can never print `SKIP` and read as a green sandbox gate. Rootless enforcement stays a deployment posture gate verified on the private grader host, because a rootful CI runner would otherwise report a posture it does not have.
+
+### Curriculum example correction (C19)
+
+The `Safe_Embed` mission starter and solution referenced `/map`, a route that does not exist, so the example produced a 404 and was then blocked by the application's `frame-ancestors 'none'`. The seeded example is now self-contained through an inline `srcdoc` document and keeps the empty `sandbox` and `title` the mission teaches. No route was added and no CSP was relaxed. A browser probe under the exact application CSP confirmed the constraint that makes this the right fix: inside the fully sandboxed student preview frame a nested frame never loads, whether it uses `src` or `srcdoc`, so the example must be self-contained rather than point at an application route.
+
+### Documentation reconciliation (F37)
+
+- `DESIGN.md` described a conventional SaaS direction with Inter, indigo, slate surfaces and light-mode only, contradicting the shipped system and the retro-terminal description in `AGENTS.md`, `CLAUDE.md` and `CONTEXT.md`. It now documents the implemented sector-map console: the real light and dark token values, Barlow / Barlow Condensed / Fragment Mono, 2px radii, flat offset shadows, the sheet column and command band, and the craft floor the code actually keeps.
+- `docs/design/README.md` pointed at the absent `docs/CODEQUEST_MASTER_SPEC.md`; it now points at `CODEQUEST_MASTER_SPEC_FINAL_UPDATED.md` at the repository root and states that the running code plus its tests decide live facts.
+- `docs/BEHAVIORAL_GRADING.md`, `docs/adr/0002-sandboxed-iframe-preview.md`, `docs/adr/0003-xp-economy.md`, `CONTEXT.md` and `README.md` were reconciled with the shipped Boss scoring, the required-check gate, the assessment attempt contract, the XP ledger shape and the container acceptance gate.
+- Durable rules were recorded for the Boss grading contract, the analytics `mission_id`, the competency Boss evidence, the admin Knowledge Check write path, the admin Knowledge Check routes and controller, the timeline Activity exclusion, the seeded-example rule and the container acceptance gate.
+
+### Verification run in this pass
+
+| Gate | Result |
+| --- | --- |
+| PHPUnit | 1541 tests, 1510 passed, 31 skipped (MariaDB-only), 0 failed |
+| PHPStan (level 8) | 0 errors |
+| Pint | clean |
+| Node (`node --test tests/*.test.js`) | 17 passed, 0 failed |
+| Icons | `resources/icons.php` up to date (62 icons) |
+| Vite build | built in 781ms; the >500kB editor chunk advisory remains (F38, optional) |
+| Chromium layout checks | 10 passed, 35 assertions |
+| Grader container acceptance | 24 passed, 0 failed, rootless podman |
+
+### Still open, unchanged
+
+Production gates remain external and were not performed: applying the new migrations, the `the404_user_preferences` table, curriculum re-seeding for the corrected `Safe_Embed` example, and flagging production Knowledge Checks as required. Those are approved deployment steps and administrative actions, not code work. F25/F27/F33–F38 remain architectural recommendations that need their own measurement or an explicit product decision. The static-analysis baseline stays frozen at its US-501 contract.
+
+## Schema-lag incident and tolerance layer — 2026-10-22
+
+### Incident
+
+A live `POST /logout` against the local `codequest` MariaDB returned HTTP 500:
+
+```
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'mission_id' in 'INSERT INTO'
+insert into `the404_activity` (`user_id`, `type`, `mission_id`, `message`, `pts`) values (?, ?, ?, ?, ?)
+```
+
+Cause: the code had moved ahead of the schema. The four `2026_10_22_*` migrations were pending on that database, so `the404_activity.mission_id` did not exist, and `ActivityService::record()` wrote that attribute unconditionally. Every Activity write was affected — a logout could not be recorded. The same lag would have turned every Boss Challenge submission into a 500 (missing `the404_assessment_behavior_tests` table and missing attempt evidence columns).
+
+### Fix: optional schema degrades, never crashes
+
+The application schema is applied on its own, explicitly approved step, so a deployed database can legitimately lag the code for a while. The code must not assume optional columns and tables exist.
+
+| Missing | Behaviour | Academic effect |
+| --- | --- | --- |
+| `the404_activity.mission_id` | The attribute is omitted from the Activity write | none — attribution only; unattributed rows stay uncounted by mission-scoped analytics rather than guessed |
+| `the404_assessment_attempts` evidence columns | The verdict is written without the evidence columns | none — the verdict, XP and completion are unchanged |
+| `the404_assessment_behavior_tests` | The assessment keeps the legacy pattern-only evaluation | none — no hidden test can exist without its table, so pattern-only is the honest evaluation for that schema state |
+
+`App\Support\SchemaAvailability` owns the probes. Each is answered once per process and logs the exact pending migration when the schema is behind, so a deployment that skipped the DDL is visible in the log instead of silently degrading. `tests/Feature/SchemaLagToleranceTest.php` proves all four paths against a genuinely lagging schema: the columns and the table are actually dropped from the test schema for the duration of each test and restored by the surrounding transaction — 4 tests, 12 assertions.
+
+### Approved local migration
+
+The user approved applying the four pending migrations to the local `codequest` database. `php artisan migrate --force` ran exactly those four and nothing else:
+
+```
+2026_10_22_000001_set_the404_assessments_passing_score_floor .. DONE
+2026_10_22_000002_create_the404_assessment_behavior_tests_table  DONE
+2026_10_22_000003_add_grading_evidence_to_assessment_attempts .. DONE
+2026_10_22_000004_add_mission_id_to_the404_activity_table .. DONE
+```
+
+Read-only before/after proofs on that database: `the404_activity` 121 rows with an unchanged row digest (`1a1c3af24ca9fda49ec2d9c69354fd39`) and an unchanged points total (840); `the404_assessments` 3 rows with an unchanged digest (`cfbdbb12c87f2df7d9208d622a78ce14`) and an unchanged `passing_score` total (210). The migration changed only the column default of `the404_assessments.passing_score` from `0` to `70`; no existing row was rewritten, and `the404_assessment_attempts` held no rows. The production `system404` database was not contacted.
+
+### Verification after the fix
+
+| Gate | Result |
+| --- | --- |
+| PHPUnit | 1545 tests, 1514 passed, 31 skipped (MariaDB-only), 0 failed |
+| PHPStan (level 8) | 0 errors |
+| Pint | clean |
+| Logout path | The failing insert was re-run against the migrated schema inside a rolled-back transaction: `insert ok: id=152 mission_id=NULL`; the row count and digest were unchanged afterwards |
+
+## Student Knowledge Check surfaces — register page and mission tab — 2026-10-22
+
+The Knowledge Check had no student-facing entry point: checks existed only as a section of the mission lesson, on 12 of 95 missions, with no way to see which checks exist, what they scored, or what was still outstanding. Two surfaces now exist, both read models over the same evidence.
+
+### Register page
+
+`GET /knowledge-checks` (`knowledge-checks.index`, student group) lists every published check the student may open — published check, active course, course reached — exactly the verdict `KnowledgeCheckController` enforces before it opens a check, computed with one batched `AssessmentService::courseReachForCourses` call. The state comes from the student's latest attempt per check (`not_started` / `in_progress` / `completed`) and the row links to Start (POST `knowledge-check.start`), Resume or Review (GET `knowledge-check.show`). It awards nothing, completes nothing and never exposes questions, options or answer keys. A "Knowledge Checks" entry was added to the student top navigation, and the Challenge Index rows for missions that own a published check gained a "Knowledge Check" action pointing at the lesson's check section.
+
+### Knowledge Check tab inside the mission workspace
+
+A mission with a published check now carries it in the challenge workspace itself, as a fourth tab beside Instructions / Code / Preview (`data-pane-toggle="check"`). The tab renders `partials/knowledge-check-form` — the same partial the standalone attempt screen uses, so the question projection, the `sessionStorage` draft key and the submit route exist once — and the check can be started, answered and reviewed without leaving the mission. `start`, `submit` and `retry` accept an optional `return_to=mission`, which redirects to `route('mission.challenge', $mission).'#workspace-check'`; the value is a fixed route, never a client-supplied URL.
+
+### Verification
+
+| Gate | Result |
+| --- | --- |
+| PHPUnit | 1562 tests, 1531 passed, 31 skipped (MariaDB-only), 0 failed |
+| PHPStan (level 8) | 0 errors |
+| Pint | clean |
+| Node (`node --test tests/*.test.js`) | 17 passed, 0 failed |
+| Icons / Vite build | up to date (62 icons) / built; the >500kB editor chunk advisory remains (F38) |
+| Chromium layout checks | 10 passed, 35 assertions |
+| Grader container acceptance | 24 passed, 0 failed, rootless podman (unchanged) |
+
+New coverage: `tests/Feature/KnowledgeCheckRegisterTest.php` (11 tests — navigation visibility, published filtering, unreached/inactive courses, state and score accuracy, resume and review targets, authorization, formative behaviour, required-check gating, the Challenge Index action) and `tests/Feature/KnowledgeCheckMissionTabTest.php` (6 tests — the tab and its absence, starting from the tab, answering inside the tab, the answer key never reaching the page, the required gate before and after). `StudentAuthorizationTest` now includes the register in the student-only page matrix.
+
+## Knowledge Check in the mission panel — required, opened in place — 2026-10-22
+
+The Knowledge Check had no student-facing entry point of its own: it appeared only as a small section of the mission lesson, on 12 of 95 missions, with no way to see which checks existed, what they scored, or what was outstanding. A first attempt added a fourth workspace tab to the Challenge screen; that contradicted the binding Challenge-workspace commitment in `PRODUCT.md` ("Code and Preview share one full-width work area behind tabs with Code selected first, Instructions sit alongside that area on desktop and become a tab at narrow widths"), so the tab was removed and the check was given its own home in the lesson panel.
+
+### What ships
+
+- **The check is a docket at the foot of the lesson's reading column** (`resources/views/lesson.blade.php`, `.atlas-lesson-check-panel`): the title, the Required/Optional stamp, the state stamp (Not started / In progress / Completed), the question count and the score when answered, and the action.
+- **It opens in place.** `mission.knowledge-check.start`, `.submit` and `.retry` post back to the lesson and re-render it: no redirect, no navigation off the page. Starting twice is harmless (the service returns the open attempt) and re-submitting a submitted attempt returns the stored result, so a browser refresh re-POSTs safely.
+- **An open attempt takes the column**: the brief prose folds into a "The brief" disclosure and the shared `partials/knowledge-check-form` stacks into one column for the 380px reading column instead of the attempt screen's two-column layout. The form, the draft key and the scoring are the same partial and the same service the standalone attempt screen uses.
+- **A check is required.** `CurriculumContentSeeder` now authors checks with `is_required = true`; the admin screen can still make an individual check optional. The seeder also applies the curriculum version hook to checks (it previously wrote them through `updateOrCreate` and never moved the version, so a material change to a check left the version stamp behind).
+- **The Challenge workspace carries no check** again: its tab set is back to Code / Preview / Instructions.
+
+### Local curriculum revision (development database only)
+
+Applied to the local development database after the seeder change, with read-only before/after counts:
+
+| | before | after |
+|---|---|---|
+| checks | 12 | 12 |
+| required | 0 | 12 |
+| check versions (sum) | 13 | 13 |
+| mission versions (sum) | 194 | 195 (the `Safe_Embed` self-contained example, C19) |
+| missions / questions / options | 95 / 36 / 108 | 95 / 36 / 108 |
+| attempts | 2 | 2 |
+
+No row was added or removed, the two existing attempts are untouched, and the second run of the seeder changed nothing — the revision is idempotent. One disclosure: the requirement change was written by the seeder *before* the seeder's version hook was added, so that single change did not move the check version. The attempt stamps remain accurate — the scored content (questions and options) did not change.
+
+### Verification
+
+| Gate | Result |
+| --- | --- |
+| PHPUnit | 1566 tests, 1535 passed, 31 skipped (MariaDB-only), 0 failed |
+| PHPStan (level 8) | 0 errors |
+| Pint / `git diff --check` | clean |
+| Node (`node --test tests/*.test.js`) | 17 passed, 0 failed |
+| Icons / Vite build | up to date (62 icons) / built |
+| Chromium layout checks | 10 passed, 35 assertions |
+| Live render (real app, real data) | panel in the reading column, `Required` + `In progress` stamps, 3 questions, brief folded, form action on the in-place route, no answer-key material in the page |
+
+New coverage: `tests/Feature/KnowledgeCheckLessonPanelTest.php` (10 tests — the required panel, starting in place without a redirect, scoring in place, the answer key never reaching the page, an optional check, the required gate before and after answering, the Challenge workspace carrying no check, authorization, a check from another mission refused, and retry opening a fresh attempt in place).
+
+## Every mission owns a Knowledge Check — 2026-10-22
+
+The Knowledge Check panel was live on the lesson, but the curriculum carried a check on only **12 of 95 missions**. Walking the Learning Path, 83 lessons (including `Emphasis_Markers`, entry 011) correctly rendered no panel, while the "Knowledge Checks" register listed the 12 that did exist. The panel was never broken; the coverage was.
+
+### What changed
+
+`CurriculumContentSeeder::knowledgeChecks()` now carries **one authored check per mission — 95 checks, 285 questions**. The 12 existing checks were kept as authored; 83 are new (26 HTML, 26 CSS, 31 JS). Every question is grounded in what that mission teaches — the construct it introduces, what it does, and the specific rule from its `Syntax:` line — with real distractors and an explanation that says why. Nothing is generated as filler.
+
+The seeder also gained the curriculum version hook for checks: it previously wrote them through `updateOrCreate` and never moved the version, so a material change to a check left the version stamp behind while missions were versioned correctly.
+
+### Local curriculum revision (development database only)
+
+| | before | after |
+|---|---|---|
+| checks | 12 | **95** |
+| published / required | 12 / 0 | **95 / 95** |
+| questions / options | 36 / 108 | **285 / 855** |
+| missions with a check | 12 of 95 | **95 of 95** |
+| missions / attempts | 95 / 2 | 95 / 2 (attempts untouched) |
+| check versions (sum) | 13 | 96 (the 12 pre-existing moved to v2) |
+| mission versions (sum) | 195 | 195 (no mission content changed) |
+
+### The gate consequence, stated plainly
+
+With a required check on every mission, the required-check gate now covers all 95 missions where 83 previously had no gate. It stays soft: a submitted attempt clears it whether it passed or failed, so it never blocks a student who tried. This is the rule `CONTEXT.md` already carried ("a check is the mission's concept check") and the one the product owner set ("a Knowledge Check is not optional"). `CurriculumPreviewFixtureTest` was updated for it: the challenge workspace is now reached only after the check is answered, so the test clears the prerequisite through the real start/submit flow before asserting the workspace renders.
+
+### The invariant that keeps it closed
+
+`tests/Feature/CurriculumCheckCoverageTest.php` (4 tests, 2854 assertions): every mission owns exactly one published check; every check is required and carries three questions with a prompt, an explanation, at least two options and exactly one correct option; no prompt repeats anywhere in the curriculum; every check points at a mission inside the published curriculum. A mission can no longer ship without a check, and a filler question cannot enter quietly.
+
+### Verification
+
+| Gate | Result |
+| --- | --- |
+| PHPUnit | 1570 tests, 1539 passed, 31 skipped (MariaDB-only), 0 failed |
+| PHPStan (level 8) | 0 errors |
+| Pint | clean |
+| Node (`node --test tests/*.test.js`) | 17 passed, 0 failed |
+| Icons / Vite build | up to date (62 icons) / built |
+| Chromium layout checks | 10 passed, 35 assertions |
+| Live render (mission 11, real data) | panel in the reading column, `Required` + `Not started` stamps, "Meaningful emphasis", 3 questions, *Start check* posting to the in-place route |
+
+## The Knowledge Check register was removed — 2026-10-22
+
+With the check living in the mission's own panel (started, answered and reviewed without leaving the lesson) and every mission now owning one, a separate cross-mission list was redundant: the student meets each check in the mission it belongs to, and the Challenge Index already points at the mission's check panel. The register was removed rather than kept as a second way in.
+
+Removed: the `GET /knowledge-checks` route (`knowledge-checks.index`), `KnowledgeCheckController::index()`, `KnowledgeCheckService::studentRegister()` and its lazy `AssessmentService` accessor, `resources/views/knowledge-checks.blade.php`, the "Knowledge Checks" top-bar and mobile-menu entry, `tests/Feature/KnowledgeCheckRegisterTest.php`, and the route's entry in the student-authorization page matrix. The two durable rules that described the register were withdrawn, and `AGENTS.md`, `CLAUDE.md` and `CONTEXT.md` now describe the check as living in its mission only.
+
+Kept: the lesson panel (the check's home), the in-place `mission.knowledge-check.start/submit/retry` routes, the standalone attempt screen (`knowledge-check.show` / `.submit` / `.retry` / `.start`) that the completed state links to for review, the Challenge Index "Knowledge Check" action, and the admin screen for managing check metadata.
+
+Verification: `GET /knowledge-checks` now answers 404; the student navigation no longer carries the entry while the mission panel still renders; PHPUnit 1559 tests, 1528 passed, 31 skipped, 0 failed; PHPStan level 8 clean; Pint clean; Node 17/17; Vite build ok; Chromium layout 10 passed, 35 assertions.
+
+## Theme choice no longer resets on navigation — 2026-10-22
+
+**Reported:** on the dashboard, setting the theme to light and then navigating to the next page brought the page back in dark mode.
+
+**Cause.** The head script made the **account** preference win over the browser's `localStorage` unconditionally, and then wrote the account value back into `localStorage` on every load. A student who clicked the toggle and navigated immediately could therefore lose the choice: the click had only updated the browser, the account write was still in flight, and the next page treated the older account value as authoritative — overwriting the device's choice as well, so the flip was unrecoverable without another click. The client also swallowed the failed write (`.catch(() => {})`), so nothing was reported.
+
+**Fix.** Both sources now carry a timestamp, and the **newer one wins**:
+
+- the device stores `cq-theme` and `cq-theme-at` (epoch ms) when the toggle fires;
+- the account exposes its value together with `saved_at` (`ThemePreferenceService::stateFor()`);
+- the head script compares them: a device choice newer than the account's survives the next page even if the account write has not landed, and a choice made on another device still converges here (the account's newer timestamp wins). A device value with no timestamp (older browsers) loses to the account, as before.
+
+**Verification.** `tests/Feature/ThemeBrowserTest.php` (3 tests) drives real Chromium: it seeds a device choice, reloads, and reads the mode the document actually ended up in — the device wins when it is newer, the account wins when it is newer, and the device survives when the account has no preference. The first of those fails against the previous implementation, so the regression is pinned. `ThemePreferenceTest` gained the assertion that the account's timestamp reaches the page. The browser harness (`tests/workspace-browser.mjs`) learned a `theme` mode that seeds the device, reloads and asserts the applied mode.
+
+Full gates after the fix: PHPUnit 1563 tests, 1529 passed, 34 skipped (3 of them the new Chromium-only tests outside the browser job), 0 failed; PHPStan level 8 clean; Pint clean; Node 17/17; Vite build ok; Chromium 13 passed, 41 assertions. The live page now renders `var stored = "dark"; var storedAt = 1792652882000;` and reads `cq-theme-at` from the device.
+
+## The theme button showed the wrong thing — 2026-10-22
+
+**Reported:** "it should be light mode when the user sets it to light mode, system wide." The toggle appeared to set the wrong mode, and the choice did not hold across pages.
+
+**Cause.** Two separate defects, both in the theme affordance.
+
+1. *The icon contradicted the label.* `resources/css/app.css` revealed the icon by **current** mode: a sun while the page was light, a moon while it was dark — while the button's own `aria-label` said the opposite ("Theme: Light. Switch to dark."). A student in light mode who wanted light clicked the sun and got **dark**, and the account then stored that wrong choice (the local `the404_user_preferences` row read `dark` with a save time of 07:21). The icon now shows the state the button switches **to**: a moon while the page is light, a sun while it is dark, with the title reading "Switch to dark" / "Switch to light".
+2. *The choice could be lost on the next page.* Fixed earlier the same day: the head script now compares the device's choice and the account's by **when** they were made, and the newer wins, so a choice made just before navigating is never overwritten by an account write still in flight. The account write is what carries the choice to every device, and a failed write is now retried once and then reported (`console.warn`) instead of being swallowed.
+
+**Verification.** The Chromium harness asserts the visible icon is the target state (a moon in light mode, a sun in dark mode) alongside the applied mode, so the affordance is pinned by test. Live check on the running app: in light mode the button shows the moon and reads "Switch to dark"; in dark mode it shows the sun and reads "Switch to light"; clicking from light lands in dark with `cq-theme-at` written. The three theme browser tests (device newer wins, account newer wins, device survives with no account preference) stay green, and `ThemePreferenceTest` now asserts the action in the title.
+
+Also fixed on the way: `StudentProgressTest::test_student_progress_performance_covers_only_assessed_courses` was flaky — the two courses took random faker names, and one could be a substring of the other, so the "panel mentions only assessed courses" count broke. The fixture now names the courses explicitly.
+
+Gates after the fix: PHPUnit 1563 tests, 1529 passed, 34 skipped, 0 failed; PHPStan level 8 clean; Pint clean; Node 17/17; Vite build ok; Chromium 13 passed, 41 assertions.
+
+## A legacy device choice is no longer discarded — 2026-10-22
+
+**Reported:** "it should stay light mode always until the user set it to dark mode" — the choice was still being lost on the next page.
+
+**Cause.** The timestamp comparison (device vs account, newer wins) treated a device value **without** a timestamp as the oldest possible value, because a browser that had not yet run the new client stored `cq-theme` alone. Such a value is the student's own choice, written before the account learned about time — but the account won the comparison, overwrote the device value, and the choice was gone. The account write for that click also had to have landed for the account to hold it, so a student who chose and navigated quickly lost the choice twice over.
+
+**Fix.** A device value with no timestamp now **wins** over the account, is stamped with the current time (so it is timestamped from then on), and the page sets `data-theme-sync="device"` when the account still holds another value. The client then carries the choice to the account, so the theme applies on every device instead of staying local.
+
+**Verification.** A fourth Chromium case covers it: a device value with no timestamp beats a newer account value, and the client is observed posting the choice to the account (the harness counts the request and keeps it same-origin). The three earlier theme cases stay green. Live check on the running application: with a legacy `cq-theme=light` and no timestamp while the account said dark, the dashboard and the learning path both render **light**, and the device value is stamped. With the account and the device already agreeing, no write is made at all.
+
+Gates after the fix: PHPUnit 1564 tests, 1529 passed, 35 skipped, 0 failed; PHPStan level 8 clean; Pint clean; Node 17/17; Vite build ok; Chromium 14 passed, 43 assertions.
+
+## The theme control is a setter now, not a switch — 2026-10-22
+
+**Reported:** "its still not fixed" — after the previous two fixes, the theme still came back wrong.
+
+**Evidence.** The server answered the question the browser could not. The session table showed the student is on **Firefox** (every Chromium check had been run in the wrong browser), and their last request — `2026-10-22 08:17:52` — was the second of the preference row's `updated_at`: the click **did** reach the server and **did** write. The row read `dark`. The page at that moment was **light** (the account had been written `light` by an earlier automated check), so the student pressed the control while the page was already in the mode they wanted and got the opposite one — the account then stored the wrong choice.
+
+A measurement closed the rest of the question: screenshots of the dashboard, the learning path and the challenge in both modes came back uniformly dark (mean luminance 30–39) and uniformly light (240–247), so the resolution itself — device vs account by timestamp — was sound, and the pages did not change when navigating. What was broken was the **control**, not the state.
+
+**Cause.** The control was a single icon button that *switched* to the other mode, so the meaning of a press depended on reading an icon and knowing its direction. An icon standing for "the other mode" is ambiguous, and a student who wanted light pressed it and got dark. Two earlier fixes had already removed the two icon defects (the icon contradicting the label, and the account losing the choice on the next page); the direction ambiguity was the remaining cause, and it could not be fixed by drawing the icon differently.
+
+**Fix.** The control is now an explicit setter: two options, **Light** and **Dark**, each naming the mode it applies, with the option in force pressed (`aria-pressed`, and the CSS draws the active option from `data-theme-mode` so it is right on the first paint). There is no icon to interpret and no direction to misread — pressing **Light** gives light. There is deliberately no third "System" option: the choice stays in force until the student changes it. Pressing the option already in force changes nothing on the page but still writes the account, so the choice converges on every device. The persistence path (device `cq-theme`/`cq-theme-at` vs account `saved_at`, newest wins, legacy device values honoured and carried over) is unchanged.
+
+**Verification.** Live on the running application, in the student's own account: pressing **Light** gives light on the dashboard, the learning path and the challenge, and stays light across reloads, a device with no stored value, and a press of the option already in force; `POST /theme {"theme":"light"}` → 204; pressing **Dark** behaves the same way in the other direction. The browser harness now pins the setter contract in every theme case: the option in force is pressed, the other is not, and pressing an option applies exactly that mode. `ThemeToggleTest` and `ThemePreferenceTest` were rewritten around the new contract (the option in force is pressed; there is no `System` mode and no icon). Screenshots at 1280px and 360px confirm the control reads cleanly in both themes and fits the phone bar.
+
+Gates after the change: PHPUnit 1565 tests, 1530 passed, 35 skipped, 0 failed; PHPStan level 8 clean; Pint clean; Node 17/17; Vite build ok; Chromium 14 passed, 43 assertions.

@@ -6,6 +6,7 @@ use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\Mission;
+use App\Models\MissionDraft;
 use App\Models\Progress;
 use App\Models\User;
 use App\Services\AchievementService;
@@ -284,6 +285,76 @@ class DashboardServiceTest extends TestCase
 
         $this->assertSame([2, 4, 50], [$progress['completed'], $progress['total'], $progress['percent']]);
         $this->assertSame(50, $service->assessmentReadiness($progress['completed'], $progress['total']));
+    }
+
+    public function test_next_mission_prefers_an_in_progress_draft_over_plain_course_order(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->makeCourseWithMissions(4);
+
+        foreach ([1, 2] as $order) {
+            Progress::factory()->create([
+                'user_id' => $user->id,
+                'mission_id' => $course->missions()->where('order_num', $order)->firstOrFail()->id,
+                'pts_earned' => 10,
+            ]);
+        }
+
+        $drafted = $course->missions()->where('order_num', 4)->firstOrFail();
+        MissionDraft::factory()->create([
+            'user_id' => $user->id,
+            'mission_id' => $drafted->id,
+            'code' => 'work in progress',
+        ]);
+
+        $next = app(DashboardService::class)->nextMission($user, $course);
+
+        $this->assertNotNull($next);
+        $this->assertSame(4, $next->order_num);
+    }
+
+    public function test_next_mission_ignores_a_draft_on_an_already_completed_mission(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->makeCourseWithMissions(3);
+
+        foreach ([1, 2] as $order) {
+            $mission = $course->missions()->where('order_num', $order)->firstOrFail();
+            Progress::factory()->create([
+                'user_id' => $user->id,
+                'mission_id' => $mission->id,
+                'pts_earned' => 10,
+            ]);
+
+            if ($order === 1) {
+                MissionDraft::factory()->create([
+                    'user_id' => $user->id,
+                    'mission_id' => $mission->id,
+                ]);
+            }
+        }
+
+        $next = app(DashboardService::class)->nextMission($user, $course);
+
+        $this->assertNotNull($next);
+        $this->assertSame(3, $next->order_num);
+    }
+
+    public function test_next_mission_breaks_equal_order_numbers_by_mission_id(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create();
+
+        $second = Mission::factory()->create(['course_id' => $course->id, 'order_num' => 1, 'title' => 'Second']);
+        $first = Mission::factory()->create(['course_id' => $course->id, 'order_num' => 1, 'title' => 'First']);
+
+        // Created out of id order: the lower id was assigned first.
+        $this->assertLessThan($first->id, $second->id);
+
+        $next = app(DashboardService::class)->nextMission($user, $course);
+
+        $this->assertNotNull($next);
+        $this->assertSame($second->id, $next->id);
     }
 
     /**

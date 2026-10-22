@@ -165,10 +165,33 @@ class AssessmentController extends Controller
                 ]);
         }
 
+        if ($attempt->status === 'submitted') {
+            // Grader infrastructure failure: the attempt was not scored and
+            // no verdict was recorded, so the student can resume verification.
+            return redirect()->route('assessment.show', $assessment)
+                ->with('assessment_error', [
+                    'title' => 'Grading unavailable',
+                    'message' => 'No verdict was recorded. Your submission is saved — resume verification to try again.',
+                ]);
+        }
+
+        $threshold = (int) ($attempt->passing_score_snapshot ?? $assessment->passing_score);
+
+        if ($threshold < 1) {
+            // Invalid configuration fails closed: the attempt is recorded as
+            // failed with no score credit, and the student is never told which
+            // rule or threshold was misconfigured.
+            return redirect()->route('assessment.show', $assessment)
+                ->with('assessment_error', [
+                    'title' => 'Challenge unavailable',
+                    'message' => 'This challenge has no valid pass threshold, so no verdict was awarded. Your submission is recorded — contact your instructor.',
+                ]);
+        }
+
         return redirect()->route('assessment.show', $assessment)
             ->with('assessment_error', [
                 'title' => 'Challenge failed',
-                'message' => 'Scored '.$attempt->score.'% — need '.$assessment->passing_score.'% to clear. Review and retry.',
+                'message' => 'Scored '.$attempt->score.'% — need '.$threshold.'% to clear. Review and retry.',
             ]);
     }
 

@@ -103,48 +103,48 @@
     --cq-font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
     --cq-font-mono: 'Fragment Mono', ui-monospace, 'SFMono-Regular', monospace;
 
-    --cq-ground: #FFFFFF;
-    --cq-sheet: #FCFDF8;
-    --cq-raised: #F2F4EA;
-    --cq-input: #FCFDF8;
-    --cq-ink: #1F242C;
-    --cq-muted: #565E67;
-    --cq-subtle: #616973;
-    --cq-locked: #9BA199;
-    --cq-line: #CFD3C5;
-    --cq-line-strong: #7D857C;
-    --cq-edge: #BDC1B8;
+    --cq-ground: #F4F2E9;
+    --cq-sheet: #FFFDF8;
+    --cq-raised: #EBE8DD;
+    --cq-input: #FFFDF8;
+    --cq-ink: #1C2229;
+    --cq-muted: #525A61;
+    --cq-subtle: #5E6970;
+    --cq-locked: #5F6A71;
+    --cq-line: #D4D0C4;
+    --cq-line-strong: #717A7B;
+    --cq-edge: #C2BFB2;
     --cq-accent: #B23A2E;
     --cq-accent-strong: #8F2C22;
     --cq-accent-pressed: #75241C;
-    --cq-accent-soft: #F1E3DF;
+    --cq-accent-soft: #F0E2DA;
     --cq-cta: #B23A2E;
     --cq-cta-hover: #8F2C22;
     --cq-cta-ink: #FFFFFF;
-    --cq-success: #2E6B4F;
-    --cq-success-soft: #E6EDE3;
-    --cq-info: #4E4C9A;
-    --cq-info-soft: #E9E8F3;
-    --cq-warning: #8A6114;
-    --cq-warning-soft: #F2EBD9;
+    --cq-success: #2C684B;
+    --cq-success-soft: #E4EBDF;
+    --cq-info: #4A478F;
+    --cq-info-soft: #E7E5F0;
+    --cq-warning: #845D12;
+    --cq-warning-soft: #F1E9D6;
     --cq-danger: #B23A2E;
-    --cq-danger-soft: #F1E3DF;
-    --cq-primary-hover: #2C333D;
+    --cq-danger-soft: #F0E2DA;
+    --cq-primary-hover: #2B323A;
     --cq-on-ink: #F4F6ED;
-    --cq-code-bg: #171B21;
-    --cq-shadow: rgba(31, 36, 44, 0.08);
-    --cq-ink-shadow: rgba(31, 36, 44, 0.25);
+    --cq-code-bg: #FFFDF8;
+    --cq-shadow: rgba(28, 34, 41, 0.09);
+    --cq-ink-shadow: rgba(28, 34, 41, 0.28);
     --cq-note: #F1DF9B;
     --cq-note-deep: #E4CE7E;
     --cq-note-ink: #2B2A1E;
     --cq-note-edge: rgba(110, 90, 25, 0.28);
     --cq-note-shadow: rgba(31, 36, 44, 0.4);
     --cq-note-shadow-tight: rgba(31, 36, 44, 0.2);
-    --cq-board: #F7F9F8;
-    --cq-board-edge: #C2C9C2;
-    --cq-board-sheen: rgba(255, 255, 255, 0.7);
-    --cq-grid-minor: rgba(31, 36, 44, 0.05);
-    --cq-grid-major: rgba(31, 36, 44, 0.09);
+    --cq-board: #F0ECE2;
+    --cq-board-edge: #C7C2B4;
+    --cq-board-sheen: rgba(255, 255, 255, 0.65);
+    --cq-grid-minor: rgba(28, 34, 41, 0.05);
+    --cq-grid-major: rgba(28, 34, 41, 0.09);
 
     /* Hand-written CSS keeps reading the --color-* names; utilities inline the --cq-* values. */
     --color-bg: var(--cq-ground);
@@ -205,48 +205,48 @@
 .dark {
     color-scheme: dark;
 
-    --cq-ground: #14161B;
-    --cq-sheet: #1C1F26;
-    --cq-raised: #242830;
-    --cq-input: #1C1F26;
-    --cq-ink: #E6E9DE;
-    --cq-muted: #A9B0A5;
-    --cq-subtle: #8B9288;
-    --cq-locked: #6A7069;
-    --cq-line: #2D323A;
-    --cq-line-strong: #646D78;
-    --cq-edge: #2F353D;
-    --cq-accent: #E0756A;
-    --cq-accent-strong: #EA9086;
-    --cq-accent-pressed: #F0A79E;
-    --cq-accent-soft: #362322;
-    --cq-cta: #8F342B;
-    --cq-cta-hover: #A6473C;
+    --cq-ground: #0F1318;
+    --cq-sheet: #181C22;
+    --cq-raised: #22272E;
+    --cq-input: #1A1F26;
+    --cq-ink: #E8ECE4;
+    --cq-muted: #B0B6AA;
+    --cq-subtle: #90988E;
+    --cq-locked: #707870;
+    --cq-line: #2B323A;
+    --cq-line-strong: #66717B;
+    --cq-edge: #353D46;
+    --cq-accent: #E37B6E;
+    --cq-accent-strong: #EF968B;
+    --cq-accent-pressed: #F4A79E;
+    --cq-accent-soft: #352321;
+    --cq-cta: #B94C3E;
+    --cq-cta-hover: #CE6455;
     --cq-cta-ink: #FFFFFF;
-    --cq-success: #6FC49A;
-    --cq-success-soft: #1C2E24;
-    --cq-info: #9C97E8;
+    --cq-success: #74C7A0;
+    --cq-success-soft: #1B2E24;
+    --cq-info: #A7A1EE;
     --cq-info-soft: #262438;
-    --cq-warning: #D9A94F;
-    --cq-warning-soft: #2E2818;
-    --cq-danger: #E0756A;
-    --cq-danger-soft: #362322;
-    --cq-primary-hover: #F2F5E9;
-    --cq-on-ink: #15171B;
-    --cq-code-bg: #101318;
-    --cq-shadow: rgba(0, 0, 0, 0.4);
-    --cq-ink-shadow: rgba(0, 0, 0, 0.55);
+    --cq-warning: #DFB45E;
+    --cq-warning-soft: #302918;
+    --cq-danger: #E37B6E;
+    --cq-danger-soft: #352321;
+    --cq-primary-hover: #F4F7EC;
+    --cq-on-ink: #101318;
+    --cq-code-bg: #0D1116;
+    --cq-shadow: rgba(0, 0, 0, 0.45);
+    --cq-ink-shadow: rgba(0, 0, 0, 0.6);
     --cq-note: #746634;
     --cq-note-deep: #635628;
     --cq-note-ink: #F0E6C4;
     --cq-note-edge: rgba(240, 230, 196, 0.16);
     --cq-note-shadow: rgba(0, 0, 0, 0.65);
     --cq-note-shadow-tight: rgba(0, 0, 0, 0.45);
-    --cq-board: #1E2229;
-    --cq-board-edge: #424955;
+    --cq-board: #1B2027;
+    --cq-board-edge: #414A55;
     --cq-board-sheen: rgba(255, 255, 255, 0.05);
-    --cq-grid-minor: rgba(230, 233, 222, 0.045);
-    --cq-grid-major: rgba(230, 233, 222, 0.075);
+    --cq-grid-minor: rgba(232, 236, 228, 0.05);
+    --cq-grid-major: rgba(232, 236, 228, 0.085);
 }
 
 @layer base {
@@ -259,7 +259,9 @@
     body {
         @apply bg-bg font-body text-fg antialiased;
         min-width: 320px;
-        overflow-x: hidden;
+        /* clip, not hidden: hidden makes body a scroll container and breaks
+           position: sticky for in-page toolbars. */
+        overflow-x: clip;
         /* The computation pad: 8px minor / 40px major grid at 5-9% ink. */
         background-color: var(--cq-ground);
         background-image:
@@ -917,9 +919,11 @@ main:has(.challenge-workspace) {
 .atlas-xp { display: flex; align-items: center; gap: 8px; min-height: 44px; white-space: nowrap; color: var(--color-fg); font: 500 0.75rem / 1.5 var(--font-mono); }
 .atlas-xp span { color: var(--color-fg-muted); }
 .icon { display: inline-block; flex: none; vertical-align: -0.125em; }
+/* One icon button shows the current mode; its accessible name describes the
+   mode the next press will apply. */
 .atlas-theme-toggle { display: inline-flex; flex: none; }
-.atlas-theme-toggle-button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--color-line-strong); background: var(--cq-sheet); color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; transition: color 120ms ease, border-color 120ms ease; }
-.atlas-theme-toggle-button:hover { color: var(--color-accent); border-color: var(--color-accent); }
+.atlas-theme-toggle-button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; transition: color 120ms ease-out; }
+.atlas-theme-toggle-button:hover { color: var(--color-accent); }
 .atlas-theme-toggle-button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
 .atlas-theme-toggle [data-theme-icon] { display: none; }
 html:not([data-theme-mode="dark"]) .atlas-theme-toggle [data-theme-icon="light"],
@@ -1248,7 +1252,7 @@ body.student-ui .challenge-pane-body {
 }
 body.student-ui .challenge-pane-body.editor-pane,
 body.student-ui .challenge-pane-editor {
-    background: #0b0e14;
+    background: var(--cq-code-bg);
     padding: 0;
 }
 
@@ -1464,12 +1468,13 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-dashboard-section-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding-bottom: 2px; }
 .atlas-dashboard-section-heading h2 { font-family: var(--font-display); font-size: 13px; line-height: 1.3; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 85%, transparent); }
 
-.atlas-evidence-specimen { position: relative; display: grid; grid-template-columns: 280px minmax(0, 1fr) auto; gap: 30px; align-items: center; margin: 14px 0 6px; padding: 24px 26px 24px 30px; border: 2px solid var(--cq-board-edge); border-bottom-width: 4px; border-radius: 4px; background: var(--cq-board); box-shadow: inset 0 1px 0 var(--cq-board-sheen), inset 0 0 0 1px color-mix(in srgb, var(--cq-board-edge) 35%, transparent), 0 1px 2px var(--cq-note-shadow-tight), 0 20px 34px -32px var(--cq-ink-shadow); }
-.atlas-evidence-specimen--empty { grid-template-columns: 280px minmax(0, 1fr); }
-.atlas-sheet { position: relative; width: 280px; max-width: 100%; aspect-ratio: 4 / 3; padding: 46px 24px 22px; border: 1px solid var(--cq-note-edge); border-radius: 1px; background: var(--cq-note); transform: rotate(-2deg); transform-origin: center; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 3px var(--cq-note-shadow-tight), 0 14px 22px -10px var(--cq-note-shadow), 0 32px 40px -26px var(--cq-note-shadow); }
+.atlas-evidence-specimen { position: relative; display: grid; grid-template-columns: 208px minmax(0, 1fr) auto; gap: 24px; align-items: center; margin: 14px 0 6px; padding: 18px 24px 18px 26px; border: 2px solid var(--cq-board-edge); border-bottom-width: 4px; border-radius: 4px; background: var(--cq-board); box-shadow: inset 0 1px 0 var(--cq-board-sheen), inset 0 0 0 1px color-mix(in srgb, var(--cq-board-edge) 35%, transparent), 0 1px 2px var(--cq-note-shadow-tight), 0 20px 34px -32px var(--cq-ink-shadow); }
+.atlas-evidence-specimen--empty { grid-template-columns: 208px minmax(0, 1fr); }
+.atlas-sheet { position: relative; width: 208px; max-width: 100%; aspect-ratio: 5 / 4; padding: 40px 18px 16px; border: 1px solid var(--cq-note-edge); border-radius: 1px; background: var(--cq-note); transform: rotate(-2deg); transform-origin: center; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 3px var(--cq-note-shadow-tight), 0 14px 22px -10px var(--cq-note-shadow), 0 32px 40px -26px var(--cq-note-shadow); }
 .atlas-sheet::before { content: ""; position: absolute; inset: 0 0 auto; height: 18%; background: var(--cq-note-deep); border-bottom: 1px solid color-mix(in srgb, var(--cq-note-ink) 14%, transparent); pointer-events: none; }
-.atlas-sheet-rule { display: block; height: 6px; margin-bottom: 12px; border-radius: 999px; background: color-mix(in srgb, var(--cq-note-ink) 34%, transparent); }
-.atlas-sheet-rule:first-child { height: 9px; max-width: 58%; margin-bottom: 16px; background: color-mix(in srgb, var(--cq-note-ink) 42%, transparent); }
+.atlas-sheet-caption { position: absolute; top: 9px; left: 18px; z-index: 1; font-family: var(--font-mono); font-size: 9px; line-height: 1.2; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-note-ink) 62%, transparent); }
+.atlas-sheet-rule { display: block; height: 6px; margin-bottom: 10px; border-radius: 999px; background: color-mix(in srgb, var(--cq-note-ink) 34%, transparent); }
+.atlas-sheet-rule:first-of-type { height: 9px; max-width: 58%; margin-bottom: 12px; background: color-mix(in srgb, var(--cq-note-ink) 42%, transparent); }
 .atlas-sheet-tail { display: flex; align-items: center; gap: 5px; }
 .atlas-sheet-tail .atlas-sheet-rule { margin-bottom: 0; }
 .atlas-sheet-caret { display: inline-block; width: 3px; height: 15px; background: var(--color-accent); }
@@ -1491,6 +1496,7 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-dashboard-focus-title { margin-top: 3px; font-family: var(--font-display); font-size: 21px; line-height: 1.15; font-weight: 600; color: var(--color-fg); }
 .atlas-dashboard-focus-subtitle { margin-top: 2px; font-size: 13.5px; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); }
 .atlas-dashboard-focus .btn-secondary { border-color: var(--cq-ink); background: transparent; color: var(--color-fg); }
+.atlas-dashboard-focus-locked { max-width: 42ch; margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-warning); }
 
 /* Closing rule — the sheet ends deliberately, even when the focus note is absent. */
 .atlas-dashboard-foot { display: flex; align-items: center; gap: 12px; color: color-mix(in srgb, var(--cq-ink) 52%, transparent); font-family: var(--font-display); font-size: 10px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
@@ -1547,7 +1553,7 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 @media (max-width: 640px) {
     .log-running { padding-block: 8px; }
     .atlas-evidence-specimen { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 20px 18px; }
-    .atlas-sheet { width: min(100%, 280px); transform: rotate(-1.2deg); }
+    .atlas-sheet { width: min(100%, 208px); transform: rotate(-1.2deg); }
     .atlas-evidence-specimen .atlas-stamp { justify-self: start; }
     .atlas-dashboard-events li { grid-template-columns: minmax(0, 1fr) auto; }
     .atlas-dashboard-events time { grid-column: 1 / -1; }
@@ -1613,6 +1619,11 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-path-mission-link { grid-column: 3; grid-row: 1 / span 2; align-self: center; padding-bottom: 2px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); font-size: 13px; line-height: 1.2; font-weight: 600; color: var(--color-fg); text-decoration: none; white-space: nowrap; transition: color 120ms ease-out, border-color 120ms ease-out; }
 .atlas-path-mission-link:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
 .atlas-path-mission-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+/* A completed row offers review, not a next step: keep the action present but
+   quiet so thirty rows of underlined "Review" stop shouting over the list. */
+.atlas-path-mission-link.is-review { color: var(--color-fg-muted); border-bottom-color: transparent; }
+.atlas-path-mission:hover .atlas-path-mission-link.is-review,
+.atlas-path-mission:focus-within .atlas-path-mission-link.is-review { color: var(--color-accent); border-bottom-color: var(--color-accent); }
 .atlas-path-marker { display: grid; place-items: center; width: 18px; height: 18px; border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); border-radius: 2px; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-path-marker svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 .atlas-path-marker.is-complete { color: var(--color-success); border-color: var(--color-success); }
@@ -1687,8 +1698,8 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     .atlas-path-boss { grid-template-columns: minmax(0, 1fr); }
     .atlas-path-boss-act { grid-column: 1; grid-row: auto; justify-content: flex-start; }
     .atlas-path-recommendations .atlas-recommendation { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-}.atlas-lesson-entry { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 18px; }
-.atlas-lesson-entry-label { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); }
+}.atlas-lesson-entry { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; }
+.atlas-lesson-entry-label { font-family: var(--font-display); font-size: 10.5px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); }
 .atlas-reading-heading { border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); padding-block: 18px 28px; margin-bottom: 36px; }
 .atlas-reading-title { font-family: var(--font-display); font-size: clamp(32px, 3.9vw, 54px); line-height: 1.02; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; margin-top: 10px; }
 .atlas-reading-meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 20px; }
@@ -1696,11 +1707,21 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 /* The mission panel is a split bench: the brief keeps its reading measure on the
    left, the ungraded workbench is docked on the right and follows the scroll. */
 .atlas-lesson { max-width: 1360px; min-width: 0; }
-.atlas-lesson-head { min-width: 0; }
-.atlas-lesson-title { font-family: var(--font-display); font-size: clamp(32px, 3.9vw, 54px); line-height: 1.02; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; margin-top: 10px; }
-.atlas-lesson-task { max-width: 62ch; margin: 16px 0 0; padding: 12px 16px; border-left: 3px solid var(--color-accent); background: var(--color-accent-soft); color: var(--color-fg); font-size: 16px; line-height: 1.6; }
-.atlas-lesson-facts { margin-top: 26px; }
-.atlas-lesson-grid { display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 48px; align-items: start; margin-top: 44px; }
+.atlas-lesson-head { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 9px; align-items: start; min-width: 0; padding-bottom: 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.atlas-lesson-title { margin-top: 0; font-family: var(--font-display); font-size: clamp(30px, 3.2vw, 42px); line-height: 1.06; font-weight: 600; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.atlas-lesson-task { max-width: 62ch; margin: 2px 0 0; padding: 8px 12px; border-left: 2px solid var(--color-accent); background: var(--color-accent-soft); color: var(--color-fg); font-size: 14.5px; line-height: 1.5; }
+/* On a phone the bench foot is a long scroll away, so the lesson heading
+   carries the same next step as a primary action. */
+.atlas-lesson-head-actions { display: none; }
+.atlas-lesson-head-actions .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.atlas-lesson-head-actions .btn-primary { border-color: var(--cq-cta); background: var(--cq-cta); color: var(--cq-cta-ink); }
+.atlas-lesson-head-actions .btn-primary:hover { border-color: var(--cq-cta-hover); background: var(--cq-cta-hover); color: var(--cq-cta-ink); }
+@media (max-width: 700px) {
+    .atlas-lesson-head-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+    .atlas-lesson-head-actions .btn { flex: 1 1 auto; }
+}
+.atlas-lesson-head .atlas-stamp { border-width: 1.5px; padding: 3px 7px; font-size: 10px; letter-spacing: .12em; transform: none; }
+.atlas-lesson-grid { display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 48px; align-items: start; margin-top: 24px; }
 .atlas-lesson-brief { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; max-width: 68ch; min-width: 0; }
 /* A grid item's automatic minimum is its min-content, and a line of markup
    never wraps — so the track would grow to the longest line and the column
@@ -1730,26 +1751,50 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 .atlas-lesson-check { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-block: 18px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); font-size: 16px; }
 .atlas-lesson-check-title { font-size: 16px; font-weight: 500; }
 .atlas-lesson-check-meta { margin-top: 2px; color: var(--color-fg-muted); font-size: 13px; }
+/* The Knowledge Check panel: a taped docket at the foot of the reading
+   column. The check opens inside it, so the form is stacked for a narrow
+   column instead of the attempt screen's two-column layout. */
+.atlas-lesson-check-panel { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; padding: 14px 16px; border: 1px solid var(--color-line); border-left: 2px solid var(--color-accent); border-radius: 2px; background: var(--color-raised); box-shadow: 3px 3px 0 var(--cq-shadow); }
+.atlas-lesson-check-panel-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.atlas-lesson-check-panel-titles { display: grid; gap: 2px; min-width: 0; }
+.atlas-lesson-check-title { font-family: var(--font-display); font-size: 17px; line-height: 1.25; font-weight: 600; }
+.atlas-lesson-check-stamps { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+.atlas-lesson-check-meta { margin: 0; font-family: var(--font-mono); font-size: 12px; color: var(--color-fg-muted); }
+.atlas-lesson-check-error { margin: 0; font-size: 13px; line-height: 20px; color: var(--color-danger); }
+.atlas-lesson-check-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.atlas-lesson-brief-fold > summary { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 6px 10px; border: 1px solid var(--color-line); border-radius: 2px; background: var(--color-surface); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--color-fg-muted); cursor: pointer; }
+.atlas-lesson-brief-fold > summary:hover { color: var(--color-fg); border-color: var(--color-line-strong); }
+.atlas-lesson-brief-fold > summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.atlas-lesson-brief-fold > .atlas-lesson-section { margin-top: 12px; }
+.atlas-lesson-check-panel .atlas-check-form { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.atlas-lesson-check-panel .atlas-check-question { margin-bottom: 14px; padding-bottom: 14px; }
+.atlas-lesson-check-panel .atlas-check-prompt { font-size: 17px; line-height: 1.35; }
+.atlas-lesson-check-panel .atlas-check-option { min-height: 40px; padding: 9px 10px 9px 8px; font-size: 14.5px; line-height: 22px; }
+.atlas-lesson-check-panel .atlas-check-submit { position: static; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.atlas-lesson-check-panel .atlas-check-submit h2 { font-size: 16px; }
+.atlas-lesson-check-panel .atlas-check-submit > p { font-size: 13px; line-height: 20px; }
+.atlas-lesson-check-panel .atlas-check-submit-button { width: auto; margin-top: 12px; }
 /* The bench is an ungraded pad: a code cell, a preview cell, and the way to the
    graded challenge. It is docked, so it never scrolls out of reach. */
 .atlas-lesson-bench { position: sticky; top: 88px; min-width: 0; }
-.atlas-bench { max-height: calc(100dvh - 104px); overflow-y: auto; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
-.atlas-bench-head { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
-.atlas-bench-title { margin: 0; font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
-.atlas-bench-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+.atlas-bench { max-height: calc(100dvh - 104px); overflow-y: auto; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); border-top: 2px solid var(--color-accent); border-radius: 2px; background: var(--cq-sheet); box-shadow: 4px 4px 0 var(--cq-shadow); }
+.atlas-bench-head { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; padding: 12px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: color-mix(in srgb, var(--cq-ink) 3%, var(--cq-sheet)); }
+.atlas-bench-title { margin: 0; font-family: var(--font-display); font-size: 18px; line-height: 1.15; font-weight: 600; letter-spacing: -.01em; }
+.atlas-bench-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; }
 .atlas-bench-modes { display: none; }
 .atlas-bench-workspace { display: grid; grid-template-columns: minmax(0, 1fr); }
 .atlas-bench-pane { display: flex; flex-direction: column; min-width: 0; }
 .atlas-bench-pane + .atlas-bench-pane { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
-.atlas-bench-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; padding: 6px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-bench-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; padding: 6px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-bench-pane-head h3 { margin: 0; font: inherit; }
-.atlas-bench-code #editor-host { flex: 1; min-width: 0; height: clamp(200px, 26vh, 320px); }
+.atlas-bench-pane-head span { font-family: var(--font-mono); font-size: 11px; font-weight: 400; letter-spacing: .04em; }
+.atlas-bench-code #editor-host { flex: 1; min-width: 0; height: clamp(220px, 26vh, 280px); }
 .atlas-bench-code .cm-editor { height: 100%; }
 .atlas-bench-code .cm-scroller { overflow: auto; }
 /* The render is a specimen taped to the pad: the mat is the pad, the sheet stays
    white because the student's own render is never tokenised. */
 .atlas-bench-frame { padding: 10px; background: var(--cq-raised); }
-.atlas-bench-frame iframe { display: block; width: 100%; height: clamp(140px, 16vh, 200px); border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: white; }
+.atlas-bench-frame iframe { display: block; width: 100%; height: clamp(150px, 17vh, 180px); border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: white; }
 .atlas-bench-frame.is-refreshed { animation: atlas-bench-press 180ms cubic-bezier(.23, 1, .32, 1); }
 @keyframes atlas-bench-press {
     from { box-shadow: 0 0 0 2px var(--color-accent); }
@@ -1827,11 +1872,10 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
     .atlas-lesson-bench { position: static; }
 }
 @media (max-width: 900px) {
-    .atlas-lesson-facts { grid-auto-flow: row; grid-auto-columns: auto; }
-    .atlas-lesson-facts > div { padding: 8px 0; }
-    .atlas-lesson-facts > div + div { padding-left: 0; border-left: 0; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
-    .atlas-bench-modes { display: flex; gap: 4px; padding: 8px 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
-    .atlas-bench-modes [aria-pressed="true"] { color: var(--color-fg); border-bottom-color: var(--color-accent); }
+    .atlas-bench-modes { display: flex; gap: 16px; padding: 0 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+    .atlas-bench-modes [data-practice-mode] { min-height: 44px; padding: 4px 2px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--color-fg-muted); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+    .atlas-bench-modes [data-practice-mode]:hover { color: var(--color-accent); }
+    .atlas-bench-modes [aria-pressed="true"] { color: var(--color-fg); border-bottom-color: var(--color-accent); background: transparent; }
     .atlas-bench-workspace[data-mode="code"] .atlas-bench-output,
     .atlas-bench-workspace[data-mode="output"] .atlas-bench-code { display: none; }
 }
@@ -1982,6 +2026,20 @@ body.student-ui .atlas-boss-code #editor-host .cm-editor { min-height: 0; }
 .atlas-record-entry-bar > span { border-radius: 2px; }
 .atlas-record-entry-note { margin-top: 10px; max-width: 68ch; font-size: 13px; line-height: 22px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-record-entry-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+/* Course progress: the record is one plate — the course and its bar on the
+   left, the verdict and its next action on the right, never a stamp stranded
+   at the far edge of the sheet. */
+.atlas-course-record { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px 40px; align-items: start; }
+.atlas-course-record .atlas-record-entry-title { margin-top: 4px; font-size: 24px; }
+.atlas-course-record .atlas-record-entry-facts, .atlas-course-record .atlas-record-entry-bar { max-width: none; }
+.atlas-course-record-main { min-width: 0; }
+.atlas-course-record-side { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; min-width: 0; }
+.atlas-course-record-note { margin: 0; max-width: 40ch; font-size: 13px; line-height: 21px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.atlas-course-record-action { margin-top: auto; }
+@media (max-width: 900px) {
+    .atlas-course-record { grid-template-columns: minmax(0, 1fr); }
+    .atlas-course-record-side { align-items: flex-start; }
+}
 .atlas-record-entry-title a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--cq-ink) 35%, transparent); text-underline-offset: 4px; }
 .atlas-record-entry-title a:hover { text-decoration-color: var(--color-accent); }
 .atlas-signal-list { margin-top: 12px; max-width: 78ch; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
@@ -2088,6 +2146,11 @@ a.atlas-index-link:focus-visible { outline: 2px solid var(--color-accent); outli
 .atlas-index-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 68ch; font-size: 13.5px; line-height: 21px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
 .atlas-index-meta { margin-top: 1px; font-family: var(--font-mono); font-size: 12px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-index-action { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; }
+.atlas-index-check { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: -4px 20px 12px 62px; }
+.atlas-index-check-link { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--color-accent); text-decoration: none; }
+.atlas-index-check-link:hover { color: var(--color-accent-strong); }
+.atlas-index-check-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.atlas-index-check-note { font-size: 12.5px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-index-nav { position: sticky; top: 88px; }
 .atlas-index-nav-title { padding-bottom: 8px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .atlas-index-nav ul { margin: 0; padding: 0; list-style: none; }
@@ -2274,16 +2337,15 @@ body.student-ui .cq-workspace [data-workspace-pane] { min-width: 0; min-height: 
 /* When the workspace collapses to tabs, the strip states its identity first:
    entry, then registers, then the actions that judge the work. */
 @media (max-width: 1100px) {
-    .cq-case-band { gap: 10px 12px; padding: 6px 14px; }
+    .cq-challenge > header { gap: 10px 12px; padding: 6px 14px; }
     .cq-case-registers { flex-wrap: wrap; white-space: normal; }
     .cq-case-state-group { margin-left: 0; }
-    .cq-case-job-row { padding: 6px 14px 7px; }
     .cq-workspace-heading { gap: 8px 12px; }
     .cq-workspace-tabs { order: 2; margin-right: 0; }
     .cq-workspace-actions { order: 3; margin-left: auto; }
 }
 
-body.student-ui .cq-workspace-tabs { display: flex; align-items: stretch; margin-right: auto; }
+body.student-ui .cq-workspace-tabs { display: flex; align-items: stretch; margin-right: auto; overflow-x: auto; scrollbar-width: thin; }
 body.student-ui .cq-workspace-tabs [data-pane-toggle] { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 4px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .14em; line-height: 22px; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
 body.student-ui .cq-workspace-tabs [data-pane-toggle][aria-selected="true"] { border-color: var(--color-accent); color: var(--color-fg); background: transparent; }
 body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color-accent); }
@@ -2295,14 +2357,23 @@ body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color
 .cq-instructions-heading .cq-back-to-lesson { margin-left: auto; }
 .cq-back-to-lesson { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-family: var(--font-display); font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--cq-ink) 50%, transparent); text-underline-offset: 4px; white-space: nowrap; }
 .cq-back-to-lesson:hover { color: var(--color-accent); text-decoration-color: var(--color-accent); }
+/* Once Instructions becomes a tab, the brief header (and its back link) is
+   hidden while Code is selected — so the band carries the way back. */
+.cq-case-back { display: none; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid var(--cq-line-strong); border-radius: 2px; color: color-mix(in srgb, var(--cq-ink) 78%, transparent); background: transparent; }
+.cq-case-back:hover { color: var(--color-accent); border-color: var(--color-accent); }
+.cq-case-back:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+@media (max-width: 1100px) {
+    .cq-case-back { display: inline-flex; }
+}
+@media (max-width: 640px) {
+    .cq-case-back { width: 44px; height: 44px; }
+}
 /* The brief is its own scroll region: the page never scrolls behind it, the
    column keeps its width when the scrollbar appears, and the sheet's edge
    shadows appear only while there is more to read. */
 /* The challenge is a case file: the band carries identity, registers and
-   state; the job row below it states the job (the lesson panel's grammar);
-   the brief keeps the teaching and the expected result. */
-.cq-case-plate { display: flex; flex-direction: column; background: var(--cq-sheet); border-bottom: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); }
-.cq-case-band { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 16px; flex-wrap: wrap; border-bottom: 1px solid var(--cq-line); }
+   state; the brief keeps the teaching, task and expected result. */
+.cq-challenge > header { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 16px; flex-wrap: wrap; background: var(--cq-sheet); border-bottom: 3px double color-mix(in srgb, var(--cq-ink) 35%, transparent); }
 .cq-case-index { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--cq-ink); border: 1px solid var(--cq-line-strong); padding: 5px 7px; white-space: nowrap; }
 .cq-case-title { margin: 0; font-family: var(--font-display); font-size: clamp(20px, 2vw, 26px); line-height: 1; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .cq-case-rule { width: 1px; align-self: stretch; background: var(--cq-line); }
@@ -2314,21 +2385,21 @@ body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color
 .cq-case-registers dd.is-numeric { color: var(--cq-ink); }
 .cq-case-state-group { margin-left: auto; display: flex; align-items: baseline; gap: 10px; }
 .cq-case-state-group .cq-draft { margin: 0; }
-.cq-case-state-group .atlas-stamp { font-size: 11px; }
-.cq-case-job-row { display: flex; align-items: baseline; gap: 14px; padding: 7px 16px 8px; flex-wrap: wrap; }
-.cq-case-course { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--cq-muted); white-space: nowrap; }
-.cq-case-job { margin: 0; padding-left: 12px; border-left: 3px solid var(--cq-accent); font-size: 15px; line-height: 1.4; color: var(--cq-ink); }
+.cq-case-state-group .atlas-stamp { font-size: 11px; align-self: center; }
 .cq-doc-label { margin: 24px 0 8px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .cq-doc-label:first-child { margin-top: 0; }
-/* The run log reads as the machine's own account, not as floating cards. */
-.cq-runlog { flex: none; max-height: 180px; overflow: auto; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); background: var(--cq-raised); }
-.cq-runlog-head { margin: 0; padding: 8px 14px 2px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
-.cq-runlog-line { display: flex; gap: 12px; margin: 0; padding: 5px 14px; font-size: 13.5px; line-height: 21px; }
-.cq-runlog-line + .cq-runlog-line { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 10%, transparent); }
+/* Challenge feedback floats above the workspace and clears itself after reading. */
+.cq-runlog { position: fixed; z-index: 1000; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: minmax(0, 1fr) 40px; align-items: start; gap: 12px; width: min(420px, calc(100vw - 40px)); max-height: min(240px, calc(100dvh - 40px)); overflow: auto; padding: 12px 12px 12px 14px; border: 1px solid var(--cq-line-strong); border-inline-start: 3px solid var(--color-accent); background: var(--cq-sheet); color: var(--cq-ink); box-shadow: 0 8px 24px color-mix(in srgb, var(--cq-ink) 18%, transparent); }
+.cq-runlog[hidden] { display: none !important; }
+.cq-runlog-messages { min-width: 0; }
+.cq-runlog-line { display: flex; gap: 12px; margin: 0; padding: 2px 0; font-size: 13.5px; line-height: 21px; overflow-wrap: anywhere; }
 .cq-runlog-line b { flex: none; width: 68px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .cq-runlog-line--ok b { color: var(--color-success); }
 .cq-runlog-line--warn b { color: var(--color-warning); }
 .cq-runlog-line--bad b { color: var(--color-danger); }
+.cq-runlog-dismiss { display: grid; place-items: center; width: 40px; height: 40px; margin: -5px -5px 0 0; border: 0; background: transparent; color: color-mix(in srgb, var(--cq-ink) 72%, transparent); font: inherit; cursor: pointer; }
+.cq-runlog-dismiss:hover { color: var(--color-accent); }
+.cq-runlog-dismiss:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
 body.student-ui .cq-workspace .cq-lesson-reading {
     flex: 1;
     overflow: auto;
@@ -2398,15 +2469,14 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
     .cq-workspace .cq-instructions, .cq-workspace .cq-code-pane, .cq-workspace .cq-preview-pane { grid-column: 1; grid-row: 2; }
 }
 @media (max-width: 640px) {
-    /* The band stacks: identity, then registers, then state; the job row stacks course over sentence. */
-    .cq-case-band { gap: 6px 10px; padding: 6px 12px; }
+    /* The band stacks: identity, then registers, then state. */
+    .cq-challenge > header { gap: 6px 10px; padding: 6px 12px; }
     .cq-case-title { font-size: 20px; }
     .cq-case-index { padding: 3px 5px; }
     .cq-case-rule { display: none; }
     .cq-case-registers { flex-wrap: wrap; white-space: normal; }
     .cq-case-state-group { margin-left: 0; flex-basis: 100%; justify-content: flex-start; }
-    .cq-case-job-row { flex-direction: column; gap: 4px; padding: 6px 12px 7px; }
-    .cq-case-job { padding-left: 10px; font-size: 14px; }
+    .cq-runlog { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100vw - 24px); max-height: min(200px, calc(100dvh - 24px)); }
     .cq-runlog-line { flex-direction: column; gap: 1px; }
     .cq-runlog-line b { width: auto; }
     body.student-ui:has(.cq-challenge) .atlas-shell-inner { padding-inline: 16px; gap: 8px; }
@@ -2429,3 +2499,1198 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
 
 body.student-ui .atlas-shell { border-bottom: 0; }
 
+/* Admin workspace: a wider working sheet with shared register and form rhythm. */
+body.admin-ui .atlas-records { max-width: 1360px; }
+body.admin-ui .atlas-record-group { margin-top: 28px; }
+body.admin-ui .atlas-record-group + .atlas-record-group { margin-top: 36px; }
+body.admin-ui .atlas-record-group-head { padding-inline: 24px; padding-bottom: 12px; }
+body.admin-ui .atlas-record-group-title { font-size: 16px; }
+body.admin-ui .atlas-index-filters,
+body.admin-ui .atlas-form { padding-inline: 24px; }
+body.admin-ui .atlas-index-filters { gap: 12px 16px; }
+body.admin-ui .atlas-index-filter > label { letter-spacing: .1em; }
+body.admin-ui .atlas-form-grid { gap: 18px 24px; }
+body.admin-ui .atlas-form-field { gap: 7px; }
+body.admin-ui .atlas-register-table-wrap { padding-inline: 24px; }
+body.admin-ui .atlas-register-table { font-size: 14px; }
+body.admin-ui .atlas-register-table thead th { padding-block: 10px; }
+body.admin-ui .atlas-register-table tbody td,
+body.admin-ui .atlas-register-table tbody th { padding-block: 12px; }
+body.admin-ui .atlas-register-table td[data-metric],
+body.admin-ui .atlas-register-table td.is-numeric { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+body.admin-ui .atlas-records-alerts,
+body.admin-ui .atlas-index-alerts { padding-inline: 24px; }
+body.admin-ui .atlas-records-pager { padding-inline: 24px; }
+
+/* The overview puts the four platform registers in one scan, then separates
+   operational links and the append-only activity evidence below. */
+.admin-workspace-register { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 24px; }
+.admin-workspace-panel,
+.admin-workspace-panel + .admin-workspace-panel { display: flex; min-width: 0; flex-direction: column; margin: 0; padding: 0; border: 1px solid var(--color-line); border-top: 3px solid var(--color-ink); background: var(--color-canvas); }
+body.admin-ui .admin-workspace-panel { margin-top: 0; }
+.admin-workspace-panel--quiet { border-top-color: var(--color-line-strong); }
+.admin-workspace-panel .atlas-record-group-head { align-items: baseline; padding: 14px 20px 10px; border-bottom: 1px solid var(--color-line); }
+.admin-workspace-panel .atlas-record-group-title { font-size: 22px; line-height: 1.1; letter-spacing: 0; }
+.admin-workspace-panel .atlas-record-group-figure { font-size: 12px; line-height: 18px; }
+.admin-workspace-panel .atlas-record-entry { display: flex; flex: 1; flex-direction: column; padding: 13px 20px 18px; border-bottom: 0; }
+.admin-workspace-panel .atlas-record-entry-copy { max-width: 62ch; font-size: 14px; line-height: 22px; }
+.admin-workspace-panel .atlas-record-entry-facts { max-width: 100%; margin-top: 14px; }
+.admin-workspace-panel .atlas-record-entry-actions { margin-top: auto; padding-top: 16px; }
+.admin-workspace-link { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; color: var(--color-ink); font-size: 14px; font-weight: 600; line-height: 20px; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--cq-ink) 42%, transparent); text-underline-offset: 4px; transition: color 120ms ease-out, text-decoration-color 120ms ease-out; }
+.admin-workspace-link:hover { color: var(--color-accent); text-decoration-color: var(--color-accent); }
+.admin-workspace-dashboard a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.admin-workspace-link:active { color: var(--cq-accent-pressed); }
+.admin-workspace-operations .atlas-record-entry { padding-block: 14px 18px; }
+.admin-workspace-operations .atlas-record-entry-copy { margin: 0; max-width: 68ch; font-size: 14px; line-height: 22px; }
+.admin-workspace-operations .atlas-record-entry-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; max-width: 1040px; margin-top: 8px; }
+.admin-workspace-operations .atlas-record-entry-actions a { display: flex; align-items: center; min-height: 44px; border-bottom: 1px solid var(--color-line); text-decoration: none; }
+.admin-workspace-audit-link { font-size: 13px; }
+.admin-workspace-activity { margin-top: 32px !important; }
+.admin-workspace-activity .atlas-record-group-head { border-bottom: 1px solid var(--color-line); }
+@media (max-width: 899.9px) {
+    .admin-workspace-register { grid-template-columns: minmax(0, 1fr); }
+    .admin-workspace-operations .atlas-record-entry-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 599.9px) {
+    body.admin-ui .atlas-record-group-head,
+    body.admin-ui .atlas-index-filters,
+    body.admin-ui .atlas-form,
+    body.admin-ui .atlas-register-table-wrap,
+    body.admin-ui .atlas-records-alerts,
+    body.admin-ui .atlas-index-alerts,
+    body.admin-ui .atlas-records-pager { padding-inline: 16px; }
+    .admin-workspace-operations .atlas-record-entry-actions { grid-template-columns: minmax(0, 1fr); }
+    .admin-workspace-panel .atlas-record-group-head { padding-inline: 16px; }
+    .admin-workspace-panel .atlas-record-entry { padding-inline: 16px; }
+    .admin-workspace-activity .atlas-record-group-head { align-items: flex-start; }
+}
+
+
+/* ==========================================================================
+   Readability + next-action pass (2026-10-22)
+   Operate-surface polish: the dossier voice stays, but data labels stop
+   shouting in 9.5px caps, numbers align, and the next step is not a scroll.
+   ========================================================================== */
+
+/* Identity labels keep the tracked-caps voice at a legible floor. */
+.atlas-dashboard-entry,
+.atlas-lesson-entry-label,
+.atlas-record-entry-label,
+.atlas-path-entry-line,
+.atlas-path-rail-number,
+.atlas-path-rail-label,
+.atlas-path-rail-now,
+.atlas-path-course-state,
+.atlas-index-number,
+.atlas-bench-pane-head,
+.atlas-bench-pane-head span {
+    font-size: 11px;
+    letter-spacing: .1em;
+}
+
+/* Data and metadata labels read in sentence case at 11.5-13px. */
+.atlas-dashboard-section-heading h2,
+.atlas-records-subheading {
+    font-size: 13px;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+.atlas-path-checkpoint h3 {
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: none;
+}
+.atlas-register-table thead th {
+    font-size: 11.5px;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+.atlas-index-filter > label,
+.atlas-index-section-title,
+.atlas-index-nav-title,
+.atlas-path-entry-context,
+.atlas-path-entry-chip dt,
+.atlas-path-entry-kicker,
+.atlas-path-entry-caption,
+.atlas-path-boss-label,
+.atlas-dashboard-course,
+.atlas-dashboard-chip dt,
+.atlas-dashboard-order-kicker,
+.atlas-dashboard-order-logged,
+.atlas-dashboard-order-caption,
+.atlas-dashboard-order-figures dt,
+.atlas-dashboard-focus h2,
+.atlas-evidence-meta,
+.atlas-dashboard-events time,
+.atlas-record-group-figure,
+.atlas-record-group-note,
+.atlas-record-meta,
+.atlas-record-key,
+.atlas-recommendation-slot,
+.atlas-recommendation-note,
+.atlas-index-meta,
+.atlas-index-check-link,
+.atlas-lesson-reference-label,
+.atlas-timeline-time,
+.atlas-timeline-points,
+.log-facts dt,
+.atlas-check-position,
+.atlas-check-missing-label,
+.atlas-check-result-label,
+.atlas-check-review-position,
+.atlas-check-review-answers dt,
+.atlas-ledger-source,
+.atlas-sheet-caption,
+.challenge-hint-label,
+.cq-doc-label {
+    font-size: 11.5px;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+.atlas-sheet-caption {
+    font-size: 10px;
+    letter-spacing: .1em;
+}
+
+/* Figures line up across rows and themes. */
+.is-numeric,
+.atlas-register-figure,
+.atlas-index-number,
+.atlas-index-section-count,
+.atlas-dashboard-position-number,
+.atlas-dashboard-order-logged .font-mono,
+.atlas-path-entry-position-number,
+.atlas-path-summary-xp,
+.atlas-path-summary-count,
+.atlas-xp,
+.atlas-record-entry-figure,
+.atlas-dashboard-event-points,
+.atlas-timeline-points,
+.atlas-ledger-amount,
+.font-mono {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Lesson: the next step lives beside the heading, not at the bench foot. */
+@media (min-width: 701px) {
+    .atlas-lesson-head {
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 28px;
+    }
+    .atlas-lesson-head .atlas-lesson-entry,
+    .atlas-lesson-head .atlas-lesson-title,
+    .atlas-lesson-head .atlas-lesson-task {
+        grid-column: 1;
+    }
+    .atlas-lesson-head-actions {
+        display: flex;
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: start;
+        justify-self: end;
+        margin-top: 0;
+    }
+    .atlas-lesson-head-actions .btn {
+        flex: 0 0 auto;
+        justify-content: center;
+    }
+}
+
+/* Draft state and its shortcut must stay readable (was 11px at 45% ink). */
+.cq-draft {
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-transform: none;
+}
+.cq-draft-hint {
+    font-size: 12px;
+    letter-spacing: .01em;
+    color: var(--color-fg-muted);
+}
+
+.atlas-path-mission {
+    grid-template-columns: 20px minmax(0, 1fr);
+}
+.atlas-path-mission-link {
+    grid-column: auto;
+    grid-row: auto;
+    align-self: auto;
+    margin-left: 6px;
+    padding-bottom: 0;
+    border-bottom: 0;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-fg-muted);
+}
+.atlas-path-mission:hover .atlas-path-mission-link,
+.atlas-path-mission:focus-within .atlas-path-mission-link {
+    color: var(--color-accent);
+}
+
+/* Notifications: the row action is a full-size control, not 11px caps. */
+.atlas-notification-action .atlas-row-action {
+    font-size: 12px;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+
+/* Missions: state glyphs, not fake checkboxes; filters stay in reach. */
+.atlas-index-node,
+.atlas-index-mark {
+    border: 0;
+    background: transparent;
+}
+@media (min-width: 1024px) {
+    /* Every record-filter bar stays reachable while its list scrolls. */
+    .atlas-ui .atlas-index-filters {
+        position: sticky;
+        top: 66px;
+        z-index: 20;
+        padding-block: 12px 14px;
+        background: var(--cq-ground);
+        border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
+    }
+}
+
+/* Report registers: numeric columns right-align once the table is a table. */
+@media (min-width: 768px) {
+    .atlas-register-table :is(th, td).is-number {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* One primary next step per lesson: the heading carries it; the bench foot
+   keeps only the ungraded note on desktop. */
+@media (min-width: 701px) {
+    .atlas-lesson-bench .atlas-bench-foot .btn-primary {
+        display: none;
+    }
+}
+.atlas-path-mission-link::before {
+    content: '·';
+    margin-right: 8px;
+    color: color-mix(in srgb, var(--cq-ink) 35%, transparent);
+}
+
+/* Tablet band: let the heading own the width; the next step sits under the
+   task rather than squeezing the entry line into a second column. */
+@media (min-width: 701px) and (max-width: 1100px) {
+    .atlas-lesson-head {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .atlas-lesson-head-actions {
+        display: flex;
+        grid-column: 1;
+        grid-row: auto;
+        justify-self: end;
+        margin-top: 4px;
+    }
+}
+
+/* Staff sheets: admin pages carry their page name visibly under the running
+   head (the h1 is authored sr-only for the access tree). Teacher sheets already
+   render a visible .atlas-records-heading. */
+body.admin-ui .atlas-records > h1.sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 20px 24px 0;
+    padding: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+    font-family: var(--font-display);
+    font-size: clamp(24px, 3vw, 30px);
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: var(--color-fg);
+}
+@media (max-width: 767.9px) {
+    body.admin-ui .atlas-records > h1.sr-only {
+        margin-inline: 16px;
+    }
+}
+
+/* Form labels read as labels, not as stamped metadata. */
+.atlas-form-field > label {
+    font-size: 12px;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+
+/* Course analytics: let the distribution use the sheet's width. */
+.atlas-distribution-list {
+    max-width: 100%;
+}
+.atlas-distribution-row {
+    grid-template-columns: 64px minmax(0, 1fr) 4ch;
+}
+
+
+/* Guest access register uses the same sentence-case field labels as the app. */
+.atlas-access-form label,
+.atlas-access-field label {
+    font-size: 12px;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+
+
+/* Admin mission register: the Points cell keeps its test-bound attribute
+   markup, so its alignment is a selector, not a class. */
+.atlas-register-table td[data-label="Points"] {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* Audit trail: a very long recorded diff reads as a disclosure, not a wall. */
+.atlas-audit-summary {
+    max-width: 72ch;
+}
+.atlas-audit-summary > summary {
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 21px;
+    color: var(--color-fg-muted);
+}
+.atlas-audit-summary > summary:hover {
+    color: var(--color-accent);
+}
+.atlas-audit-summary[open] > summary {
+    margin-bottom: 6px;
+}
+
+
+/* Student portal interaction pass (2026-10-22).
+   Flat surfaces stay flat: feedback is a tone shift, a 1px press, a short
+   arrow travel, and a 240ms entrance. Nothing loops, nothing floats at rest. */
+:root {
+    --cq-ease-out: cubic-bezier(.23, 1, .32, 1);
+    --cq-ease-in-out: cubic-bezier(.77, 0, .175, 1);
+}
+
+.atlas-ui .btn {
+    transition:
+        background-color 150ms var(--cq-ease-out),
+        border-color 150ms var(--cq-ease-out),
+        color 150ms var(--cq-ease-out),
+        box-shadow 150ms var(--cq-ease-out),
+        transform 120ms var(--cq-ease-out);
+}
+
+.atlas-ui .btn [data-arrow] {
+    transition: transform 160ms var(--cq-ease-out);
+}
+
+.atlas-ui .btn-secondary {
+    transition:
+        background-color 150ms var(--cq-ease-out),
+        border-color 150ms var(--cq-ease-out),
+        color 150ms var(--cq-ease-out),
+        transform 120ms var(--cq-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .atlas-ui .btn:hover [data-arrow] {
+        transform: translateX(2px);
+    }
+    .atlas-ui .btn-secondary:hover {
+        border-color: var(--color-fg);
+        background: var(--color-raised);
+    }
+    .atlas-ui .btn-ghost:hover {
+        background: var(--color-raised);
+        color: var(--color-fg);
+    }
+}
+
+.atlas-ui .btn-secondary:active,
+.atlas-ui .btn-ghost:active {
+    transform: translateY(1px);
+}
+
+/* The learning-path scoreboard jumps to the current entry; it is a quiet
+   in-page link, not a second primary button (the entry plate owns that). */
+.atlas-path-summary-jump {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 32%, transparent);
+    color: var(--color-fg-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 140ms var(--cq-ease-out), border-color 140ms var(--cq-ease-out);
+}
+.atlas-path-summary-jump:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+.atlas-path-summary-jump:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+.atlas-path-summary-jump .icon {
+    transition: transform 140ms var(--cq-ease-out);
+}
+.atlas-path-summary-jump:hover .icon {
+    transform: translateX(2px);
+}
+
+/* Row-level feedback. The row is the target; the whole strip responds. */
+.atlas-timeline-event,
+.atlas-path-mission,
+.atlas-assessment-entry,
+.atlas-record-entry,
+.atlas-register-table tbody tr {
+    transition: background-color 140ms var(--cq-ease-out);
+}
+
+.atlas-check-option {
+    transition: background-color 140ms var(--cq-ease-out), border-color 140ms var(--cq-ease-out);
+}
+.atlas-check-option input {
+    transition: transform 120ms var(--cq-ease-out);
+}
+
+.atlas-workbench-tab,
+.atlas-workbench-tab[data-pane-toggle],
+.atlas-boss .atlas-workbench-tab {
+    transition: color 140ms var(--cq-ease-out), border-color 140ms var(--cq-ease-out), background-color 140ms var(--cq-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .atlas-timeline-event:hover,
+    .atlas-path-mission:hover,
+    .atlas-assessment-entry:hover,
+    .atlas-record-entry:hover,
+    .atlas-register-table tbody tr:hover {
+        background: color-mix(in srgb, var(--cq-ink) 4%, transparent);
+    }
+    .atlas-check-option:hover input {
+        transform: scale(1.06);
+    }
+    .atlas-check-option:has(input:checked) input {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes cq-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(7px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes cq-meter-in {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes cq-row-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes cq-runlog-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-dashboard-objective,
+    .atlas-path-summary,
+    .atlas-records-heading,
+    .atlas-reading-heading,
+    .atlas-boss-heading,
+    .atlas-lesson-head,
+    .cq-challenge > header {
+        animation: cq-rise-in 240ms var(--cq-ease-out) both;
+    }
+
+    .progress > span,
+    .atlas-path-meter > span {
+        transform-origin: left center;
+        animation: cq-meter-in 520ms var(--cq-ease-out) both;
+    }
+
+    .atlas-timeline-event:nth-child(-n + 8) {
+        animation: cq-row-in 220ms var(--cq-ease-out) both;
+    }
+    .atlas-timeline-event:nth-child(2) { animation-delay: 30ms; }
+    .atlas-timeline-event:nth-child(3) { animation-delay: 60ms; }
+    .atlas-timeline-event:nth-child(4) { animation-delay: 90ms; }
+    .atlas-timeline-event:nth-child(5) { animation-delay: 120ms; }
+    .atlas-timeline-event:nth-child(6) { animation-delay: 150ms; }
+    .atlas-timeline-event:nth-child(7) { animation-delay: 180ms; }
+    .atlas-timeline-event:nth-child(8) { animation-delay: 210ms; }
+
+    .cq-runlog:not([hidden]) {
+        animation: cq-runlog-in 180ms var(--cq-ease-out) both;
+    }
+}
+
+
+/* Navigation and signal feedback, same budget as the buttons. */
+.atlas-primary a {
+    transition: color 160ms var(--cq-ease-out), border-color 160ms var(--cq-ease-out);
+}
+.atlas-popover :is(a, button) {
+    transition: background-color 120ms var(--cq-ease-out), color 120ms var(--cq-ease-out);
+}
+.atlas-notifications {
+    transition: color 140ms var(--cq-ease-out), transform 120ms var(--cq-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .atlas-primary a:hover {
+        color: var(--color-fg);
+        border-bottom-color: color-mix(in srgb, var(--cq-ink) 35%, transparent);
+    }
+    .atlas-notifications:hover {
+        color: var(--color-fg);
+    }
+}
+.atlas-notifications:active {
+    transform: translateY(1px);
+}
+
+@keyframes cq-step-in {
+    from {
+        opacity: 0;
+        transform: scaleX(.4);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-dashboard-progress-step {
+        transform-origin: left center;
+        animation: cq-step-in 240ms var(--cq-ease-out) both;
+    }
+    .atlas-dashboard-progress-step:nth-child(2) { animation-delay: 18ms; }
+    .atlas-dashboard-progress-step:nth-child(3) { animation-delay: 36ms; }
+    .atlas-dashboard-progress-step:nth-child(4) { animation-delay: 54ms; }
+    .atlas-dashboard-progress-step:nth-child(5) { animation-delay: 72ms; }
+    .atlas-dashboard-progress-step:nth-child(6) { animation-delay: 90ms; }
+    .atlas-dashboard-progress-step:nth-child(7) { animation-delay: 108ms; }
+    .atlas-dashboard-progress-step:nth-child(8) { animation-delay: 126ms; }
+}
+
+
+.atlas-assessment-path-link {
+    margin-top: 14px;
+}
+
+
+.atlas-assessment-path-link {
+    margin-top: 14px;
+}
+
+
+@media (max-width: 639px) {
+    .atlas-path-summary-jump {
+        min-height: 44px;
+    }
+}
+
+
+.atlas-path-course-head {
+    transition: background-color 140ms var(--cq-ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+    .atlas-path-course-head:hover {
+        background: color-mix(in srgb, var(--cq-ink) 3%, transparent);
+    }
+}
+
+
+/* Guest cover: the documented learning loop closes the page. */
+.atlas-cover-loop {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr);
+    gap: 20px 40px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent);
+}
+.atlas-cover-loop-head h2 {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+.atlas-cover-loop-head p {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 21px;
+    color: var(--color-fg-muted);
+}
+.atlas-cover-loop ol {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.atlas-cover-loop li {
+    min-width: 0;
+    padding: 2px 16px;
+    border-left: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
+}
+.atlas-cover-loop li:first-child {
+    padding-left: 0;
+    border-left: 0;
+}
+.atlas-cover-loop-step {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+}
+.atlas-cover-loop li p {
+    margin-top: 5px;
+    font-size: 13px;
+    line-height: 21px;
+    color: var(--color-fg-muted);
+}
+@media (max-width: 900px) {
+    .atlas-cover-loop {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .atlas-cover-loop ol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 0;
+    }
+    .atlas-cover-loop li:nth-child(3) {
+        padding-left: 0;
+        border-left: 0;
+    }
+}
+@media (max-width: 520px) {
+    .atlas-cover-loop ol {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .atlas-cover-loop li {
+        padding: 0;
+        border-left: 0;
+    }
+    .atlas-cover-loop li + li {
+        padding-top: 14px;
+        border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
+    }
+}
+
+
+.atlas-lesson-facts {
+    max-width: 380px;
+    margin-top: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+.cq-reference-note {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--color-fg-muted);
+}
+
+
+/* Admin course workspace: one local tab row for settings, sections,
+   challenges and the Boss Challenge. The top bar stays platform-level. */
+.atlas-course-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 0;
+    margin: 18px 24px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+}
+.atlas-course-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-bottom: 2px solid transparent;
+    color: color-mix(in srgb, var(--cq-ink) 70%, transparent);
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 140ms var(--cq-ease-out), border-color 140ms var(--cq-ease-out);
+}
+.atlas-course-nav a:hover,
+.atlas-course-nav a:focus-visible {
+    color: var(--color-fg);
+    border-bottom-color: color-mix(in srgb, var(--cq-ink) 35%, transparent);
+}
+.atlas-course-nav a[aria-current="page"] {
+    color: var(--color-fg);
+    border-bottom-color: var(--color-accent);
+}
+@media (max-width: 720px) {
+    .atlas-course-nav {
+        margin-inline: 16px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+    .atlas-course-nav a {
+        flex: none;
+        padding-inline: 11px;
+    }
+}
+
+
+/* Unread notification badge: the bell is the only persistent inbox affordance. */
+.atlas-notifications {
+    position: relative;
+}
+.atlas-notification-count {
+    position: absolute;
+    top: 4px;
+    right: 3px;
+    display: grid;
+    place-items: center;
+    min-width: 16px;
+    height: 16px;
+    padding-inline: 3px;
+    border: 1px solid var(--cq-ground);
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+
+.atlas-boss-alert-actions {
+    margin-top: 12px;
+}
+
+
+/* Dialogs: the challenge's existing confirm/assistance panels keep their
+   own rules; this is the same grammar for shell-level confirmations. */
+.atlas-dialog {
+    width: min(440px, calc(100% - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 24px;
+    border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent);
+    border-radius: 2px;
+    background: var(--cq-sheet);
+    box-shadow: 8px 8px 0 var(--cq-ink-shadow);
+    color: var(--color-fg);
+    opacity: 0;
+    transform: translateY(8px) scale(.985);
+    transition: opacity 180ms var(--cq-ease-out), transform 180ms var(--cq-ease-out);
+}
+.atlas-dialog[open] {
+    opacity: 1;
+    transform: none;
+}
+@starting-style {
+    .atlas-dialog[open] {
+        opacity: 0;
+        transform: translateY(8px) scale(.985);
+    }
+}
+.atlas-dialog::backdrop {
+    background: #0009;
+}
+.atlas-dialog-kicker {
+    font-family: var(--font-display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+}
+.atlas-dialog h2 {
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1.15;
+    font-weight: 600;
+}
+.atlas-dialog p {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 23px;
+    color: var(--color-fg-muted);
+}
+.atlas-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+/* Popovers open from their trigger. */
+.atlas-disclosure[open] > .atlas-popover {
+    animation: atlas-pop-in 140ms var(--cq-ease-out) both;
+    transform-origin: top right;
+}
+.atlas-secondary[open] > .atlas-popover {
+    transform-origin: top left;
+}
+@keyframes atlas-pop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-3px) scale(.985);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-dashboard-evidence {
+        animation: cq-rise-in 240ms var(--cq-ease-out) 60ms both;
+    }
+    .atlas-dashboard-focus {
+        animation: cq-rise-in 240ms var(--cq-ease-out) 120ms both;
+    }
+    .atlas-inbox .atlas-notification:nth-child(-n + 6) {
+        animation: cq-row-in 220ms var(--cq-ease-out) both;
+    }
+    .atlas-inbox .atlas-notification:nth-child(2) { animation-delay: 30ms; }
+    .atlas-inbox .atlas-notification:nth-child(3) { animation-delay: 60ms; }
+    .atlas-inbox .atlas-notification:nth-child(4) { animation-delay: 90ms; }
+    .atlas-inbox .atlas-notification:nth-child(5) { animation-delay: 120ms; }
+    .atlas-inbox .atlas-notification:nth-child(6) { animation-delay: 150ms; }
+}
+
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-path-course[open] > .atlas-path-course-body {
+        animation: cq-path-open 180ms var(--cq-ease-out) both;
+    }
+    .atlas-records-alerts .panel {
+        animation: cq-rise-in 220ms var(--cq-ease-out) both;
+    }
+}
+@keyframes cq-path-open {
+    from {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+
+@media (prefers-reduced-motion: no-preference) {
+    .cq-confirm[open],
+    .cq-assistance[open] {
+        animation: cq-dialog-in 180ms var(--cq-ease-out) both;
+    }
+}
+@keyframes cq-dialog-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px) scale(.985);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+
+/* Challenge guide + assistance pricing. */
+.cq-guide {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 18%, transparent);
+}
+.cq-guide > summary {
+    min-height: 32px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--color-fg);
+}
+.cq-guide ul {
+    display: grid;
+    gap: 5px;
+    margin: 8px 0 0 18px;
+    padding: 0;
+    list-style: disc;
+    font-size: 12.5px;
+    line-height: 19px;
+    color: var(--color-fg-muted);
+}
+.cq-guide strong {
+    color: var(--color-fg);
+    font-weight: 600;
+}
+.challenge-assistance-cost {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 18%, transparent);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 18px;
+    color: var(--color-fg-muted);
+}
+.challenge-assistance-requirement {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--color-warning);
+    background: color-mix(in srgb, var(--color-warning) 8%, transparent);
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--color-fg-muted);
+}
+
+
+/* Student learning-stage rail. A rule, a mark, a label: no cards. */
+.atlas-stage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 18px;
+    margin: 0;
+    padding: 12px 0 13px;
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 18%, transparent);
+    list-style: none;
+}
+.atlas-stage li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding-right: 18px;
+    border-right: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    line-height: 1.3;
+}
+.atlas-stage li:last-child {
+    padding-right: 0;
+    border-right: 0;
+}
+.atlas-stage-mark {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border: 1px solid var(--color-line-strong);
+    background: transparent;
+}
+.atlas-stage li[data-state="done"] .atlas-stage-mark {
+    border-color: var(--color-success);
+    background: var(--color-success);
+}
+.atlas-stage li[data-state="current"] {
+    color: var(--color-fg);
+}
+.atlas-stage li[data-state="current"] .atlas-stage-mark {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+}
+.atlas-stage li[data-state="upcoming"] {
+    color: var(--color-fg-subtle);
+}
+.atlas-stage-copy {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+    min-width: 0;
+}
+.atlas-stage-label {
+    font-weight: 500;
+}
+.atlas-stage-note {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-fg-subtle);
+}
+@media (max-width: 639px) {
+    .atlas-stage {
+        gap: 8px 0;
+        padding-block: 10px 11px;
+    }
+    .atlas-stage li {
+        flex: 1 1 auto;
+        gap: 6px;
+        padding-right: 10px;
+        font-size: 11.5px;
+    }
+    .atlas-stage-note {
+        display: none;
+    }
+}
+
+
+.atlas-dashboard-help {
+    min-height: 32px;
+    margin-left: auto;
+    padding: 0 2px;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 32%, transparent);
+    background: transparent;
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 140ms var(--cq-ease-out), border-color 140ms var(--cq-ease-out);
+}
+.atlas-dashboard-help:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+.atlas-how-list {
+    display: grid;
+    gap: 10px 18px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+.atlas-how-list li {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
+}
+.atlas-how-list li > span {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+}
+.atlas-how-list li p {
+    margin: 0;
+    color: var(--color-fg-muted);
+    font-size: 13px;
+    line-height: 20px;
+}
+.atlas-dialog-note {
+    margin-top: 16px !important;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent);
+    font-size: 12px !important;
+    line-height: 19px !important;
+}
+@media (max-width: 520px) {
+    .atlas-how-list li {
+        grid-template-columns: 70px minmax(0, 1fr);
+        gap: 8px;
+    }
+}
+
+
+.atlas-inbox-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 4px 0 14px;
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+}
+.atlas-inbox-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 14px;
+    border-bottom: 2px solid transparent;
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 140ms var(--cq-ease-out), border-color 140ms var(--cq-ease-out);
+}
+.atlas-inbox-tabs a span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-fg-subtle);
+}
+.atlas-inbox-tabs a:hover {
+    color: var(--color-fg);
+}
+.atlas-inbox-tabs a[aria-current="page"] {
+    color: var(--color-fg);
+    border-bottom-color: var(--color-accent);
+}
+.atlas-inbox-tabs a[aria-current="page"] span {
+    color: var(--color-accent);
+}
+
+
+.atlas-records-guide {
+    margin: 18px 0 22px;
+    padding: 12px 0 4px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 18%, transparent);
+}
+.atlas-records-guide > summary {
+    min-height: 32px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--color-fg);
+}
+.atlas-records-guide ul {
+    display: grid;
+    gap: 5px;
+    max-width: 88ch;
+    margin: 8px 0 10px 18px;
+    padding: 0;
+    list-style: disc;
+    font-size: 12.5px;
+    line-height: 19px;
+    color: var(--color-fg-muted);
+}
+.atlas-records-guide strong {
+    color: var(--color-fg);
+    font-weight: 600;
+}

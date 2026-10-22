@@ -18,6 +18,13 @@ paths:
   - app/Services/StudentReminderService.php
   - app/Services/ReportAuthorizationService.php
   - app/Services/ClassroomAccessService.php
+  - app/Services/KnowledgeCheckGate.php
+  - app/Services/DashboardService.php
+  - app/Services/PerformanceSummaryService.php
+  - app/Services/TimelineService.php
+  - app/Services/ChallengeAnalyticsService.php
+  - app/Services/AdminKnowledgeCheckService.php
+  - app/Services/KnowledgeCheckService.php
 ---
 
 # Services
@@ -31,8 +38,8 @@ Assessment attempt access is enforced in the service, never the view: Assessment
 ## Assessment submit: ownership first, lifecycle guard, no client-authoritative fields
 Assessment submission (AssessmentService::submitAttempt): ownership gate runs FIRST (hasAccessToAttempt, throws AssessmentAttemptAccessDeniedException for a non-owner, attempt row untouched), then the lifecycle guard (only status 'started' accepts a submission; otherwise AssessmentAttemptNotSubmittableException). The method accepts only code against a user-owned attempt; it has no score/pass/fail/XP/completion/eligibility parameter, so none can flow from the client (§11/§43/§45). It records code, status 'submitted', submitted_at, and leaves score/passed_at null. Scoring is US-407; submission does not evaluate.
 
-## ValidationService rules-string core; proportion-of-rules evaluation scoring
-ValidationService::validateRules(string $rulesJson, string $code) is the generalized pattern engine (missions AND assessments). validate(Mission, code) delegates to it. Result shape is {passed, failures, total} — 'total' feeds the assessor's proportion-of-rules score. Assessment evaluation scoring (AssessmentService::evaluateAttempt): score = round(passedRules/total * 100) vs passing_score, computed only after an ownership gate and a 'submitted'-state guard; evaluates directly to 'passed'(passed_at set) or 'failed'; never persists 'evaluated'; a zero-rule assessment scores 0 and never passes. Code is pattern-matched only, never executed.
+## ValidationService rules-string core; combined Boss scoring
+ValidationService::validateRules(string $rulesJson, string $code) is the generalized pattern engine (missions AND assessments). validate(Mission, code) delegates to it. Result shape is {passed, failures, total}. It never executes code. Assessment evaluation (AssessmentService::evaluateAttempt) combines pattern rules with hidden behavioural tests from the404_assessment_behavior_tests via AssessmentGradingService: score = round((passedRules + passedTests) / (totalRules + totalTests) * 100), after an ownership gate and a 'submitted'-state guard. Passing requires valid configuration, at least one check, score >= passing_score, every pattern rule passing, and every configured hidden test passing. An assessment with no hidden tests keeps the legacy pattern-only path and leaves tests_total/tests_passed NULL; zero checks score 0 and never pass. The attempt goes directly to 'passed' (passed_at set) or 'failed'; 'evaluated' is never persisted.
 
 ## Evaluated attempts immutable via services; fillable mass-assignment risk for US-413
 An evaluated assessment attempt (passed/failed) is immutable through the service layer: evaluateAttempt() is the only writer of score/passed_at and the final status, and its 'submitted'-only guard plus begin/submit state guards make re-evaluation, resubmission, and re-begin all throw AssessmentAttemptStateException. The AssessmentAttempt #[Fillable] still lists score/status/passed_at, so this guarantee holds only while services are the sole writers and no controller ever feeds a request payload into ->update()/create(). When HTTP routes arrive (US-413), guard against mass-assigning those fields from client input.
@@ -46,8 +53,8 @@ Assessment retry (AssessmentService::retryAttempt, US-409): opens a FRESH row in
 ## Course complete = has ever passed the assessment (hasPassed, history-based)
 US-410 RESOLVES the completion carry-forward: course complete = the student has EVER passed the course's assessment (AssessmentService::hasPassed reads attempt history for a status='passed' row on this assessment/user). A later retry — pass or fail — never un-completes the course. DashboardService::currentCourse() (injects AssessmentService) returns the first active course (in order_num, skipping zero-mission courses) whose assessment has not been passed; finishing all missions only unlocks the challenge, it does not complete the course. All completion/usages (currentCourse, next-course unlock, assessment XP) MUST key off hasPassed(), never latestAttemptFor().
 
-## Assessment XP awarded once per course pass (history transition, not status)
-US-412 carry-forward (assessment XP not yet implemented): XP awarded for the ORIGINAL assessment pass stands permanently. A later retry attempt — pass or fail — never reverses, duplicates, or re-awards that XP. The XP award is keyed off the same history predicate as completion (AssessmentService::hasPassed), so awarding only when hasPassed() transitions false->true (i.e., no passed row existed before evaluation) prevents repeat-award on a retry pass. Do not award on 'passed' status alone.
+## Assessment XP: first pass only, and a failed Boss attempt never deducts
+XP awarded for the ORIGINAL assessment pass stands permanently. A later retry attempt — pass or fail — never reverses, duplicates, or re-awards that XP. The award is keyed off the same history predicate as completion (hasPassed), so it fires only on the false->true transition. A failed Boss attempt carries NO XP penalty: it is a summative verdict, not a wrong mission submission, and no deduction row is written. Do not award on 'passed' status alone and do not add an assessment penalty.
 
 ## Next-course unlock is derived from currentCourse(); terminal course yields null, tested
 US-411: there is NO per-user next-course unlock mechanism — no unlock table, field, or route, and none should be invented. Passing a course yields a passed attempt row, which flips AssessmentService::hasPassed() → DashboardService::currentCourse() skips the completed course and hands over the next active course in order_num (§19 sequential, no branching; the method takes no request input, so a client cannot select an arbitrary next course). 'locked'/'draft' courses are filtered out by status, never surfaced as current. Final course in the sequence: currentCourse() returns null → dashboard renders "Course complete" and LearningPathService::nextMission() (which resolves its default course via currentCourse) returns null — the defined, tested "no invalid next-course dependency". Zero-mission active courses are skipped (never completable, would strand the student).
@@ -124,8 +131,8 @@ SectionService (US-706) is the ONLY write path for section rows and the listings
 ## AdminMissionService sole mission write path; missions have no status and points are never retroactive (US-707)
 AdminMissionService (US-707) is the ONLY admin write path for mission rows. Verified findings that shaped it: (1) the404_missions has NO status column — nothing gates on a mission, the gates for everything below a course sit on course.status and assessment.status, so there is no mission-status field to manage; (2) points (and every field) are snapshotted at student completion time (MissionService::submit writes pts_earned/pts/xpAwarded; XpService::awardCompletion writes the amount ledger row) — editing points never rewrites recorded history, only future completions see the new value; (3) section_id's FK alone does not stop a cross-course assignment (no composite (course_id, section_id) constraint), so update() refuses a section whose course_id differs from the mission's course. update() writes ONLY the 9 editable fields (title, description, difficulty, points, order_num, section_id, hints, broken_code, target_html); solution_code and validate_rule are view-only this story and can never pass through even if a crafted payload smuggles them. Same audit discipline: 'mission.update' success rows, 'failed' rows written before InvalidArgumentException, no-op writes nothing. DIFFICULTIES = EASY|MEDIUM|HARD; forCourse() orders by order_num then id. Do not add a mission-status gate or column, and do not recompute historical Progress/XpTransaction/Activity rows on a points edit.
 
-## Assessment update is edit-only, grading_rule excluded
-AdminAssessmentService::update is the only admin write path for a Boss Challenge (US-708): it allows ONLY title/description/instructions/passing_score/status. grading_rule is never writable from a payload (authored via AssessmentSeeder, same as solution_code/validate_rule on missions); status changes are an access gate recorded as assessment.status.change while field changes are assessment.update (no-op round-trips write nothing). The write never touches the404_assessment_attempts — passing_score edits only affect FUTURE evaluations; recorded verdicts are never rewritten.
+## Assessment update is edit-only; grading_rule is an audited structural write (P2-7)
+AdminAssessmentService::update is the only admin write path for a Boss Challenge (US-708, extended by P2-7): it allows title/description/instructions/passing_score/status/grading_rule. grading_rule must be a non-empty, structurally valid JSON rule array (ValidationService::isValidDefinition); an omitted key preserves the existing rule, while a supplied invalid rule is refused and audited. The audit summary records the changed rule COUNT, never the full rule body. Status changes are an access gate recorded as assessment.status.change while field changes are assessment.update (no-op round-trips write nothing). A material grading_rule change bumps the assessment version via HasCurriculumVersion. The write never touches the404_assessment_attempts — passing_score and rule edits only affect FUTURE evaluations; recorded verdicts keep their snapshotted rule/threshold.
 
 ## UserService audits create + base-field edits; AdminAuditService::feed powers /admin/activity
 US-709 closed the two fleet-audit gaps. UserService::create() now takes (User $actor, array $attributes) — its only caller is AdminUserController::store — and records a 'user.create' success row against the new account. UserService::update() records 'user.update' for ACTUAL base-field changes (username/name, and password only when non-empty AND Hash::check-fails against the stored hash), summary "User updated: field → 'value', password → (changed)" — the password value is NEVER echoed — and writes NO row on a no-op round-trip. Unknown role/status at the service layer now record a 'failed' row (Refused: Unknown role/status 'x'.) then throw InvalidArgumentException, mirroring CourseService::refuse. New AdminAuditService::feed(?actorId, ?action, ?result, ?from, ?to, $paginatorQuery) + FEED_PER_PAGE 30 serves /admin/activity (US-709 §27.0): newest-first, actorOptions() = admins for the dropdown, ACTIONS constant = the display-order filter vocabulary.
@@ -186,3 +193,41 @@ US-1108 supersedes the earlier accepted roster fan-out risk. StudentService pagi
 
 ## Failed mission replay identity and deployment gate
 A new UUID identifies a deliberate mission submission; repeated UUIDs replay the recorded failure without another XP penalty. Legacy callers intentionally deduplicate identical mission/version/source, so deliberate retries must send a fresh UUID. Store the failure and penalty atomically. The submission journal requires separately approved production DDL; missing schema must return unavailable without academic writes.
+
+## Required Knowledge Check prerequisite is a domain gate, not a controller check
+KnowledgeCheckGate (outstanding/assertCleared) is the single prerequisite boundary for submit, draft save, hint and solution reveal. MissionService, DraftService and XpService call assertCleared; MissionController's preflight only shapes the redirect. A submitted attempt clears the check (pass not required). Missions the student already completed are exempt: the check gates new work, not review. Gate depends only on KnowledgeCheckService to avoid the AssessmentService -> XpService container cycle.
+
+## Boss Challenge grading fails closed on invalid configuration
+evaluateAttempt requires passing_score in 1..100 and a structurally valid grading_rule before scoring. Invalid config logs a warning, writes status failed with score 0, awards no XP and no completion. A zero threshold is never a lenient pass (score >= 0 always passes). Admin writes reject <1 (AdminAssessmentUpdateRequest min:1, AdminAssessmentService); migration 2026_10_22_000001 sets the column default to 70 and does NOT backfill existing rows.
+
+## DashboardService::nextMission is the one canonical next-activity resolver
+Order is (order_num, id), drafts first, completed missions excluded. ResumeService, LearningPathService::nextMission and RecommendationService all delegate here; never re-derive a position. Changing this traversal changes every student-facing 'where am I' surface at once.
+
+## Performance Summary joins the three result types, it does not compute them
+forStudent() composes CourseProgressService (challenges/state), AssessmentService::attemptHistoriesForCourses (Boss attempts, best score, ever-passed via history not latest verdict) and KnowledgeCheckService::courseRegister (latest submitted attempt per check). No new completion/pass/correct formula. Minimum documented view only: no trends, exports, or speculative metrics.
+
+## Timeline vocabulary: one Boss type, id tiebreak, disclosed cap
+The assessment_completed ledger beat is emitted as type assessment_passed so one Boss event has one filterable type; the ledger row survives as the +XP beat. grading_unavailable is infrastructure, not learning, and is filtered out. Every source orders by (timestamp, id) for deterministic same-second order. events() is capped at 50 but overview() also returns the true total so the page discloses 'Newest 50 of N'. The course-scoped Knowledge Check beat keeps its score/total/percentage.
+
+## Boss grading combines pattern rules and hidden behavioural tests
+evaluateAttempt scores (passedRules+passedTests)/(totalRules+totalTests) and passes only when config is valid, at least one check exists, score >= passing_score, every pattern rule passes, and every configured hidden test passes. Assessments with no hidden tests keep the legacy pattern-only path (tests_total/tests_passed NULL). Grader unavailability is infrastructure: leave the attempt submitted with neutral failure_feedback, no score, XP, or Activity row; resubmitting re-evaluates. Persist authored per-rule/test feedback, never hidden inputs or expected values.
+
+## Analytics count grading_unavailable Activity rows as attempts, not failures
+Ungradable mission submissions are written to the404_activity with type grading_unavailable and a mission_id. ChallengeAnalyticsService folds them into attempts and attempted-pair unions, but excludes them from failures and completion. Historical rows with NULL mission_id stay unattributed rather than guessed. Do not add a parallel event table or parse message text.
+
+## Boss evidence is a third competency component, monotone on ever-passed
+skills() reads the404_assessment_attempts.skill_keys (snapshot at attempt start) for mapped courses. Ever passed = 100%, attempted without a pass = 0%, no attempt = no Boss component. Average all present components (KC, challenge, Boss). A later failed retry never lowers a skill already passed; never read the live skill pivot for history.
+
+## Admin Knowledge Check writes are metadata-only and audited
+The admin screen edits title, instructions, is_required, and status only; question/option content stays on the curriculum release path. is_required is what makes KnowledgeCheckGate real for existing content (submitted attempt clears; completed missions exempt). Every applied change records knowledge_check.update with a failed row before a refusal; material changes bump the version, status-only transitions do not. Enforce the Course -> Mission -> Check hierarchy in the controller.
+
+## recentActivity is a learning feed, not a session log
+`DashboardService::recentActivity(User $user, int $limit = 6)` excludes `TimelineService::NON_LEARNING_ACTIVITY_TYPES` (login/logout/grading_unavailable) in the query, before the limit, newest first with `(created_at, id)` ordering. Filtering after the fetch let six logins empty the dashboard's evidence panel for an active student. DashboardController passes limit 4 and performs no second filter; do not move the exclusion back into the controller.
+
+
+## Timeline achievement source (2026-10-22)
+`TimelineService` composes `UserAchievement` awards into `achievement_earned` beats for the student's own timeline (`events()`/`overview()` with no course scope). The teacher feed deliberately excludes this source: awards have no course reference. Keep the beat label `Achievement unlocked: {name}`, the `created_at` timestamp and the `award` view mark; add the source to `compose()` and `sourcesFor()` together, and keep the achievement branch out of the scoped `$studentCourseScopes` branch.
+
+
+## Inbox filter is server-scoped (2026-10-22)
+`NotificationService::forUser(User $user, bool $unreadOnly = false)` accepts only the unread flag; `totalCount()` returns the unfiltered owned total. The controller validates `filter=unread` (anything else is all), paginates with `withQueryString()`, and the view renders All/Unread tabs with counts. The unread query remains indexed and user-scoped; no client filtering or user identifiers.

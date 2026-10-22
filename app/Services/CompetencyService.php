@@ -407,9 +407,18 @@ class CompetencyService
      * Approved v1 formula, per skill:
      *   KC component         = correct mapped KC responses / mapped KC responses
      *   Challenge component  = completed mapped challenges / applicable mapped challenges
-     *   both present         = average of the two (50/50)
+     *   Boss component       = 100% when the student has ever passed the mapped
+     *                          Boss Challenge, 0% when they have attempted it
+     *                          without a pass (no attempt = no Boss component)
+     *   present components   = average of all present components (equal weight)
      *   one present          = that source at 100% (no penalty for a missing category)
-     *   neither present      = null (NOT ASSESSED, never weak)
+     *   none present         = null (NOT ASSESSED, never weak)
+     *
+     * The Boss component is monotone: once a mapped challenge has been
+     * passed, a later failed retry can never lower the skill (mirroring the
+     * "course completion keys off ever-passed" rule). Before the first pass,
+     * attempts are evidence of practice and count as 0%, so a failed Boss
+     * attempt lowers the mapped skill instead of being invisible.
      *
      * Evidence attribution uses the skill-key snapshots stored on each
      * evidence row at creation time, never the live pivot mappings: a later
@@ -419,7 +428,8 @@ class CompetencyService
      * incomplete evidence. Unattempted Knowledge Checks contribute no KC
      * evidence; checks gate nothing and complete nothing, so this preserves
      * existing progression semantics. Wrong submissions never enter the
-     * percentage; Boss evidence is excluded from v1 skill scoring entirely.
+     * percentage. Boss evidence is read from AssessmentAttempt.skill_keys
+     * (snapshotted at attempt start), never from the live pivot.
      *
      * All reads are grouped; nothing here queries per skill, mission,
      * question, or course (US-911).
@@ -462,8 +472,15 @@ class CompetencyService
             ->select(['qsk.question_id', 'qsk.skill_id'])
             ->get();
 
+        $assessmentSkillIds = DB::table('the404_assessment_skill as ask')
+            ->join('the404_assessments as a', 'a.id', '=', 'ask.assessment_id')
+            ->whereIn('a.course_id', $courses)
+            ->select(['ask.assessment_id', 'ask.skill_id'])
+            ->get();
+
         $skillIds = $missionSkillIds->pluck('skill_id')
             ->merge($questionSkillIds->pluck('skill_id'))
+            ->merge($assessmentSkillIds->pluck('skill_id'))
             ->unique()
             ->values();
 
@@ -519,6 +536,32 @@ class CompetencyService
             }
         }
 
+        $assessmentIds = $assessmentSkillIds->pluck('assessment_id')->unique()->values();
+
+        $bossAttempted = [];
+        $bossPassed = [];
+
+        if ($assessmentIds->isNotEmpty()) {
+            $bossAttempts = DB::table('the404_assessment_attempts')
+                ->where('user_id', $user->id)
+                ->whereIn('assessment_id', $assessmentIds)
+                ->whereIn('status', ['passed', 'failed'])
+                ->select(['status', 'skill_keys'])
+                ->get();
+
+            foreach ($bossAttempts as $attempt) {
+                foreach (self::snapshotKeys($attempt->skill_keys) as $key) {
+                    $seenKeys[$key] = true;
+                    $hasEvidence[$key] = true;
+                    $bossAttempted[$key] = true;
+
+                    if ($attempt->status === 'passed') {
+                        $bossPassed[$key] = true;
+                    }
+                }
+            }
+        }
+
         $applicableKeys = [];
         foreach ($missionKeys as $missionId => $keys) {
             foreach (array_unique($keys) as $key) {
@@ -571,12 +614,18 @@ class CompetencyService
                 $challengePercentage = $completed / count($applicable) * 100;
             }
 
-            $percentage = match (true) {
-                $kcPercentage !== null && $challengePercentage !== null => ($kcPercentage + $challengePercentage) / 2,
-                $kcPercentage !== null => $kcPercentage,
-                $challengePercentage !== null => $challengePercentage,
-                default => null,
-            };
+            $bossPercentage = isset($bossAttempted[$key])
+                ? (isset($bossPassed[$key]) ? 100.0 : 0.0)
+                : null;
+
+            $components = array_values(array_filter(
+                [$kcPercentage, $challengePercentage, $bossPercentage],
+                fn (?float $value): bool => $value !== null,
+            ));
+
+            $percentage = $components !== []
+                ? array_sum($components) / count($components)
+                : null;
 
             $weak = $percentage !== null && $percentage < 70;
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\KnowledgeCheckRequiredException;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsStudent;
@@ -46,6 +47,23 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontFlash(['_token']);
+
+        // The required-check prerequisite is enforced in the domain services.
+        // Convert that domain refusal into the established student response so
+        // a direct service invocation through HTTP can never surface a 500 or
+        // discard the submitted code.
+        $exceptions->render(function (KnowledgeCheckRequiredException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            return redirect()->route('mission.show', $exception->mission)
+                ->withInput($request->only('code'))
+                ->with('knowledge_check_info', [
+                    'title' => 'Knowledge Check required',
+                    'message' => "Complete {$exception->check->title} before opening this Challenge.",
+                ]);
+        });
 
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),

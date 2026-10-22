@@ -1,6 +1,7 @@
 ---
 paths:
   - 'resources/views/layouts/**'
+  - resources/views/layouts/app.blade.php
 ---
 
 # Layouts
@@ -25,3 +26,32 @@ Student and teacher screens use the application top bar for their primary destin
 
 ## Account theme wins over localStorage before paint
 layouts/app computes $themePreference for the authenticated user; the pre-paint script uses the saved account value when present, writes it into localStorage, and otherwise falls back to the device value. The toggle POSTs to theme.update for authenticated users only. Error pages stay localStorage-only on purpose (they must not query the DB during a 500), so the write-through is what keeps them in sync.
+
+## The theme is resolved by timestamp: the newer of device and account wins
+The head script applies the theme before first paint and compares two sources by when the choice was made: the device (localStorage cq-theme plus cq-theme-at, written by the toggle in app.js) and the account (the server value plus its saved_at). The newer wins. A student who picks a theme and navigates immediately keeps that choice even if the account write has not landed yet, and a choice made on another device still converges here. Never make the account value unconditionally win and never overwrite the device value without its timestamp.
+
+## A device choice without a timestamp is still the student's own choice
+The head script compares the device's choice and the account's by when they were made; the newer wins. A device value with NO timestamp was written before the account learned about time: it is the student's own choice, so it is honoured, stamped from now on, and flagged (data-theme-sync="device") so the client carries it to the account. Never discard a device choice for an older account value, and never let the account win over a choice the student just made.
+
+## The record popover keeps its authored groups
+`$secondaryGroups` in layouts/app preserves the heading rows authored in `$studentItems`/`$instructorItems`/`$adminItems`; `components.student-header` prints a group label only when it differs from the disclosure label (the first student group is "Learning record", the same as the trigger, so it is not repeated). The desktop popover must stay one `<nav class="atlas-popover" aria-label="…">` so RoleNavigationTest's section slice keeps seeing every link; the mobile menu prints every group label. Do not flatten the popover back into an eleven-link list.
+
+
+## Student secondary nav is not a link dump (2026-10-22)
+The Learning record disclosure deliberately omits Section Progress, Challenge Index and Notifications. Section Progress is linked from the Course Progress sheet; Challenge Index remains a real route reached from Timeline/Boss contexts; Notifications is the shell bell. Keep the `$secondaryGroups` headings and the `<nav class="atlas-popover" aria-label="Learning record">` wrapper for RoleNavigationTest. When adding a student surface, first ask which existing feature owns the path.
+
+
+## Guest cover teaches the whole system (2026-10-22)
+The public welcome now lists the documented feature set, not four entries: Lessons, Knowledge Checks, Coding Challenges, Boss Challenges, Learning path, Learning timeline, Performance summary. Below the two-column body, a full-width "The learning loop" band (Study → Check → Practice → Prove) explains the sequence and writes a single-record sentence. Keep the loop copy tied to the real flow: Knowledge Check before the challenge opens, required Coding Challenges before the Boss. The login access register lists the same six destinations (Lessons & Knowledge Checks combined) so a visitor sees the complete product before signing in. Both covers must stay within the viewport at 1440 (the loop may sit below the first fold) and must not introduce a new card grid.
+
+
+## The bell carries the unread count, safely (2026-10-22)
+The shell computes `$unreadNotificationCount` for authenticated users through `NotificationService::unreadCount()` and prints an accessible label (`Notifications, N unread`) plus a `.atlas-notification-count` badge (9+ cap). The query is wrapped in `try/catch` and falls back to 0: the admin system-status page must still render a 200 when the database is deliberately unreachable. Never remove the fallback; AdminSystemTest asserts the database-failure page is a real 200.
+
+
+## Student account sign-out is a dialog, never a bare POST (2026-10-22)
+The account menu's Sign out button is a real submit button inside `#logout-form` (so no-JS still logs out) with `data-dialog-open="logout-dialog"`; with JS it opens the shared `.atlas-dialog` confirmation. The dialog's confirm button submits `#logout-form` via the `form` attribute. Cancel returns focus to the account summary when the disclosure has closed; the trigger path stays. Do not move the logout form outside the account details (RoleNavigationTest slices it) and do not remove the no-JS submit.
+
+
+## How-it-works dialog (2026-10-22)
+The account menu and the Dashboard objective head both expose `data-dialog-open="how-codequest-works"`. The shared `.atlas-dialog` explains Study → Check → Practice → Prove and the XP/record model. It is never auto-opened; the generic dialog controller handles focus, Escape, backdrop close and focus return. Keep the sign-out dialog and no-JS logout submit unchanged.

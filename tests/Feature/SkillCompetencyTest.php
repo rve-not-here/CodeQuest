@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\KnowledgeCheck;
 use App\Models\KnowledgeCheckAttempt;
@@ -413,6 +415,121 @@ class SkillCompetencyTest extends TestCase
         $this->assertSame(70.0, $row['percentage']);
         $this->assertFalse($row['weak']);
         $this->assertSame('proficient', $row['state']);
+    }
+
+    /**
+     * @param  list<string>  $skillKeys
+     */
+    private function bossAssessment(Course $course, array $skillKeys): Assessment
+    {
+        $assessment = Assessment::factory()->create([
+            'course_id' => $course->id,
+            'status' => 'active',
+        ]);
+        $assessment->skills()->attach($this->ensureSkills($skillKeys));
+
+        return $assessment;
+    }
+
+    public function test_a_failed_boss_attempt_lowers_the_mapped_skill(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->course('c1');
+        $mission = $this->mission($course, 'M1', ['html.headings']);
+        $this->complete($user, $mission);
+        $assessment = $this->bossAssessment($course, ['html.headings']);
+
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $assessment->id,
+            'user_id' => $user->id,
+            'status' => 'failed',
+            'score' => 40,
+            'skill_keys' => ['html.headings'],
+        ]);
+
+        $row = $this->skillRow($user, 'html.headings');
+        $this->assertNotNull($row);
+        // Challenge evidence alone was 100%; the failed Boss attempt adds a
+        // 0% component, so the equal-weight average is 50%.
+        $this->assertSame(50.0, $row['percentage']);
+        $this->assertTrue($row['weak']);
+    }
+
+    public function test_a_passed_boss_attempt_counts_as_full_boss_evidence(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->course('c1');
+        $mission = $this->mission($course, 'M1', ['html.headings']);
+        $this->complete($user, $mission);
+        $assessment = $this->bossAssessment($course, ['html.headings']);
+
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $assessment->id,
+            'user_id' => $user->id,
+            'status' => 'passed',
+            'score' => 100,
+            'skill_keys' => ['html.headings'],
+        ]);
+
+        $row = $this->skillRow($user, 'html.headings');
+        $this->assertNotNull($row);
+        $this->assertSame(100.0, $row['percentage']);
+        $this->assertFalse($row['weak']);
+    }
+
+    public function test_a_later_failed_retry_never_lowers_a_passed_boss_skill(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->course('c1');
+        $mission = $this->mission($course, 'M1', ['html.headings']);
+        $this->complete($user, $mission);
+        $assessment = $this->bossAssessment($course, ['html.headings']);
+
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $assessment->id,
+            'user_id' => $user->id,
+            'status' => 'passed',
+            'score' => 100,
+            'skill_keys' => ['html.headings'],
+        ]);
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $assessment->id,
+            'user_id' => $user->id,
+            'status' => 'failed',
+            'score' => 20,
+            'skill_keys' => ['html.headings'],
+        ]);
+
+        $row = $this->skillRow($user, 'html.headings');
+        $this->assertNotNull($row);
+        $this->assertSame(100.0, $row['percentage']);
+        $this->assertFalse($row['weak']);
+    }
+
+    public function test_boss_attempt_without_a_pass_is_evidence_but_no_attempt_is_not(): void
+    {
+        $user = User::factory()->create();
+        $course = $this->course('c1');
+        $this->mission($course, 'M1', ['html.headings']);
+        $assessment = $this->bossAssessment($course, ['html.headings']);
+
+        $before = $this->skillRow($user, 'html.headings');
+        $this->assertNotNull($before);
+        $this->assertNull($before['percentage']);
+        $this->assertSame('not_assessed', $before['state']);
+
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $assessment->id,
+            'user_id' => $user->id,
+            'status' => 'failed',
+            'score' => 30,
+            'skill_keys' => ['html.headings'],
+        ]);
+
+        $after = $this->skillRow($user, 'html.headings');
+        $this->assertNotNull($after);
+        $this->assertSame(0.0, $after['percentage']);
+        $this->assertTrue($after['weak']);
     }
 
     public function test_weak_skills_derive_from_competency_output(): void

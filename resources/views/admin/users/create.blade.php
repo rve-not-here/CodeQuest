@@ -5,15 +5,10 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Users · Platform scope</span>
-            <a href="{{ route('admin.users') }}">← All users</a>
+            <span>Records · Platform scope</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Accounts</span>
-            <h1 class="atlas-records-title">New user</h1>
-            <p class="atlas-records-lede">Create an account and choose its role. The account is active from its first sign-in.</p>
-        </header>
+        <h1 class="sr-only">New user</h1>
 
         @if ($errors->any())
             <div class="atlas-records-alerts">

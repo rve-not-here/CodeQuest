@@ -5,15 +5,10 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Classrooms · Platform scope</span>
-            <a href="{{ route('admin.classrooms') }}">← All classrooms</a>
+            <span>Records · Platform scope</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">New classroom</h1>
-            <p class="atlas-records-lede">Create a classroom, then assign teachers, students and courses.</p>
-        </header>
+        <h1 class="sr-only">New classroom</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">

@@ -12,13 +12,7 @@
         ];
     @endphp
     <div class="atlas-records">
-        <div class="log-running atlas-records-running">
-            <span>Records · Section progress</span>
-            <a href="{{ route('learning-path') }}">Learning path →</a>
-        </div>
-
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Sections</span>
             <h1 class="atlas-records-title">Section progress</h1>
             <p class="atlas-records-lede">Challenge completion inside each course, section by section.</p>
         </header>
@@ -27,6 +21,8 @@
             <section class="atlas-records-empty" aria-labelledby="no-sections-title">
                 <h2 id="no-sections-title" class="atlas-records-empty-title">No courses yet</h2>
                 <p class="atlas-records-empty-copy">No courses are available in your learning path yet. Sections appear here once a course opens.</p>
+                <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
+
             </section>
         @else
             @foreach ($tree as $courseRow)

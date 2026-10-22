@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Users · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Accounts</span>
-            <h1 class="atlas-records-title">Users</h1>
-            <p class="atlas-records-lede">Search accounts and manage roles and access. Every role and status change is recorded in the audit trail.</p>
-        </header>
+        <h1 class="sr-only">Users</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">

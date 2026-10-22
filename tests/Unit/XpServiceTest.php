@@ -197,7 +197,7 @@ class XpServiceTest extends TestCase
         $result = $this->service->spendHint($user, $mission, 1);
 
         $this->assertTrue($result);
-        $this->assertSame(25, $this->service->balance($user));
+        $this->assertSame(20, $this->service->balance($user));
     }
 
     public function test_spend_hint_returns_false_when_unaffordable(): void
@@ -218,13 +218,13 @@ class XpServiceTest extends TestCase
     public function test_spend_solution_reveal_returns_true_when_affordable(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 50]);
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 100]);
 
         $this->service->awardCompletion($user, $mission);
         $result = $this->service->spendSolutionReveal($user, $mission);
 
         $this->assertTrue($result);
-        $this->assertSame(20, $this->service->balance($user));
+        $this->assertSame(25, $this->service->balance($user));
     }
 
     public function test_spend_solution_reveal_returns_false_when_unaffordable(): void
@@ -277,7 +277,7 @@ class XpServiceTest extends TestCase
     public function test_has_revealed_solution(): void
     {
         $user = User::factory()->create();
-        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 50]);
+        $mission = Mission::factory()->create(['hints' => '["First hint","Second hint","Third hint"]', 'solution_code' => '<h1>Example</h1>', 'points' => 100]);
 
         $this->assertFalse($this->service->hasRevealedSolution($user, $mission));
 
@@ -289,14 +289,14 @@ class XpServiceTest extends TestCase
 
     public function test_hint_costs_are_progressive(): void
     {
-        $this->assertSame(5, $this->service->hintCost(1));
-        $this->assertSame(10, $this->service->hintCost(2));
-        $this->assertSame(15, $this->service->hintCost(3));
+        $this->assertSame(10, $this->service->hintCost(1));
+        $this->assertSame(20, $this->service->hintCost(2));
+        $this->assertSame(30, $this->service->hintCost(3));
     }
 
     public function test_reveal_cost(): void
     {
-        $this->assertSame(30, $this->service->revealCost());
+        $this->assertSame(75, $this->service->revealCost());
     }
 
     public function test_wrong_submission_cost(): void
@@ -384,7 +384,7 @@ class XpServiceTest extends TestCase
         $debits = $rows->filter(fn (array $row): bool => $row['direction'] === 'debit')->values();
 
         $this->assertSame([100, 30], $credits->pluck('amount')->all());
-        $this->assertSame([-10, -5], $debits->pluck('amount')->all());
+        $this->assertSame([-10, -10], $debits->pluck('amount')->all());
     }
 
     public function test_transaction_history_marks_a_zero_amount_penalty_as_a_debit(): void

@@ -50,7 +50,95 @@ jobs:
       run: composer audit --format=json
     - name: Audit frontend dependencies
       run: npm audit --json
+    - name: Syntax check JavaScript
+      run: |
+        find grader/src -name '*.js' -print0 | xargs -0 -n1 node --check
+        find tests -name '*.mjs' -print0 | xargs -0 -n1 node --check
     - name: Execute grader security and frontend tests
       run: node --test grader/test/*.test.js tests/*.test.js
+    - name: Install Chromium
+      run: |
+        npx --yes playwright@1 install --with-deps chromium
+        echo "CODEQUEST_CHROMIUM=$(find \"$HOME/.cache/ms-playwright\" -type f -name chrome | head -n 1)" >> "$GITHUB_ENV"
+    - name: Execute Chromium layout checks
+      env:
+        CODEQUEST_REQUIRE_BROWSER_TESTS: '1'
+      run: php artisan test --compact tests/Feature/WorkspaceBrowserTest.php
     - name: Execute unit and feature tests
       run: php artisan test --compact
+
+  mariadb-tests:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mariadb
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: codequest_test
+      DB_USERNAME: codequest
+      DB_PASSWORD: codequest
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      PAO_DISABLE: 1
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codequest_test
+          MARIADB_USER: codequest
+          MARIADB_PASSWORD: codequest
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
+      with:
+        php-version: '8.5'
+        extensions: pdo_mysql
+        coverage: none
+        ini-values: memory_limit=512M
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
+    - name: Generate key
+      run: php artisan key:generate --no-interaction
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    - name: Migrate disposable database
+      run: php artisan migrate --force
+    - name: Execute MariaDB-only tests
+      run: php artisan test --compact tests/Feature/AcademicConcurrencyTest.php tests/Feature/DatabaseClockTest.php tests/Feature/ReportIndexAuditTest.php
+
+  grader-container-tests:
+    runs-on: ubuntu-latest
+    env:
+      # The container runtime is pinned so the job never depends on whichever
+      # binary the runner image ships first. Docker is preinstalled here;
+      # rootless enforcement is a deployment posture gate, not a sandbox
+      # behaviour gate, so this job asserts behaviour and leaves rootlessness
+      # to the strict local/production acceptance run.
+      GRADER_RUNTIME: docker
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Execute grader container acceptance
+      run: |
+        set -o pipefail
+        sh grader/test/integration-container.sh | tee /tmp/container-acceptance.log
+        # A missing runtime prints SKIP and exits 0. That must never read as a
+        # green sandbox gate, so the runtime line has to be present.
+        grep -q '^Runtime: ' /tmp/container-acceptance.log
+        grep -q '^pass=' /tmp/container-acceptance.log

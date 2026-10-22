@@ -23,6 +23,21 @@ use InvalidArgumentException;
  */
 class XpService
 {
+    /**
+     * The required-check gate is optional at construction so the ledger can
+     * still be built standalone (tests, tooling); the container injects it in
+     * the application. It is nullable rather than required to keep the ledger
+     * free of a hard dependency on the assessment graph.
+     */
+    public function __construct(
+        private readonly ?KnowledgeCheckGate $gate = null,
+    ) {}
+
+    private function knowledgeCheckGate(): KnowledgeCheckGate
+    {
+        return $this->gate ?? app(KnowledgeCheckGate::class);
+    }
+
     public const TYPE_MISSION_COMPLETED = 'mission_completed';
 
     public const TYPE_ASSESSMENT_COMPLETED = 'assessment_completed';
@@ -46,9 +61,9 @@ class XpService
      *
      * @var array{1: int, 2: int, 3: int}
      */
-    private const HINT_COSTS = [1 => 5, 2 => 10, 3 => 15];
+    private const HINT_COSTS = [1 => 10, 2 => 20, 3 => 30];
 
-    private const REVEAL_COST = 30;
+    private const REVEAL_COST = 75;
 
     private const WRONG_SUBMISSION_COST = 10;
 
@@ -170,12 +185,16 @@ class XpService
      * the transaction, but the recorded amount is clamped so the ledger never
      * sends the running total negative. Clamping is atomic in the transaction.
      */
-    public function deductWrongSubmission(User $user, Mission $mission): void
+    public function deductWrongSubmission(User $user, Mission $mission): int
     {
-        DB::transaction(function () use ($user, $mission): void {
-            $this->spendFrom($user, $mission, self::WRONG_SUBMISSION_COST, self::TYPE_WRONG_SUBMISSION,
+        $spent = 0;
+
+        DB::transaction(function () use ($user, $mission, &$spent): void {
+            $spent = $this->spendFrom($user, $mission, self::WRONG_SUBMISSION_COST, self::TYPE_WRONG_SUBMISSION,
                 'Wrong submission on challenge: '.$mission->title);
         });
+
+        return $spent;
     }
 
     /**
@@ -190,6 +209,10 @@ class XpService
         return DB::transaction(function () use ($user, $mission, $hintNumber, $cost): bool {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
             $mission = Mission::query()->whereKey($mission->id)->lockForUpdate()->firstOrFail();
+
+            // Spending XP is a protected mutation: a required Knowledge Check
+            // must gate it at the ledger boundary, not only in the controller.
+            $this->knowledgeCheckGate()->assertCleared($user, $mission);
 
             if (! $this->canPurchaseAssistance($user, $mission)) {
                 return false;
@@ -223,6 +246,8 @@ class XpService
         return DB::transaction(function () use ($user, $mission): bool {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
             $mission = Mission::query()->whereKey($mission->id)->lockForUpdate()->firstOrFail();
+
+            $this->knowledgeCheckGate()->assertCleared($user, $mission);
 
             if (! $this->canPurchaseAssistance($user, $mission)) {
                 return false;
@@ -471,7 +496,7 @@ class XpService
      * Records a negative transaction clamped against the current balance so
      * the running total never goes below zero.
      */
-    private function spendFrom(User $user, Mission $mission, int $cost, string $type, string $description): void
+    private function spendFrom(User $user, Mission $mission, int $cost, string $type, string $description): int
     {
         $current = $this->sumFor($user);
 
@@ -482,10 +507,12 @@ class XpService
         if ($cost <= 0) {
             $this->record($user, $mission, null, 0, $type, $description);
 
-            return;
+            return 0;
         }
 
         $this->record($user, $mission, null, -$cost, $type, $description);
+
+        return $cost;
     }
 
     /**

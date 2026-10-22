@@ -1,58 +1,67 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CodeQuest
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel learning platform where students learn HTML, CSS, and JavaScript by writing code from scratch. Students work through courses of challenges, take formative Knowledge Checks, and prove a course with a Boss Challenge. Progress, XP, competency, and the unified timeline are derived from recorded evidence — never from client-supplied verdicts.
 
-## About Laravel
+## Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.3+ (the app runs on PHP 8.5 in development)
+- Composer
+- Node.js and npm
+- MariaDB/MySQL for application use; SQLite in-memory for the test suite
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```sh
+composer install
+cp .env.example .env
+php artisan key:generate
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Configure the database in `.env`. The application schema lives in migrations under `database/migrations/`.
 
-## Contributing
+> **Production database safety.** The `2026_09_03_the404_*` migrations describe tables that already exist in the production `system404` schema. They run in tests via `RefreshDatabase` against in-memory SQLite, but **never run `php artisan migrate` against production**. Applying new migrations there is a separately approved deployment step.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Development
 
-## Code of Conduct
+```sh
+composer run dev     # Artisan dev server + Vite
+npm run dev          # Vite only
+npm run build        # production asset build
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The app's design tokens are CSS-first Tailwind v4 (`resources/css/app.css`). There is no `tailwind.config.*`. Fonts are installed through the Vite plugin's Bunny helper.
 
-## Security Vulnerabilities
+## Grading
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Structural validation matches submitted source against authored rules.
+- Hidden behavioural tests run in an isolated grader service; see [docs/BEHAVIORAL_GRADING.md](docs/BEHAVIORAL_GRADING.md).
+- Boss Challenges combine structural rules and hidden tests. An assessment with no hidden tests keeps the legacy pattern-only path.
+- A grader outage is infrastructure, not a student failure: the attempt stays submitted with no verdict or XP.
 
-## License
+Set `CODEQUEST_GRADER_URL`, `CODEQUEST_GRADER_TOKEN`, and `CODEQUEST_GRADER_TIMEOUT_MS` to reach the grader. There is deliberately no in-process execution fallback.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Tests and static analysis
+
+```sh
+php artisan test --compact              # PHPUnit (SQLite in-memory)
+vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+vendor/bin/pint --dirty --format agent
+npm run icons:check
+npm run build
+sh grader/test/integration-container.sh # container sandbox acceptance
+```
+
+The suite includes a Chromium browser job, a disposable MariaDB job, and a
+grader container job in CI. MariaDB-only tests skip locally when the driver
+is unavailable. The container suite needs podman or docker; strict mode
+(`CODEQUEST_REQUIRE_SANDBOX_TESTS=1`) additionally requires a rootless
+runtime so a missing sandbox cannot read as acceptance.
+
+## Documentation
+
+- [CONTEXT.md](CONTEXT.md) — domain vocabulary and invariants
+- [docs/adr/](docs/adr/) — architecture decisions
+- [docs/BEHAVIORAL_GRADING.md](docs/BEHAVIORAL_GRADING.md) — grader architecture and Boss scoring
+- [AGENTS.md](AGENTS.md) — guidance for coding agents working in this repository

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MissionIndexRequest;
 use App\Models\Course;
+use App\Models\KnowledgeCheck;
 use App\Models\Mission;
 use App\Models\Section;
 use App\Models\User;
@@ -45,18 +46,30 @@ class MissionIndexController extends Controller
         // Use the same course-reach verdict as MissionController::show.
         $reachedCourses = $this->assessments->courseReachForCourses($user, $tree->pluck('course'));
 
-        /** @var Collection<int, array{course: Course, section: Section|null, mission: MissionView, state: string, accessible: bool}> $rows */
+        // Missions that carry a published Knowledge Check, so the row can
+        // point the student at the check that belongs to it. One query for
+        // the whole index; the check itself is opened from the lesson.
+        $missionsWithChecks = KnowledgeCheck::query()
+            ->where('status', KnowledgeCheck::STATUS_PUBLISHED)
+            ->pluck('mission_id')
+            ->map(fn (mixed $missionId): int => (int) $missionId)
+            ->all();
+
+        /** @var Collection<int, array{course: Course, section: Section|null, mission: MissionView, state: string, accessible: bool, hasCheck: bool}> $rows */
         $rows = collect();
 
         foreach ($tree as $courseNode) {
             foreach ($courseNode['sections'] as $sectionNode) {
                 foreach ($sectionNode['missions'] as $row) {
+                    $accessible = $courseNode['course']->status === 'active' && $reachedCourses[$courseNode['course']->id];
+
                     $rows->push([
                         'course' => $courseNode['course'],
                         'section' => $sectionNode['section'],
                         'mission' => MissionView::from($row['mission']),
                         'state' => $row['state'],
-                        'accessible' => $courseNode['course']->status === 'active' && $reachedCourses[$courseNode['course']->id],
+                        'accessible' => $accessible,
+                        'hasCheck' => $accessible && in_array((int) $row['mission']->id, $missionsWithChecks, true),
                     ]);
                 }
             }

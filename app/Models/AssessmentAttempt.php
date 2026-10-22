@@ -11,6 +11,9 @@ use Illuminate\Support\Carbon;
 /**
  * @property string $status
  * @property int|null $score
+ * @property int|null $tests_total
+ * @property int|null $tests_passed
+ * @property string|null $failure_feedback
  * @property Carbon|null $passed_at
  * @property Carbon|null $submitted_at
  */
@@ -33,6 +36,8 @@ class AssessmentAttempt extends Model
             'score' => 'integer',
             'assessment_version' => 'integer',
             'passing_score_snapshot' => 'integer',
+            'tests_total' => 'integer',
+            'tests_passed' => 'integer',
             'skill_keys' => 'array',
             'passed_at' => 'datetime',
             'submitted_at' => 'datetime',

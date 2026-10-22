@@ -11,16 +11,12 @@
     @if (! $adminReport)
         <div class="atlas-records">
             <div class="log-running atlas-records-running">
-                <span>Records · Progress report · {{ $period }}</span>
-                @if ($teacherReport)
-                    <a href="{{ route('reports.teacher') }}">All reports →</a>
-                @else
-                    <a href="{{ route('timeline') }}">Learning timeline →</a>
-                @endif
+                <span>Records · {{ $period }}</span>
             </div>
 
             <header class="atlas-records-heading">
-                <span class="atlas-lesson-entry-label">Records · Evidence</span>
+                @if ($teacherReport)
+                @endif
                 <h1 class="atlas-records-title">{{ $document['title'] }}</h1>
                 <p class="atlas-records-lede">{{ $teacherReport ? 'Classroom scope · Server-generated evidence. Each section names its time window.' : 'Your recorded evidence. Each section names its time window.' }}</p>
                 <dl class="log-facts atlas-records-facts">
@@ -115,13 +111,23 @@
                     @if ($section['rows'] === [])
                         <p class="atlas-register-empty">No evidence matches this section's scope and filters.</p>
                     @else
+                        @php
+                            // A column is numeric only when every row reads as a number; mixed
+                            // evidence columns stay left-aligned.
+                            $numericColumns = [];
+                            foreach ($section['columns'] as $columnIndex => $column) {
+                                $numericColumns[$columnIndex] = $columnIndex > 0 && collect($section['rows'])->every(
+                                    fn (array $row): bool => isset($row[$columnIndex]) && is_numeric($row[$columnIndex])
+                                );
+                            }
+                        @endphp
                         <div class="atlas-register-table-wrap">
                             <table class="table-stack atlas-register-table atlas-register-table--evidence" role="table">
                                 <caption>{{ $section['heading'] }}</caption>
                                 <thead>
                                     <tr>
                                         @foreach ($section['columns'] as $column)
-                                            <th scope="col">{{ $column }}</th>
+                                            <th scope="col" @class(['is-number' => $numericColumns[$loop->index]])>{{ $column }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
@@ -132,7 +138,7 @@
                                                 @if ($index === 0)
                                                     <th scope="row" data-label="{{ $section['columns'][$index] }}">{{ $cell }}</th>
                                                 @else
-                                                    <td data-label="{{ $section['columns'][$index] }}">{{ $cell }}</td>
+                                                    <td data-label="{{ $section['columns'][$index] }}" @class(['is-number' => $numericColumns[$index]])>{{ $cell }}</td>
                                                 @endif
                                             @endforeach
                                         </tr>
@@ -147,12 +153,10 @@
     @else
         <div class="atlas-records">
             <div class="log-running atlas-records-running">
-                <span>Records · System report · Platform scope</span>
-                <a href="{{ route('admin.system') }}">System status →</a>
+                <span>Records · Platform scope</span>
             </div>
 
             <header class="atlas-records-heading">
-                <span class="atlas-lesson-entry-label">Records · Evidence</span>
                 <h1 class="atlas-records-title">{{ $document['title'] }}</h1>
                 <p class="atlas-records-lede">Server-generated evidence across the platform. Each section names its time window.</p>
                 <dl class="log-facts atlas-records-facts" aria-label="Report scope">
@@ -245,13 +249,23 @@
                     @if ($section['rows'] === [])
                         <p class="atlas-register-empty">No evidence matches this section's scope and filters.</p>
                     @else
+                        @php
+                            // A column is numeric only when every row reads as a number; mixed
+                            // evidence columns stay left-aligned.
+                            $numericColumns = [];
+                            foreach ($section['columns'] as $columnIndex => $column) {
+                                $numericColumns[$columnIndex] = $columnIndex > 0 && collect($section['rows'])->every(
+                                    fn (array $row): bool => isset($row[$columnIndex]) && is_numeric($row[$columnIndex])
+                                );
+                            }
+                        @endphp
                         <div class="atlas-register-table-wrap">
                             <table class="table-stack atlas-register-table atlas-register-table--evidence" role="table">
                                 <caption>{{ $section['heading'] }}</caption>
                                 <thead>
                                     <tr>
                                         @foreach ($section['columns'] as $column)
-                                            <th scope="col">{{ $column }}</th>
+                                            <th scope="col" @class(['is-number' => $numericColumns[$loop->index]])>{{ $column }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
@@ -262,7 +276,7 @@
                                                 @if ($index === 0)
                                                     <th scope="row" data-label="{{ $section['columns'][$index] }}">{{ $cell }}</th>
                                                 @else
-                                                    <td data-label="{{ $section['columns'][$index] }}">{{ $cell }}</td>
+                                                    <td data-label="{{ $section['columns'][$index] }}" @class(['is-number' => $numericColumns[$index]])>{{ $cell }}</td>
                                                 @endif
                                             @endforeach
                                         </tr>

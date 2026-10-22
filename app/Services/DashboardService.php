@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Activity;
 use App\Models\Course;
 use App\Models\Mission;
+use App\Models\MissionDraft;
 use App\Models\Progress;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -70,19 +71,44 @@ class DashboardService
     }
 
     /**
-     * The next mission the user has not yet completed, in course order.
+     * The canonical "next activity" position for a course: the earliest
+     * unfinished mission, preferring an in-progress draft.
+     *
+     * Every surface (dashboard, learning path, recommendations, resume)
+     * resolves through this one method so they cannot disagree about where
+     * the student is. Drafts come first because resuming work already
+     * started is the strongest signal of intent; otherwise the position is
+     * plain curriculum order. Ordering is (order_num, id) — `id` breaks ties
+     * deterministically, which the previous order-only query did not.
      */
     public function nextMission(User $user, Course $course): ?Mission
     {
-        $completed = $user->progress()
-            ->whereIn('mission_id', $course->missions()->select('id'))
-            ->pluck('mission_id')
-            ->all();
-
-        return $course->missions()
-            ->whereNotIn('id', $completed)
+        $missions = $course->missions()
             ->orderBy('order_num')
-            ->first();
+            ->orderBy('id')
+            ->get();
+
+        if ($missions->isEmpty()) {
+            return null;
+        }
+
+        $missionIds = $missions->pluck('id');
+
+        $completed = $user->progress()
+            ->whereIn('mission_id', $missionIds)
+            ->pluck('mission_id')
+            ->flip();
+
+        $drafted = MissionDraft::query()
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $missionIds)
+            ->pluck('mission_id')
+            ->flip();
+
+        $unfinished = $missions->reject(fn (Mission $mission): bool => $completed->has($mission->id));
+
+        return $unfinished->first(fn (Mission $mission): bool => $drafted->has($mission->id))
+            ?? $unfinished->first();
     }
 
     /**
@@ -149,12 +175,23 @@ class DashboardService
         return $this->xp->balance($user);
     }
 
-    /** @return Collection<int, Activity> */
-    public function recentActivity(User $user): Collection
+    /**
+     * The newest learning evidence for the dashboard feed.
+     *
+     * Session bookkeeping (logins, logouts, grader outages) is excluded in the
+     * query, before the limit: filtering the fetched page afterwards let a run
+     * of logins crowd every real learning event out of the feed, leaving the
+     * dashboard claiming "No entries yet" for an active student.
+     *
+     * @return Collection<int, Activity>
+     */
+    public function recentActivity(User $user, int $limit = 6): Collection
     {
         return $user->activities()
+            ->whereNotIn('type', TimelineService::NON_LEARNING_ACTIVITY_TYPES)
             ->latest('created_at')
-            ->limit(6)
+            ->latest('id')
+            ->limit($limit)
             ->get();
     }
 

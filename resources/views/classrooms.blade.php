@@ -5,17 +5,16 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Classrooms · {{ $role === 'admin' ? 'Platform scope' : 'Classroom scope' }}</span>
-            <span class="atlas-records-running-links">
-                @if ($role === 'admin')
+            <span>Records · {{ $role === 'admin' ? 'Platform scope' : 'Classroom scope' }}</span>
+            @if ($role === 'admin')
+                <span class="atlas-records-running-links">
                     <a href="{{ route('admin.classrooms') }}">Admin management →</a>
-                @endif
-                <a href="{{ route('students') }}">Students →</a>
-            </span>
+                    <a href="{{ route('students') }}">Students →</a>
+                </span>
+            @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Teaching assignments</span>
             <h1 class="atlas-records-title">My classrooms</h1>
             <p class="atlas-records-lede">{{ $role === 'teacher' ? 'Your active teaching classrooms define the students and courses you can monitor.' : 'All classrooms, including inactive assignments.' }}</p>
             <dl class="log-facts atlas-records-facts" aria-label="Classroom scope">

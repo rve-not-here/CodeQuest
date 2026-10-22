@@ -12,7 +12,16 @@ set -eu
 STRICT="${CODEQUEST_REQUIRE_SANDBOX_TESTS:-0}"
 
 RUNTIME=""
-if command -v podman >/dev/null 2>&1; then
+if [ -n "${GRADER_RUNTIME:-}" ]; then
+    # Explicit runtime selection. CI pins this so a job never depends on
+    # whichever binary happens to be installed first, and a typo fails the
+    # run instead of silently falling back to another runtime.
+    if ! command -v "$GRADER_RUNTIME" >/dev/null 2>&1; then
+        echo "NOT OK: GRADER_RUNTIME=$GRADER_RUNTIME is not installed."
+        exit 1
+    fi
+    RUNTIME="$GRADER_RUNTIME"
+elif command -v podman >/dev/null 2>&1; then
     RUNTIME="podman"
 elif command -v docker >/dev/null 2>&1; then
     RUNTIME="docker"

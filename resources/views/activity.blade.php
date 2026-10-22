@@ -23,12 +23,13 @@
     @endphp
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Learning activity · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
-            <a href="{{ route('students') }}">Students →</a>
+            <span>Records · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            @if ($role !== 'teacher')
+                <a href="{{ route('students') }}">Students →</a>
+            @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Event stream</span>
             <h1 class="atlas-records-title">Learning activity</h1>
             <p class="atlas-records-lede">Recorded learning events in chronological order, newest first.</p>
             <dl class="log-facts atlas-records-facts" aria-label="Activity scope">

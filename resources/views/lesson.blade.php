@@ -31,6 +31,12 @@
         $target = (string) $mission->target_html;
         $referenceIsMarkup = $course?->type === 'html'
             && ! preg_match('/\sstyle\s*=/i', $target);
+
+        // A check that is open takes the reading column: the brief folds into
+        // a disclosure so the form has the space it needs.
+        $checkIsOpen = $knowledgeChecks->contains(
+            fn (array $panel): bool => $panel['state'] === \App\Services\KnowledgeCheckService::STATE_IN_PROGRESS
+        );
     @endphp
 
     <div class="atlas-lesson">
@@ -47,7 +53,7 @@
                 @endif
             </div>
 
-            <h1 class="atlas-lesson-title">{{ $mission->title }}</h1>
+            <h1 class="atlas-lesson-title">@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h1>
 
             @if ($task)
                 <p class="atlas-lesson-task">{{ $task }}</p>
@@ -56,22 +62,49 @@
             <dl class="log-facts atlas-lesson-facts">
                 <div>
                     <dt>Difficulty</dt>
-                    <dd>{{ ucfirst(strtolower((string) $mission->difficulty)) }}</dd>
+                    <dd>{{ ucfirst(strtolower($mission->difficulty)) }}</dd>
                 </div>
                 <div>
-                    <dt>Reward</dt>
+                    <dt>Completion reward</dt>
                     <dd class="is-numeric">+{{ $mission->points }} XP</dd>
                 </div>
-                <div>
-                    <dt>Wrong attempt</dt>
-                    <dd class="is-numeric">−{{ $wrongPenalty }} XP</dd>
-                </div>
-                <div>
-                    <dt>Section</dt>
-                    <dd>{{ $section?->title ?? 'Course' }}</dd>
-                </div>
             </dl>
+
+            {{-- The next step also travels with the heading: on a phone the bench
+                 foot sits ~2,000px below, so the primary action must not be. --}}
+            <div class="atlas-lesson-head-actions">
+                @if ($outstandingRequiredCheck)
+                    <form method="POST" action="{{ route('mission.knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-primary">Start required check <x-icon name="chevron-right" data-arrow size="16" /></button>
+                    </form>
+                @else
+                    <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary">Start challenge <x-icon name="chevron-right" data-arrow size="16" /></a>
+                @endif
+            </div>
+
         </header>
+
+        @php
+            $checkDone = $knowledgeChecks->isEmpty()
+                || $knowledgeChecks->contains(fn (array $panel): bool => $panel['state'] === \App\Services\KnowledgeCheckService::STATE_COMPLETED);
+            $stageSteps = [
+                [
+                    'label' => 'Lesson',
+                    'state' => ($outstandingRequiredCheck || $checkIsOpen || $checkDone || $completed) ? 'done' : 'current',
+                ],
+                [
+                    'label' => 'Knowledge Check',
+                    'state' => $completed || $checkDone ? 'done' : (($outstandingRequiredCheck || $checkIsOpen) ? 'current' : 'upcoming'),
+                    'note' => $knowledgeChecks->isEmpty() ? 'Not required' : null,
+                ],
+                [
+                    'label' => 'Challenge',
+                    'state' => $completed ? 'done' : ($checkDone && ! $outstandingRequiredCheck ? 'current' : 'upcoming'),
+                ],
+            ];
+        @endphp
+        <x-student-stage :steps="$stageSteps" />
 
         @if (session('mission_success'))
             <div class="panel mb-5 border-success/40 bg-success-soft px-4 py-3" role="status"><strong class="text-sm text-success">Challenge complete</strong> <span class="text-sm text-fg-muted">{{ session('mission_success')['message'] }}</span></div>
@@ -92,18 +125,18 @@
         <div class="atlas-lesson-grid">
             <div class="atlas-lesson-brief">
                 @if ($paragraphs !== [])
-                    <section class="atlas-lesson-section" aria-labelledby="lesson-objective">
-                        <h2 id="lesson-objective">What you will build</h2>
-                        <div class="atlas-lesson-prose">
-                            @foreach ($paragraphs as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
-                    </section>
+                    @if ($checkIsOpen)
+                        <details class="atlas-lesson-brief-fold" open>
+                            <summary>The brief</summary>
+                            @include('partials.lesson-objective', ['paragraphs' => $paragraphs])
+                        </details>
+                    @else
+                        @include('partials.lesson-objective', ['paragraphs' => $paragraphs])
+                    @endif
                 @endif
 
                 @if ($target !== '')
-                    <details class="atlas-lesson-reference">
+                    <details class="atlas-lesson-reference" open>
                         <summary>
                             <span>Reference output</span>
                             <span>Expected result</span>
@@ -124,50 +157,72 @@
                 @endif
 
                 @if ($knowledgeChecks->isNotEmpty())
-                    <section class="atlas-lesson-section" aria-labelledby="lesson-checks">
-                        <h2 id="lesson-checks">Knowledge Check</h2>
-                        <p class="atlas-lesson-note">Your result guides review and does not replace the coding challenge.</p>
-                        <div class="atlas-lesson-checks">
-                            @foreach ($knowledgeChecks as $summary)
-                                @php
-                                    $check = $summary['check'];
-                                    $latestAttempt = $summary['latestAttempt'];
-                                @endphp
-                                <article class="atlas-lesson-check">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <h3 class="atlas-lesson-check-title">{{ $check->title }}</h3>
-                                            <span class="atlas-stamp {{ $check->is_required ? 'atlas-stamp--amb' : 'atlas-stamp--ink' }}">{{ $check->is_required ? 'Required' : 'Optional' }}</span>
-                                        </div>
-                                        <p class="atlas-lesson-check-meta">
-                                            {{ $summary['questionCount'] }} {{ Str::plural('question', $summary['questionCount']) }}
-                                            @if ($latestAttempt?->status === 'submitted')
-                                                · Latest: {{ $latestAttempt->score }} / {{ $latestAttempt->total_questions }} ({{ $latestAttempt->percentage }}%)
-                                            @elseif ($latestAttempt)
-                                                · Attempt {{ $latestAttempt->attempt_number }} in progress
-                                            @endif
-                                        </p>
-                                    </div>
-                                    @if ($latestAttempt)
-                                        <a href="{{ route('knowledge-check.show', [$mission, $check, $latestAttempt]) }}" class="btn btn-ghost btn-sm">{{ $latestAttempt->status === 'submitted' ? 'Review result' : 'Resume check' }} <x-icon name="chevron-right" size="16" /></a>
-                                    @else
-                                        <form method="POST" action="{{ route('knowledge-check.start', [$mission, $check]) }}">
-                                            @csrf
-                                            <button type="submit" class="btn btn-ghost btn-sm">Start check <x-icon name="chevron-right" size="16" /></button>
-                                        </form>
-                                    @endif
-                                </article>
-                            @endforeach
-                        </div>
-                    </section>
+                    <div class="atlas-lesson-check-panels" id="lesson-checks">
+                    @foreach ($knowledgeChecks as $panel)
+                        @php
+                            $check = $panel['check'];
+                            $attempt = $panel['attempt'];
+                            $checkState = $panel['state'];
+                        @endphp
+                        <section class="atlas-lesson-check-panel" data-check-state="{{ $checkState }}" aria-labelledby="lesson-check-{{ $check->id }}">
+                            <header class="atlas-lesson-check-panel-head">
+                                <div class="atlas-lesson-check-panel-titles">
+                                    <p class="atlas-lesson-entry-label">Knowledge Check</p>
+                                    <h2 class="atlas-lesson-check-title" id="lesson-check-{{ $check->id }}">{{ $check->title }}</h2>
+                                </div>
+                                <div class="atlas-lesson-check-stamps">
+                                    <span class="atlas-stamp {{ $panel['required'] ? 'atlas-stamp--amb' : 'atlas-stamp--ink' }}">{{ $panel['required'] ? 'Required' : 'Optional' }}</span>
+                                    <span class="atlas-stamp {{ $checkState === \App\Services\KnowledgeCheckService::STATE_COMPLETED ? 'atlas-stamp--grn' : ($checkState === \App\Services\KnowledgeCheckService::STATE_IN_PROGRESS ? 'atlas-stamp--vio' : 'atlas-stamp--ink') }}">
+                                        {{ $checkState === \App\Services\KnowledgeCheckService::STATE_COMPLETED ? 'Completed' : ($checkState === \App\Services\KnowledgeCheckService::STATE_IN_PROGRESS ? 'In progress' : 'Not started') }}
+                                    </span>
+                                </div>
+                            </header>
+                            <p class="atlas-lesson-check-meta">
+                                {{ $panel['questionCount'] }} {{ Str::plural('question', $panel['questionCount']) }}
+                                @if ($checkState === \App\Services\KnowledgeCheckService::STATE_COMPLETED && $attempt !== null)
+                                    · {{ $attempt['score'] }} / {{ $attempt['total_questions'] }} ({{ $attempt['percentage'] }}%)
+                                @elseif ($checkState === \App\Services\KnowledgeCheckService::STATE_IN_PROGRESS && $attempt !== null)
+                                    · Attempt {{ $attempt['attempt_number'] }} in progress
+                                @endif
+                            </p>
+
+                            @if ($errors->any())
+                                <p class="atlas-lesson-check-error" role="alert">{{ $errors->first('answers') ?: $errors->first() }}</p>
+                            @endif
+
+                            @if ($checkState === \App\Services\KnowledgeCheckService::STATE_NOT_STARTED)
+                                <form method="POST" action="{{ route('mission.knowledge-check.start', [$mission, $check]) }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">Start check <x-icon name="chevron-right" data-arrow size="16" /></button>
+                                </form>
+                            @elseif ($checkState === \App\Services\KnowledgeCheckService::STATE_IN_PROGRESS)
+                                @include('partials.knowledge-check-form', [
+                                    'mission' => $mission,
+                                    'knowledgeCheck' => $check,
+                                    'attemptId' => $attempt['id'],
+                                    'questions' => $panel['questions'],
+                                    'action' => route('mission.knowledge-check.submit', [$mission, $check, $attempt['id']]),
+                                    'returnTo' => null,
+                                ])
+                            @else
+                                <div class="atlas-lesson-check-actions">
+                                    <a href="{{ route('knowledge-check.show', [$mission, $check, $attempt['id']]) }}" class="btn btn-secondary">Review result</a>
+                                    <form method="POST" action="{{ route('mission.knowledge-check.retry', [$mission, $check]) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-ghost">Retry check</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </section>
+                    @endforeach
+                    </div>
                 @endif
             </div>
 
-            <aside class="atlas-lesson-bench" aria-label="Try it yourself" data-bench>
+            <aside class="atlas-lesson-bench" aria-labelledby="practice-title" data-bench>
                 <div class="atlas-bench">
                     <div class="atlas-bench-head">
-                        <h2 class="atlas-bench-title">Try it yourself</h2>
-                        <span class="atlas-stamp atlas-stamp--amb"><x-icon name="minus" size="12" />Ungraded</span>
+                        <h2 class="atlas-bench-title" id="practice-title">Try it yourself</h2>
                         <div class="atlas-bench-actions">
                             <button type="button" id="experiment-reset" class="btn btn-ghost">Reset starter</button>
                             <button type="button" id="experiment-run" class="btn btn-secondary">Run preview <x-icon name="play" size="16" /></button>
@@ -199,14 +254,14 @@
 
                     <div class="atlas-bench-foot">
                         @if ($outstandingRequiredCheck)
-                            <form method="POST" action="{{ route('knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
+                            <form method="POST" action="{{ route('mission.knowledge-check.start', [$mission, $outstandingRequiredCheck]) }}">
                                 @csrf
-                                <button type="submit" class="btn btn-primary">Start required check <x-icon name="chevron-right" size="16" /></button>
+                                <button type="submit" class="btn btn-primary">Start required check <x-icon name="chevron-right" data-arrow size="16" /></button>
                             </form>
                         @else
-                            <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary">Start challenge <x-icon name="chevron-right" size="16" /></a>
+                            <a href="{{ route('mission.challenge', $mission) }}" class="btn btn-primary">Start challenge <x-icon name="chevron-right" data-arrow size="16" /></a>
                         @endif
-                        <p class="atlas-bench-note">Experiments are ungraded — nothing is submitted.</p>
+                        <p class="atlas-bench-note">Ungraded practice — nothing is submitted.</p>
                     </div>
                 </div>
             </aside>

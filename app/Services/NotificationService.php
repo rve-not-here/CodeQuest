@@ -102,14 +102,25 @@ class NotificationService
      *
      * @return LengthAwarePaginator<int, Notification>
      */
-    public function forUser(User $user): LengthAwarePaginator
+    public function forUser(User $user, bool $unreadOnly = false): LengthAwarePaginator
     {
         return Notification::query()
             ->where('user_id', $user->id)
+            ->when($unreadOnly, fn ($query) => $query->whereNull('read_at'))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate(self::FEED_PER_PAGE)
-            ->withPath(route('notifications'));
+            ->withPath(route('notifications'))
+            ->withQueryString();
+    }
+
+    /**
+     * Total rows owned by the caller, independent of the unread filter. The
+     * center shows both tabs without counting in PHP.
+     */
+    public function totalCount(User $user): int
+    {
+        return Notification::query()->where('user_id', $user->id)->count();
     }
 
     /**

@@ -21,7 +21,32 @@ class ThemePreferenceService
      */
     public function for(User $user): ?string
     {
-        return $user->preference()->first()?->theme;
+        return $this->stateFor($user)['theme'] ?? null;
+    }
+
+    /**
+     * The account choice together with when it was made, in epoch
+     * milliseconds.
+     *
+     * The timestamp is what lets the page decide between the device's own
+     * choice and the account's: a student who picks a theme and navigates
+     * straight away must not have that choice overwritten by an account
+     * write that has not landed yet. The newer of the two wins.
+     *
+     * @return array{theme: string, saved_at: int|null}|null
+     */
+    public function stateFor(User $user): ?array
+    {
+        $preference = $user->preference()->first();
+
+        if ($preference === null) {
+            return null;
+        }
+
+        return [
+            'theme' => (string) $preference->theme,
+            'saved_at' => $preference->updated_at?->getTimestampMs(),
+        ];
     }
 
     /**

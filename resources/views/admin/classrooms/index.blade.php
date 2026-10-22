@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Classrooms · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">Classrooms</h1>
-            <p class="atlas-records-lede">Manage classrooms, teacher assignments, student enrolment and course access.</p>
-        </header>
+        <h1 class="sr-only">Classrooms</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -92,7 +88,6 @@
                                 <th scope="col">Teachers</th>
                                 <th scope="col">Students</th>
                                 <th scope="col">Courses</th>
-                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -114,11 +109,6 @@
 
                                     <td data-label="Courses"><span class="atlas-register-figure">{{ $classroom->courses_count }}</span></td>
 
-                                    <td data-label="Actions">
-                                        <div class="atlas-row-actions">
-                                            <a href="{{ route('admin.classrooms.edit', $classroom) }}" class="atlas-row-action">Edit</a>
-                                        </div>
-                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

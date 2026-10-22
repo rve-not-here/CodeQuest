@@ -43,9 +43,15 @@ class ReportController extends Controller
         return $this->page($request, $this->presentation->studentProgressView($report), 'export.progress', [], ['courses', 'skills', 'period']);
     }
 
-    public function teacherIndex(): View
+    public function teacherIndex(Request $request): View
     {
-        return view('reports.index');
+        /** @var User $viewer */
+        $viewer = $request->user();
+
+        return view('reports.index', [
+            'studentCount' => $this->options->studentOptions($this->access->studentIdsFor($viewer))->count(),
+            'courseCount' => $this->options->courseOptions($this->access->courseIdsFor($viewer))->count(),
+        ]);
     }
 
     public function teacherStudent(Request $request, User $student): View

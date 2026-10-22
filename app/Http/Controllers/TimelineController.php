@@ -30,9 +30,25 @@ class TimelineController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
+        $perPage = 50;
+        $page = max(1, (int) $request->query('page', 1));
+        $offset = ($page - 1) * $perPage;
+        $overview = $this->timeline->overview($user, $perPage, null, $offset);
+        $lastPage = max(1, (int) ceil($overview['total'] / $perPage));
+
+        if ($page > $lastPage) {
+            $page = $lastPage;
+            $offset = ($page - 1) * $perPage;
+            $overview = $this->timeline->overview($user, $perPage, null, $offset);
+        }
+
         return view('timeline', [
             'role' => $user->role,
-            'events' => $this->timeline->events($user),
+            'events' => $overview['events'],
+            'eventTotal' => $overview['total'],
+            'page' => $page,
+            'lastPage' => $lastPage,
+            'perPage' => $perPage,
             'totalXp' => $this->xp->balance($user),
         ]);
     }

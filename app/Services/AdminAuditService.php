@@ -40,6 +40,8 @@ class AdminAuditService
 
     public const ACTION_MISSION_UPDATE = 'mission.update';
 
+    public const ACTION_KNOWLEDGE_CHECK_UPDATE = 'knowledge_check.update';
+
     public const ACTION_ASSESSMENT_UPDATE = 'assessment.update';
 
     public const ACTION_ASSESSMENT_STATUS_CHANGE = 'assessment.status.change';
@@ -77,6 +79,7 @@ class AdminAuditService
         self::ACTION_COURSE_DELETE,
         self::ACTION_SECTION_UPDATE,
         self::ACTION_MISSION_UPDATE,
+        self::ACTION_KNOWLEDGE_CHECK_UPDATE,
         self::ACTION_ASSESSMENT_UPDATE,
         self::ACTION_ASSESSMENT_STATUS_CHANGE,
         self::ACTION_ANNOUNCEMENT_CREATE,

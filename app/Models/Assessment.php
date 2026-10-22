@@ -75,6 +75,17 @@ class Assessment extends Model implements CurriculumVersioned
         return $this->hasMany(AssessmentAttempt::class, 'assessment_id');
     }
 
+    /**
+     * Hidden behavioural tests for this Boss Challenge. Empty means the
+     * assessment keeps the historical pattern-only evaluation.
+     *
+     * @return HasMany<AssessmentBehaviorTest, $this>
+     */
+    public function behaviorTests(): HasMany
+    {
+        return $this->hasMany(AssessmentBehaviorTest::class, 'assessment_id');
+    }
+
     /** @return BelongsToMany<Skill, $this> */
     public function skills(): BelongsToMany
     {

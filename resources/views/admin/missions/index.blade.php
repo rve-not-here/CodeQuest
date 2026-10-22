@@ -5,18 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Challenges · {{ $course->name }}</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.edit', $course) }}">← {{ $course->name }}</a>
-                <a href="{{ route('admin.courses') }}">All courses →</a>
-            </div>
+            <span>Records · {{ $course->name }}</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Challenges</h1>
-            <p class="atlas-records-lede">{{ $course->name }} · Manage challenge content and learning order. Points apply to future completions only.</p>
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'missions'])
+
+        <h1 class="sr-only">Challenges</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -29,7 +24,7 @@
 
         <section class="atlas-record-group" aria-labelledby="challenges-title">
             <div class="atlas-record-group-head">
-                <h2 id="challenges-title" class="atlas-record-group-title">Challenges in {{ $course->name }}</h2>
+                <h2 id="challenges-title" class="atlas-record-group-title">Challenge register</h2>
                 <p class="atlas-record-group-figure">{{ $missions->count() }} {{ Str::plural('challenge', $missions->count()) }}</p>
             </div>
 
@@ -47,7 +42,7 @@
                                 <th scope="col">Order</th>
                                 <th scope="col">Challenge</th>
                                 <th scope="col">Difficulty</th>
-                                <th scope="col">Points</th>
+                                <th scope="col" class="md:text-right">Points</th>
                                 <th scope="col">Section</th>
                                 <th scope="col">Actions</th>
                             </tr>
@@ -79,7 +74,7 @@
 
                                     <td data-label="Actions">
                                         <div class="atlas-row-actions">
-                                            <a href="{{ route('admin.courses.missions.edit', [$course, $mission]) }}" class="atlas-row-action">Edit</a>
+                                            <a href="{{ route('admin.courses.missions.checks', [$course, $mission]) }}" class="atlas-row-action">Checks</a>
                                         </div>
                                     </td>
                                 </tr>

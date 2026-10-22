@@ -7,15 +7,9 @@
         $percent = $totalCount > 0 ? (int) round($earnedCount / $totalCount * 100) : 0;
     @endphp
     <div class="atlas-records">
-        <div class="log-running atlas-records-running">
-            <span>Records · Achievements</span>
-            <a href="{{ route('learning-path') }}">Learning path →</a>
-        </div>
-
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Milestones</span>
             <h1 class="atlas-records-title">Achievements</h1>
-            <p class="atlas-records-lede">Milestones you have earned through challenges and Boss Challenges.</p>
+            <p class="atlas-records-lede">Milestones recorded for your account, earned or still locked.</p>
         </header>
 
         <section class="atlas-records-summary" aria-labelledby="achievement-summary-title">
@@ -24,13 +18,15 @@
             <div class="progress atlas-records-summary-bar" role="progressbar" aria-label="Achievements unlocked" aria-valuemin="0" aria-valuemax="{{ max($totalCount, 1) }}" aria-valuenow="{{ $earnedCount }}" aria-valuetext="{{ $earnedCount }} of {{ $totalCount }} milestones unlocked">
                 <span style="width: {{ $percent }}%"></span>
             </div>
-            <p class="atlas-records-summary-note">Awards are written here when your learning record meets their criteria.</p>
+            <p class="atlas-records-summary-note">Awards are recorded automatically when your learning record meets their criteria.</p>
         </section>
 
         @if ($catalog->isEmpty())
             <section class="atlas-records-empty" aria-labelledby="no-achievements-title">
                 <h2 id="no-achievements-title" class="atlas-records-empty-title">No achievements yet</h2>
                 <p class="atlas-records-empty-copy">No achievement milestones are available yet. They appear once Command publishes them.</p>
+                <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
+
             </section>
         @else
             <h2 class="atlas-records-subheading">Milestones</h2>
@@ -48,8 +44,6 @@
                         <p class="atlas-record-entry-copy">{{ $row['description'] ?? 'Achievement description pending.' }}</p>
                         @if ($row['awarded'] && $row['unlocked_at'] !== null)
                             <p class="atlas-record-meta">Earned {{ $row['unlocked_at']->format('M d, Y · H:i') }}</p>
-                        @else
-                            <p class="atlas-record-meta">Keep learning to unlock this achievement.</p>
                         @endif
                     </li>
                 @endforeach

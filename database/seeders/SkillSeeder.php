@@ -123,8 +123,9 @@ class SkillSeeder extends Seeder
     }
 
     /**
-     * Boss Challenge mappings by course slug. Stored for future use; v1
-     * skill scoring ignores Boss evidence entirely.
+     * Boss Challenge mappings by course slug. CompetencyService reads these
+     * as a third evidence source: ever-passed = 100%, attempted without a
+     * pass = 0%, no attempt = no Boss component.
      *
      * @return array<string, list<string>>
      */

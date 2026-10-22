@@ -21,14 +21,14 @@
         /* Standalone Engineer's Log fallback: no application assets, so an error still renders. */
         :root {
             color-scheme: light;
-            --ground: #FFFFFF; --sheet: #FCFDF8; --ink: #1F242C; --muted: #565E67;
-            --line-strong: #7D857C; --accent: #B23A2E; --accent-ink: #F4F6ED;
+            --ground: #F4F2E9; --sheet: #FFFDF8; --ink: #1C2229; --muted: #525A61;
+            --line-strong: #717A7B; --accent: #B23A2E; --accent-ink: #FFFFFF;
             --grid-minor: rgba(31, 36, 44, 0.05); --grid-major: rgba(31, 36, 44, 0.09);
         }
         .dark {
             color-scheme: dark;
-            --ground: #14161B; --sheet: #1C1F26; --ink: #E6E9DE; --muted: #A9B0A5;
-            --line-strong: #646D78; --accent: #E0756A; --accent-ink: #15171B;
+            --ground: #0F1318; --sheet: #181C22; --ink: #E8ECE4; --muted: #B0B6AA;
+            --line-strong: #66717B; --accent: #E37B6E; --accent-ink: #101318;
             --grid-minor: rgba(230, 233, 222, 0.045); --grid-major: rgba(230, 233, 222, 0.075);
         }
         * { box-sizing: border-box; }

@@ -172,6 +172,33 @@ class DashboardTest extends TestCase
             ->assertDontSee('Operator '.$user->username.' logged in');
     }
 
+    public function test_a_run_of_logins_cannot_push_learning_evidence_off_the_dashboard(): void
+    {
+        $user = User::factory()->create();
+        $this->makeCourseWithMissions(1, ['order_num' => 1, 'status' => 'active']);
+
+        // The feed shows four records. Session bookkeeping must be excluded
+        // before the limit, or a morning of logging in empties the panel.
+        foreach (range(1, 8) as $_) {
+            $user->activities()->create([
+                'type' => 'login',
+                'message' => 'Operator '.$user->username.' logged in',
+            ]);
+        }
+        $user->activities()->create([
+            'type' => 'mission_completed',
+            'message' => 'Mission completed: Semantic headings',
+            'pts' => 60,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Mission completed: Semantic headings')
+            ->assertDontSee('No entries yet')
+            ->assertDontSee('Operator '.$user->username.' logged in');
+    }
+
     public function test_fully_completed_student_sees_completion_message(): void
     {
         $user = User::factory()->create();

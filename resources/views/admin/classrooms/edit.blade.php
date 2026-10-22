@@ -5,24 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Classrooms · Platform scope</span>
+            <span>Records · Platform scope</span>
             <div class="atlas-records-running-links">
                 <a href="{{ route('classrooms.show', $classroom) }}">Classroom sheet →</a>
-                <a href="{{ route('admin.classrooms') }}">All classrooms →</a>
             </div>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">{{ $classroom->name }}</h1>
-            <p class="atlas-records-lede">Manage classroom details and memberships. Save each membership group separately.</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Classroom record">
-                <div><dt>Status</dt><dd>{{ ucfirst($classroom->status) }}</dd></div>
-                <div><dt>Teachers</dt><dd class="is-numeric">{{ $classroom->teachers->count() }}</dd></div>
-                <div><dt>Students</dt><dd class="is-numeric">{{ $classroom->students->count() }}</dd></div>
-                <div><dt>Courses</dt><dd class="is-numeric">{{ $classroom->courses->count() }}</dd></div>
-            </dl>
-        </header>
+        <h1 class="sr-only">{{ $classroom->name }}</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">

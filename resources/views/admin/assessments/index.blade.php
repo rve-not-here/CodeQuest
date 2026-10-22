@@ -5,25 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Boss Challenge · {{ $course->name }}</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.edit', $course) }}">← {{ $course->name }}</a>
-                <a href="{{ route('admin.courses') }}">All courses →</a>
-            </div>
+            <span>Records · {{ $course->name }}</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Boss Challenge</h1>
-            <p class="atlas-records-lede">{{ $course->name }} — the single Boss Challenge for this course. Locking or drafting seals the challenge without rewriting recorded attempts. Grading rules are view-only.</p>
-            @if ($assessment !== null)
-                <dl class="log-facts atlas-records-facts" aria-label="Boss Challenge record">
-                    <div><dt>Status</dt><dd>{{ ucfirst($assessment->status) }}</dd></div>
-                    <div><dt>Passing score</dt><dd class="is-numeric">{{ $assessment->passing_score }}%</dd></div>
-                    <div><dt>Course</dt><dd>{{ $course->name }}</dd></div>
-                </dl>
-            @endif
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'assessment'])
+
+        <h1 class="sr-only">Boss Challenge</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -36,7 +24,7 @@
 
         <section class="atlas-record-group" aria-labelledby="boss-challenge-title">
             <div class="atlas-record-group-head">
-                <h2 id="boss-challenge-title" class="atlas-record-group-title">Boss Challenge of {{ $course->name }}</h2>
+                <h2 id="boss-challenge-title" class="atlas-record-group-title">Assessment record</h2>
             </div>
 
             @if ($assessment === null)
@@ -46,12 +34,25 @@
                 </section>
             @else
                 <article class="atlas-record-entry">
-                    <h3 class="atlas-record-entry-title">
-                        <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}">{{ $assessment->title }}</a>
-                    </h3>
+                    <div class="atlas-record-entry-head">
+                        <h3 class="atlas-record-entry-title">
+                            <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}">{{ $assessment->title }}</a>
+                        </h3>
+                        <span class="atlas-stamp {{ $assessment->status === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}">{{ ucfirst($assessment->status) }}</span>
+                    </div>
                     <p class="atlas-record-entry-copy">{{ $assessment->description }}</p>
+                    <dl class="log-facts atlas-record-entry-facts">
+                        <div>
+                            <dt>Passing score</dt>
+                            <dd class="is-numeric">{{ $assessment->passing_score }}%</dd>
+                        </div>
+                        <div>
+                            <dt>Version</dt>
+                            <dd class="is-numeric">{{ $assessment->version }}</dd>
+                        </div>
+                    </dl>
                     <div class="atlas-record-entry-actions">
-                        <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="btn btn-primary">Edit Boss Challenge →</a>
+                        <a href="{{ route('admin.courses.assessment.edit', [$course, $assessment]) }}" class="btn btn-primary btn-sm">Edit Boss Challenge →</a>
                     </div>
                 </article>
             @endif

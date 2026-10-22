@@ -3,20 +3,23 @@
 namespace App\Http\Requests;
 
 use App\Services\AdminAssessmentService;
+use App\Services\ValidationService;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
  * Assessment update payload (US-708, §24.0). One course has exactly one
- * assessment (the the404_assessments unique course_id constraint), so all five
+ * assessment (the the404_assessments unique course_id constraint), so the
  * editable fields mirror the AdminAssessmentService allow list: title,
- * description, instructions, passing_score (non-negative integer), and status
- * (from the active|locked|draft enum). grading_rule is deliberately NOT
- * present: it is view-only this story — grading rules are authored through the
- * controlled AssessmentSeeder, the same path as solution_code/validate_rule on
- * missions — and can never be written even by a crafted payload. The guarded
- * AdminAssessmentService write path re-checks the allow list on top of this
- * shape validation.
+ * description, instructions, passing_score (integer 1..100), status (from the
+ * active|locked|draft enum) and grading_rule.
+ *
+ * grading_rule is now an audited admin write (P2-7): criteria must stay
+ * editable after seeding instead of being frozen. The value must be a
+ * structurally valid JSON rule array — the same contract used for academic
+ * evaluation — and the guarded service re-checks it on top of this shape
+ * validation, so a crafted payload cannot store an unusable rule set.
  */
 class AdminAssessmentUpdateRequest extends FormRequest
 {
@@ -53,8 +56,17 @@ class AdminAssessmentUpdateRequest extends FormRequest
             'title' => ['required', 'string', 'max:128'],
             'description' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
-            'passing_score' => ['required', 'integer', 'min:0', 'max:100'],
+            'passing_score' => ['required', 'integer', 'min:1', 'max:100'],
             'status' => ['required', Rule::in(AdminAssessmentService::STATUSES)],
+            'grading_rule' => [
+                'nullable',
+                'string',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (! is_string($value) || ! app(ValidationService::class)->isValidDefinition($value)) {
+                        $fail('Grading rules must be a structurally valid JSON array of supported rules.');
+                    }
+                },
+            ],
         ];
     }
 }

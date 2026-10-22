@@ -19,7 +19,7 @@ class DraftServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->service = new DraftService;
+        $this->service = app(DraftService::class);
     }
 
     public function test_find_returns_null_when_no_draft_exists(): void

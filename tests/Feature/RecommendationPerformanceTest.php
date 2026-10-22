@@ -156,10 +156,11 @@ class RecommendationPerformanceTest extends TestCase
 
         // Review cards now enrich reasons through one grouped weak-skills
         // read (US-906), so the review path costs a constant few queries
-        // more than the position-only path. Bounds stay tight: a per-course
-        // regression would still add ~10 here. Growth tests below are the
-        // real fan-out guard.
-        $this->assertLessThanOrEqual(20, $this->countQueries(fn () => $recommendations->recommendations($user)));
+        // more than the position-only path. Competency also reads the
+        // assessment→skill mapping once for Boss evidence (P2-9). Bounds
+        // stay tight: a per-course regression would still add ~10 here.
+        // Growth tests below are the real fan-out guard.
+        $this->assertLessThanOrEqual(21, $this->countQueries(fn () => $recommendations->recommendations($user)));
         $this->assertLessThanOrEqual(22, $this->countQueries(fn () => $recommendations->recommendations($user, $ids)));
         $this->assertLessThanOrEqual(14, $this->countQueries(fn () => $competency->overview($user)));
         $this->assertLessThanOrEqual(14, $this->countQueries(fn () => $competency->overview($user, $ids)));
@@ -207,7 +208,10 @@ class RecommendationPerformanceTest extends TestCase
         $recommendations = app(RecommendationService::class);
         $scope = collect([$courses[0]->id]);
 
-        $this->assertLessThanOrEqual(18, $this->countQueries(fn () => $recommendations->recommendations($user, $scope)));
+        // 20 = 18 baseline + one constant drafts-first position read
+        // (DashboardService::nextMission) + one constant assessment→skill
+        // mapping read for Boss evidence. Constant, not per-course fan-out.
+        $this->assertLessThanOrEqual(20, $this->countQueries(fn () => $recommendations->recommendations($user, $scope)));
 
         $cards = $recommendations->recommendations($user, $scope);
 

@@ -548,7 +548,7 @@ class CurriculumVersioningTest extends TestCase
         $course = Course::factory()->create();
         $earn = Mission::factory()->create(array_merge(
             ['course_id' => $course->id],
-            $this->missionAttributes(50)
+            $this->missionAttributes(150)
         ));
         $spend = Mission::factory()->create(array_merge(
             ['course_id' => $course->id, 'hints' => json_encode(['First hint']), 'solution_code' => '<h1>Solution</h1>'],

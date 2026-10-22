@@ -1,0 +1,236 @@
+erDiagram
+  the404_achievements {
+    int id PK
+    string slug
+    string name
+  }
+  the404_activity {
+    int id PK
+    int user_id FK
+    string type
+  }
+  the404_admin_audit {
+    int id PK
+    int admin_user_id FK
+    string action
+    string target_type
+  }
+  the404_announcements {
+    int id PK
+    int created_by FK
+    string title
+    enum audience
+    enum status
+  }
+  the404_assessments {
+    int id PK
+    int course_id FK, UK
+    string title
+    int passing_score
+    int version
+    enum status
+  }
+  the404_assessment_attempts {
+    int id PK
+    int assessment_id FK
+    int user_id FK
+    text code
+    int score
+    enum status
+  }
+  the404_assessment_behavior_tests {
+    int id PK
+    int assessment_id FK
+    string name
+  }
+  the404_assessment_skill {
+    int assessment_id FK, PK
+    int skill_id FK, PK
+  }
+  the404_classrooms {
+    int id PK
+    string name
+    string code
+    enum status
+  }
+  the404_classroom_courses {
+    int classroom_id FK, PK
+    int course_id FK, PK
+  }
+  the404_classroom_students {
+    int classroom_id FK, PK
+    int student_id FK, PK
+  }
+  the404_classroom_teachers {
+    int classroom_id FK, PK
+    int teacher_id FK, PK
+  }
+  the404_courses {
+    int id PK
+    string slug
+    string name
+    string type
+    enum status
+    int version
+  }
+  the404_knowledge_checks {
+    int id PK
+    int mission_id FK
+    string title
+    enum status
+    int version
+  }
+  the404_knowledge_check_attempts {
+    int id PK
+    int knowledge_check_id FK
+    int user_id FK
+    enum status
+    int score
+    int percentage
+  }
+  the404_knowledge_check_options {
+    int id PK
+    int knowledge_check_question_id FK
+    int is_correct
+  }
+  the404_knowledge_check_questions {
+    int id PK
+    int knowledge_check_id FK
+    enum type
+  }
+  the404_knowledge_check_question_skill {
+    int question_id FK, PK
+    int skill_id FK, PK
+  }
+  the404_knowledge_check_responses {
+    int id PK
+    int knowledge_check_attempt_id FK
+    int knowledge_check_question_id FK
+    int selected_option_id FK
+    int correct_option_id FK
+    int is_correct
+  }
+  the404_missions {
+    int id PK
+    int course_id FK
+    int section_id FK
+    string title
+    int points
+    int version
+  }
+  the404_mission_behavior_tests {
+    int id PK
+    int mission_id FK
+    string name
+  }
+  the404_mission_drafts {
+    int id PK
+    int user_id FK
+    int mission_id FK
+    text code
+  }
+  the404_mission_skill {
+    int mission_id FK, PK
+    int skill_id FK, PK
+  }
+  the404_mission_submission_results {
+    int id PK
+    int user_id FK
+    int mission_id FK
+  }
+  the404_notifications {
+    int id PK
+    int user_id FK
+    string type
+    string title
+    string dedupe_key
+    datetime read_at
+  }
+  the404_progress {
+    int id PK
+    int user_id FK
+    int mission_id FK
+  }
+  the404_sections {
+    int id PK
+    int course_id FK
+    string title
+    int version
+  }
+  the404_skills {
+    int id PK
+    string key
+  }
+  the404_users {
+    int id PK
+    string username
+    string name
+    enum role
+    enum status
+  }
+  the404_user_achievements {
+    int id PK
+    int user_id FK
+    int achievement_id FK
+  }
+  the404_user_preferences {
+    int id PK
+    int user_id FK
+  }
+  the404_xp_transactions {
+    int id PK
+    int user_id FK
+    int mission_id FK
+    int assessment_id FK
+    int amount
+    string type
+  }
+  the404_users ||--o{ the404_activity : "user_id"
+  the404_users ||--o{ the404_admin_audit : "admin_user_id"
+  the404_users ||--o{ the404_announcements : "created_by"
+  the404_courses ||--o{ the404_assessments : "course_id"
+  the404_assessments ||--o{ the404_assessment_attempts : "assessment_id"
+  the404_users ||--o{ the404_assessment_attempts : "user_id"
+  the404_assessments ||--o{ the404_assessment_behavior_tests : "assessment_id"
+  the404_assessments ||--o{ the404_assessment_skill : "assessment_id"
+  the404_skills ||--o{ the404_assessment_skill : "skill_id"
+  the404_classrooms ||--o{ the404_classroom_courses : "classroom_id"
+  the404_courses ||--o{ the404_classroom_courses : "course_id"
+  the404_classrooms ||--o{ the404_classroom_students : "classroom_id"
+  the404_users ||--o{ the404_classroom_students : "student_id"
+  the404_classrooms ||--o{ the404_classroom_teachers : "classroom_id"
+  the404_users ||--o{ the404_classroom_teachers : "teacher_id"
+  the404_missions ||--o{ the404_knowledge_checks : "mission_id"
+  the404_knowledge_checks ||--o{ the404_knowledge_check_attempts : "knowledge_check_id"
+  the404_users ||--o{ the404_knowledge_check_attempts : "user_id"
+  the404_knowledge_check_questions ||--o{ the404_knowledge_check_options : "knowledge_check_question_id"
+  the404_knowledge_checks ||--o{ the404_knowledge_check_questions : "knowledge_check_id"
+  the404_knowledge_check_questions ||--o{ the404_knowledge_check_question_skill : "question_id"
+  the404_skills ||--o{ the404_knowledge_check_question_skill : "skill_id"
+  the404_knowledge_check_attempts ||--o{ the404_knowledge_check_responses : "knowledge_check_attempt_id"
+  the404_knowledge_check_questions ||--o{ the404_knowledge_check_responses : "knowledge_check_question_id"
+  the404_knowledge_check_options ||--o{ the404_knowledge_check_responses : "correct_option_id"
+  the404_knowledge_check_options ||--o{ the404_knowledge_check_responses : "selected_option_id"
+  the404_courses ||--o{ the404_missions : "course_id"
+  the404_sections ||--o{ the404_missions : "section_id"
+  the404_missions ||--o{ the404_mission_behavior_tests : "mission_id"
+  the404_missions ||--o{ the404_mission_drafts : "mission_id"
+  the404_users ||--o{ the404_mission_drafts : "user_id"
+  the404_missions ||--o{ the404_mission_skill : "mission_id"
+  the404_skills ||--o{ the404_mission_skill : "skill_id"
+  the404_missions ||--o{ the404_mission_submission_results : "mission_id"
+  the404_users ||--o{ the404_mission_submission_results : "user_id"
+  the404_users ||--o{ the404_notifications : "user_id"
+  the404_missions ||--o{ the404_progress : "mission_id"
+  the404_users ||--o{ the404_progress : "user_id"
+  the404_courses ||--o{ the404_sections : "course_id"
+  the404_achievements ||--o{ the404_user_achievements : "achievement_id"
+  the404_users ||--o{ the404_user_achievements : "user_id"
+  the404_users ||--o{ the404_user_preferences : "user_id"
+  the404_assessments ||--o{ the404_xp_transactions : "assessment_id"
+  the404_missions ||--o{ the404_xp_transactions : "mission_id"
+  the404_users ||--o{ the404_xp_transactions : "user_id"
+  the404_missions ||..o{ the404_activity : "mission_id (logical)"
+
+%% Logical ERD source. Physical FKs are drawn as one-to-many;
+%% the activity.mission_id edge is logical and intentionally unconstrained.

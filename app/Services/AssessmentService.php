@@ -12,10 +12,12 @@ use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
+use App\Support\SchemaAvailability;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Owns the assessment domain's write path. The one-per-course invariant is
@@ -30,6 +32,8 @@ class AssessmentService
         private readonly XpService $xp,
         private readonly AchievementService $achievements,
         private readonly NotificationService $notifications,
+        private readonly ?AssessmentGradingService $grading = null,
+        private readonly ?ActivityService $activity = null,
     ) {}
 
     /**
@@ -335,8 +339,9 @@ class AssessmentService
                 $attempt = new AssessmentAttempt([
                     'assessment_id' => $assessment->id,
                     'user_id' => $user->id,
-                    // Skill keys live at attempt start for future mapping use.
-                    // v1 skill scoring ignores Boss evidence entirely.
+                    // Skill keys live at attempt start so competency evidence
+                    // is attributed to the mapping in force when the attempt
+                    // began; later remapping never reinterprets history.
                     'skill_keys' => $assessment->skills->pluck('key')->all(),
                 ]);
 
@@ -421,6 +426,8 @@ class AssessmentService
      *     id: int,
      *     status: string,
      *     score: int|null,
+     *     tests_total: int|null,
+     *     tests_passed: int|null,
      *     passed_at: Carbon|null,
      *     submitted_at: Carbon|null,
      * }>
@@ -450,6 +457,8 @@ class AssessmentService
      *     id: int,
      *     status: string,
      *     score: int|null,
+     *     tests_total: int|null,
+     *     tests_passed: int|null,
      *     passed_at: Carbon|null,
      *     submitted_at: Carbon|null,
      * }>>  keyed by course id
@@ -492,6 +501,8 @@ class AssessmentService
      *     id: int,
      *     status: string,
      *     score: int|null,
+     *     tests_total: int|null,
+     *     tests_passed: int|null,
      *     passed_at: Carbon|null,
      *     submitted_at: Carbon|null,
      * }
@@ -502,6 +513,8 @@ class AssessmentService
             'id' => $attempt->id,
             'status' => $attempt->status,
             'score' => $attempt->score,
+            'tests_total' => $attempt->tests_total,
+            'tests_passed' => $attempt->tests_passed,
             'passed_at' => $attempt->passed_at,
             'submitted_at' => $attempt->submitted_at,
         ];
@@ -537,6 +550,9 @@ class AssessmentService
             'status' => $attempt->status,
             'score' => $attempt->score,
             'code' => $attempt->code,
+            'tests_total' => $attempt->tests_total,
+            'tests_passed' => $attempt->tests_passed,
+            'failure_feedback' => $this->feedbackList($attempt),
             'passed_at' => $attempt->passed_at?->toIso8601String(),
             'submitted_at' => $attempt->submitted_at?->toIso8601String(),
         ];
@@ -617,17 +633,29 @@ class AssessmentService
      * (US-407).
      *
      * Scoring approach: the grading_rule is a set of binary pass/fail pattern
-     * rules with no weights, so the score is the proportion of rules passed,
-     * rounded to an integer percentage and compared against passing_score.
-     * A submission with no rules scores 0 and does not pass, rather than
-     * auto-passing, because a Boss Challenge must never pass vacuously.
+     * rules with no weights. A Boss Challenge may additionally carry hidden
+     * behavioural tests (the404_assessment_behavior_tests) executed by the
+     * sandboxed grader. The score is the proportion of ALL configured checks
+     * passed — pattern rules plus hidden tests — rounded to an integer
+     * percentage. Passing requires a valid configuration, at least one check,
+     * a score at or above passing_score, and (when hidden tests exist) every
+     * hidden test passing. A submission with no checks scores 0 and does not
+     * pass, rather than auto-passing, because a Boss Challenge must never pass
+     * vacuously.
      *
-     * The code is never executed. It is matched as literal text against the
-     * grading_rule patterns by ValidationService, exactly as Phase 3 matches
-     * missions; there is no eval/exec or server-side JS interpreter. The
-     * attempt must be owned by the user and be in the "submitted" state.
+     * Pattern rules remain a structural gate; hidden tests are what make the
+     * verdict behavioural rather than literal-text matching. Assessments with
+     * no hidden tests keep the historical pattern-only evaluation (an
+     * explicit, documented legacy path).
+     *
+     * The attempt must be owned by the user and be in the "submitted" state.
      * On pass the attempt is moved directly to "passed" with passed_at; on
      * fail, directly to "failed". "evaluated" is not persisted on this path.
+     *
+     * Grader unavailability (transport failure, malformed content, oversized
+     * input) is an infrastructure problem, not a student failure: the attempt
+     * stays "submitted", the unavailable feedback is recorded, and no verdict,
+     * XP, or activity event is written. Submitting again re-runs evaluation.
      *
      * The Boss Challenge XP reward (US-412) is written here, atomically with
      * the verdict, and only when evaluation produced the student's FIRST
@@ -663,20 +691,77 @@ class AssessmentService
                 throw new \InvalidArgumentException('Assessment attempt '.$attempt->id.' references no assessment.');
             }
 
-            $result = $this->validator->validateRules($assessment->grading_rule ?? '', $attempt->code ?? '');
+            // Fail closed on unusable grading configuration. A zero threshold is
+            // not a lenient passing rule: the verdict is `score >= threshold`,
+            // so 0 >= 0 passes a submission that failed every criterion. A
+            // malformed rule set is the same class of defect — ValidationService
+            // folds it into the failures list, which would silently score it as
+            // a student failure. Both are configuration errors, never rewards.
+            $rulesJson = $assessment->grading_rule ?? '';
+            $threshold = (int) $assessment->passing_score;
+            $rulesValid = $this->validator->isValidDefinition($rulesJson);
+            $configurationValid = $threshold >= 1 && $threshold <= 100 && $rulesValid;
 
-            $total = $result['total'];
-            // Coupling: ValidationService::validateRules() folds a malformed rule
-            // entry into the failures list, so it is counted here as a failed rule.
-            // That is currently safe only because seeded grading_rule content is
-            // assumed valid; a broken rule would otherwise score as a student
-            // failure. Guarded, not fixed: recording malformed-rule credit is a
-            // US-407 design decision we are not changing here.
-            $failed = count($result['failures']);
+            if (! $configurationValid) {
+                // Operator evidence only: the student sees a neutral unavailable
+                // message, never rule values or configuration internals (§11).
+                Log::warning('Boss Challenge evaluation blocked by invalid grading configuration.', [
+                    'assessment_id' => $assessment->id,
+                    'course_id' => $assessment->course_id,
+                    'passing_score' => $assessment->passing_score,
+                    'rules_valid' => $rulesValid,
+                ]);
+            }
 
-            $score = $total > 0 ? (int) round((($total - $failed) / $total) * 100) : 0;
+            $ruleResult = $configurationValid
+                ? $this->validator->validateRules($rulesJson, $attempt->code ?? '')
+                : ['passed' => false, 'failures' => [], 'total' => 0];
 
-            $passed = $total > 0 && $score >= $assessment->passing_score;
+            $behaviour = $configurationValid
+                ? $this->assessmentGrading()->grade($assessment, $attempt->code ?? '')
+                : null;
+
+            // Infrastructure failure: never a student verdict. Keep the
+            // attempt submitted so the student can re-run verification, and
+            // record the neutral feedback. No score, XP, or activity row.
+            if ($behaviour !== null && ! $behaviour['available']) {
+                $attempt->score = null;
+                $attempt->status = 'submitted';
+
+                if (SchemaAvailability::assessmentEvidenceColumns()) {
+                    $attempt->tests_total = null;
+                    $attempt->tests_passed = null;
+                    $unavailableFeedback = json_encode($behaviour['failures']);
+                    $attempt->failure_feedback = is_string($unavailableFeedback) ? $unavailableFeedback : null;
+                }
+
+                $attempt->save();
+
+                return;
+            }
+
+            $rulesTotal = $ruleResult['total'];
+            $rulesPassed = max(0, $rulesTotal - count($ruleResult['failures']));
+
+            $behaviourConfigured = $behaviour !== null && $behaviour['configured'];
+            $behaviourTotal = $behaviourConfigured ? $behaviour['tests_total'] : 0;
+            $behaviourPassed = $behaviourConfigured ? $behaviour['tests_passed'] : 0;
+
+            $totalChecks = $rulesTotal + $behaviourTotal;
+            $passedChecks = $rulesPassed + $behaviourPassed;
+
+            $score = $configurationValid && $totalChecks > 0
+                ? (int) round(($passedChecks / $totalChecks) * 100)
+                : 0;
+
+            $passed = $configurationValid
+                && $totalChecks > 0
+                && $score >= $threshold
+                && (! $behaviourConfigured || $behaviour['passed']);
+
+            $failures = $configurationValid
+                ? array_merge($ruleResult['failures'], $behaviour['failures'] ?? [])
+                : [];
 
             // The pre-state, read before this attempt is written as passed: has
             // the student already earned a passed verdict on this assessment?
@@ -688,6 +773,17 @@ class AssessmentService
             $attempt->score = $score;
             $attempt->status = $passed ? 'passed' : 'failed';
             $attempt->passed_at = $passed ? now() : null;
+            // Behavioural evidence travels with the verdict. Legacy
+            // pattern-only attempts keep NULL counts instead of claiming a
+            // behavioural run that never happened. The evidence columns are
+            // optional: while their migration is still pending the verdict is
+            // still written, only without the evidence columns.
+            if (SchemaAvailability::assessmentEvidenceColumns()) {
+                $attempt->tests_total = $behaviourConfigured ? $behaviourTotal : null;
+                $attempt->tests_passed = $behaviourConfigured ? $behaviourPassed : null;
+                $feedbackJson = $failures === [] ? null : json_encode($failures);
+                $attempt->failure_feedback = is_string($feedbackJson) ? $feedbackJson : null;
+            }
             // Evidence of the exact revision that produced this verdict: the
             // assessment version in force at evaluation time plus a copy of
             // the rule and threshold it was scored against. Later edits to
@@ -696,6 +792,16 @@ class AssessmentService
             $attempt->grading_rule_snapshot = $assessment->grading_rule;
             $attempt->passing_score_snapshot = $assessment->passing_score;
             $attempt->save();
+
+            // P2-9: the raw activity ledger records the summative event, like
+            // every other learning event. The timeline composes its single
+            // Boss beat from attempt history, so these types are excluded
+            // from the timeline's activity source to avoid a duplicate beat.
+            $this->activityLog()->record($user, [
+                'type' => $passed ? 'assessment_passed' : 'assessment_failed',
+                'message' => ($passed ? 'Boss Challenge passed: ' : 'Boss Challenge failed: ').$assessment->title.' ('.$score.'%)',
+                'pts' => 0,
+            ]);
 
             // US-805: the verdict notification is created in the SAME
             // transaction as the verdict (§19) — a retry pass/fail is its own
@@ -844,5 +950,35 @@ class AssessmentService
         return AssessmentAttempt::query()
             ->where('assessment_id', $assessment->id)
             ->where('user_id', $user->id);
+    }
+
+    /**
+     * Resolve the behavioural grader lazily so existing manual construction
+     * (and the container's autowiring) both work. The service itself has no
+     * state; one instance per evaluation is cheap.
+     */
+    private function assessmentGrading(): AssessmentGradingService
+    {
+        return $this->grading ?? app(AssessmentGradingService::class);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function feedbackList(AssessmentAttempt $attempt): array
+    {
+        $feedback = json_decode((string) $attempt->failure_feedback, true);
+
+        return is_array($feedback)
+            ? array_values(array_filter($feedback, 'is_string'))
+            : [];
+    }
+
+    /**
+     * Resolve the activity writer lazily for the same reason as above.
+     */
+    private function activityLog(): ActivityService
+    {
+        return $this->activity ?? app(ActivityService::class);
     }
 }

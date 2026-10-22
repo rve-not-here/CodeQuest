@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Analytics · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />Read-only</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">System analytics</h1>
-            <p class="atlas-records-lede">Recorded account, curriculum, learning and XP evidence. Read-only, system-wide.</p>
-        </header>
+        <h1 class="sr-only">System analytics</h1>
 
         @php
             $xpFigures = [

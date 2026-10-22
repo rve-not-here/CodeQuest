@@ -34,18 +34,10 @@
 
 @section('content')
     <div class="atlas-assessments">
-        <div class="log-running">
-            <span>Boss challenges · The final gate in each course</span>
-            <a href="{{ route('learning-path') }}">Learning path →</a>
-        </div>
-
         <header class="atlas-reading-heading">
-            <div class="atlas-lesson-entry">
-                <span class="atlas-lesson-entry-label">Assessment record</span>
-            </div>
             <h1 class="atlas-reading-title">Boss Challenges</h1>
             <p class="atlas-check-lede">Complete the challenges in each course to open its final Boss Challenge. Your challenge status comes from your recorded work.</p>
-            <dl class="log-facts atlas-assessments-facts">
+            <dl class="log-facts atlas-assessments-facts grid-cols-3">
                 <div>
                     <dt>Courses</dt>
                     <dd class="is-numeric">{{ $rows->count() }}</dd>
@@ -59,6 +51,9 @@
                     <dd class="is-numeric">{{ $totalXp }}</dd>
                 </div>
             </dl>
+            <p class="atlas-assessment-path-link">
+                <a href="{{ route('learning-path') }}" class="btn btn-ghost btn-sm">Open learning path <span aria-hidden="true">→</span></a>
+            </p>
         </header>
 
         @if (session('assessment_locked'))
@@ -100,7 +95,7 @@
                         };
                     @endphp
                     <li class="atlas-assessment-entry" data-assessment-state="{{ $state }}">
-                        <div class="atlas-assessment-head">
+                        <div class="atlas-assessment-head max-[760px]:flex-col max-[760px]:items-start">
                             <div class="atlas-assessment-heading">
                                 <p class="atlas-assessment-order">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }}</p>
                                 <h2>{{ $course->name }}</h2>
@@ -134,17 +129,16 @@
                             </div>
 
                             <div class="atlas-assessment-actions">
-                                @if (! $row['unlocked'])
-                                    <a href="{{ route('learning-path') }}" class="btn btn-secondary">View learning path <x-icon name="chevron-right" size="16" /></a>
-                                @else
+                                {{-- Sealed rows carry no action: the page-level learning-path link is the one way out. --}}
+                                @if ($row['unlocked'])
                                     @if ($state === 'ready')
                                         <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" size="16" /></button>
+                                            <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" data-arrow size="16" /></button>
                                         </form>
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-ghost">View briefing</a>
                                     @elseif ($state === 'in-progress')
-                                        <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-primary">Continue challenge <x-icon name="chevron-right" size="16" /></a>
+                                        <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-primary">Continue challenge <x-icon name="chevron-right" data-arrow size="16" /></a>
                                     @elseif ($state === 'submitted')
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-secondary">View status</a>
                                     @elseif ($state === 'failed')
@@ -155,8 +149,6 @@
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-ghost">Review</a>
                                     @elseif (in_array($state, ['passed', 'failed-retry'], true))
                                         <a href="{{ route('assessment.show', $assessment) }}" class="btn btn-secondary">Open challenge</a>
-                                    @elseif ($state === 'sealed')
-                                        <a href="{{ route('missions') }}" class="btn btn-secondary">View challenges <x-icon name="chevron-right" size="16" /></a>
                                     @endif
                                 @endif
                             </div>

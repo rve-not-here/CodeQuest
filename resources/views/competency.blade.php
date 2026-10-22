@@ -18,13 +18,7 @@
         $demonstrated = $competencies->where('state', 'demonstrated')->count();
     @endphp
     <div class="atlas-records">
-        <div class="log-running atlas-records-running">
-            <span>Records · Learning performance</span>
-            <a href="{{ route('learning-path') }}">Learning path →</a>
-        </div>
-
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Competency</span>
             <h1 class="atlas-records-title">Learning performance</h1>
             <p class="atlas-records-lede">The recorded evidence behind every course and skill state.</p>
             @if ($competencies->isNotEmpty() || $skills->isNotEmpty())
@@ -52,47 +46,52 @@
             </section>
         @else
             <h2 class="atlas-records-subheading">Competency by course</h2>
-            <ol class="atlas-records-list">
-                @foreach ($competencies as $row)
-                    @php
-                        $state = $row['state'];
-                        $stateView = $courseStates[$state] ?? $courseStates['not_started'];
-                        $reason = match ($state) {
-                            'demonstrated' => 'Demonstrated through: '.$row['totalMissions'].' completed challenges and a passed Boss Challenge.',
-                            'practicing' => $row['attempts'] > 0
-                                ? 'Boss Challenge attempted '.(int) $row['attempts'].' '.Str::plural('time', (int) $row['attempts']).', not yet passed.'
-                                : $row['completedMissions'].' of '.$row['totalMissions'].' challenges completed.',
-                            'developing' => 'Work in progress: '.$row['completedMissions'].' of '.$row['totalMissions'].' challenges completed.',
-                            default => 'No learning recorded for this area yet.',
-                        };
-                        $bossState = $row['challengePassed'] ? 'Passed' : ($row['attempts'] > 0 ? 'Attempted, not passed' : 'Not attempted');
-                    @endphp
-                    <li class="atlas-record-entry" data-competency-state="{{ $state }}">
-                        <div class="atlas-record-entry-head">
-                            <span class="atlas-record-entry-label">Course competency</span>
-                            <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
-                        </div>
-                        <h3 class="atlas-record-entry-title">{{ $row['name'] }}</h3>
-                        <p class="atlas-record-entry-copy">{{ $reason }}</p>
-                        <dl class="log-facts atlas-record-entry-facts">
-                            <div>
-                                <dt>Challenges</dt>
-                                <dd class="is-numeric">{{ $row['completedMissions'] }}/{{ $row['totalMissions'] }} complete</dd>
-                            </div>
-                            <div>
-                                <dt>Boss Challenge</dt>
-                                <dd>{{ $bossState }}</dd>
-                            </div>
-                        </dl>
-                    </li>
-                @endforeach
-            </ol>
+            <div class="atlas-register-table-wrap">
+                <table class="table-stack atlas-register-table">
+                    <caption>Competency by course</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Course</th>
+                            <th scope="col">State</th>
+                            <th scope="col">Coding Challenges</th>
+                            <th scope="col">Boss Challenge</th>
+                            <th scope="col">Evidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($competencies as $row)
+                            @php
+                                $state = $row['state'];
+                                $stateView = $courseStates[$state] ?? $courseStates['not_started'];
+                                $reason = match ($state) {
+                                    'demonstrated' => 'Demonstrated through: '.$row['totalMissions'].' completed challenges and a passed Boss Challenge.',
+                                    'practicing' => $row['attempts'] > 0
+                                        ? 'Boss Challenge attempted '.(int) $row['attempts'].' '.Str::plural('time', (int) $row['attempts']).', not yet passed.'
+                                        : $row['completedMissions'].' of '.$row['totalMissions'].' challenges completed.',
+                                    'developing' => 'Work in progress: '.$row['completedMissions'].' of '.$row['totalMissions'].' challenges completed.',
+                                    default => 'No learning recorded for this area yet.',
+                                };
+                                $bossState = $row['challengePassed'] ? 'Passed' : ($row['attempts'] > 0 ? 'Attempted, not passed' : 'Not attempted');
+                            @endphp
+                            <tr data-competency-state="{{ $state }}">
+                                <th scope="row" data-label="Course">{{ $row['name'] }}</th>
+                                <td data-label="State">
+                                    <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
+                                </td>
+                                <td data-label="Coding Challenges">{{ $row['completedMissions'] }}/{{ $row['totalMissions'] }} complete</td>
+                                <td data-label="Boss Challenge">{{ $bossState }}</td>
+                                <td data-label="Evidence">{{ $reason }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
 
         @if ($skills->isNotEmpty())
             <h2 class="atlas-records-subheading">Skill competency</h2>
             <p class="atlas-record-group-note">Knowledge Check and Coding Challenge evidence</p>
-            <ul class="atlas-records-list">
+            <ul class="atlas-records-list grid grid-cols-1 gap-x-10 md:grid-cols-2">
                 @foreach ($skills as $skill)
                     @php($skillView = $skillStates[$skill['state']] ?? $skillStates['unassessed'])
                     <li class="atlas-record-entry atlas-record-entry--compact" data-skill-state="{{ $skill['state'] }}">
@@ -101,7 +100,7 @@
                             <span class="atlas-stamp {{ $skillView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($skillView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $skillView['label'] }}</span>
                         </div>
                         <p class="atlas-record-meta">
-                            <span>Knowledge Checks {{ $skill['kcTotal'] > 0 ? $skill['kcCorrect'].'/'.$skill['kcTotal'].' correct' : 'no evidence recorded' }}</span>
+                            <span>Knowledge Check questions {{ $skill['kcTotal'] > 0 ? $skill['kcCorrect'].'/'.$skill['kcTotal'].' correct' : 'no evidence recorded' }}</span>
                             <span>Coding Challenges {{ $skill['challengesCompleted'] }}/{{ $skill['challengesApplicable'] }} complete</span>
                             @if ($skill['percentage'] !== null)
                                 <span>Recorded result {{ $skill['percentage'] }}%</span>

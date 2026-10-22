@@ -11,11 +11,12 @@ grader service, and the sandbox that makes hostile input safe to run.
 ```text
 Student POSTs source
        |
-Laravel authenticates, checks gates, loads the mission
+Laravel authenticates, checks gates, loads the mission or Boss Challenge
        |
 Structural validation (existing ValidationService)
        |
 Hidden tests loaded server-side from the404_mission_behavior_tests
+or the404_assessment_behavior_tests
        |
 Private authenticated request to the grader service
        |
@@ -51,11 +52,19 @@ console capture), not for isolation. Never claim VM alone is safe.
 
 Table `the404_mission_behavior_tests`, one row per check: mission
 foreign key, name, test type (`function` or `console`), configuration
-JSON, order, active flag, timestamps. The model hides `configuration`
-from every array and JSON dump, no student route reads the table, and
-the mission relation is never eager-loaded for views. Students see only
-sanitized counts such as "3 of 4 hidden tests passed". Feedback never
-carries inputs, expected values, or test source.
+JSON, order, active flag, timestamps. Table
+`the404_assessment_behavior_tests` mirrors the same shape for a Boss
+Challenge (assessment foreign key instead of mission). Both models hide
+`configuration` from every array and JSON dump, no student route reads
+either table, and the parent relation is never eager-loaded for views.
+Students see only sanitized counts such as "3 of 4 hidden tests passed".
+Feedback never carries inputs, expected values, or test source.
+
+`BehaviorTestDefinition` is the single shaping/validation path for both
+parents, so a test row cannot mean one thing for a mission and another
+for an assessment. An assessment with no active hidden tests keeps the
+legacy pattern-only evaluation below; this is a deliberate compatibility
+path, not an implicit pass.
 
 ## Test types
 
@@ -73,14 +82,45 @@ implementation. DOM missions keep structural validation until then.
 
 ## Structural plus behavioral grading
 
-`MissionGradingService` orchestrates. Legacy missions without active
-tests keep pure structural validation and never call the grader.
+`MissionGradingService` orchestrates missions. Legacy missions without
+active tests keep pure structural validation and never call the grader.
 Missions with tests require structural PASS and behavioral PASS
 together. Either failure deducts the normal wrong-submission penalty.
 Grader outage (unconfigured, timeout, malformed response, error result)
 fails closed: no completion, no XP, and no deduction, because an
 infrastructure problem is not a student failure. Client fields like
 `passed`, `score`, or `xp` never influence the outcome.
+
+## Boss Challenge grading
+
+`AssessmentGradingService` applies the same hidden-test contract to a
+Boss Challenge through the shared `GraderClient` and
+`BehaviorTestDefinition`. `AssessmentService::evaluateAttempt` scores the
+combined set of checks:
+
+- **Score** — percentage of all configured checks passed, pattern rules
+  plus hidden tests, rounded to an integer. A configuration with zero
+  checks scores 0 rather than passing vacuously.
+- **Pass** — requires a structurally valid `grading_rule`, a
+  `passing_score` of 1–100, at least one check, the combined score at or
+  above the threshold, every pattern rule passing, and every configured
+  hidden test passing. A high pattern-rule share cannot outvote a failed
+  hidden test.
+- **Evidence** — the attempt stores `tests_total`, `tests_passed`, and
+  the authored rule/test failure messages in `failure_feedback`, so a
+  failed verdict explains itself. Hidden inputs and expected values are
+  still never stored or shown.
+- **Legacy assessments** — no active hidden tests keeps the historical
+  pattern-only evaluation. `tests_total` and `tests_passed` stay NULL so
+  the row never claims a behavioural run that did not happen. The same
+  holds while the hidden-test table's migration is still pending: no
+  table means no hidden test can exist, so the pattern-only path is the
+  honest evaluation for that schema state.
+- **Grader unavailable** — transport failure, malformed response, or an
+  oversized payload leaves the attempt `submitted` with neutral feedback
+  and no score, XP, or activity row. It is not a student failure.
+  Resubmitting the latest attempt re-runs evaluation because the attempt
+  was never given a terminal verdict.
 
 ## Failure behavior and error types
 
@@ -115,6 +155,32 @@ Point Laravel at it with `CODEQUEST_GRADER_URL`,
 The service binds loopback by default. Never expose it publicly and
 never route it through CodeQuest's public routes.
 
+## Container acceptance
+
+`grader/test/integration-container.sh` builds the runner image and
+exercises real ephemeral sandboxes: valid and hostile submissions,
+timeout cleanup, output bounds, module and network isolation, forged
+verdicts, live egress attempts, bind-mount and host-visibility probes,
+read-only root, and the enforced cgroup/seccomp limits.
+
+```sh
+sh grader/test/integration-container.sh                     # developer mode
+CODEQUEST_REQUIRE_SANDBOX_TESTS=1 sh grader/test/integration-container.sh
+GRADER_RUNTIME=podman CODEQUEST_REQUIRE_SANDBOX_TESTS=1 sh grader/test/integration-container.sh
+```
+
+Developer mode prints `SKIP` and exits 0 when no runtime is reachable.
+Strict mode turns that skip into a failure and additionally requires a
+rootless runtime, so a missing or rootful sandbox can never read as
+acceptance. `GRADER_RUNTIME` pins the runtime explicitly (`podman` or
+`docker`); without it the script prefers podman and falls back to
+docker.
+
+CI runs the same suite with Docker to assert sandbox behaviour. The
+rootless requirement stays a deployment posture gate, verified on the
+private infrastructure that actually hosts the grader, because a
+rootful CI runner would otherwise report a posture it does not have.
+
 ## Production notes
 
 Run the service on private infrastructure with a strong token, keep it
@@ -126,5 +192,7 @@ grader is configured, submissions fail closed.
 ## Intentionally unsupported
 
 DOM test execution, public (student-visible) tests, rich diffs quoting
-hidden values, and per-case breakdowns in feedback. Async function
-results are supported: thenables resolve under the same hard timeout.
+hidden values, and per-case inputs or expected values in feedback.
+Authored rule and test failure messages are surfaced; hidden data never
+is. Async function results are supported: thenables resolve under the
+same hard timeout.

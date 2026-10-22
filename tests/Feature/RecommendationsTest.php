@@ -9,6 +9,8 @@ use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
+use App\Models\XpTransaction;
+use App\Services\RecommendationService;
 use App\Services\XpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -138,6 +140,52 @@ class RecommendationsTest extends TestCase
             'status' => 'active',
             'order_num' => 1,
         ]);
+    }
+
+    public function test_a_review_card_for_a_sealed_course_is_locked_instead_of_linked(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->create([
+            'name' => 'Sealed Course',
+            'status' => 'locked',
+            'order_num' => 1,
+        ]);
+        $section = Section::factory()->create(['course_id' => $course->id]);
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+            'order_num' => 1,
+            'title' => 'Archived Struggle',
+        ]);
+
+        Progress::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+            'pts_earned' => 10,
+            'completed_at' => now(),
+        ]);
+
+        foreach (range(1, 2) as $ignored) {
+            XpTransaction::factory()->create([
+                'user_id' => $user->id,
+                'mission_id' => $mission->id,
+                'amount' => -10,
+                'type' => XpService::TYPE_WRONG_SUBMISSION,
+            ]);
+        }
+
+        $cards = app(RecommendationService::class)->recommendations($user);
+        $card = $cards->firstWhere('slot', 3);
+
+        $this->assertNotNull($card);
+        $this->assertFalse($card['accessible']);
+        $this->assertNotNull($card['locked_reason']);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee($card['locked_reason'])
+            ->assertDontSee('href="'.route('mission.show', $mission).'"', false);
     }
 
     private function complete(User $user, Mission $mission): void

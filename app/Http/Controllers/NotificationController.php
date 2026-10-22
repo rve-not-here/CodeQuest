@@ -32,7 +32,8 @@ class NotificationController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        $notifications = $this->notifications->forUser($user);
+        $filter = $request->query('filter') === 'unread' ? 'unread' : 'all';
+        $notifications = $this->notifications->forUser($user, $filter === 'unread');
 
         // Safe inbound links for this page's rows (US-804/805): computed
         // once per page from each owned row's server-authored data, via the
@@ -44,6 +45,8 @@ class NotificationController extends Controller
             'role' => $user->role,
             'notifications' => $notifications,
             'unreadCount' => $this->notifications->unreadCount($user),
+            'totalCount' => $this->notifications->totalCount($user),
+            'filter' => $filter,
             'links' => $links,
         ]);
     }

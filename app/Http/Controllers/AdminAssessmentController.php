@@ -16,15 +16,16 @@ use InvalidArgumentException;
  * mirroring sections and missions. Unlike those, a course has exactly ONE
  * assessment (if any), so the index shows a single Boss Challenge or an empty
  * state, and the routes are singular. Edit writes title/description/
- * instructions/passing_score/status. grading_rule is view-only — authored via
- * the controlled AssessmentSeeder, exactly like solution_code/validate_rule on
- * missions. assessment.status is an access gate (AssessmentService::isUnlocked
- * requires 'active'), so locking or drafting seals the challenge the same way
- * course.status seals a course (US-705) without rewriting recorded attempts.
- * passing_score edits affect only future evaluations — verdicts already
- * persisted on attempt rows are never rewritten. Creation and deletion are out
- * of scope for this story (§24: the one-per-course invariant is the seeder's
- * job); only an existing assessment is editable.
+ * instructions/passing_score/grading_rule/status. grading_rule is validated
+ * against the academic rule contract (P2-7: criteria stay editable instead of
+ * frozen after seeding). assessment.status is an access gate
+ * (AssessmentService::isUnlocked requires 'active'), so locking or drafting
+ * seals the challenge the same way course.status seals a course (US-705)
+ * without rewriting recorded attempts. passing_score edits affect only future
+ * evaluations — verdicts already persisted on attempt rows are never
+ * rewritten. Creation and deletion are out of scope for this story (§24: the
+ * one-per-course invariant is the seeder's job); only an existing assessment is
+ * editable.
  *
  * A refused update is an InvalidArgumentException and is flashed back; the
  * audit trail already carries the failed row by the time it throws (same
@@ -69,7 +70,7 @@ class AdminAssessmentController extends Controller
     public function update(AdminAssessmentUpdateRequest $request, Course $course, Assessment $assessment): RedirectResponse
     {
         $payload = $request->safe([
-            'title', 'description', 'instructions', 'passing_score', 'status',
+            'title', 'description', 'instructions', 'passing_score', 'status', 'grading_rule',
         ]);
 
         /** @var User $actor */

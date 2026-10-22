@@ -10,6 +10,7 @@ use App\Models\MissionDraft;
 use App\Models\Progress;
 use App\Models\Section;
 use App\Models\User;
+use App\Services\DashboardService;
 use App\Services\LearningPathService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -238,5 +239,36 @@ class LearningPathServiceTest extends TestCase
         $this->assertSame(1, $courseProgress['completed']);
         $this->assertSame(1, $courseProgress['total']);
         $this->assertSame(100, $courseProgress['percent']);
+    }
+
+    public function test_next_mission_defers_to_the_canonical_dashboard_resolver(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['order_num' => 1, 'status' => 'active']);
+        $section = Section::factory()->create(['course_id' => $course->id, 'order_num' => 1]);
+
+        $missions = collect(range(1, 3))->map(fn (int $order): Mission => Mission::factory()->create([
+            'course_id' => $course->id,
+            'section_id' => $section->id,
+            'order_num' => $order,
+        ]));
+
+        Progress::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $missions[0]->id,
+            'pts_earned' => 10,
+            'completed_at' => now(),
+        ]);
+
+        MissionDraft::factory()->create([
+            'user_id' => $user->id,
+            'mission_id' => $missions[2]->id,
+        ]);
+
+        $this->assertSame(
+            app(DashboardService::class)->nextMission($user, $course)?->id,
+            $this->service->nextMission($user, $course)?->id,
+        );
+        $this->assertSame($missions[2]->id, $this->service->nextMission($user, $course)?->id);
     }
 }

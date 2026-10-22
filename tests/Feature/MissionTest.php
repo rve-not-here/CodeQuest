@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -108,6 +109,26 @@ class MissionTest extends TestCase
             ->assertDontSee('Next challenge')
             ->assertDontSee('NEW DRAFT')
             ->assertDontSee('data-open', false);
+    }
+
+    public function test_challenge_brief_uses_the_task_not_the_lesson_example(): void
+    {
+        $student = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'description' => "A heading introduces the page.\n\nExample: <h1>Sample heading</h1>\n\nYour task: build the heading.",
+            'target_html' => '<h1>Sample heading</h1>',
+            'solution_code' => '<h1>Sample heading</h1>',
+            'broken_code' => '<div>heading</div>',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('mission.challenge', $mission))
+            ->assertOk()
+            ->assertSee('Target output')
+            ->assertSee('write the source yourself')
+            ->assertDontSee('Example:')
+            ->assertDontSee('Reference markup')
+            ->assertDontSee('<pre class="log-listing" tabindex="0" aria-label="Reference markup"', false);
     }
 
     public function test_challenge_preview_grants_scripts_only_for_javascript_courses(): void
@@ -554,6 +575,14 @@ class MissionTest extends TestCase
             'points' => 30,
         ]);
 
+        Activity::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+            'type' => 'wrong_submission',
+            'message' => 'Wrong submission',
+            'pts' => 0,
+        ]);
+
         $this->actingAs($user)
             ->post(route('mission.reveal', $mission))
             ->assertRedirect()
@@ -571,8 +600,16 @@ class MissionTest extends TestCase
         XpTransaction::query()->create([
             'user_id' => $user->id,
             'mission_id' => $mission->id,
-            'amount' => 50,
+            'amount' => 100,
             'type' => 'mission_completed',
+        ]);
+
+        Activity::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+            'type' => 'wrong_submission',
+            'message' => 'Wrong submission',
+            'pts' => 0,
         ]);
 
         $this->actingAs($user)
@@ -595,6 +632,14 @@ class MissionTest extends TestCase
             'type' => 'mission_completed',
         ]);
 
+        Activity::query()->create([
+            'user_id' => $student->id,
+            'mission_id' => $mission->id,
+            'type' => 'wrong_submission',
+            'message' => 'Wrong submission',
+            'pts' => 0,
+        ]);
+
         $this->actingAs($student)->post(route('mission.reveal', $mission))->assertSessionHas('solution_revealed');
         $this->actingAs($student)->post(route('mission.reveal', $mission))->assertSessionHas('solution_revealed');
 
@@ -603,7 +648,7 @@ class MissionTest extends TestCase
             ->where('mission_id', $mission->id)
             ->where('type', 'solution_revealed')
             ->count());
-        $this->assertSame(70, app(XpService::class)->balance($student));
+        $this->assertSame(25, app(XpService::class)->balance($student));
     }
 
     public function test_mission_reveal_loads_solution_code_in_editor(): void
@@ -624,7 +669,7 @@ class MissionTest extends TestCase
         XpTransaction::query()->create([
             'user_id' => $user->id,
             'mission_id' => $mission->id,
-            'amount' => -30,
+            'amount' => -75,
             'type' => 'solution_revealed',
         ]);
 
@@ -632,6 +677,33 @@ class MissionTest extends TestCase
             ->get(route('mission.challenge', $mission))
             ->assertOk()
             ->assertSee('SOLUTION_LOADED');
+    }
+
+    public function test_mission_reveal_requires_a_failed_attempt_first(): void
+    {
+        $user = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'solution_code' => '<h1>Solution</h1>',
+            'points' => 100,
+        ]);
+
+        XpTransaction::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+            'amount' => 100,
+            'type' => 'mission_completed',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('mission.reveal', $mission))
+            ->assertRedirect()
+            ->assertSessionHas('reveal_requires_attempt');
+
+        $this->assertDatabaseMissing('the404_xp_transactions', [
+            'user_id' => $user->id,
+            'type' => 'solution_revealed',
+        ]);
+        $this->assertSame(100, app(XpService::class)->balance($user));
     }
 
     public function test_mission_reveal_when_already_completed_returns_flat(): void

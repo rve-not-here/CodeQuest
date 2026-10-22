@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\KnowledgeCheckAccessDeniedException;
 use App\Exceptions\KnowledgeCheckStateException;
 use App\Exceptions\KnowledgeCheckUnavailableException;
+use App\Models\Course;
 use App\Models\KnowledgeCheck;
 use App\Models\KnowledgeCheckAttempt;
 use App\Models\KnowledgeCheckOption;
@@ -12,6 +13,7 @@ use App\Models\KnowledgeCheckQuestion;
 use App\Models\KnowledgeCheckResponse;
 use App\Models\Mission;
 use App\Models\User;
+use App\Support\KnowledgeCheckView;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -22,6 +24,13 @@ use Illuminate\Validation\ValidationException;
 class KnowledgeCheckService
 {
     public const ACTIVITY_TYPE_COMPLETED = 'knowledge_check_completed';
+
+    /** Register states: the student's latest attempt decides the row. */
+    public const STATE_NOT_STARTED = 'not_started';
+
+    public const STATE_IN_PROGRESS = 'in_progress';
+
+    public const STATE_COMPLETED = 'completed';
 
     public function __construct(
         private readonly ActivityService $activity,
@@ -82,6 +91,69 @@ class KnowledgeCheckService
     }
 
     /**
+     * The Knowledge Check panels of one mission, for the mission workspace.
+     *
+     * Same published/attempt state as the register, plus the questions of an
+     * open attempt so the student can answer inside the mission tab. The
+     * question projection is the one the attempt screen uses: prompt, code
+     * snippet and option text only — never the answer key.
+     *
+     * @return Collection<int, array{
+     *     check: KnowledgeCheckView,
+     *     questionCount: int,
+     *     required: bool,
+     *     state: string,
+     *     attempt: array{id: int, attempt_number: int, score: int|null, total_questions: int|null, percentage: int|null}|null,
+     *     questions: list<array{id: int, type: string, prompt: string, codeSnippet: string|null, options: list<array{id: int, text: string}>}>,
+     * }>
+     */
+    public function missionPanels(User $user, Mission $mission): Collection
+    {
+        return $this->lessonSummaries($user, $mission)->map(function (array $summary) use ($user, $mission): array {
+            $check = $summary['check'];
+            $attempt = $summary['latestAttempt'];
+
+            $state = match ($attempt?->status) {
+                KnowledgeCheckAttempt::STATUS_SUBMITTED => self::STATE_COMPLETED,
+                KnowledgeCheckAttempt::STATUS_STARTED => self::STATE_IN_PROGRESS,
+                default => self::STATE_NOT_STARTED,
+            };
+
+            $questions = [];
+
+            if ($attempt !== null && $attempt->status === KnowledgeCheckAttempt::STATUS_STARTED) {
+                $questions = array_values($this->presentation($user, $mission, $check, $attempt)['questions']
+                    ->map(fn (array $question): array => [
+                        'id' => (int) $question['id'],
+                        'type' => (string) $question['type'],
+                        'prompt' => (string) $question['prompt'],
+                        'codeSnippet' => $question['codeSnippet'] === null ? null : (string) $question['codeSnippet'],
+                        'options' => array_values($question['options']->map(fn (array $option): array => [
+                            'id' => (int) $option['id'],
+                            'text' => (string) $option['text'],
+                        ])->all()),
+                    ])
+                    ->all());
+            }
+
+            return [
+                'check' => KnowledgeCheckView::from($check),
+                'questionCount' => (int) $summary['questionCount'],
+                'required' => (bool) $check->is_required,
+                'state' => $state,
+                'attempt' => $attempt === null ? null : [
+                    'id' => (int) $attempt->id,
+                    'attempt_number' => (int) $attempt->attempt_number,
+                    'score' => $attempt->score === null ? null : (int) $attempt->score,
+                    'total_questions' => $attempt->total_questions === null ? null : (int) $attempt->total_questions,
+                    'percentage' => $attempt->percentage === null ? null : (int) $attempt->percentage,
+                ],
+                'questions' => $questions,
+            ];
+        });
+    }
+
+    /**
      * Presentation-ready check status for one Lesson. The latest attempt is
      * shown; prior attempts remain immutable history.
      *
@@ -114,6 +186,87 @@ class KnowledgeCheckService
             'check' => $check,
             'questionCount' => (int) $check->questions_count,
             'latestAttempt' => $latestAttempts->get($check->id),
+        ]);
+    }
+
+    /**
+     * Per-course Knowledge Check evidence for the performance register.
+     *
+     * A check counts as submitted only when the student has a submitted
+     * attempt; `correct`/`questions` come from the latest submitted attempt
+     * per check (retries replace earlier evidence, never stack), so the
+     * denominator is exactly the questions the student has answered.
+     *
+     * @param  Collection<int, int>  $courseIds
+     * @return Collection<int, array{published: int, submitted: int, correct: int, questions: int}>
+     */
+    public function courseRegister(User $user, Collection $courseIds): Collection
+    {
+        $courseIds = $courseIds->filter()->values();
+
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        $missions = Mission::query()
+            ->whereIn('course_id', $courseIds)
+            ->get(['id', 'course_id']);
+        $courseByMission = $missions->pluck('course_id', 'id');
+
+        $checks = KnowledgeCheck::query()
+            ->whereIn('mission_id', $missions->pluck('id'))
+            ->where('status', KnowledgeCheck::STATUS_PUBLISHED)
+            ->get(['id', 'mission_id']);
+
+        $published = [];
+
+        foreach ($checks as $check) {
+            $courseId = $courseByMission->get($check->mission_id);
+
+            if ($courseId !== null) {
+                $published[(int) $courseId] = ($published[(int) $courseId] ?? 0) + 1;
+            }
+        }
+
+        $submitted = [];
+        $correct = [];
+        $questions = [];
+
+        if ($checks->isNotEmpty()) {
+            $attempts = KnowledgeCheckAttempt::query()
+                ->where('user_id', $user->id)
+                ->whereIn('knowledge_check_id', $checks->pluck('id'))
+                ->where('status', KnowledgeCheckAttempt::STATUS_SUBMITTED)
+                ->orderByDesc('attempt_number')
+                ->orderByDesc('id')
+                ->get()
+                ->unique('knowledge_check_id');
+
+            $missionByCheck = $checks->pluck('mission_id', 'id');
+
+            foreach ($attempts as $attempt) {
+                $missionId = $missionByCheck->get($attempt->knowledge_check_id);
+                $courseId = $missionId !== null ? $courseByMission->get($missionId) : null;
+
+                if ($courseId === null) {
+                    continue;
+                }
+
+                $courseId = (int) $courseId;
+
+                $submitted[$courseId] = ($submitted[$courseId] ?? 0) + 1;
+                $correct[$courseId] = ($correct[$courseId] ?? 0) + (int) $attempt->score;
+                $questions[$courseId] = ($questions[$courseId] ?? 0) + (int) $attempt->total_questions;
+            }
+        }
+
+        return $courseIds->mapWithKeys(fn (int $courseId): array => [
+            (int) $courseId => [
+                'published' => $published[(int) $courseId] ?? 0,
+                'submitted' => $submitted[(int) $courseId] ?? 0,
+                'correct' => $correct[(int) $courseId] ?? 0,
+                'questions' => $questions[(int) $courseId] ?? 0,
+            ],
         ]);
     }
 
@@ -272,6 +425,7 @@ class KnowledgeCheckService
 
             $this->activity->record($user, [
                 'type' => self::ACTIVITY_TYPE_COMPLETED,
+                'mission_id' => $definition->mission_id,
                 'message' => "Knowledge Check completed: {$definition->title} ({$score}/{$total}, {$percentage}%)",
             ]);
 

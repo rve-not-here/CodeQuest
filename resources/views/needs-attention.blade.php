@@ -13,12 +13,13 @@
     @endphp
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Attention queue · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
-            <a href="{{ route('students') }}">Students →</a>
+            <span>Records · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            @if ($role !== 'teacher')
+                <a href="{{ route('students') }}">Students →</a>
+            @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Attention</span>
             <h1 class="atlas-records-title">Needs attention</h1>
             <p class="atlas-records-lede">Each signal has a named threshold and supporting evidence. These reasons are not grades or a composite score.</p>
             <dl class="log-facts atlas-records-facts" aria-label="Attention scope">

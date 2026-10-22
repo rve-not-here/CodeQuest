@@ -264,10 +264,12 @@ class CurriculumContentSeeder extends Seeder
     }
 
     /**
-     * Formative checks for key sections. All optional: they verify
-     * understanding without gating unrelated missions. Matched by course and
-     * mission order, questions by order, options by order, so reruns update
-     * instead of duplicating.
+     * Formative checks for key sections. Seeded as optional by default so
+     * baseline content does not silently gate existing missions; a required
+     * check is turned on per mission through the admin Knowledge Check
+     * metadata screen (P1-1), which also owns the draft/published lifecycle.
+     * Matched by course and mission order, questions by order, options by
+     * order, so reruns update instead of duplicating.
      */
     private function seedChecks(): void
     {
@@ -287,15 +289,34 @@ class CurriculumContentSeeder extends Seeder
                 continue;
             }
 
-            $check = KnowledgeCheck::query()->updateOrCreate(
-                ['mission_id' => $mission->id, 'order_num' => $checkData['order_num']],
-                [
-                    'title' => $checkData['title'],
-                    'instructions' => $checkData['instructions'],
-                    'is_required' => false,
-                    'status' => KnowledgeCheck::STATUS_PUBLISHED,
-                ],
+            $seededCheck = KnowledgeCheck::query()->firstOrNew([
+                'mission_id' => $mission->id,
+                'order_num' => $checkData['order_num'],
+            ]);
+            $seededCheck->fill([
+                'title' => $checkData['title'],
+                'instructions' => $checkData['instructions'],
+                // A Knowledge Check is the mission's concept check: it gates
+                // the coding challenge, so it is required by default. The
+                // admin screen can still make an individual check optional.
+                'is_required' => true,
+                'status' => KnowledgeCheck::STATUS_PUBLISHED,
+            ]);
+
+            // A material change to a check is a curriculum revision: the
+            // version is what an attempt records, so it must move with the
+            // definition (the mission path above works the same way).
+            $checkMaterialChanged = collect($seededCheck->curriculumVersionMaterialFields())->contains(
+                fn (string $field): bool => $seededCheck->isDirty($field)
+                    && KnowledgeCheck::versionValueChanged($seededCheck->getAttribute($field), $seededCheck->getOriginal($field)),
             );
+
+            if ($seededCheck->exists && $checkMaterialChanged) {
+                $seededCheck->version = max(1, (int) $seededCheck->version) + 1;
+            }
+
+            $seededCheck->save();
+            $check = $seededCheck;
 
             foreach ($checkData['questions'] as $questionOrder => $questionData) {
                 $question = KnowledgeCheckQuestion::query()->updateOrCreate(
@@ -2062,14 +2083,14 @@ class CurriculumContentSeeder extends Seeder
                         'description' => <<<'TEXT'
                             The iframe element embeds another page inside yours, which is powerful and risky in equal measure: embedded content can run scripts and track readers. The sandbox attribute strips privileges, and an empty sandbox blocks scripts entirely. Same-origin embeds you control may earn back narrow rights; third-party embeds should stay locked down, and the title attribute keeps the frame announced to screen readers.
 
-                            Syntax: <iframe src="/map" title="Sector map" sandbox></iframe>. Never grant allow-scripts and allow-same-origin together to untrusted content.
+                            Syntax: <iframe srcdoc="<p>Sector map</p>" title="Sector map" sandbox></iframe>. Never grant allow-scripts and allow-same-origin together to untrusted content.
 
-                            Example: an internal sector map embedded with an empty sandbox and a descriptive title.
+                            Example: a sector map embedded from a self-contained document with an empty sandbox and a descriptive title. The map is carried inline with srcdoc, so the example renders on its own without depending on another page.
 
                             Your task: the bare embed below runs unrestricted. Add an empty sandbox and a title so it is locked down and announced.
                             TEXT,
-                        'broken_code' => '<iframe src="/map"></iframe>',
-                        'solution_code' => '<iframe src="/map" title="Sector map" sandbox></iframe>',
+                        'broken_code' => '<iframe srcdoc="<p>Sector map</p>"></iframe>',
+                        'solution_code' => '<iframe srcdoc="<p>Sector map</p>" title="Sector map" sandbox></iframe>',
                         'target_html' => '<div>[sandboxed sector map frame]</div>',
                         'validate_rule' => json_encode([['type' => 'contains_all', 'values' => ['<iframe', 'sandbox', 'title=']]]),
                         'hints' => json_encode(['sandbox strips embedded privileges.', 'An empty sandbox blocks scripts.', 'title announces the frame.']),
@@ -2143,7 +2164,13 @@ class CurriculumContentSeeder extends Seeder
     }
 
     /**
-     * @return list<array{course_order: int, mission_order: int, order_num: int, title: string, instructions: string, questions: list<array{prompt: string, explanation: string, options: list<string>, correct: int}>}>
+     * The Knowledge Check content: one check per mission.
+     *
+     * A check is the mission's concept check. It is required by default (the
+     * admin screen can still make an individual check optional), it gates
+     * the coding challenge, and every question is grounded in what that
+     * mission teaches. The prompts, the explanations and the distractor
+     * options are authored per mission, never generated as filler.
      */
     private function knowledgeChecks(): array
     {
@@ -2472,10 +2499,2250 @@ class CurriculumContentSeeder extends Seeder
                     ],
                 ],
             ],
+            [
+                'course_order' => 1,
+                'mission_order' => 1,
+                'order_num' => 1,
+                'title' => 'Heading levels',
+                'instructions' => 'Headings tell the browser how important a line of text is.',
+                'questions' => [
+                    [
+                        'prompt' => 'How many heading levels does HTML offer, from h1 to h6?',
+                        'explanation' => 'HTML provides six levels, h1 through h6, and h1 marks the single most important headline on the page.',
+                        'options' => ['Three levels, h1 to h3', 'Six levels, h1 to h6', 'Twelve levels, h1 to h12'],
+                        'correct' => 1,
+                    ],
+                    [
+                        'prompt' => 'How many h1 elements should a page carry?',
+                        'explanation' => 'Every page should have exactly one clear h1; search engines and screen readers use it to understand the page structure.',
+                        'options' => ['Exactly one', 'One per section', 'As many as the content needs'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why do headings matter to screen readers?',
+                        'explanation' => 'Screen readers build a document outline from heading levels, so a heading describes the structure a reader is moving through.',
+                        'options' => ['They let a reader jump between regions of the page', 'They make the text render larger', 'They add the page title to the browser tab'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 2,
+                'order_num' => 1,
+                'title' => 'Link destinations',
+                'instructions' => 'The href attribute is what makes text a working link.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which attribute holds the destination of a link?',
+                        'explanation' => 'The anchor element wraps clickable text and its href attribute holds the destination: a path, a full URL, or a page fragment.',
+                        'options' => ['src', 'href', 'target'],
+                        'correct' => 1,
+                    ],
+                    [
+                        'prompt' => 'What happens to an anchor with no href attribute?',
+                        'explanation' => 'Without href the text looks like a link but goes nowhere — the element is not a link at all.',
+                        'options' => ['It links to the current page', 'It looks like a link but goes nowhere', 'The browser removes it from the page'],
+                        'correct' => 1,
+                    ],
+                    [
+                        'prompt' => 'Which is a valid href value?',
+                        'explanation' => 'A path like /safe, a full URL, or a page fragment are all valid destinations.',
+                        'options' => ['/safe', 'safe', 'go to safe'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 3,
+                'order_num' => 1,
+                'title' => 'Image attributes',
+                'instructions' => 'Images carry everything the browser needs in attributes.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element is a void element with no closing tag?',
+                        'explanation' => 'img is a void element: it has no closing tag and cannot wrap text.',
+                        'options' => ['img', 'figure', 'picture'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the alt attribute carry?',
+                        'explanation' => 'alt carries a text description used when the image cannot load and read aloud by screen readers.',
+                        'options' => ['The image file path', 'A text description of the image', 'The image dimensions'],
+                        'correct' => 1,
+                    ],
+                    [
+                        'prompt' => 'Which attribute points at the image file?',
+                        'explanation' => 'The src attribute points at the image file; everything else about the image is presentation or description.',
+                        'options' => ['src', 'alt', 'href'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 4,
+                'order_num' => 1,
+                'title' => 'Paragraph blocks',
+                'instructions' => 'Paragraphs turn a wall of words into scannable blocks.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element groups running text into a readable block?',
+                        'explanation' => 'The p element groups running text into readable blocks, and browsers add vertical space between them automatically.',
+                        'options' => ['p', 'span', 'br'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does a paragraph do to the line after it?',
+                        'explanation' => 'A paragraph is block-level, so it always starts on a new line and stretches the full width available.',
+                        'options' => ['Continues on the same line', 'Starts on a new line and fills the width', 'Collapses into a single character'],
+                        'correct' => 1,
+                    ],
+                    [
+                        'prompt' => 'Where does the space between two paragraphs come from?',
+                        'explanation' => 'Browsers add vertical space between p elements automatically, which is what makes the copy scannable.',
+                        'options' => ['From the browser default margins', 'From a <br> tag you must add', 'From the class attribute'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 5,
+                'order_num' => 1,
+                'title' => 'List structure',
+                'instructions' => 'Lists need two tags working together.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element marks one item inside a list?',
+                        'explanation' => 'ul marks the list itself and each li marks one item inside it; the two tags work together.',
+                        'options' => ['li', 'ul', 'ol'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'When should a list use ol instead of ul?',
+                        'explanation' => 'Use ul when the order does not matter and ol with the same li items when the sequence matters, like ranked steps.',
+                        'options' => ['When the order of the items matters', 'When the items are links', 'When the list has more than three items'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which markup is a correct unordered list?',
+                        'explanation' => 'A ul on its own line with one li per item is the structure the browser expects.',
+                        'options' => ['<ul><li>One</li><li>Two</li></ul>', '<li><ul>One</ul></li>', '<ul><li>One</ul>'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 6,
+                'order_num' => 1,
+                'title' => 'Input fields',
+                'instructions' => 'The input element collects a single line of user data.',
+                'questions' => [
+                    [
+                        'prompt' => 'Is the input element a void element?',
+                        'explanation' => 'Like img, input is void: it has no closing tag and everything about it lives in attributes.',
+                        'options' => ['Yes, it has no closing tag', 'No, it wraps its label', 'Only when type="text"'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which attribute decides what a field accepts?',
+                        'explanation' => 'The type attribute decides what the field accepts: text, password, number and more.',
+                        'options' => ['name', 'type', 'placeholder'],
+                        'correct' => 1,
+                    ],
+                    [
+                        'prompt' => 'What does the name attribute do?',
+                        'explanation' => 'name labels the value for the server; placeholder only shows grey hint text that vanishes when typing starts.',
+                        'options' => ['Shows hint text inside the field', 'Labels the value for the server', 'Sets the maximum length'],
+                        'correct' => 1,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 7,
+                'order_num' => 1,
+                'title' => 'Button labels',
+                'instructions' => 'Buttons trigger actions, and the label says what will happen.',
+                'questions' => [
+                    [
+                        'prompt' => 'How is the button element written?',
+                        'explanation' => 'The tag is button, spelled in full, and it is a normal paired element.',
+                        'options' => ['<button>Label text</button>', '<button />', '<btn>Label text</btn>'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Where does a button’s visible label belong?',
+                        'explanation' => 'Unlike input, button is a paired element, so the visible label sits between the opening and closing tags.',
+                        'options' => ['Between the opening and closing tags', 'In a value attribute', 'In a label attribute'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What should a button label say?',
+                        'explanation' => 'The label should say what happens when the button is pressed, so the action is predictable.',
+                        'options' => ['What happens when it is pressed', 'A category name', 'The element name'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 8,
+                'order_num' => 1,
+                'title' => 'Table structure',
+                'instructions' => 'Cells live in rows, and rows live in the table.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element holds one cell of a table?',
+                        'explanation' => 'table wraps everything, each tr marks one row, and each td holds one cell inside its row.',
+                        'options' => ['td', 'tr', 'table'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which element marks one row?',
+                        'explanation' => 'Each tr marks one row, and the cells sit inside it.',
+                        'options' => ['tr', 'td', 'th'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which nesting is correct?',
+                        'explanation' => 'Read it inside out: cells live in rows, rows live in the table.',
+                        'options' => ['<table><tr><td>Cell</td></tr></table>', '<table><td><tr>Cell</td></table>', '<tr><table><td>Cell</td></table></tr>'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 9,
+                'order_num' => 1,
+                'title' => 'Div containers',
+                'instructions' => 'A div is a plain box; the class attribute is the label on it.',
+                'questions' => [
+                    [
+                        'prompt' => 'What meaning does the div element carry on its own?',
+                        'explanation' => 'The div is a generic block container with no meaning of its own.',
+                        'options' => ['None, it is a generic block container', 'It marks the main content', 'It marks navigation'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the class attribute add to a div?',
+                        'explanation' => 'class attaches a reusable label that CSS and JavaScript can target — the sticker that says what the box is for.',
+                        'options' => ['A reusable label other code can target', 'The page title', 'The element’s size'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do you label a div for styling?',
+                        'explanation' => 'Think of div as a plain box and class as the sticker that says what the box is for.',
+                        'options' => ['<div class="container">Content</div>', '<div id="container">Content</div>', '<div title="container">Content</div>'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 10,
+                'order_num' => 1,
+                'title' => 'Page skeleton',
+                'instructions' => 'A complete page follows one skeleton: doctype, html, head, body.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the DOCTYPE declaration do?',
+                        'explanation' => 'The DOCTYPE html declaration tells the browser to use standards mode.',
+                        'options' => ['Tells the browser to use standards mode', 'Names the page title', 'Loads the stylesheet'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which element holds the invisible metadata?',
+                        'explanation' => 'head holds invisible metadata like the title, and body holds everything the reader sees.',
+                        'options' => ['head', 'body', 'main'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What happens when a page is missing a layer?',
+                        'explanation' => 'A page missing any layer may still render, but it renders unpredictably.',
+                        'options' => ['It renders unpredictably', 'The browser refuses to show it', 'Nothing changes at all'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 11,
+                'order_num' => 1,
+                'title' => 'Meaningful emphasis',
+                'instructions' => 'Prefer the semantic pair when the words actually matter.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element marks important content?',
+                        'explanation' => 'strong marks important content and em marks stressed emphasis; assistive technology announces both with extra weight.',
+                        'options' => ['strong', 'b', 'i'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is wrong with b and i?',
+                        'explanation' => 'The b and i tags only change appearance with no meaning attached.',
+                        'options' => ['They only change appearance, with no meaning attached', 'They are deprecated', 'They cannot nest'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which markup marks a warning that must sound urgent?',
+                        'explanation' => 'A warning that matters is important content, so strong is the right element.',
+                        'options' => ['<strong>Warning</strong>', '<b>Warning</b>', '<i>Warning</i>'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 12,
+                'order_num' => 1,
+                'title' => 'Code samples',
+                'instructions' => 'Two tags keep code readable: code for meaning, pre for spacing.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element marks text as code inline?',
+                        'explanation' => 'The code element marks text as code inline, and the pre element preserves whitespace and line breaks exactly as written.',
+                        'options' => ['code', 'pre', 'samp'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the pre element add?',
+                        'explanation' => 'pre preserves whitespace and line breaks exactly as written, which is what keeps terminal output aligned.',
+                        'options' => ['It preserves whitespace and line breaks', 'It runs the code', 'It marks the language'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why wrap code in pre?',
+                        'explanation' => 'Wrapping code in pre stops the browser from collapsing the spacing that makes output readable.',
+                        'options' => ['To stop the browser collapsing the spacing', 'To add syntax colours', 'To make the block scrollable'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 14,
+                'order_num' => 1,
+                'title' => 'Head metadata',
+                'instructions' => 'The head holds invisible instructions about the page.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which meta declares the text encoding?',
+                        'explanation' => 'The charset meta declares the text encoding, and UTF-8 covers nearly every character.',
+                        'options' => ['<meta charset="UTF-8">', '<meta name="viewport">', '<meta name="description">'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the viewport meta tell mobile browsers?',
+                        'explanation' => 'The viewport meta tells mobile browsers to match the device width instead of shrinking a desktop layout.',
+                        'options' => ['To match the device width', 'To render in desktop mode', 'To enlarge all text'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What happens without these two head lines?',
+                        'explanation' => 'Without the charset and viewport lines, pages risk garbled text and broken mobile layouts.',
+                        'options' => ['Garbled text and a broken mobile layout', 'A slower page load only', 'Nothing at all'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 16,
+                'order_num' => 1,
+                'title' => 'Radio groups',
+                'instructions' => 'One shared name is what links a radio group together.',
+                'questions' => [
+                    [
+                        'prompt' => 'What links radio buttons into one group?',
+                        'explanation' => 'Every radio in the group shares one name, which is what links them so selecting one deselects the rest.',
+                        'options' => ['They share one name attribute', 'They share one id attribute', 'They sit inside the same div'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How many choices may a radio group offer?',
+                        'explanation' => 'Radio buttons offer exactly one choice from a set.',
+                        'options' => ['Exactly one', 'Any number', 'Only two'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What else does each radio need?',
+                        'explanation' => 'Each still needs its own label, or users cannot tell the options apart or click them reliably.',
+                        'options' => ['Its own label', 'Its own form', 'A value attribute'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 17,
+                'order_num' => 1,
+                'title' => 'Figures and captions',
+                'instructions' => 'A figure binds an image to its caption so the two travel together.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element binds an image to its caption?',
+                        'explanation' => 'The figure element binds an image to its caption so the two travel as one unit.',
+                        'options' => ['figure', 'caption', 'picture'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which child of figure holds the visible caption text?',
+                        'explanation' => 'Inside figure, img carries the picture with a descriptive alt and figcaption holds the visible caption text.',
+                        'options' => ['figcaption', 'alt', 'caption'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is missing when a picture is a bare img with no caption?',
+                        'explanation' => 'A bare img with no caption leaves readers guessing what they are looking at.',
+                        'options' => ['Readers have no idea what the image shows', 'The image fails to load', 'The page loses its layout'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 18,
+                'order_num' => 1,
+                'title' => 'Long answers and dropdowns',
+                'instructions' => 'Not every answer fits on one line.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element takes multi-line input?',
+                        'explanation' => 'The textarea element takes multi-line input, with rows and cols sizing it.',
+                        'options' => ['textarea', 'input', 'select'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which element offers a dropdown menu?',
+                        'explanation' => 'select offers a dropdown menu of option children, one marked selected to preselect it.',
+                        'options' => ['select', 'textarea', 'datalist'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How is the preselected option marked?',
+                        'explanation' => 'One option child is marked selected to preselect it.',
+                        'options' => ['With the selected attribute', 'With a checked attribute', 'With a value of "1"'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 19,
+                'order_num' => 1,
+                'title' => 'Input types',
+                'instructions' => 'One element becomes many controls through the type attribute.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which type brings a phone keypad and an email keyboard?',
+                        'explanation' => 'Email keyboards itself on phones and validates format, and the tel type brings a phone keypad.',
+                        'options' => ['email and tel', 'number and date', 'text and password'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the number type accept?',
+                        'explanation' => 'The number type accepts only quantities, with min and max bounds.',
+                        'options' => ['Only quantities, bounded by min and max', 'Any characters', 'Only whole numbers'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the type attribute buy besides the control?',
+                        'explanation' => 'Each type also brings free validation: a malformed email blocks submit before any script runs.',
+                        'options' => ['Free validation before any script runs', 'A second submit button', 'A hidden field'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 21,
+                'order_num' => 1,
+                'title' => 'Audio and video',
+                'instructions' => 'Native media elements come with controls and captions.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which children do media elements take?',
+                        'explanation' => 'Each takes source children so the browser picks the first format it supports.',
+                        'options' => ['source children, one per format', 'figure children', 'track children only'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which child adds captions for deaf viewers?',
+                        'explanation' => 'The track child adds captions for deaf viewers.',
+                        'options' => ['track', 'source', 'caption'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'When is the text between the media tags shown?',
+                        'explanation' => 'Text between the tags is the fallback shown only when media cannot play at all.',
+                        'options' => ['Only when the media cannot play at all', 'Always, under the player', 'Never'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 22,
+                'order_num' => 1,
+                'title' => 'Collapsibles and modals',
+                'instructions' => 'details is native; dialog goes further.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element is the native collapsible?',
+                        'explanation' => 'The details element is a native collapsible: its summary child stays visible as the toggle, and everything after it hides until opened.',
+                        'options' => ['details with a summary child', 'dialog with a label', 'div with a hidden class'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why is details the accessible choice for FAQs?',
+                        'explanation' => 'No script is needed for the basic behavior, which makes it the accessible choice for FAQs and spoiler content.',
+                        'options' => ['It needs no script for the basic behaviour', 'It can be styled with any colour', 'It loads faster'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which element goes further, as a true modal?',
+                        'explanation' => 'The dialog element goes further as a true modal, though opening it needs one line of JavaScript.',
+                        'options' => ['dialog', 'details', 'summary'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 23,
+                'order_num' => 1,
+                'title' => 'Embedding safely',
+                'instructions' => 'Embedded content runs with the privileges you grant it.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which attribute strips privileges from embedded content?',
+                        'explanation' => 'The sandbox attribute strips privileges, and an empty sandbox blocks scripts entirely.',
+                        'options' => ['sandbox', 'allow', 'referrer'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does an empty sandbox do?',
+                        'explanation' => 'An empty sandbox blocks scripts entirely, which is the safest setting for third-party content.',
+                        'options' => ['It blocks scripts entirely', 'It allows everything', 'It disables the frame border'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why can granting both allow-scripts and allow-same-origin be risky?',
+                        'explanation' => 'Same-origin embeds you control may earn back narrow rights, but combining them lets the frame act as the page itself.',
+                        'options' => ['The embedded page can then act as if it were your own page', 'The frame becomes invisible', 'The page loses its title'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 24,
+                'order_num' => 1,
+                'title' => 'Table semantics',
+                'instructions' => 'Data tables need headers a screen reader can announce.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which attribute tells a reader which header a cell belongs to?',
+                        'explanation' => 'th marks header cells with a scope of col or row so screen readers announce each value with its header.',
+                        'options' => ['scope on the th cell', 'alt on the table', 'name on the table'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which elements separate headers from data?',
+                        'explanation' => 'thead and tbody separate headers from data, and caption names the table.',
+                        'options' => ['thead and tbody', 'header and footer', 'main and nav'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the colspan attribute do?',
+                        'explanation' => 'The colspan attribute lets one cell span two columns, as section dividers often need.',
+                        'options' => ['Lets one cell span two columns', 'Adds a second header row', 'Aligns the cell to the top'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 25,
+                'order_num' => 1,
+                'title' => 'Description lists',
+                'instructions' => 'A description list pairs terms with their explanations.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element wraps a description list?',
+                        'explanation' => 'The dl element wraps the list, each dt names one term, and each dd holds its description.',
+                        'options' => ['dl', 'ul', 'table'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which element names a term?',
+                        'explanation' => 'Each dt names one term and the following dd holds its description.',
+                        'options' => ['dt', 'dd', 'li'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Where does a description list fit better than a table?',
+                        'explanation' => 'It fits glossaries, metadata blocks and FAQ answers far better than a table or a stack of paragraphs.',
+                        'options' => ['Glossaries, metadata blocks and FAQ answers', 'Spreadsheet data', 'Image grids'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 26,
+                'order_num' => 1,
+                'title' => 'Global attributes',
+                'instructions' => 'Global attributes work on nearly every element.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which attribute removes an element from rendering entirely?',
+                        'explanation' => 'The hidden attribute removes the element from rendering entirely, and data-* stores private values scripts can read.',
+                        'options' => ['hidden', 'title', 'tabindex'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the data-* attribute family do?',
+                        'explanation' => 'data-* stores private values scripts can read without inventing a new attribute.',
+                        'options' => ['Stores private values scripts can read', 'Sets the element’s colour', 'Declares the document type'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which attribute adds a hover tooltip?',
+                        'explanation' => 'title adds a hover tooltip, id gives one unique hook, and class attaches reusable styling labels.',
+                        'options' => ['title', 'id', 'class'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 27,
+                'order_num' => 1,
+                'title' => 'Toggles, uploads and sliders',
+                'instructions' => 'Each input type carries its own behaviour.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which attribute pre-ticks a checkbox?',
+                        'explanation' => 'Checkboxes toggle one option each, and the checked attribute pre-ticks one.',
+                        'options' => ['checked', 'selected', 'value'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which attribute allows several files at once?',
+                        'explanation' => 'File inputs accept uploads, with multiple allowing several files at once.',
+                        'options' => ['multiple', 'accept-list', 'enctype'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which attributes keep a range slider’s value valid without script?',
+                        'explanation' => 'Range sliders pick from a span, bounded by min, max and step so the value stays valid without any script.',
+                        'options' => ['min, max and step', 'size and maxlength', 'rows and cols'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 28,
+                'order_num' => 1,
+                'title' => 'Specialised text inputs',
+                'instructions' => 'Specialise the type; constrain the value.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which attribute holds a regex the value must match?',
+                        'explanation' => 'The pattern attribute holds a regex the value must match, and password masks with minlength enforcing length.',
+                        'options' => ['pattern', 'minlength', 'maxlength'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the hidden input type do?',
+                        'explanation' => 'Hidden inputs ferry server values invisibly while the submit posts them.',
+                        'options' => ['Carries a server value invisibly through the submit', 'Hides the field from the user only', 'Stores a password'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which input type styles itself natively for search?',
+                        'explanation' => 'The tel type brings a phone keypad, url validates links, and search styles natively.',
+                        'options' => ['search', 'url', 'email'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 1,
+                'mission_order' => 30,
+                'order_num' => 1,
+                'title' => 'Table footers and row spans',
+                'instructions' => 'Tables close with a footer and merge repeated cells.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which element holds summary rows after the body?',
+                        'explanation' => 'The tfoot element holds summary rows after the body.',
+                        'options' => ['tfoot', 'thead', 'caption'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the rowspan attribute do?',
+                        'explanation' => 'The rowspan attribute stretches one cell across several rows, which suits values repeated down a column like a shared operator name.',
+                        'options' => ['Stretches one cell across several rows', 'Adds a second header row', 'Pins the column to the left'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Where does tfoot sit in the table?',
+                        'explanation' => 'tfoot comes after tbody, closing the table with summary rows.',
+                        'options' => ['After tbody', 'Before thead', 'Inside a tr'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 1,
+                'order_num' => 1,
+                'title' => 'Colour values',
+                'instructions' => 'Three interchangeable forms, one result.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which property paints text?',
+                        'explanation' => 'The color property paints text; background-color paints the surface behind it.',
+                        'options' => ['color', 'background-color', 'fill'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which are the three interchangeable colour forms?',
+                        'explanation' => 'Values come as a named colour like green, a hex code like #008000, or an rgb() function like rgb(0, 128, 0).',
+                        'options' => ['Named, hex and rgb()', 'Named, hsl() and cmyk()', 'Hex, rgba() and keyword'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do browsers treat the three forms?',
+                        'explanation' => 'Browsers treat all three identically, so pick whichever reads clearest in context.',
+                        'options' => ['Identically', 'With different precision', 'Only hex is valid in CSS'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 2,
+                'order_num' => 1,
+                'title' => 'Background colour',
+                'instructions' => 'Text and surface are painted independently.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which property paints the surface behind the text?',
+                        'explanation' => 'background-color paints the surface behind the text.',
+                        'options' => ['background-color', 'color', 'border-color'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is the relationship between color and background-color?',
+                        'explanation' => 'The two properties are independent: setting one never affects the other.',
+                        'options' => ['Independent; setting one never affects the other', 'Identical in effect', 'background-color overrides color'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which pairing suits light text on a near-black field?',
+                        'explanation' => 'Terminal-style designs lean on this pairing constantly: light text on a near-black field.',
+                        'options' => ['color: #eee with background-color: #111', 'color: #111 with background-color: #eee', 'Both set to #000'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 3,
+                'order_num' => 1,
+                'title' => 'Font size',
+                'instructions' => 'Size is the first lever on readability.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which property sets how large type renders?',
+                        'explanation' => 'The font-size property sets how large type renders.',
+                        'options' => ['font-size', 'font-weight', 'line-height'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which unit gives exact control while learning?',
+                        'explanation' => 'Pixels give exact control while learning; larger projects later switch to relative units.',
+                        'options' => ['px', 'rem', 'em'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Roughly what size is body copy?',
+                        'explanation' => '16px is roughly body copy, and 32px is a strong headline.',
+                        'options' => ['16px', '8px', '64px'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 4,
+                'order_num' => 1,
+                'title' => 'Padding',
+                'instructions' => 'Padding is the element’s own space, inside its border.',
+                'questions' => [
+                    [
+                        'prompt' => 'What is padding?',
+                        'explanation' => 'Padding is the space between an element’s content and its border.',
+                        'options' => ['Space between content and border', 'Space outside the border', 'Space between two elements'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why does the background stretch across the padding?',
+                        'explanation' => 'Padding belongs to the element, so the background stretches across it.',
+                        'options' => ['Padding belongs to the element, so the background covers it', 'The background always covers the whole page', 'Padding is painted separately'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does padding: 20px apply?',
+                        'explanation' => 'One value like 20px applies to all four sides at once.',
+                        'options' => ['All four sides', 'Only the top and bottom', 'Only the left and right'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 5,
+                'order_num' => 1,
+                'title' => 'Borders',
+                'instructions' => 'Width, style and color in one declaration.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which three values make up the border shorthand?',
+                        'explanation' => 'The border shorthand draws the outline in one declaration: width, style, then color.',
+                        'options' => ['Width, style and color', 'Size, radius and shadow', 'Style, colour and margin'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which border style suits a technical or warning feel?',
+                        'explanation' => 'Solid gives a clean line; dashed gives a technical or warning feel.',
+                        'options' => ['dashed', 'solid', 'none'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Does the order of the three values matter?',
+                        'explanation' => 'The three values can technically come in any order, but width-style-color is the convention.',
+                        'options' => ['Not technically, though width-style-color is the convention', 'Yes, colour must come first', 'Yes, style must come last'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 6,
+                'order_num' => 1,
+                'title' => 'Flexbox alignment',
+                'instructions' => 'One axis for the items, another for their alignment.',
+                'questions' => [
+                    [
+                        'prompt' => 'What turns a parent into a flex container?',
+                        'explanation' => 'Setting display: flex on a parent turns it into a flex container and its children become flex items laid out in a row by default.',
+                        'options' => ['display: flex on the parent', 'display: grid on the parent', 'flex: 1 on the parent'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which property controls the cross axis?',
+                        'explanation' => 'align-items controls the cross axis: center pulls every item to the vertical middle.',
+                        'options' => ['align-items', 'justify-content', 'flex-wrap'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How are flex items laid out by default?',
+                        'explanation' => 'Children become flex items laid out in a row by default.',
+                        'options' => ['In a row', 'In a column', 'In a grid'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 7,
+                'order_num' => 1,
+                'title' => 'Opacity',
+                'instructions' => 'Transparency on a scale from 0 to 1.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does opacity: 0 do to an element?',
+                        'explanation' => 'At 0 the element is fully invisible but still occupies layout space.',
+                        'options' => ['Makes it invisible while it still occupies space', 'Removes it from the layout', 'Hides it behind other content'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does opacity: 1 mean?',
+                        'explanation' => 'At 1 the element is fully solid; values between fade it proportionally.',
+                        'options' => ['Fully solid', 'Half transparent', 'Invisible'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Where is a mid-scale opacity useful?',
+                        'explanation' => 'Values between fade it proportionally, which is handy for disabled states and overlays.',
+                        'options' => ['Disabled states and overlays', 'Print stylesheets only', 'Hover states only'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 8,
+                'order_num' => 1,
+                'title' => 'Absolute positioning',
+                'instructions' => 'Absolute coordinates are measured from the nearest positioned ancestor.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does position: absolute measure its coordinates from?',
+                        'explanation' => 'Absolute coordinates are measured from the nearest positioned ancestor.',
+                        'options' => ['The nearest positioned ancestor', 'The viewport', 'The document body'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why does the pattern use two rules?',
+                        'explanation' => 'The parent gets position: relative to become the anchor, and the child gets position: absolute with coordinates.',
+                        'options' => ['The parent becomes the anchor and the child is placed in it', 'One rule is for mobile and one for desktop', 'The second rule adds a transition'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which property turns an element into that anchor?',
+                        'explanation' => 'position: relative makes the parent the anchor for its absolutely positioned child.',
+                        'options' => ['position: relative', 'position: static', 'position: sticky'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 9,
+                'order_num' => 1,
+                'title' => 'Transitions',
+                'instructions' => 'Name the property, the duration and the easing.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does a transition need named?',
+                        'explanation' => 'A transition names the property, the duration and the easing curve.',
+                        'options' => ['The property, the duration and the easing', 'Only the duration', 'A keyframes name'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does transition: background 0.3s ease do?',
+                        'explanation' => 'The background shifts spread over three tenths of a second, slowing gently at the end.',
+                        'options' => ['The background shifts over three tenths of a second', 'The background never changes', 'The element grows for 0.3s'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does a transition replace?',
+                        'explanation' => 'A transition animates a property change instead of snapping instantly.',
+                        'options' => ['Snapping straight to the new value', 'The element’s layout position', 'The value of the property'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 10,
+                'order_num' => 1,
+                'title' => 'Media queries',
+                'instructions' => 'Styles that apply only when the viewport agrees.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does a media query do?',
+                        'explanation' => 'A media query applies styles only when the viewport meets a condition.',
+                        'options' => ['Applies styles only when the viewport meets a condition', 'Always applies styles', 'Downloads a stylesheet'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does @media (max-width: 600px) target?',
+                        'explanation' => 'The max-width form targets small screens: everything inside activates on phones and narrow windows.',
+                        'options' => ['Small screens and narrow windows', 'Large screens only', 'Print only'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What happens to the desktop layout inside that block?',
+                        'explanation' => 'The desktop layout is left untouched, so responsive design is a series of small overrides.',
+                        'options' => ['It is left untouched', 'It is replaced entirely', 'It becomes the only layout'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 11,
+                'order_num' => 1,
+                'title' => 'Class and descendant selectors',
+                'instructions' => 'Target by label, then narrow by context.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the descendant combinator do?',
+                        'explanation' => 'The descendant combinator (a plain space) narrows to elements inside another.',
+                        'options' => ['Narrows to elements inside another', 'Selects the next sibling only', 'Selects every element'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does .panel .title match?',
+                        'explanation' => '.panel .title styles only titles sitting within a panel, leaving every other title untouched.',
+                        'options' => ['Only titles inside a .panel', 'Every .title on the page', 'Only the first .title'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the element selector p match?',
+                        'explanation' => 'An element selector like p would paint all paragraphs on the page.',
+                        'options' => ['All p elements on the page', 'Only p elements with a class', 'The first p element'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 14,
+                'order_num' => 1,
+                'title' => 'Box sizing',
+                'instructions' => 'Decide whether padding counts inward or outward.',
+                'questions' => [
+                    [
+                        'prompt' => 'By default, what does width describe?',
+                        'explanation' => 'By default, width sets only the content box, so padding and border pile on top and the element grows wider than declared.',
+                        'options' => ['Only the content box', 'The final outer width', 'The width excluding padding'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does box-sizing: border-box change?',
+                        'explanation' => 'border-box flips the math: padding and border count inward and the declared width is the final width.',
+                        'options' => ['Padding and border count inward', 'Padding is ignored', 'The width becomes automatic'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which pairing centres a fixed-width box?',
+                        'explanation' => 'Pair it with margin: 0 auto and a fixed width to centre the box.',
+                        'options' => ['margin: 0 auto', 'position: absolute', 'text-align: center'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 15,
+                'order_num' => 1,
+                'title' => 'Corners and shadows',
+                'instructions' => 'Two properties lift a flat box off the page.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which property rounds the corners?',
+                        'explanation' => 'border-radius rounds corners, and 50% turns a square into a circle.',
+                        'options' => ['border-radius', 'box-shadow', 'outline'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does a box-shadow value describe?',
+                        'explanation' => 'box-shadow paints a soft offset copy behind the element using horizontal offset, vertical offset, blur and colour.',
+                        'options' => ['Horizontal offset, vertical offset, blur and colour', 'The shadow’s opacity and radius', 'The element’s margin and padding'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which value turns a square into a circle?',
+                        'explanation' => 'A border-radius of 50% turns a square into a circle.',
+                        'options' => ['50%', '1px', '0'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 17,
+                'order_num' => 1,
+                'title' => 'Custom properties',
+                'instructions' => 'Store a value once, repaint every consumer.',
+                'questions' => [
+                    [
+                        'prompt' => 'How is a custom property named?',
+                        'explanation' => 'Custom properties store reusable values under a -- name.',
+                        'options' => ['With a -- prefix', 'With a $ prefix', 'With a @ prefix'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Where are tokens usually declared so every rule inherits them?',
+                        'explanation' => 'Declared once on :root so every rule inherits them.',
+                        'options' => ['On :root', 'On body', 'In every rule that uses them'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How is a token read back, and what if it is missing?',
+                        'explanation' => 'They are read back with var(), which also takes a fallback used when the token is missing.',
+                        'options' => ['var(), with an optional fallback', 'get(), with a required fallback', 'token(), with no fallback'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 18,
+                'order_num' => 1,
+                'title' => 'Type settings',
+                'instructions' => 'Face, weight and leading, in that order.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does font-family do?',
+                        'explanation' => 'font-family lists preferred faces first with generic fallbacks last.',
+                        'options' => ['Lists preferred faces first with generic fallbacks last', 'Sets the size of the type', 'Sets the weight of the type'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which values does font-weight take?',
+                        'explanation' => 'font-weight controls boldness in steps like 400 and 700.',
+                        'options' => ['Steps like 400 and 700', 'Only bold and normal', 'A percentage only'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How is line-height written as a unitless multiple?',
+                        'explanation' => 'line-height sets the spacing between lines as a unitless multiple, such as 1.5.',
+                        'options' => ['As a unitless multiple such as 1.5', 'As a pixel value only', 'As a percentage of the font size'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 19,
+                'order_num' => 1,
+                'title' => 'Text styling',
+                'instructions' => 'Shape the voice and the layout of the text.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which property forces uppercase without retyping?',
+                        'explanation' => 'text-transform forces uppercase without retyping.',
+                        'options' => ['text-transform', 'font-variant', 'text-decoration'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does letter-spacing open?',
+                        'explanation' => 'letter-spacing opens tracking for labels and kickers.',
+                        'options' => ['Tracking between letters', 'The line height', 'The word spacing'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which property strikes through a deletion?',
+                        'explanation' => 'text-decoration underlines links or strikes deletions.',
+                        'options' => ['text-decoration', 'text-align', 'text-overflow'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 20,
+                'order_num' => 1,
+                'title' => 'Fluid sizing',
+                'instructions' => 'Size relative to something, and bound the result.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which unit tracks the root font size?',
+                        'explanation' => 'The rem unit tracks the root font size, percentages track the parent, and viewport units track the window.',
+                        'options' => ['rem', 'px', 'pt'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does clamp(min, preferred, max) do?',
+                        'explanation' => 'clamp() bounds the result: the value grows fluidly but never leaves the range.',
+                        'options' => ['Grows fluidly between a minimum and a maximum', 'Fixes the value at the preferred size', 'Rounds the value to the nearest pixel'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why do fixed pixels break on small screens?',
+                        'explanation' => 'Fixed pixels break on small screens, so modern sizing stays relative.',
+                        'options' => ['They cannot adapt to the viewport', 'They load more slowly', 'They lose their font size'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 21,
+                'order_num' => 1,
+                'title' => 'Combinators and attribute selectors',
+                'instructions' => 'Each combinator narrows the match.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the child combinator do?',
+                        'explanation' => 'The child combinator (>) hits only direct children.',
+                        'options' => ['Hits only direct children', 'Hits every descendant', 'Hits the next sibling'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the adjacent sibling combinator hit?',
+                        'explanation' => 'The adjacent sibling (+) hits the very next sibling.',
+                        'options' => ['The very next sibling', 'Every later sibling', 'The parent'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does input[type="text"] filter by?',
+                        'explanation' => 'Attribute selectors like input[type="text"] filter by attribute value.',
+                        'options' => ['The attribute’s value', 'The element’s position', 'Its class name'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 23,
+                'order_num' => 1,
+                'title' => 'Transforms',
+                'instructions' => 'Move without disturbing the flow.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does a transform leave untouched?',
+                        'explanation' => 'Transforms move, resize and rotate without disturbing layout flow.',
+                        'options' => ['Layout flow', 'The element’s colour', 'The document’s scrollbar'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which transform function grows or shrinks an element?',
+                        'explanation' => 'translate shifts position, scale grows or shrinks, and rotate turns.',
+                        'options' => ['scale', 'translate', 'rotate'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the transform pivot around?',
+                        'explanation' => 'All of them pivot around transform-origin.',
+                        'options' => ['transform-origin', 'the top-left corner only', 'the element’s margin box centre'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 24,
+                'order_num' => 1,
+                'title' => 'Gradients and backgrounds',
+                'instructions' => 'Atmosphere without an image file.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does linear-gradient take?',
+                        'explanation' => 'The linear-gradient function takes a direction and colour stops.',
+                        'options' => ['A direction and colour stops', 'A file path and a size', 'A radius and a colour'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What do background-size and background-position control?',
+                        'explanation' => 'background-size and background-position control how any background image fills its box.',
+                        'options' => ['How a background image fills its box', 'The colour behind the image', 'The border of the element'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is the advantage of a gradient over an image?',
+                        'explanation' => 'One declaration can carry atmosphere an entire image would need.',
+                        'options' => ['One declaration can carry atmosphere', 'It always renders faster', 'It scales without blur'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 25,
+                'order_num' => 1,
+                'title' => 'Focus and disabled states',
+                'instructions' => 'Never remove the outline without a replacement.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which selector shows a focus ring for keyboard users only?',
+                        'explanation' => ':focus-visible shows a ring for keyboard users without bothering mouse users.',
+                        'options' => [':focus-visible', ':hover', ':active'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What happens if the native outline is removed with no replacement?',
+                        'explanation' => 'Removing the native outline without a replacement strands keyboard users.',
+                        'options' => ['Keyboard users lose the focus indicator', 'The page scrolls faster', 'The form submits earlier'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which selector styles the unavailable control?',
+                        'explanation' => ':disabled styles the unavailable state of a control.',
+                        'options' => [':disabled', ':enabled', ':required'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 26,
+                'order_num' => 1,
+                'title' => 'Broad selectors',
+                'instructions' => 'Resets, groups and positional picks.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the universal selector match?',
+                        'explanation' => 'The universal selector matches everything, which is what resets use.',
+                        'options' => ['Everything', 'Only block elements', 'Only elements with a class'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the general sibling combinator reach?',
+                        'explanation' => 'The general sibling combinator reaches all later siblings, not just the adjacent one.',
+                        'options' => ['All later siblings', 'Only the next sibling', 'Only the first sibling'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What can nth-child pick?',
+                        'explanation' => 'nth-child picks positions like every even row.',
+                        'options' => ['Positions, such as every even row', 'Attribute values', 'The last element only'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 27,
+                'order_num' => 1,
+                'title' => 'Background layers',
+                'instructions' => 'The image sits on top of the colour.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the url() function do?',
+                        'explanation' => 'The url() function points at the file.',
+                        'options' => ['Points at the file', 'Sets the background colour', 'Repeats the image'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does background-size: cover do?',
+                        'explanation' => 'size cover scales the image to fill without stretching.',
+                        'options' => ['Scales it to fill without stretching', 'Scales it to fit inside without cropping', 'Repeats the image across the box'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What shows if the background image fails to load?',
+                        'explanation' => 'When the image fails, the colour underneath still shows.',
+                        'options' => ['The colour underneath still shows', 'Nothing at all', 'A broken-image icon'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 28,
+                'order_num' => 1,
+                'title' => 'Computed sizes',
+                'instructions' => 'Compute the size instead of fixing it.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does calc() do?',
+                        'explanation' => 'The calc() function mixes units in one expression.',
+                        'options' => ['Mixes units in one expression', 'Rounds a value to a grid', 'Computes the colour blend'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What do min() and max() do?',
+                        'explanation' => 'min() and max() pick bounds from candidates.',
+                        'options' => ['Pick bounds from candidates', 'Round to the nearest grid line', 'Set the stacking order'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does aspect-ratio hold?',
+                        'explanation' => 'aspect-ratio holds a box proportion, such as 16/9 for video frames.',
+                        'options' => ['A box proportion, such as 16/9', 'The element’s opacity', 'The border thickness'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 29,
+                'order_num' => 1,
+                'title' => 'Wrapping and sharing space',
+                'instructions' => 'Let the row wrap, then share what is left.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which property lets flex items flow onto new lines?',
+                        'explanation' => 'flex-wrap lets items flow onto new lines instead of crushing.',
+                        'options' => ['flex-wrap', 'flex-direction', 'flex-basis'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does justify-content: space-between do?',
+                        'explanation' => 'justify-content spreads items; space-between pushes the first and last to the edges.',
+                        'options' => ['Pushes the first and last items to the edges', 'Centres every item', 'Adds space above the row'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does flex-grow do?',
+                        'explanation' => 'flex-grow lets one item absorb the leftover room.',
+                        'options' => ['Lets one item absorb the leftover room', 'Sets the gap between items', 'Forces items onto one line'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 2,
+                'mission_order' => 30,
+                'order_num' => 1,
+                'title' => 'Fixed and sticky layers',
+                'instructions' => 'Some layers ignore the scroll.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does position: fixed pin to?',
+                        'explanation' => 'Fixed positioning pins to the viewport itself, which is what persistent bars need.',
+                        'options' => ['The viewport', 'The nearest positioned ancestor', 'The document body'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How does position: sticky behave?',
+                        'explanation' => 'Sticky toggles between flowing and pinned at a threshold, which is what section headers use.',
+                        'options' => ['It flows until a threshold, then pins', 'It is always pinned', 'It is removed from the flow entirely'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is needed for z-index to stack layers?',
+                        'explanation' => 'Stacking only works on positioned elements.',
+                        'options' => ['The elements must be positioned', 'The elements must have a class', 'The parent must be a grid'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 1,
+                'order_num' => 1,
+                'title' => 'Declaring a variable',
+                'instructions' => 'A name worth reading beats a name you have to decode.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which keyword declares a variable?',
+                        'explanation' => 'The let keyword declares one, the equals sign assigns it.',
+                        'options' => ['let', 'set', 'make'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How is a text value written in JavaScript?',
+                        'explanation' => 'Strings, text values, always sit inside quotes, single or double.',
+                        'options' => ['Inside quotes', 'Without quotes', 'Inside brackets'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What should a variable name say?',
+                        'explanation' => 'The name you choose should say what the value means.',
+                        'options' => ['What the value means', 'Where the value came from', 'The type of the value'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 2,
+                'order_num' => 1,
+                'title' => 'Arithmetic operators',
+                'instructions' => 'The code still runs when the operator is wrong.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which operator divides?',
+                        'explanation' => 'Arithmetic operators compute with numbers: + adds, - subtracts, * multiplies, / divides.',
+                        'options' => ['/', '+', '*'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why is the wrong operator so dangerous?',
+                        'explanation' => 'The code still runs and only the result is wrong, so the bug hides until someone checks the numbers.',
+                        'options' => ['The code still runs and only the result is wrong', 'The page stops loading', 'The browser reports an error'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does 6 / 2 evaluate to?',
+                        'explanation' => 'The division operator divides, so 6 / 2 is 3.',
+                        'options' => ['3', '8', '12'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 3,
+                'order_num' => 1,
+                'title' => 'Conditional branches',
+                'instructions' => 'One equals sign is the whole difference.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does an if statement do?',
+                        'explanation' => 'An if statement runs a block only when its condition is true, with an optional else for the false path.',
+                        'options' => ['Runs a block only when its condition is true', 'Runs a block a fixed number of times', 'Declares a new variable'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is the difference between > and >=?',
+                        'explanation' => '> means strictly greater, while >= means greater than or equal.',
+                        'options' => ['> is strictly greater, >= includes equality', '> includes equality, >= does not', 'They are the same'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which keyword handles the false path?',
+                        'explanation' => 'The optional else runs when the condition is false.',
+                        'options' => ['else', 'then', 'otherwise'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 4,
+                'order_num' => 1,
+                'title' => 'For loop headers',
+                'instructions' => 'Three parts, separated by semicolons.',
+                'questions' => [
+                    [
+                        'prompt' => 'How many parts does a for loop header have?',
+                        'explanation' => 'Its header holds three parts separated by semicolons: an initializer, a condition, and an increment.',
+                        'options' => ['Three: initializer, condition, increment', 'Two: condition and increment', 'One: a block of statements'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'When is the condition checked?',
+                        'explanation' => 'The condition is checked before each pass, which is what stops the loop.',
+                        'options' => ['Before each pass', 'After each pass', 'Only once at the start'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the initializer do?',
+                        'explanation' => 'The initializer runs once, setting up the counter the loop will step.',
+                        'options' => ['It runs once, setting up the counter', 'It runs on every pass', 'It runs after the loop ends'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 5,
+                'order_num' => 1,
+                'title' => 'Functions and parameters',
+                'instructions' => 'Package work under a name, then hand it values.',
+                'questions' => [
+                    [
+                        'prompt' => 'What do the parentheses after a function name hold?',
+                        'explanation' => 'Parameters listed in parentheses receive caller values.',
+                        'options' => ['The parameters that receive caller values', 'The function’s body', 'The return type'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which keyword sends a result back out?',
+                        'explanation' => 'return sends a result back out of the function.',
+                        'options' => ['return', 'yield out', 'send'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the toUpperCase string method do?',
+                        'explanation' => 'toUpperCase returns the uppercased copy of a string.',
+                        'options' => ['Returns the uppercased copy', 'Changes the string in place', 'Adds a space to the string'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 6,
+                'order_num' => 1,
+                'title' => 'Arrays',
+                'instructions' => 'An ordered list in one variable.',
+                'questions' => [
+                    [
+                        'prompt' => 'What brackets an array literal?',
+                        'explanation' => 'Square brackets wrap the elements, commas separate them.',
+                        'options' => ['Square brackets', 'Curly braces', 'Parentheses'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the length property report?',
+                        'explanation' => 'The length property reports how many elements there are.',
+                        'options' => ['How many elements there are', 'The type of the elements', 'The memory used'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'At which index does the first element sit?',
+                        'explanation' => 'Indexing starts at zero, so the first element is at index 0.',
+                        'options' => ['Zero', 'One', 'It depends on the array'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 7,
+                'order_num' => 1,
+                'title' => 'Objects',
+                'instructions' => 'Named properties in one record.',
+                'questions' => [
+                    [
+                        'prompt' => 'What brackets an object literal?',
+                        'explanation' => 'Curly braces wrap key-value pairs separated by commas.',
+                        'options' => ['Curly braces', 'Square brackets', 'Parentheses'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How are string values written in an object?',
+                        'explanation' => 'String values in quotes, numbers and booleans bare.',
+                        'options' => ['In quotes', 'Bare', 'In parentheses'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which notation reads one property back out?',
+                        'explanation' => 'Dot notation like operatorRecord.name reads a single property back out.',
+                        'options' => ['Dot notation', 'Slash notation', 'Question-mark notation'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 8,
+                'order_num' => 1,
+                'title' => 'Reaching into the DOM',
+                'instructions' => 'The DOM is the browser’s live model of the page.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the DOM stand for?',
+                        'explanation' => 'The DOM is the browser’s live model of the page.',
+                        'options' => ['The browser’s live model of the page', 'A file format for styling', 'A server-side template engine'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which call reaches an element by its id?',
+                        'explanation' => 'document.getElementById reaches into the DOM by id and returns the element object.',
+                        'options' => ['document.getElementById', 'document.queryById', 'document.getElement'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does assigning to textContent do?',
+                        'explanation' => 'Assigning to textContent rewrites what the reader sees without touching the markup around it.',
+                        'options' => ['Rewrites the text the reader sees', 'Rebuilds the whole page', 'Adds a new element'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 9,
+                'order_num' => 1,
+                'title' => 'Event listeners',
+                'instructions' => 'Say when X happens, then run this.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which method registers a listener?',
+                        'explanation' => 'addEventListener registers a listener: when X happens on this element, run that function.',
+                        'options' => ['addEventListener', 'onEvent', 'bindClick'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is the first argument of addEventListener?',
+                        'explanation' => 'The event name as a string, click for buttons, plus a callback function holding the response.',
+                        'options' => ['The event name as a string', 'The callback function', 'The target element'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the callback function hold?',
+                        'explanation' => 'The callback holds the response that runs when the event fires.',
+                        'options' => ['The response to run when the event fires', 'The element’s styles', 'The page title'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 11,
+                'order_num' => 1,
+                'title' => 'Template literals',
+                'instructions' => 'Backticks, slots, and real line breaks.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which quotes open a template literal?',
+                        'explanation' => 'Backticks open the string instead of quotes.',
+                        'options' => ['Backticks', 'Single quotes', 'Double quotes'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do you drop a value into a template literal?',
+                        'explanation' => '${expression} slots drop any value inline, with no plus signs or spacing bugs.',
+                        'options' => ['${expression} slots', 'Concatenation with +', 'A placeholder function'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What can a template literal do that a quoted string cannot?',
+                        'explanation' => 'Template literals span multiple lines, which quoted strings cannot do.',
+                        'options' => ['Span multiple lines', 'Store numbers without quotes', 'Call functions by themselves'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 12,
+                'order_num' => 1,
+                'title' => 'Switch statements',
+                'instructions' => 'One value, many branches.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does a switch match on?',
+                        'explanation' => 'A switch picks one branch from many by matching a single value.',
+                        'options' => ['A single value', 'A range of values', 'The type of a variable'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which keyword stops the fall into the next case?',
+                        'explanation' => 'break stops the fall into the next case.',
+                        'options' => ['break', 'stop', 'exit'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which branch catches everything unmatched?',
+                        'explanation' => 'default catches everything unmatched.',
+                        'options' => ['default', 'otherwise', 'fallback'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 13,
+                'order_num' => 1,
+                'title' => 'While loops',
+                'instructions' => 'The body has to move toward the exit.',
+                'questions' => [
+                    [
+                        'prompt' => 'When is a while condition checked?',
+                        'explanation' => 'A while loop repeats while its condition stays true, checking before every pass.',
+                        'options' => ['Before every pass', 'After every pass', 'Only once'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does a while loop carry of its own?',
+                        'explanation' => 'Unlike for, it carries no counter of its own, so the body must move toward the exit.',
+                        'options' => ['No counter of its own', 'A counter of its own', 'A list of its own'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What happens if the body never moves toward the exit?',
+                        'explanation' => 'The loop never ends, which is why countdowns are the classic shape.',
+                        'options' => ['The loop never ends', 'The loop runs once', 'The condition is ignored'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 15,
+                'order_num' => 1,
+                'title' => 'Destructuring and spread',
+                'instructions' => 'Unpack values into names, pour collections together.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does destructuring do?',
+                        'explanation' => 'Destructuring unpacks values straight into names.',
+                        'options' => ['Unpacks values straight into names', 'Copies an object deeply', 'Removes a property'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does the spread syntax do?',
+                        'explanation' => 'Spread pours one collection into another.',
+                        'options' => ['Pours one collection into another', 'Removes the last element', 'Sorts the values'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does const { name, band } = operator pull out?',
+                        'explanation' => 'It pulls two properties in one line, each into its own name.',
+                        'options' => ['Two properties in one line', 'The whole record as a string', 'Only the first property'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 16,
+                'order_num' => 1,
+                'title' => 'Parsing risky data',
+                'instructions' => 'One bad payload must not kill the script.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does JSON.parse do with malformed input?',
+                        'explanation' => 'JSON.parse throws on malformed input instead of returning a polite error.',
+                        'options' => ['Throws', 'Returns null', 'Returns an empty object'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which block attempts the work?',
+                        'explanation' => 'The try block attempts the work, and catch runs only when it throws.',
+                        'options' => ['try', 'catch', 'finally'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does try/catch buy you?',
+                        'explanation' => 'Wrapping the parse in try/catch keeps one bad payload from killing the script.',
+                        'options' => ['One bad payload cannot kill the script', 'Faster parsing', 'Automatic type coercion'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 17,
+                'order_num' => 1,
+                'title' => 'Selecting every match',
+                'instructions' => 'Grab the list once, then walk it.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does querySelectorAll return?',
+                        'explanation' => 'querySelectorAll grabs every match at once as a list.',
+                        'options' => ['Every match as a list', 'The first match only', 'A count of the matches'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which classList method attaches a class?',
+                        'explanation' => 'classList toggles styling per element without string surgery: add("on") attaches the class.',
+                        'options' => ['add', 'push', 'append'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which method walks a list applying something to each element?',
+                        'explanation' => 'forEach walks the list, applying the change to every element.',
+                        'options' => ['forEach', 'join', 'find'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 18,
+                'order_num' => 1,
+                'title' => 'Timers',
+                'instructions' => 'Schedule work, and be ready to stop it.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does setInterval do?',
+                        'explanation' => 'setInterval runs a callback every N milliseconds and returns an id for that timer.',
+                        'options' => ['Runs a callback every N milliseconds and returns an id', 'Runs a callback once after N milliseconds', 'Delays a single call until the page loads'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do you stop an interval?',
+                        'explanation' => 'clearInterval(id) stops it.',
+                        'options' => ['clearInterval with the timer id', 'stopInterval with the callback', 'The timer stops itself'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What is the standard self-stopping pattern?',
+                        'explanation' => 'A counter that clears its own timer after three ticks is the standard self-stopping beacon pattern.',
+                        'options' => ['A counter that clears its own timer after three ticks', 'A single setTimeout call', 'A for loop with a break'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 19,
+                'order_num' => 1,
+                'title' => 'localStorage',
+                'instructions' => 'Small strings that survive the visit.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does localStorage persist?',
+                        'explanation' => 'localStorage persists small strings in the browser across visits.',
+                        'options' => ['Small strings, across visits', 'Objects, without conversion', 'Only the current page state'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why do objects need converting before they are stored?',
+                        'explanation' => 'Only strings survive, so objects travel through JSON.stringify on the way in and JSON.parse on the way out.',
+                        'options' => ['Only strings survive storage', 'Storage rejects large values', 'Storage is read-only for objects'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which pair stores and reads a value?',
+                        'explanation' => 'setItem stores under a key and getItem reads it back.',
+                        'options' => ['setItem and getItem', 'put and take', 'write and fetch'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 20,
+                'order_num' => 1,
+                'title' => 'Block scope',
+                'instructions' => 'Where a variable exists is part of the contract.',
+                'questions' => [
+                    [
+                        'prompt' => 'How does var differ from let and const?',
+                        'explanation' => 'var leaks across blocks in the old function-scoped style, while let and const stay inside the nearest braces.',
+                        'options' => ['var leaks across blocks; let and const stay inside the block', 'var is block-scoped; let is global', 'They scope identically'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why does modern code avoid var?',
+                        'explanation' => 'That difference is why modern code avoids var: a loop counter declared with let disappears at the end of the loop.',
+                        'options' => ['Because let and const keep values inside the block they were declared in', 'Because var cannot be reassigned', 'Because var is slower'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does a block-scoped loop counter do after the loop?',
+                        'explanation' => 'A counter declared with let disappears once the loop ends, so it cannot leak into later code.',
+                        'options' => ['It disappears with the block', 'It survives as a global', 'It keeps counting'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 22,
+                'order_num' => 1,
+                'title' => 'Arrow functions',
+                'instructions' => 'A callback without the ceremony.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the arrow function (x) => x * 2 mean?',
+                        'explanation' => 'It means take x, return double, with no function keyword and no braces for single expressions.',
+                        'options' => ['Take x, return double', 'Declare an empty function', 'Multiply the array by two'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Where do arrow functions appear most?',
+                        'explanation' => 'Array methods and event wiring both take callbacks, so arrows appear wherever callbacks go.',
+                        'options' => ['Wherever a callback is expected', 'Only in class constructors', 'Only inside loops'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does an arrow function with a single expression omit?',
+                        'explanation' => 'No function keyword and no braces for single expressions.',
+                        'options' => ['The function keyword and the braces', 'The parameter list', 'The return value'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 23,
+                'order_num' => 1,
+                'title' => 'find and reduce',
+                'instructions' => 'Two ways to finish with a collection.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does find return?',
+                        'explanation' => 'find returns the first element passing a test, or undefined when none does.',
+                        'options' => ['The first element passing a test', 'An array of every match', 'The index of the match'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does reduce do?',
+                        'explanation' => 'reduce folds a whole array into one value by carrying an accumulator through each element.',
+                        'options' => ['Folds the array into one value with an accumulator', 'Returns the largest element', 'Removes duplicates'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which methods complete the collection toolkit with find and reduce?',
+                        'explanation' => 'Together with map and filter, they finish the toolkit.',
+                        'options' => ['map and filter', 'push and pop', 'slice and splice'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 24,
+                'order_num' => 1,
+                'title' => 'Inspecting objects',
+                'instructions' => 'Treat an object as data and read it.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does Object.keys return?',
+                        'explanation' => 'Object.keys lists the property names.',
+                        'options' => ['The property names', 'The property values', 'Both, as pairs'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does Object.entries return?',
+                        'explanation' => 'Object.entries lists both as pairs.',
+                        'options' => ['Key-value pairs', 'Only the values', 'Only the names'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do you read a property whose name arrives as a variable?',
+                        'explanation' => 'Bracket notation reads properties whose names arrive as variables.',
+                        'options' => ['With bracket notation', 'With a dot', 'With a colon'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 25,
+                'order_num' => 1,
+                'title' => 'Classes',
+                'instructions' => 'A blueprint for making similar objects.',
+                'questions' => [
+                    [
+                        'prompt' => 'When does the constructor run?',
+                        'explanation' => 'The constructor runs once per new instance to store its data.',
+                        'options' => ['Once per new instance', 'Once per class definition', 'Every time a method is called'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What do methods defined on a class have in common?',
+                        'explanation' => 'Methods defined on the class are shared by every instance.',
+                        'options' => ['They are shared by every instance', 'They run only once', 'They are copied into each object'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'When does a class earn its keep?',
+                        'explanation' => 'Classes suit entities with both state and behaviour; plain data without behaviour does not need one.',
+                        'options' => ['When the entity has both state and behaviour', 'When the data is large', 'When the fields are dynamic'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 26,
+                'order_num' => 1,
+                'title' => 'Building nodes',
+                'instructions' => 'Create, fill, graft, prune.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does createElement build?',
+                        'explanation' => 'createElement builds a detached node — it exists but is not on the page yet.',
+                        'options' => ['A detached node', 'A node already in the page', 'A copy of an existing node'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which call grafts a node onto a parent?',
+                        'explanation' => 'appendChild grafts the node onto a parent.',
+                        'options' => ['appendChild', 'textContent', 'querySelector'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which call prunes a node from the page?',
+                        'explanation' => 'remove() prunes it.',
+                        'options' => ['remove()', 'detach()', 'deleteNode()'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 27,
+                'order_num' => 1,
+                'title' => 'Guarding a form',
+                'instructions' => 'Check the values before the page travels.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which event fires on the form itself?',
+                        'explanation' => 'The submit event fires on the form itself, reading values through .value on each control.',
+                        'options' => ['submit', 'click', 'change'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does preventDefault do on the submit event?',
+                        'explanation' => 'Calling preventDefault stops the page reload so the script can check lengths and patterns first.',
+                        'options' => ['Stops the page reload', 'Clears the form fields', 'Submits the form twice'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do you read a control’s current value?',
+                        'explanation' => 'You read values through .value on each control.',
+                        'options' => ['Through .value', 'Through .text', 'Through .name'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 29,
+                'order_num' => 1,
+                'title' => 'Promise chains',
+                'instructions' => 'A future value in one of three states.',
+                'questions' => [
+                    [
+                        'prompt' => 'What are the three promise states?',
+                        'explanation' => 'A promise represents a future value with three states: pending, fulfilled, or rejected.',
+                        'options' => ['Pending, fulfilled, rejected', 'Open, closed, failed', 'Waiting, done, error'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which method runs on fulfillment?',
+                        'explanation' => 'then runs on fulfillment.',
+                        'options' => ['then', 'catch', 'finally'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What should you check before parsing a response?',
+                        'explanation' => 'Checking response.ok before parsing keeps HTTP failures like 404s from masquerading as good data.',
+                        'options' => ['response.ok', 'response.json', 'response.statusText only'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 30,
+                'order_num' => 1,
+                'title' => 'Modules',
+                'instructions' => 'Share code on purpose, and only on purpose.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which keyword publishes a binding from a module?',
+                        'explanation' => 'The export keyword publishes a binding from its file.',
+                        'options' => ['export', 'publish', 'share'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does an import statement name?',
+                        'explanation' => 'import names it in another file: import { band } from "./radio.js".',
+                        'options' => ['A binding from another file', 'A global variable', 'A CSS file'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'How do modules differ from plain script tags?',
+                        'explanation' => 'Unlike script tags that share one global scope implicitly, modules keep every file’s scope to itself.',
+                        'options' => ['Modules keep each file’s scope to itself', 'Modules run faster', 'Modules cannot import functions'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 31,
+                'order_num' => 1,
+                'title' => 'Strict comparisons',
+                'instructions' => 'Loose equality coerces types and lies.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does "7" == 7 evaluate to?',
+                        'explanation' => 'Loose equality coerces types and lies: "7" == 7 passes while meaning different things.',
+                        'options' => ['true', 'false', '"7"'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does strict equality check?',
+                        'explanation' => 'Strict equality checks value and type together.',
+                        'options' => ['Value and type together', 'Value only', 'Type only'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does typeof give you?',
+                        'explanation' => 'typeof names any value’s type for debugging.',
+                        'options' => ['The type of a value', 'Its value', 'Its length'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 32,
+                'order_num' => 1,
+                'title' => 'for-of loops',
+                'instructions' => 'Walk the values, not the indexes.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does the for-of loop give you?',
+                        'explanation' => 'The for-of loop walks values directly with no index bookkeeping.',
+                        'options' => ['The values directly', 'The indexes only', 'The keys of an object'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which keyword exits the loop early?',
+                        'explanation' => 'break exits early and continue skips one pass.',
+                        'options' => ['break', 'stop', 'skip'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'When is the classic indexed for still the right tool?',
+                        'explanation' => 'Reserve the classic indexed for for the rare cases that need the index itself.',
+                        'options' => ['When you need the index itself', 'When iterating an object', 'When the values are strings'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 33,
+                'order_num' => 1,
+                'title' => 'Iterating object data',
+                'instructions' => 'Turn a static record into iterable data.',
+                'questions' => [
+                    [
+                        'prompt' => 'What does Object.values pull out?',
+                        'explanation' => 'Object.values pulls every value into an array.',
+                        'options' => ['Every value into an array', 'Every key into an array', 'Only the string values'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does Object.entries give you?',
+                        'explanation' => 'Object.entries pairs each key with its value for looping.',
+                        'options' => ['Key-value pairs for looping', 'Only the values', 'A sorted list of keys'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why does this turn a record into report-ready data?',
+                        'explanation' => 'These three turn static records into iterable data for reports and logs.',
+                        'options' => ['They make the record iterable for reports and logs', 'They sort the record by key', 'They make the values immutable'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 34,
+                'order_num' => 1,
+                'title' => 'Input events',
+                'instructions' => 'Inputs fire their own events.',
+                'questions' => [
+                    [
+                        'prompt' => 'Which event streams every keystroke?',
+                        'explanation' => 'The input event streams every keystroke for live feedback.',
+                        'options' => ['input', 'change', 'keydown'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'When does the change event fire?',
+                        'explanation' => 'change fires when a value commits on blur or selection.',
+                        'options' => ['When a value commits on blur or selection', 'On every keystroke', 'When the form is submitted'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Which event sees physical keys, including Escape?',
+                        'explanation' => 'keydown sees physical keys including Escape.',
+                        'options' => ['keydown', 'keypress', 'keyup only'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
+            [
+                'course_order' => 3,
+                'mission_order' => 35,
+                'order_num' => 1,
+                'title' => 'Reading a whole form',
+                'instructions' => 'One call instead of a query per control.',
+                'questions' => [
+                    [
+                        'prompt' => 'How is FormData constructed?',
+                        'explanation' => 'Constructed with the form element, it reads the whole form at once by control name.',
+                        'options' => ['With the form element', 'With a control name', 'With a JSON string'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'What does its get() method return?',
+                        'explanation' => 'Its get() method returns one named value, which beats querying every input individually in long forms.',
+                        'options' => ['One named value', 'Every value as an object', 'The list of control names'],
+                        'correct' => 0,
+                    ],
+                    [
+                        'prompt' => 'Why is FormData better in a long form?',
+                        'explanation' => 'It beats querying every input individually in long forms.',
+                        'options' => ['You do not have to query every input individually', 'It validates each field', 'It uploads the form for you'],
+                        'correct' => 0,
+                    ],
+                ],
+            ],
         ];
     }
 
-    /** @return list<array{title: string, description: string, missions: list<array<string, mixed>>}> */
     private function htmlFinishSections(): array
     {
         return [

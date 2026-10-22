@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Audit trail · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink"><x-icon name="lock" size="12" />Append-only</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">Audit trail</h1>
-            <p class="atlas-records-lede">Recorded administrative actions. Filter by actor, action, result and date window. Entries are appended, never edited.</p>
-        </header>
+        <h1 class="sr-only">Audit trail</h1>
 
         <section class="atlas-record-group" aria-labelledby="event-log-title">
             <div class="atlas-record-group-head">
@@ -126,7 +122,14 @@
 
                                     <td data-label="Recorded action">
                                         <span class="atlas-lesson-entry-label">{{ $label }}</span>
-                                        <p class="atlas-register-note">{{ $event->summary }}</p>
+                                        @if (mb_strlen((string) $event->summary) > 220)
+                                            <details class="atlas-audit-summary">
+                                                <summary>{{ Str::limit($event->summary, 180) }}</summary>
+                                                <p class="atlas-register-note">{{ $event->summary }}</p>
+                                            </details>
+                                        @else
+                                            <p class="atlas-register-note">{{ $event->summary }}</p>
+                                        @endif
                                     </td>
 
                                     <td data-label="Result">

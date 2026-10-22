@@ -5,17 +5,16 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Classrooms · {{ $classroom->code ?? 'No code' }}</span>
-            <span class="atlas-records-running-links">
-                <a href="{{ route('classrooms') }}">All classrooms →</a>
-                @if ($role === 'admin')
+            <span>Records · {{ $classroom->code ?? 'No code' }}</span>
+            @if ($role === 'admin')
+                <span class="atlas-records-running-links">
+                    <a href="{{ route('classrooms') }}">All classrooms →</a>
                     <a href="{{ route('admin.classrooms.edit', $classroom) }}">Admin edit →</a>
-                @endif
-            </span>
+                </span>
+            @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Classroom sheet</span>
             <h1 class="atlas-records-title">{{ $classroom->name }}</h1>
             <p class="atlas-records-lede">Students and course assignments in this classroom. Teacher visibility requires an active classroom.</p>
             <dl class="log-facts atlas-records-facts" aria-label="Classroom facts">
@@ -40,6 +39,7 @@
                             <div class="atlas-record-entry-row atlas-record-entry-row--tag">
                                 <h3 class="atlas-record-entry-title">{{ $course->name }}</h3>
                                 <span class="atlas-stamp {{ $course->status === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ ucfirst($course->status) }}</span>
+                                <a href="{{ route('reports.teacher-course', $course) }}" class="atlas-row-action">Course report →</a>
                             </div>
                         </li>
                     @endforeach
@@ -85,6 +85,7 @@
                             <tr>
                                 <th scope="col">Student</th>
                                 <th scope="col">Name</th>
+                                <th scope="col">Report</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,6 +93,7 @@
                                 <tr>
                                     <th scope="row" data-label="Student"><a href="{{ route('student-progress', $student) }}">{{ $student->username }}</a></th>
                                     <td data-label="Name">{{ $student->name }}</td>
+                                    <td data-label="Report"><a href="{{ route('reports.teacher-student', $student) }}" class="atlas-row-action">Student report →</a></td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -5,6 +5,9 @@ paths:
   - app/Http/Controllers/NotificationController.php
   - app/Http/Controllers/StudentController.php
   - app/Http/Controllers/DashboardController.php
+  - app/Http/Controllers/AdminKnowledgeCheckController.php
+  - app/Http/Controllers/TimelineController.php
+  - app/Http/Controllers/KnowledgeCheckController.php
 ---
 
 # Controllers
@@ -71,3 +74,12 @@ US-811: DashboardController::__invoke accepts Request and rejects the five-spell
 
 ## Student Dashboard excludes the notification feed
 The Dashboard prioritizes the next learning action and must not compose a notification-center teaser. Notifications live at the dedicated top-nav destination. Recent learning activity excludes login/logout events; notification producers and services remain unchanged.
+
+## Admin Knowledge Check controller only plugs validated metadata into the service
+Index/edit/update verify the Course -> Mission -> Check hierarchy (abort 404 on a mismatch) and forward only title/instructions/is_required/status from the FormRequest. A service InvalidArgumentException is flashed back; the failed audit row is already written. Never accept question/option content or attempt data here.
+
+## Boss verdict Activity rows are ledger parity, not timeline beats
+Assessment evaluation writes assessment_passed/assessment_failed Activity rows for the raw ledger, but TimelineService excludes them via COMPOSED_ELSEWHERE_ACTIVITY_TYPES and composes the single Boss beat from AssessmentAttempt (score + revision evidence). Do not remove the exclusion or the timeline will show the same verdict twice.
+
+## return_to=mission returns the student to the mission tab
+start/submit/retry accept an optional return_to field. Only the literal 'mission' is honoured and it redirects to route('mission.challenge', $mission).'#workspace-check' — a fixed route, never a client-supplied URL, so it cannot become an open redirect. Without the field the attempt screen stays the destination.

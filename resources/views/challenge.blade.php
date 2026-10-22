@@ -8,7 +8,7 @@
         $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
         $hasWorkspaceMessages = $errors->any() || session('mission_info') || session('mission_error')
             || session('hint_error') || session('reveal_error') || session('hint_revealed')
-            || session('hint_flat') || session('reveal_flat') || session('solution_revealed') || session('draft_saved');
+            || session('hint_flat') || session('reveal_flat') || session('reveal_requires_attempt') || session('solution_revealed') || session('draft_saved');
 
         $language = match ($course?->type) {
             'css' => 'CSS',
@@ -16,8 +16,7 @@
             default => 'HTML',
         };
 
-        // The brief teaches; the last paragraph states the job. Lift the job out of
-        // the prose so it can head the reading column without being read twice.
+        // Keep the final task paragraph separate so the brief can present it in order.
         $briefParagraphs = preg_split('/\r\n\r\n|\n\n/', trim((string) $mission->description)) ?: [];
         $task = null;
         if ($briefParagraphs !== []) {
@@ -28,12 +27,17 @@
             }
         }
 
-        // In the HTML course the target is the markup the student writes; in the
-        // CSS and JavaScript courses it is the console panel their own code must
-        // produce, and its inline-style source is noise.
+        // The lesson teaches with examples; the challenge is the task. Keeping
+        // the same example here duplicated the target (and sometimes its exact
+        // markup) in the workspace students are graded in.
+        $briefParagraphs = array_values(array_filter(
+            $briefParagraphs,
+            fn (string $paragraph): bool => ! preg_match('/^\s*Example:/i', trim($paragraph)),
+        ));
+
+        // The graded workspace shows the target as a result, never as source:
+        // HTML targets would otherwise print the exact answer markup.
         $target = (string) $mission->target_html;
-        $referenceIsMarkup = $course?->type === 'html'
-            && ! preg_match('/\sstyle\s*=/i', $target);
 
         // The machine's own record of what happened, read as a list rather than
         // as floating cards: kind first, then what was done.
@@ -59,6 +63,9 @@
         if (session('reveal_flat')) {
             $runRecords[] = ['Solution', 'Not needed — no solution is available, or this challenge is already complete.', 'warn'];
         }
+        if (session('reveal_requires_attempt')) {
+            $runRecords[] = ['Solution', 'Attempt the challenge before revealing the reference solution.', 'warn'];
+        }
         if (session('solution_revealed')) {
             $runRecords[] = ['Solution', 'The reference solution has been loaded.', 'warn'];
         }
@@ -70,10 +77,10 @@
         }
     @endphp
     <article class="cq-challenge" data-workspace-fullscreen-root>
-        <header class="cq-case-plate">
-            <div class="cq-case-band">
+        <header>
                 <span class="cq-case-index" aria-hidden="true">Entry {{ str_pad((string) $mission->order_num, 3, '0', STR_PAD_LEFT) }}</span>
-                <h1 id="challenge-title" class="cq-case-title">{{ $mission->title }}</h1>
+                <a href="{{ route('mission.show', $mission) }}" class="cq-case-back" aria-label="Back to lesson"><x-icon name="arrow-left" size="16" /></a>
+                <h1 id="challenge-title" class="cq-case-title">@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h1>
                 <span class="cq-case-rule" aria-hidden="true"></span>
                 @if ($section?->title)
                     <p class="cq-case-concept">{{ $section->title }}</p>
@@ -84,25 +91,14 @@
                     <div><dt class="sr-only">Reward</dt><dd class="is-numeric">+{{ $mission->points }} XP</dd></div>
                     <div><dt class="sr-only">Wrong attempt</dt><dd class="is-numeric">−{{ $wrongPenalty }} XP</dd></div>
                 </dl>
-                @if ($completed)
-                    <span class="atlas-stamp atlas-stamp--grn cq-case-state-group"><x-icon name="check" size="12" />Completed</span>
-                @else
-                    <span class="cq-case-state-group">
+                <span class="cq-case-state-group">
+                    @if ($completed)
+                        <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Completed</span>
+                    @else
                         <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
                         <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
-                    </span>
-                @endif
-            </div>
-            @if ($task || $course)
-                <div class="cq-case-job-row">
-                    @if ($course)
-                        <span class="cq-case-course">Course {{ str_pad((string) $course->order_num, 2, '0', STR_PAD_LEFT) }} · {{ $course->name }}</span>
                     @endif
-                    @if ($task)
-                        <p class="cq-case-job">{{ $task }}</p>
-                    @endif
-                </div>
-            @endif
+                </span>
         </header>
         <div class="challenge-workspace cq-workspace" data-workspace data-workspace-layout="tabs">
             <header class="cq-workspace-heading">
@@ -121,17 +117,21 @@
                             </form>
                         @endif
                         @if ($hints || (! $completed && $hasSolution))
-                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>{{ $hints ? 'View hints' : 'Show solution' }}</button>
+                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>{{ $hints ? 'View hints' : 'Show solution · '.$revealCost.' XP' }}</button>
                         @endif
                     </div>
                     <div class="cq-evaluation-actions">
                         <button type="button" id="run" class="btn btn-secondary"><x-icon name="play" size="16" />Run</button>
-                        <form method="POST" action="{{ route('mission.submit', $mission) }}" class="workspace-submit" data-challenge-action="submit" data-confirm-title="Submit for evaluation?" data-confirm-copy="Submit sends your code for academic evaluation. A failed submission costs {{ $wrongPenalty }} XP. Run only updates the preview." data-confirm-label="Submit challenge">
-                            @csrf
-                            <input type="hidden" name="submission_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
-                            <input type="hidden" name="code" class="code-payload">
-                            <button type="submit" class="btn btn-primary" aria-label="Submit challenge"><x-icon name="send" size="16" />Submit</button>
-                        </form>
+                        @if ($completed)
+                            <a href="{{ route('learning-path') }}" class="btn btn-primary">Learning path <x-icon name="arrow-right" data-arrow size="16" /></a>
+                        @else
+                            <form method="POST" action="{{ route('mission.submit', $mission) }}" class="workspace-submit" data-challenge-action="submit" data-confirm-title="Submit for evaluation?" data-confirm-copy="Submit sends your code for academic evaluation. A failed submission costs {{ $wrongPenalty }} XP. Run only updates the preview." data-confirm-label="Submit challenge">
+                                @csrf
+                                <input type="hidden" name="submission_id" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
+                                <input type="hidden" name="code" class="code-payload">
+                                <button type="submit" class="btn btn-primary" aria-label="Submit challenge"><x-icon name="send" size="16" />Submit</button>
+                            </form>
+                        @endif
                     </div>
                 </div>
                 <button type="button" class="cq-icon-button" data-workspace-fullscreen aria-pressed="false" aria-label="Fullscreen">
@@ -161,25 +161,33 @@
                     @else
                         <p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>
                     @endif
+                    @if ($task)
+                        <p class="cq-doc-label">Your task</p>
+                        <p class="cq-task-copy">{{ $task }}</p>
+                    @endif
+                    <details class="cq-guide" open>
+                        <summary>How this workspace works</summary>
+                        <ul>
+                            <li><strong>Run</strong> updates the preview only. Nothing is submitted and no XP is spent.</li>
+                            <li><strong>Submit</strong> evaluates the code. A failed attempt costs {{ $wrongPenalty }} XP.</li>
+                            <li><strong>Hints</strong> start at {{ $firstHintCost }} XP and rise with each hint.</li>
+                            <li><strong>Solution</strong> costs {{ $revealCost }} XP and unlocks after your first failed attempt.</li>
+                        </ul>
+                    </details>
+
                     @if ($target !== '')
                         <p class="cq-doc-label">Expected result</p>
-                        <details class="atlas-lesson-reference cq-reference">
+                        <details class="atlas-lesson-reference cq-reference" open>
                             <summary>
-                                <span>Reference output</span>
-                                <span>{{ $referenceIsMarkup ? 'Result and markup' : 'Result' }}</span>
+                                <span>Target output</span>
+                                <span>Result</span>
                             </summary>
                             <div class="atlas-lesson-reference-part">
-                                <p class="atlas-lesson-reference-label">Result</p>
                                 <div class="atlas-lesson-reference-frame">
-                                    <iframe id="reference-preview" title="Reference output" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
+                                    <iframe id="reference-preview" title="Target output" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
                                 </div>
                             </div>
-                            @if ($referenceIsMarkup)
-                                <div class="atlas-lesson-reference-part">
-                                    <p class="atlas-lesson-reference-label">Markup</p>
-                                    <pre class="log-listing" tabindex="0" aria-label="Reference markup"><code>{{ $target }}</code></pre>
-                                </div>
-                            @endif
+                            <p class="cq-reference-note">Target only — write the source yourself.</p>
                         </details>
                     @endif
                 </div>
@@ -191,19 +199,20 @@
                     <div id="editor-host" class="challenge-pane-editor"></div>
                     <textarea name="terminal-code" id="editor-source" class="hidden" spellcheck="false">{{ $initialCode }}</textarea>
                 </div>
-                <section class="cq-runlog" aria-labelledby="workspace-log-title">
-                    <p class="cq-runlog-head" id="workspace-log-title">Run log</p>
-                    @foreach ($runRecords as [$kind, $text, $tone])
-                        <p class="cq-runlog-line cq-runlog-line--{{ $tone }}"><b>{{ $kind }}</b><span>{{ $text }}</span></p>
-                    @endforeach
-                    <div data-runlog-live></div>
-                </section>
             </section>
             <section class="challenge-pane cq-preview-pane" id="workspace-preview" data-workspace-pane="preview" role="tabpanel" aria-labelledby="workspace-tab-preview" tabindex="0" hidden>
                 <p class="cq-preview-note"><span>Preview only. No result is recorded.</span><span data-preview-state>{{ $hasDraft ? 'Restored draft' : 'Not run' }}</span></p>
                 <div class="challenge-pane-body is-frame"><iframe id="preview-frame" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}" title="Live preview"></iframe></div>
             </section>
         </div>
+        <aside class="cq-runlog" data-challenge-notice role="status" aria-label="Challenge update" aria-live="polite" aria-atomic="true" @if (count($runRecords) === 0) hidden @endif>
+            <div class="cq-runlog-messages" data-runlog-live>
+                @foreach ($runRecords as [$kind, $text, $tone])
+                    <p class="cq-runlog-line cq-runlog-line--{{ $tone }}"><b>{{ $kind }}</b><span>{{ $text }}</span></p>
+                @endforeach
+            </div>
+            <button type="button" class="cq-runlog-dismiss" data-runlog-dismiss aria-label="Dismiss notification"><span aria-hidden="true">×</span></button>
+        </aside>
         @if (! $completed)
             <form method="POST" action="{{ route('mission.draft', $mission) }}" id="draft-form" hidden>@csrf<input type="hidden" name="code" class="code-payload"></form>
         @endif
@@ -226,9 +235,14 @@
                     </ol>
                 @else<p>No hints have been revealed.</p>@endif
                 @if (! $completed && $hasSolution)
-                    <form method="POST" action="{{ route('mission.reveal', $mission) }}" data-challenge-action="reveal" data-confirm-title="Reveal reference solution?" data-confirm-copy="Revealing the reference solution costs {{ $revealCost }} XP." data-confirm-label="Reveal solution">
-                        @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">Reveal solution · {{ $revealCost }} XP</button>
-                    </form>
+                    <p class="challenge-assistance-cost">Balance {{ $totalXp }} XP · Hints from {{ $firstHintCost }} XP · Solution {{ $revealCost }} XP</p>
+                    @if ($solutionRequirementMet)
+                        <form method="POST" action="{{ route('mission.reveal', $mission) }}" data-challenge-action="reveal" data-confirm-title="Reveal reference solution?" data-confirm-copy="Revealing the reference solution costs {{ $revealCost }} XP and cannot be undone." data-confirm-label="Reveal solution">
+                            @csrf<input type="hidden" name="code" class="code-payload"><button type="submit" class="btn btn-secondary">Reveal solution · {{ $revealCost }} XP</button>
+                        </form>
+                    @else
+                        <p class="challenge-assistance-requirement">Submit an attempt first. The reference solution unlocks after your first failed attempt; hints are available now.</p>
+                    @endif
                 @endif
             </dialog>
         @endif
@@ -294,20 +308,170 @@
     <script>
         (function () {
             var runLog = document.querySelector('[data-runlog-live]');
+            var runNotice = document.querySelector('[data-challenge-notice]');
+            var dismissNotice = document.querySelector('[data-runlog-dismiss]');
+            var noticeTimer = null;
 
-            // The run log is the machine's own account of what it just did.
-            function record(kind, text) {
-                if (!runLog) return;
+            function scheduleNoticeDismissal() {
+                window.clearTimeout(noticeTimer);
+                noticeTimer = window.setTimeout(function () {
+                    if (runNotice) runNotice.hidden = true;
+                }, 6500);
+            }
+
+            function pauseNoticeDismissal() {
+                window.clearTimeout(noticeTimer);
+            }
+
+            function showNotice(line) {
+                if (!runLog || !runNotice) return;
+                runLog.replaceChildren(line);
+                runNotice.hidden = false;
+                scheduleNoticeDismissal();
+            }
+
+            function record(kind, text, tone) {
+                if (!runLog || !runNotice) return;
                 var line = document.createElement('p');
-                line.className = 'cq-runlog-line';
+                line.className = 'cq-runlog-line' + (tone ? ' cq-runlog-line--' + tone : '');
                 var label = document.createElement('b');
                 label.textContent = kind;
                 var copy = document.createElement('span');
                 copy.textContent = text;
                 line.appendChild(label);
                 line.appendChild(copy);
-                runLog.appendChild(line);
+                showNotice(line);
             }
+
+            dismissNotice?.addEventListener('click', function () {
+                pauseNoticeDismissal();
+                if (runNotice) runNotice.hidden = true;
+            });
+
+            runNotice?.addEventListener('mouseenter', pauseNoticeDismissal);
+            runNotice?.addEventListener('mouseleave', function () {
+                if (!runNotice.hidden) scheduleNoticeDismissal();
+            });
+            runNotice?.addEventListener('focusin', pauseNoticeDismissal);
+            runNotice?.addEventListener('focusout', function (event) {
+                if (!runNotice.contains(event.relatedTarget) && !runNotice.hidden) scheduleNoticeDismissal();
+            });
+
+            if (runNotice && !runNotice.hidden) scheduleNoticeDismissal();
+
+            var confirmationDialog = document.querySelector('[data-challenge-confirm]');
+            var pendingAction = null;
+            var confirmedForm = null;
+            var assistanceDialog = document.querySelector('[data-challenge-assistance]');
+            var assistanceReturn = null;
+            var editorView = null;
+
+            function confirmAction(title, copy, action, label, consequential) {
+                document.getElementById('challenge-confirm-title').textContent = title;
+                document.getElementById('challenge-confirm-copy').textContent = copy;
+                var confirmButton = confirmationDialog.querySelector('[data-confirm-action]');
+                confirmButton.textContent = label;
+                confirmButton.className = consequential ? 'btn btn-primary' : 'btn btn-secondary';
+                pendingAction = action;
+                confirmationDialog.returnValue = '';
+                confirmationDialog.showModal();
+            }
+
+            confirmationDialog.addEventListener('close', function () {
+                var action = pendingAction;
+                pendingAction = null;
+                if (confirmationDialog.returnValue === 'confirm' && action) action();
+            });
+
+            async function submitAssistanceInPlace(form) {
+                var actionKind = form.dataset.challengeAction;
+                var recordKind = actionKind === 'hint' ? 'Hint' : 'Solution';
+                var submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) submitButton.disabled = true;
+
+                try {
+                    var response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'text/html',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+                    var responseHtml = await response.text();
+                    if (!response.ok) throw new Error('Assistance request failed.');
+
+                    var nextPage = new DOMParser().parseFromString(responseHtml, 'text/html');
+                    var nextDialog = nextPage.querySelector('[data-challenge-assistance]');
+                    if (!nextDialog || !assistanceDialog) throw new Error('Assistance response was incomplete.');
+
+                    var latestRecord = Array.from(nextPage.querySelectorAll('.cq-runlog-line'))
+                        .reverse()
+                        .find(function (line) { return line.querySelector('b')?.textContent.trim() === recordKind; });
+                    var actionMessage = latestRecord?.querySelector('span')?.textContent || 'Assistance request complete.';
+
+                    if (actionKind === 'reveal' && /reference solution has been loaded/i.test(actionMessage)) {
+                        var nextSource = nextPage.querySelector('#editor-source');
+                        if (!nextSource) throw new Error('Solution response did not include the editor source.');
+                        initial = nextSource.value;
+                        source.value = initial;
+                        if (editorView) {
+                            editorView.dispatch({
+                                changes: { from: 0, to: editorView.state.doc.length, insert: initial },
+                            });
+                        }
+                    }
+
+                    assistanceDialog.innerHTML = nextDialog.innerHTML;
+
+                    var nextBalance = nextPage.querySelector('.atlas-xp');
+                    var currentBalance = document.querySelector('.atlas-xp');
+                    if (nextBalance && currentBalance) {
+                        currentBalance.textContent = nextBalance.textContent;
+                        currentBalance.setAttribute('aria-label', nextBalance.getAttribute('aria-label') || 'XP balance');
+                    }
+
+                    if (latestRecord && runLog) {
+                        showNotice(document.importNode(latestRecord, true));
+                    }
+                    document.getElementById('workspace-status').textContent = actionMessage;
+
+                    if (actionKind === 'hint' && /^Hint \d+ revealed\b/.test(actionMessage)) {
+                        assistanceReturn = submitButton;
+                        if (!assistanceDialog.open) assistanceDialog.showModal();
+                    } else if (actionKind === 'reveal' && /reference solution has been loaded/i.test(actionMessage)) {
+                        if (assistanceDialog.open) assistanceDialog.close();
+                        editorView?.focus();
+                    } else if (assistanceDialog.open) {
+                        assistanceDialog.querySelector('[autofocus]')?.focus();
+                    }
+                } catch (error) {
+                    record(recordKind, 'Could not complete this request. Please try again.', 'bad');
+                    document.getElementById('workspace-status').textContent = 'Could not complete this request. Please try again.';
+                } finally {
+                    if (submitButton?.isConnected) submitButton.disabled = false;
+                }
+            }
+
+            document.addEventListener('submit', function (event) {
+                var form = event.target;
+                if (!(form instanceof HTMLFormElement) || !['hint', 'reveal'].includes(form.dataset.challengeAction)) return;
+
+                event.preventDefault();
+                if (confirmedForm === form) {
+                    confirmedForm = null;
+                    submitAssistanceInPlace(form);
+                    return;
+                }
+
+                confirmAction(form.dataset.confirmTitle, form.dataset.confirmCopy, function () {
+                    var codePayload = form.querySelector('.code-payload');
+                    if (codePayload && source) codePayload.value = source.value;
+                    confirmedForm = form;
+                    form.requestSubmit();
+                }, form.dataset.confirmLabel, true);
+            });
 
             var starter = {{ Illuminate\Support\Js::from($mission->broken_code ?? '') }};
             var initial = {{ Illuminate\Support\Js::from($initialCode) }};
@@ -320,6 +484,15 @@
             var draftStatus = document.querySelector('#draft-status span');
             var draftForm = document.getElementById('draft-form');
             var completionOverlay = document.querySelector('[data-completion-overlay]');
+
+            // Drafts save only on Ctrl/⌘+S. Warn before the one action that can
+            // lose that work: leaving the page with unsaved edits.
+            var draftDirty = false;
+            window.addEventListener('beforeunload', function (event) {
+                if (!draftDirty) return;
+                event.preventDefault();
+                event.returnValue = '';
+            });
 
             // The reference output is the finished work, shown as it will look —
             // not the inline styles that produced it.
@@ -363,6 +536,7 @@
                         CM.foundry,
                         CM.EditorView.updateListener.of(function (u) {
                             if (u.docChanged) {
+                                draftDirty = true;
                                 syncPayloads(view);
                                 if (draftStatus && draftStatus.textContent !== 'Unsaved changes') setDraftState('dirty', 'Unsaved changes');
                                 var previewState = document.querySelector('[data-preview-state]');
@@ -374,27 +548,6 @@
 
                 syncPayloads(view);
                 frame.sandbox.value = cq.previewSandbox(type, starter);
-
-                var confirmationDialog = document.querySelector('[data-challenge-confirm]');
-                var pendingAction = null;
-                var confirmedForm = null;
-
-                function confirmAction(title, copy, action, label, consequential) {
-                    document.getElementById('challenge-confirm-title').textContent = title;
-                    document.getElementById('challenge-confirm-copy').textContent = copy;
-                    var confirmButton = confirmationDialog.querySelector('[data-confirm-action]');
-                    confirmButton.textContent = label;
-                    confirmButton.className = consequential ? 'btn btn-primary' : 'btn btn-secondary';
-                    pendingAction = action;
-                    confirmationDialog.returnValue = '';
-                    confirmationDialog.showModal();
-                }
-
-                confirmationDialog.addEventListener('close', function () {
-                    var action = pendingAction;
-                    pendingAction = null;
-                    if (confirmationDialog.returnValue === 'confirm' && action) action();
-                });
 
                 runBtn.addEventListener('click', function () {
                     confirmAction('Run preview?', 'Run displays your code in the preview. It does not grade, award XP or record a submission.', function () {
@@ -409,28 +562,31 @@
                 // Initial preview reflects any restored draft.
                 frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
 
-                document.querySelectorAll('[data-challenge-action]').forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (confirmedForm === form) {
-                            confirmedForm = null;
-                            return;
-                        }
-                        event.preventDefault();
-                        confirmAction(form.dataset.confirmTitle, form.dataset.confirmCopy, function () {
-                            syncPayloads(view);
-                            confirmedForm = form;
-                            form.requestSubmit();
-                        }, form.dataset.confirmLabel, true);
-                    });
+                document.addEventListener('submit', function (event) {
+                    var form = event.target;
+                    if (!(form instanceof HTMLFormElement) || !form.matches('[data-challenge-action]')) return;
+                    if (form.dataset.challengeAction === 'hint' || form.dataset.challengeAction === 'reveal') return;
+
+                    if (confirmedForm === form) {
+                        confirmedForm = null;
+                        return;
+                    }
+
+                    event.preventDefault();
+                    confirmAction(form.dataset.confirmTitle, form.dataset.confirmCopy, function () {
+                        syncPayloads(view);
+                        draftDirty = false;
+                        confirmedForm = form;
+                        form.requestSubmit();
+                    }, form.dataset.confirmLabel, true);
                 });
 
                 document.addEventListener('cq:workspace-layout', function () { view.requestMeasure(); });
                 draftForm?.addEventListener('submit', function () {
+                    draftDirty = false;
                     setDraftState('saving', 'Saving...');
                 });
 
-                var assistanceDialog = document.querySelector('[data-challenge-assistance]');
-                var assistanceReturn = null;
                 document.querySelectorAll('[data-workspace-assistance-open]').forEach(function (button) {
                     button.addEventListener('click', function () {
                         assistanceReturn = button;

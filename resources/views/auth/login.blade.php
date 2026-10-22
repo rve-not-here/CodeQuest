@@ -97,7 +97,7 @@
             <aside class="atlas-cover-register" aria-labelledby="context-title">
                 <div class="atlas-cover-register-head">
                     <h2 id="context-title" class="atlas-cover-register-title">What you can open</h2>
-                    <p class="atlas-cover-register-figure">03 entries</p>
+                    <p class="atlas-cover-register-figure">06 entries</p>
                 </div>
 
                 <ol>
@@ -120,6 +120,27 @@
                         <div>
                             <h3 class="atlas-cover-entry-title">Boss Challenges</h3>
                             <p class="atlas-cover-entry-copy">Complete the course-level assessment.</p>
+                        </div>
+                    </li>
+                    <li class="atlas-cover-entry">
+                        <span class="atlas-cover-index" aria-hidden="true">04</span>
+                        <div>
+                            <h3 class="atlas-cover-entry-title">Learning path</h3>
+                            <p class="atlas-cover-entry-copy">Follow the next lesson, review or practice action.</p>
+                        </div>
+                    </li>
+                    <li class="atlas-cover-entry">
+                        <span class="atlas-cover-index" aria-hidden="true">05</span>
+                        <div>
+                            <h3 class="atlas-cover-entry-title">Learning timeline</h3>
+                            <p class="atlas-cover-entry-copy">Read checks, coding, Boss results, XP and achievements in order.</p>
+                        </div>
+                    </li>
+                    <li class="atlas-cover-entry">
+                        <span class="atlas-cover-index" aria-hidden="true">06</span>
+                        <div>
+                            <h3 class="atlas-cover-entry-title">Performance summary</h3>
+                            <p class="atlas-cover-entry-copy">Review the three result types together.</p>
                         </div>
                     </li>
                 </ol>

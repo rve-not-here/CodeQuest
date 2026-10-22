@@ -37,7 +37,41 @@ class NotificationCenterTest extends TestCase
 
         $response->assertOk()
             ->assertSee('2 total')
-            ->assertDontSee('unread');
+            ->assertDontSee('atlas-notification-count', false);
+    }
+
+    public function test_shell_bell_shows_the_unread_count(): void
+    {
+        $user = User::factory()->create();
+        Notification::factory()->count(2)->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('aria-label="Notifications, 2 unread"', false)
+            ->assertSee('atlas-notification-count', false);
+    }
+
+    public function test_notification_center_filters_to_unread_without_losing_all_counts(): void
+    {
+        $user = User::factory()->create();
+        Notification::factory()->create(['user_id' => $user->id, 'title' => 'FRESH-UNREAD']);
+        Notification::factory()->read()->create(['user_id' => $user->id, 'title' => 'SEEN-READ']);
+
+        $this->actingAs($user)
+            ->get(route('notifications', ['filter' => 'unread']))
+            ->assertOk()
+            ->assertSee('FRESH-UNREAD')
+            ->assertDontSee('SEEN-READ')
+            ->assertSee('aria-current="page"', false)
+            ->assertSee('1 unread');
+
+        $this->actingAs($user)
+            ->get(route('notifications'))
+            ->assertOk()
+            ->assertSee('FRESH-UNREAD')
+            ->assertSee('SEEN-READ')
+            ->assertSee('2 total');
     }
 
     public function test_notification_center_distinguishes_read_and_unread_rows(): void

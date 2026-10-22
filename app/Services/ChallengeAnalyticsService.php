@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Support\ReportFilters;
+use App\Support\SchemaAvailability;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use stdClass;
@@ -14,17 +15,22 @@ use stdClass;
  *
  * Metric definitions (one authoritative wording shared by UI, CSV, and PDF):
  *
- * - attempts: persisted submission rows in scope: Progress completions plus
- *   wrong_submission XP rows. Population: rows. Time range: completed_at
- *   for completions, created_at for failures, each inside the filter range.
- *   Drafts are unsubmitted work, hint/solution XP rows are purchases, and
- *   post-completion resubmits persist nothing — none of them count.
+ * - attempts: persisted submission rows in scope: Progress completions,
+ *   wrong_submission XP rows, and grading_unavailable Activity rows. A
+ *   grading_unavailable row is an infrastructure failure recorded when the
+ *   behavioural grader could not decide a submission: it is an attempt, but
+ *   neither a completion nor a student failure. Population: rows. Time range:
+ *   completed_at for completions, created_at for failures and ungradable
+ *   rows, each inside the filter range. Drafts are unsubmitted work,
+ *   hint/solution XP rows are purchases, and post-completion resubmits persist
+ *   nothing — none of them count.
  * - completions: Progress rows. Unique per (user, mission) by constraint,
  *   so one student completing two challenges counts twice and repeat
  *   passes never double-count.
  * - failures: wrong_submission XP rows. Exactly one row is written per
  *   failed submit, including zero-amount clamped rows at empty balance;
- *   amounts are never consulted.
+ *   amounts are never consulted. Ungradable rows are deliberately excluded:
+ *   a grader outage is not a wrong answer.
  * - completion_rate: rounded integer percent of distinct completed
  *   (user, mission) pairs among distinct attempted pairs (a pair with at
  *   least one completion or failure row), null when no pair was attempted.
@@ -84,8 +90,9 @@ class ChallengeAnalyticsService
         $missions = $this->scopedMissions($courseIds);
         $donePairs = $this->completedPairs($studentIds, $courseIds, $filters);
         $failRows = $this->failureRows($studentIds, $courseIds, $filters);
+        $ungradableRows = $this->ungradableRows($studentIds, $courseIds, $filters);
 
-        return $this->summarizeFrom($missions, $donePairs, $failRows);
+        return $this->summarizeFrom($missions, $donePairs, $failRows, $ungradableRows);
     }
 
     /**
@@ -196,17 +203,60 @@ class ChallengeAnalyticsService
     }
 
     /**
-     * Distinct attempted pairs: the union of completed and failed pairs.
+     * Ungradable submissions in scope: grading_unavailable Activity rows
+     * carrying a mission id. Historical rows written before the attribute
+     * existed have no mission_id and cannot be placed — they stay uncounted
+     * rather than guessed from message text.
+     *
+     * @param  Collection<int, int>|null  $studentIds
+     * @param  Collection<int, int>|null  $courseIds
+     * @return Collection<int, stdClass>
+     */
+    private function ungradableRows(?Collection $studentIds, ?Collection $courseIds, ?ReportFilters $filters): Collection
+    {
+        if (! SchemaAvailability::activityMissionId()) {
+            // The attribution column is still pending its migration: an
+            // ungradable row cannot be placed against a challenge, so it stays
+            // uncounted rather than guessed.
+            return collect();
+        }
+
+        $query = DB::table('the404_activity as a')
+            ->join('the404_missions as m', 'm.id', '=', 'a.mission_id')
+            ->where('a.type', 'grading_unavailable')
+            ->whereNotNull('a.mission_id')
+            ->select(['a.user_id', 'a.mission_id']);
+
+        if ($studentIds !== null) {
+            $query->whereIn('a.user_id', $studentIds);
+        }
+
+        if ($courseIds !== null) {
+            $query->whereIn('m.course_id', $courseIds);
+        }
+
+        if ($filters !== null) {
+            $filters->applyDateRange($query, 'a.created_at');
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Distinct attempted pairs: the union of completed, failed, and
+     * ungradable pairs.
      *
      * @param  Collection<int, stdClass>  $donePairs
      * @param  Collection<int, stdClass>  $failRows
+     * @param  Collection<int, stdClass>  $ungradableRows
      * @return Collection<int, non-falsy-string>
      */
-    private function attemptedPairs(Collection $donePairs, Collection $failRows): Collection
+    private function attemptedPairs(Collection $donePairs, Collection $failRows, Collection $ungradableRows): Collection
     {
         return $donePairs
             ->map(fn (stdClass $row): string => $row->user_id.'.'.$row->mission_id)
             ->merge($failRows->map(fn (stdClass $row): string => $row->user_id.'.'.$row->mission_id))
+            ->merge($ungradableRows->map(fn (stdClass $row): string => $row->user_id.'.'.$row->mission_id))
             ->unique()
             ->values();
     }
@@ -232,11 +282,13 @@ class ChallengeAnalyticsService
 
     /**
      * Per-challenge rows for attempted missions only: a mission with no
-     * completion and no failure contributes nothing to any metric.
+     * completion, failure, or ungradable submission contributes nothing to
+     * any metric.
      *
      * @param  Collection<int, stdClass>  $missions
      * @param  Collection<int, stdClass>  $donePairs
      * @param  Collection<int, stdClass>  $failRows
+     * @param  Collection<int, stdClass>  $ungradableRows
      * @return list<array{
      *     mission_id: int,
      *     course_id: int,
@@ -250,10 +302,15 @@ class ChallengeAnalyticsService
      *     failure_rate: int|null,
      * }>
      */
-    private function presentByChallenge(Collection $missions, Collection $donePairs, Collection $failRows): array
-    {
+    private function presentByChallenge(
+        Collection $missions,
+        Collection $donePairs,
+        Collection $failRows,
+        Collection $ungradableRows,
+    ): array {
         $doneByMission = $donePairs->groupBy('mission_id');
         $failByMission = $failRows->groupBy('mission_id');
+        $ungradableByMission = $ungradableRows->groupBy('mission_id');
 
         $listed = [];
 
@@ -261,17 +318,19 @@ class ChallengeAnalyticsService
             $missionId = (int) $mission->id;
             $done = $doneByMission->get($missionId, collect());
             $failed = $failByMission->get($missionId, collect());
+            $ungradable = $ungradableByMission->get($missionId, collect());
 
-            if ($done->isEmpty() && $failed->isEmpty()) {
+            if ($done->isEmpty() && $failed->isEmpty() && $ungradable->isEmpty()) {
                 continue;
             }
 
             $attemptedUsers = $done
                 ->pluck('user_id')
                 ->merge($failed->pluck('user_id'))
+                ->merge($ungradable->pluck('user_id'))
                 ->unique();
             $completedUsers = $done->pluck('user_id')->unique();
-            $attempts = $done->count() + $failed->count();
+            $attempts = $done->count() + $failed->count() + $ungradable->count();
 
             $listed[] = [
                 'mission_id' => $missionId,
@@ -296,26 +355,28 @@ class ChallengeAnalyticsService
      * @param  Collection<int, stdClass>  $missions
      * @param  Collection<int, stdClass>  $donePairs
      * @param  Collection<int, stdClass>  $failRows
+     * @param  Collection<int, stdClass>  $ungradableRows
      * @return array{attempts: int, completions: int, failures: int, completion_rate: int|null, average_attempts: int|null, by_challenge: list<array{mission_id: int, course_id: int, title: string, difficulty: string, attempts: int, completions: int, failures: int, completion_rate: int|null, average_attempts: int|null, failure_rate: int|null}>}
      */
     private function summarizeFrom(
         Collection $missions,
         Collection $donePairs,
         Collection $failRows,
+        Collection $ungradableRows,
     ): array {
-        $attempted = $this->attemptedPairs($donePairs, $failRows);
+        $attempted = $this->attemptedPairs($donePairs, $failRows, $ungradableRows);
         $completedUsersByPair = $donePairs
             ->map(fn (stdClass $row): string => $row->user_id.'.'.$row->mission_id)
             ->unique();
 
         $overall = $this->present(
-            $donePairs->count() + $failRows->count(),
+            $donePairs->count() + $failRows->count() + $ungradableRows->count(),
             $donePairs->count(),
             $failRows->count(),
             $attempted->count(),
             $completedUsersByPair->count(),
         );
 
-        return [...$overall, 'by_challenge' => $this->presentByChallenge($missions, $donePairs, $failRows)];
+        return [...$overall, 'by_challenge' => $this->presentByChallenge($missions, $donePairs, $failRows, $ungradableRows)];
     }
 }

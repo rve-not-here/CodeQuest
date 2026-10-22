@@ -1,61 +1,73 @@
 # Design
 
-The visual world of CodeQuest. It defines what every screen is made of, what the one signature move is, and what the craft floor refuses. The direction contract lives at `.impeccable/surfaces/resources-views-layouts-app-blade-php.md`; this file is the engineering reference.
+The visual world of CodeQuest. It defines what every screen is made of, what the one signature move is, and the craft floor refuses. This file is the engineering reference for the tokens and materials below; the tokens themselves live in `resources/css/app.css` (Tailwind v4, CSS-first — there is no `tailwind.config.*`).
 
 ## Direction
 
-**Conventional SaaS**. CodeQuest is a clean, professional learning platform: white surfaces on a slate ground, indigo primary, Inter type, soft shadows, rounded corners. It refuses the retro-terminal aesthetic (CRT, glow, scanlines, uppercase mono labels, dashed "locked" styling) in favour of a familiar, accessible, modern SaaS register.
+**Sector-map console.** CodeQuest is a learning console drawn like a technical dossier: a sheet of paper (or a terminal bay at night) carrying ruled panels, a single oxide-red accent, condensed uppercase navigation, and mono metadata. It borrows the System 404 world's vocabulary and geometry — status footers, a command band, a sheet column — without the CRT theatre: no glow, no scanlines, no blur, no glass.
+
+Two lights, one system. The default ground is warm archival paper; the dark ground is terminal-black. Every token is defined once in the `:root` and `.dark` blocks and every component reads the alias, so a surface never hard-codes a colour.
 
 ## Palette
 
+Light (default, warm archival paper):
+
 | Token | Value | Role |
 |---|---|---|
-| `--color-bg` / `--color-canvas` | `#F8FAFC` | page ground (slate-50) |
-| `--color-surface` | `#FFFFFF` | card / sheet |
-| `--color-surface-alt` / `--color-raised` | `#F1F5F9` | recessed fill, table stripes |
-| `--color-border` / `--color-line` | `#E2E8F0` | hairline |
-| `--color-border-strong` / `--color-line-strong` | `#CBD5E1` | hover/focus border |
-| `--color-fg` / `--color-ink` | `#0F172A` | ink — headings, body |
-| `--color-fg-muted` | `#475569` | secondary text |
-| `--color-fg-subtle` | `#64748B` | tertiary text, metadata |
-| `--color-primary` / `--color-accent` | `#4F46E5` | indigo — anything interactive |
-| `--color-primary-hover` | `#4338CA` | |
-| `--color-primary-soft` | `#EEF2FF` | primary tint |
-| `--color-success` | `#16A34A` | validation passed |
-| `--color-warning` | `#D97706` | caution |
-| `--color-danger` | `#DC2626` | faults only |
+| `--cq-ground` | `#F4F2E9` | warm paper ground |
+| `--cq-sheet` | `#FFFDF8` | sheet / surface |
+| `--cq-raised` | `#EBE8DD` | recessed fill, table stripes |
+| `--cq-ink` | `#1C2229` | ink — headings, body |
+| `--cq-muted` | `#525A61` | secondary text |
+| `--cq-subtle` | `#5E6970` | tertiary text, metadata |
+| `--cq-line` / `--cq-edge` | `#D4D0C4` / `#C2BFB2` | hairline rules |
+| `--cq-line-strong` | `#717A7B` | hover/focus rule |
+| `--cq-accent` | `#B23A2E` | oxide red — anything interactive |
+| `--cq-accent-strong` / `--cq-accent-pressed` | `#8F2C22` / `#75241C` | accent hover / pressed |
+| `--cq-accent-soft` | `#F1E3DF` | accent tint |
+| `--cq-success` | `#2C684B` | validation passed |
+| `--cq-info` | `#4A478F` | informational |
+| `--cq-warning` | `#845D12` | caution |
+| `--cq-note` / `--cq-note-ink` | `#F1DF9B` / `#2B2A1E` | handwritten note block |
+| `--cq-code-bg` | `#171B21` | code surface |
 
-Light-mode only. There is no dark variant.
+Dark (`.dark` on `<html>`): ground `#0F1318`, sheet `#181C22`, raised `#22272E`, ink `#E8ECE4`, muted `#B0B6AA`, subtle `#90988E`, line `#2B323A`, line-strong `#66717B`, accent `#E37B6E`, accent-strong `#EF968B`, accent-soft `#352321`, success `#74C7A0`, info `#A7A1EE`, warning `#DFB45E`, CTA `#B94C3E`.
 
-Contrast floor: 4.5:1 body, 3.0:1 large. Verify every token pair against every ground.
+The `--color-*` names (`--color-bg`, `--color-surface`, `--color-ink`, `--color-accent`, `--color-line`, …) are aliases onto the `--cq-*` values. Hand-written CSS reads the aliases; utilities inline the values.
+
+Legacy phosphor aliases (`--color-phosphor`, `--color-amber`, `--color-cyan`, `--color-magenta`) exist for old rules and their `-glow` partners resolve to `transparent`: the accent colour is used, never a glow.
+
+Contrast floor: 4.5:1 body, 3.0:1 large. Verify every token pair against every ground, in both lights.
 
 ## Type
 
-- **UI**: Inter 400/500/600/700 (self-hosted via Bunny), `--font-sans` / `--font-display` / `--font-body`.
-- **Code / data**: JetBrains Mono (`--font-code` / `--font-mono`), kept for code blocks and numeric data only.
+Self-hosted through the Vite plugin's `bunny()` helper (`vite.config.js`), never a hosted stylesheet:
 
-Scale: 12 / 14 / 16 / 18 / 20 / 24 / 30 px. Hierarchy is carried by the ramp and weight, not by colour or uppercase.
+- **UI / body**: Barlow 400–700 (`--font-sans`, `--font-body`).
+- **Display**: Barlow Condensed 500–700 (`--font-display`) — brand, primary navigation, panel headings. Uppercase with `0.06em`–`0.12em` tracking.
+- **Code / data / metadata**: Fragment Mono 400 (`--font-mono`, `--font-code`) — code blocks, XP readouts, group labels, IDs, avatar initials, note text.
+
+Scale: 11 / 12 / 14 / 16 / 18 / 20 / 24 / 30 px. Hierarchy is carried by the ramp, the condensed display face, and the weight — mono is for data, not for chrome. Data and metadata labels are sentence case at 11.5–13px; tracked uppercase is reserved for identity labels (entry line, course/register labels, status stamps). Numeric data uses tabular figures and right-aligns in register columns.
 
 ## Materials
 
-- **Borders**: 1px solid `--color-border` (`#E2E8F0`). No radius above 12px.
-- **Radius**: 8px cards, 6px controls, 999px pills.
-- **Shadow**: `0 1px 2px rgb(15 23 42 / .05), 0 1px 3px rgb(15 23 42 / .10)` on cards; `0 4px 12px rgb(15 23 42 / .12)` on popovers/modals.
-- **No glass, no gradient, no glow, no CRT atmosphere, no scanlines.** Opaque surfaces only.
+- **Radius**: 2px. Every control, card, popover, and disclosure. No pills.
+- **Shadow**: flat offset, never a soft blur — `3px 3px 0 var(--cq-shadow)` on panels, `4px 4px 0` on popovers.
+- **Rules**: 1px hairlines in `--cq-line`; 2px rules for emphasis (active nav underline, sheet column edge).
+- **No glass, no gradient, no blur, no glow, no scanlines.** Surfaces are opaque.
 
-## Signature: clean SaaS shell
+## Signature: the sheet column
 
-Sticky white top bar with brand + primary links + account; persistent left sidebar (grouped sections, active state with left border + primary tint) for teacher and admin. Student uses top nav only.
+Content sits on a dossier page rather than a card grid: the main column carries a 2px oxide left rule (`.sheet-column`), and the panels inside read as offset-shadowed cards laid on that sheet. The header is a command band — condensed uppercase primary navigation with an active 2px accent underline, a mono XP readout, popover secondary navigation with mono group labels, and a mono account chip. The terminal voice survives in exactly one place, the status footer (`CODEQUEST // SYSTEM 404 LEARNING NETWORK`, `STATUS: ONLINE`).
 
 ## Craft floor (refusals)
 
-- No kicker, eyebrow, or eyebrow-plus-title device on any card, page, panel, or header whose heading already opens the element.
-- No Unicode glyphs or emoji standing in for an icon system — drawn SVG only (`workspace-icon.blade.php`).
-- No system display face as the display voice of an own-world page.
-- No dead-world vocabulary: `SHELL.ON`, `SIGNAL RESTORED`, `phosphor`, `CRT`, `scanline` do not appear in student surfaces.
-- No transition/ease above 200ms; `prefers-reduced-motion` cancels animation.
-- No uppercase mono labels on UI chrome; use normal-case sans.
-- No dashed "locked" styling; use subtle gray + lock icon.
+- No glow, gradient, glass, blur, or scanline atmosphere. Phosphor/amber/alert/cyan glow tokens are `transparent`; the accent carries the emphasis.
+- No radius above 2px and no soft drop shadows. The offset shadow is the only depth.
+- No dead-world vocabulary in student surfaces: `SHELL.ON`, `SIGNAL RESTORED`, `phosphor`, `CRT`, and `scanline` do not appear outside the status footer.
+- No dashed "locked" styling: locked states use muted ink plus a lock icon.
+- No Unicode glyphs or emoji standing in for an icon system — drawn SVG only (`x-icon`).
+- The colour mode is applied before first paint (inline head script, account preference first, `localStorage` second) so dark never flashes.
 
 ## Verification
 
@@ -64,4 +76,6 @@ Sticky white top bar with brand + primary links + account; persistent left sideb
 | Build | `npm run build` |
 | Full suite | `php artisan test --compact` |
 | Format | `vendor/bin/pint --dirty --format agent` |
-| Static | `vendor/bin/phpstan analyse --memory-limit=1G --no-progress` |
+| Static | `composer run analyse` |
+| Icons | `npm run icons:check` |
+| Layout / browser | `CODEQUEST_REQUIRE_BROWSER_TESTS=1 CODEQUEST_CHROMIUM=<chromium> php artisan test --compact tests/Feature/WorkspaceBrowserTest.php` |

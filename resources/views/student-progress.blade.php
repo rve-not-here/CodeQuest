@@ -37,13 +37,15 @@
         ];
         $completedChallenges = $rows->sum(fn (array $row): int => $row['progress']['completed']);
         $totalChallenges = $rows->sum(fn (array $row): int => $row['progress']['total']);
-        $bossPassed = $performance->filter(fn (array $row): bool => ($row['latest']['status'] ?? null) === 'passed')->count();
+        $bossPassed = $performance->filter(fn (array $row): bool => $row['passed'])->count();
     @endphp
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Student progress · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            <span>Records · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
             <span class="atlas-records-running-links">
-                <a href="{{ route('students') }}">Students →</a>
+                @if ($role !== 'teacher')
+                    <a href="{{ route('students') }}">Students →</a>
+                @endif
                 @if ($role === 'teacher')
                     <a href="{{ route('reports.teacher-student', $student) }}">Student report →</a>
                 @endif
@@ -51,7 +53,6 @@
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Monitoring</span>
             <h1 class="atlas-records-title">{{ $student->username }}</h1>
             <p class="atlas-records-lede">{{ $student->name ?: $student->username }} · Recorded learning evidence in the current monitoring scope.</p>
             <dl class="log-facts atlas-records-facts" aria-label="Student monitoring scope">
@@ -123,8 +124,8 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">Section</th>
-                                        <th scope="col">Completed</th>
-                                        <th scope="col">Section progress</th>
+                                        <th scope="col" class="md:text-right">Completed</th>
+                                        <th scope="col" class="md:text-right">Section progress</th>
                                         <th scope="col">State</th>
                                     </tr>
                                 </thead>
@@ -135,8 +136,8 @@
                                         @endphp
                                         <tr>
                                             <th scope="row" data-label="Section">{{ $sectionRow['section']?->title ?? 'Additional challenges' }}</th>
-                                            <td data-label="Completed"><span class="atlas-register-figure">{{ $sectionRow['progress']['completed'] }}/{{ $sectionRow['progress']['total'] }}</span></td>
-                                            <td data-label="Section progress"><span class="atlas-register-figure">{{ $sectionRow['progress']['percent'] }}%</span></td>
+                                            <td data-label="Completed" class="md:text-right tabular-nums"><span class="atlas-register-figure">{{ $sectionRow['progress']['completed'] }}/{{ $sectionRow['progress']['total'] }}</span></td>
+                                            <td data-label="Section progress" class="md:text-right tabular-nums"><span class="atlas-register-figure">{{ $sectionRow['progress']['percent'] }}%</span></td>
                                             <td data-label="State"><span class="atlas-stamp {{ $sectionView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($sectionView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $sectionView['label'] }}</span></td>
                                         </tr>
                                     @endforeach
@@ -278,7 +279,7 @@
                                 <tr>
                                     <th scope="row" data-label="Course">{{ $attempt['courseName'] }}</th>
                                     <td data-label="Verdict"><span class="atlas-stamp {{ $attemptView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($attemptView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $attemptView['label'] }}</span></td>
-                                    <td data-label="Score"><span class="atlas-register-figure">{{ $attempt['score'] !== null ? $attempt['score'].'%' : '—' }}</span></td>
+                                    <td data-label="Score" class="md:text-right tabular-nums"><span class="atlas-register-figure">{{ $attempt['score'] !== null ? $attempt['score'].'%' : '—' }}</span></td>
                                     <td data-label="Submitted"><span class="atlas-register-figure">{{ $attempt['submitted_at']?->format('M d, Y · H:i') ?? '—' }}</span></td>
                                 </tr>
                             @endforeach

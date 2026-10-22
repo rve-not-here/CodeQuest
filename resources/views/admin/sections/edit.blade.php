@@ -5,18 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Sections · {{ $course->name }}</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.sections', $course) }}">← Sections</a>
-                <a href="{{ route('admin.courses.edit', $course) }}">{{ $course->name }} →</a>
-            </div>
+            <span>Records · {{ $course->name }}</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Edit section</h1>
-            <p class="atlas-records-lede">{{ $course->name }} · {{ $section->title }}</p>
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'sections'])
+
+        <h1 class="sr-only">Edit section</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">

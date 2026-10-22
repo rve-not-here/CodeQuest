@@ -5,21 +5,42 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Users · Platform scope</span>
-            <a href="{{ route('admin.users') }}">← All users</a>
+            <span>Records · Platform scope</span>
+            <a href="{{ route('admin.users') }}">All users →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Account</span>
-            <h1 class="atlas-records-title">{{ $user->username }}</h1>
+        <h1 class="sr-only">{{ $user->username }}</h1>
+
+        @php
+            $roleLabel = match ($user->role) {
+                'admin' => 'Admin',
+                'teacher' => 'Teacher',
+                'operator' => 'Operator',
+                default => 'Student',
+            };
+        @endphp
+
+        <section class="atlas-record-figures" aria-label="Account record">
             <p class="atlas-records-lede">{{ $user->name ?: 'No display name recorded.' }}</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Account record">
-                <div><dt>Role</dt><dd>{{ ucfirst($user->role) }}</dd></div>
-                <div><dt>Status</dt><dd>{{ $user->status === 'active' ? 'Active' : 'Inactive' }}</dd></div>
-                <div><dt>Account created</dt><dd>{{ $user->created_at->format('M d, Y') }}</dd></div>
-                <div><dt>Last activity</dt><dd>{{ $recentActivity->first() !== null ? $recentActivity->first()['at']->diffForHumans() : '—' }}</dd></div>
+            <dl class="log-facts atlas-records-facts">
+                <div>
+                    <dt>Username</dt>
+                    <dd class="font-mono">{{ $user->username }}</dd>
+                </div>
+                <div>
+                    <dt>Role</dt>
+                    <dd>{{ $roleLabel }}</dd>
+                </div>
+                <div>
+                    <dt>Status</dt>
+                    <dd>{{ $user->status === 'active' ? 'Active' : 'Inactive' }}</dd>
+                </div>
+                <div>
+                    <dt>Created</dt>
+                    <dd>{{ $user->created_at->format('M d, Y') }}</dd>
+                </div>
             </dl>
-        </header>
+        </section>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -34,6 +55,37 @@
             <p class="atlas-records-subheading">Account record</p>
             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-primary">Edit account →</a>
         </div>
+
+        @php
+            $classrooms = $user->role === 'teacher'
+                ? $user->teachingClassrooms
+                : ($user->role === 'student' ? $user->enrolledClassrooms : collect());
+        @endphp
+        <section class="atlas-record-group" aria-labelledby="classroom-memberships-title">
+            <div class="atlas-record-group-head">
+                <h2 id="classroom-memberships-title" class="atlas-record-group-title">Classroom memberships</h2>
+                <p class="atlas-record-group-figure">{{ $classrooms->count() }} {{ Str::plural('classroom', $classrooms->count()) }}</p>
+            </div>
+            @if ($classrooms->isEmpty())
+                <p class="atlas-record-group-note">No classroom membership is recorded for this account.</p>
+            @else
+                <ul class="atlas-records-list" aria-label="Classroom memberships">
+                    @foreach ($classrooms as $classroom)
+                        <li class="atlas-record-entry atlas-record-entry--compact">
+                            <div class="atlas-record-entry-row">
+                                <div>
+                                    <h3 class="atlas-record-entry-title">
+                                        <a href="{{ route('admin.classrooms.edit', $classroom) }}">{{ $classroom->name }}</a>
+                                    </h3>
+                                    <p class="atlas-record-meta font-mono">{{ $classroom->code ?? 'No code' }}</p>
+                                </div>
+                                <span class="atlas-stamp {{ $classroom->status === 'active' ? 'atlas-stamp--grn' : 'atlas-stamp--ink' }}">{{ ucfirst($classroom->status) }}</span>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
 
         <section class="atlas-record-group" aria-labelledby="recent-activity-title">
             <div class="atlas-record-group-head">

@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Assessment;
 use App\Models\Classroom;
 use App\Models\Course;
+use App\Models\KnowledgeCheck;
 use App\Models\Mission;
 use App\Models\Section;
 use App\Models\User;
@@ -29,7 +30,7 @@ class AdminAuthorizationTest extends TestCase
      * are enumerated here; the admin.courses.store/update write routes are
      * exercised in AdminCourseManagementTest.
      *
-     * @return array<int, array{name: string, needsUser?: bool, needsCourse?: bool, needsSection?: bool, needsMission?: bool, needsAnnouncement?: bool, needsClassroom?: bool}>
+     * @return array<int, array{name: string, needsUser?: bool, needsCourse?: bool, needsSection?: bool, needsMission?: bool, needsCheck?: bool, needsAnnouncement?: bool, needsClassroom?: bool}>
      */
     private function adminRoutes(): array
     {
@@ -45,6 +46,8 @@ class AdminAuthorizationTest extends TestCase
             ['name' => 'admin.courses.sections.edit', 'needsCourse' => true, 'needsSection' => true],
             ['name' => 'admin.courses.missions', 'needsCourse' => true],
             ['name' => 'admin.courses.missions.edit', 'needsCourse' => true, 'needsMission' => true],
+            ['name' => 'admin.courses.missions.checks', 'needsCourse' => true, 'needsMission' => true],
+            ['name' => 'admin.courses.missions.checks.edit', 'needsCourse' => true, 'needsMission' => true, 'needsCheck' => true],
             ['name' => 'admin.courses.assessment', 'needsCourse' => true],
             ['name' => 'admin.courses.assessment.edit', 'needsCourse' => true, 'needsAssessment' => true],
             ['name' => 'admin.classrooms'],
@@ -65,11 +68,12 @@ class AdminAuthorizationTest extends TestCase
      * test. Every id here comes from the rows the caller actually created (the
      * same discipline as test_admins_can_access_the_admin_routes).
      *
-     * @param  array{user?: User, course?: Course, section?: Section, mission?: Mission, assessment?: Assessment, classroom?: Classroom, announcement?: Announcement}  $bound
+     * @param  array{user?: User, course?: Course, section?: Section, mission?: Mission, check?: KnowledgeCheck, assessment?: Assessment, classroom?: Classroom, announcement?: Announcement}  $bound
      */
     private function uriFor(array $route, array $bound): string
     {
         return match (true) {
+            isset($route['needsCheck']) => route($route['name'], ['course' => $bound['course']->id, 'mission' => $bound['mission']->id, 'check' => $bound['check']->id]),
             isset($route['needsAssessment']) => route($route['name'], ['course' => $bound['course']->id, 'assessment' => $bound['assessment']->id]),
             isset($route['needsMission']) => route($route['name'], ['course' => $bound['course']->id, 'mission' => $bound['mission']->id]),
             isset($route['needsSection']) => route($route['name'], ['course' => $bound['course']->id, 'section' => $bound['section']->id]),
@@ -127,6 +131,7 @@ class AdminAuthorizationTest extends TestCase
         $course = Course::factory()->create();
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
+        $check = KnowledgeCheck::factory()->create(['mission_id' => $mission->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
         $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create(['created_by' => $admin->id]);
@@ -138,6 +143,7 @@ class AdminAuthorizationTest extends TestCase
         // before the role gate, so a fabricated id 1 would 404 here.
         foreach ($this->adminRoutes() as $route) {
             $uri = match (true) {
+                isset($route['needsCheck']) => route($route['name'], ['course' => $course->id, 'mission' => $mission->id, 'check' => $check->id]),
                 isset($route['needsAssessment']) => route($route['name'], ['course' => $course->id, 'assessment' => $assessment->id]),
                 isset($route['needsMission']) => route($route['name'], ['course' => $course->id, 'mission' => $mission->id]),
                 isset($route['needsSection']) => route($route['name'], ['course' => $course->id, 'section' => $section->id]),
@@ -208,6 +214,7 @@ class AdminAuthorizationTest extends TestCase
         $course = Course::factory()->create();
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
+        $check = KnowledgeCheck::factory()->create(['mission_id' => $mission->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
         $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create();
@@ -218,6 +225,7 @@ class AdminAuthorizationTest extends TestCase
             ['method' => 'put', 'uri' => route('admin.courses.update', $course), 'data' => ['name' => 'Sneaky Course', 'slug' => $course->slug, 'type' => $course->type, 'status' => $course->status, 'order_num' => $course->order_num]],
             ['method' => 'put', 'uri' => route('admin.courses.sections.update', [$course, $section]), 'data' => ['title' => 'Sneaky Section']],
             ['method' => 'put', 'uri' => route('admin.courses.missions.update', [$course, $mission]), 'data' => ['title' => 'Sneaky Mission']],
+            ['method' => 'put', 'uri' => route('admin.courses.missions.checks.update', [$course, $mission, $check]), 'data' => ['title' => 'Sneaky Check', 'instructions' => 'Sneaky', 'is_required' => true, 'status' => 'published']],
             ['method' => 'put', 'uri' => route('admin.courses.assessment.update', [$course, $assessment]), 'data' => ['title' => 'Sneaky Assessment', 'passing_score' => 70, 'status' => 'active']],
             ['method' => 'post', 'uri' => route('admin.classrooms.store'), 'data' => ['name' => 'Sneaky Classroom', 'status' => 'active']],
             ['method' => 'put', 'uri' => route('admin.classrooms.update', $classroom), 'data' => ['name' => 'Sneaky Classroom', 'status' => 'inactive']],
@@ -242,13 +250,14 @@ class AdminAuthorizationTest extends TestCase
     }
 
     /**
-     * @return array{user: User, course: Course, section: Section, mission: Mission, assessment: Assessment, classroom: Classroom, announcement: Announcement}
+     * @return array{user: User, course: Course, section: Section, mission: Mission, check: KnowledgeCheck, assessment: Assessment, classroom: Classroom, announcement: Announcement}
      */
     private function boundResources(?User $user = null): array
     {
         $course = Course::factory()->create();
         $section = Section::factory()->create(['course_id' => $course->id]);
         $mission = Mission::factory()->create(['course_id' => $course->id]);
+        $check = KnowledgeCheck::factory()->create(['mission_id' => $mission->id]);
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
         $classroom = Classroom::factory()->create();
         $announcement = Announcement::factory()->create();
@@ -258,6 +267,7 @@ class AdminAuthorizationTest extends TestCase
             'course' => $course,
             'section' => $section,
             'mission' => $mission,
+            'check' => $check,
             'assessment' => $assessment,
             'classroom' => $classroom,
             'announcement' => $announcement,

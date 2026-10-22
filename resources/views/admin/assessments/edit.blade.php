@@ -5,22 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Boss Challenge · {{ $course->name }}</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.assessment', $course) }}">← Boss Challenge</a>
-                <a href="{{ route('admin.courses.edit', $course) }}">{{ $course->name }} →</a>
-            </div>
+            <span>Records · {{ $course->name }}</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Edit Boss Challenge</h1>
-            <p class="atlas-records-lede">{{ $course->name }} → {{ $assessment->title }} — assessment fields. Locking or drafting seals the challenge without rewriting recorded attempts.</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Boss Challenge record">
-                <div><dt>Status</dt><dd>{{ ucfirst($assessment->status) }}</dd></div>
-                <div><dt>Passing score</dt><dd class="is-numeric">{{ $assessment->passing_score }}%</dd></div>
-            </dl>
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'assessment'])
+
+        <h1 class="sr-only">Edit Boss Challenge</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">
@@ -90,11 +81,12 @@
                                 name="passing_score"
                                 value="{{ old('passing_score', $assessment->passing_score) }}"
                                 required
-                                min="0"
+                                min="1"
+                                max="100"
                                 class="terminal-input"
                              aria-describedby="{{ $errors->has('passing_score') ? 'passing_score-help passing_score-error' : 'passing_score-help' }}" @if ($errors->has('passing_score')) aria-invalid="true" @endif>
                             @error('passing_score')<p id="passing_score-error" class="atlas-field-error">{{ $message }}</p>@enderror
-                            <p id="passing_score-help" class="atlas-field-help">Affects future evaluations only — recorded verdicts are never rewritten.</p>
+                            <p id="passing_score-help" class="atlas-field-help">1–100. Affects future evaluations only — recorded verdicts are never rewritten.</p>
                         </div>
 
                         <div class="atlas-form-field atlas-form-field--wide">
@@ -125,13 +117,22 @@
             <section class="atlas-record-group" aria-labelledby="grading-rules-title">
                 <div class="atlas-record-group-head">
                     <h2 id="grading-rules-title" class="atlas-record-group-title">Grading rules</h2>
-                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />View only</span>
+                    <span class="atlas-stamp atlas-stamp--ink"><x-icon name="pencil" size="12" />Editable</span>
                 </div>
 
                 <div class="atlas-form">
                     <div class="atlas-form-grid">
                         <div class="atlas-form-field atlas-form-field--wide">
-                            <pre class="code-block whitespace-pre-wrap break-words">{{ $assessment->grading_rule ?? '(none)' }}</pre>
+                            <label for="grading_rule" class="atlas-lesson-entry-label">Rule definition (JSON)</label>
+                            <textarea
+                                id="grading_rule"
+                                name="grading_rule"
+                                rows="12"
+                                class="terminal-input font-mono"
+                                spellcheck="false"
+                             aria-describedby="{{ $errors->has('grading_rule') ? 'grading_rule-help grading_rule-error' : 'grading_rule-help' }}" @if ($errors->has('grading_rule')) aria-invalid="true" @endif>{{ old('grading_rule', $assessment->grading_rule ?? '') }}</textarea>
+                            @error('grading_rule')<p id="grading_rule-error" class="atlas-field-error">{{ $message }}</p>@enderror
+                            <p id="grading_rule-help" class="atlas-field-help">A non-empty JSON array of supported pattern rules. Changes bump the assessment version; recorded verdicts keep their original rule snapshot. Hidden behavioural tests are managed separately.</p>
                         </div>
                     </div>
                 </div>

@@ -7,11 +7,13 @@ import { tmpdir } from 'node:os';
 
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
-const { html, mode } = JSON.parse(input);
+const { html, mode, device, expected, sync } = JSON.parse(input);
 const directory = await mkdtemp(join(tmpdir(), 'codequest-browser-'));
 let submissions = 0;
+let themePosts = 0;
 const server = createServer(async (request, response) => {
     if (request.method === 'POST') submissions++;
+    if (request.method === 'POST' && request.url.startsWith('/theme')) themePosts++;
     try {
         if (request.url.startsWith('/build/')) {
             const path = request.url.split('?')[0];
@@ -20,7 +22,11 @@ const server = createServer(async (request, response) => {
             response.end(await readFile(join(process.cwd(), 'public', path)));
         } else {
             response.setHeader('Content-Type', 'text/html');
-            response.end(html.replace(/https?:\/\/[^"'\s<>]+(?=\/build\/)/g, ''));
+            // Keep the page same-origin with the static server so the theme
+            // write the client makes is observable here.
+            response.end(html
+                .replace(/https?:\/\/[^"'\s<>]+(?=\/build\/)/g, '')
+                .replace(/https?:\/\/[^"'\s<>]+\/theme/g, '/theme'));
         }
     } catch { response.writeHead(404).end(); }
 });
@@ -75,8 +81,58 @@ try {
     const capture = process.env.CODEQUEST_WORKSPACE_CAPTURE;
     const readOnlyModes = ['dashboard', 'learning-path'];
     const isReadOnly = readOnlyModes.includes(mode);
-    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : (mode.startsWith('experiment') ? '[data-bench]' : '.cm-content'));
+    const readySelector = waitingForAttempt ? '[data-workspace-controls]' : (isReadOnly ? 'main .atlas-dashboard, main .atlas-path' : (mode.startsWith('experiment') ? '[data-bench]' : (mode === 'theme' ? 'main' : '.cm-content')));
     await evaluate(`new Promise((resolve, reject) => { const deadline = Date.now() + 8000; const timer = setInterval(() => { if (document.querySelector(${JSON.stringify(readySelector)})) { clearInterval(timer); resolve(true); } else if (Date.now() > deadline) { clearInterval(timer); reject(new Error('Workspace failed to initialize')); } }, 50); })`);
+    if (mode === 'theme') {
+        // The device makes its choice, then the student navigates: the next
+        // page has to reconcile it with the account's.
+        await evaluate(`try { localStorage.setItem('cq-theme', ${JSON.stringify(device.theme)}); } catch (e) {} ${device.saved_at === null ? `try { localStorage.removeItem('cq-theme-at'); } catch (e) {}` : `try { localStorage.setItem('cq-theme-at', ${JSON.stringify(String(device.saved_at))}); } catch (e) {}`} true`);
+        await send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/` });
+        await evaluate(`new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+        // The page applies the theme before first paint; the assertion reads
+        // the mode the document actually ended up in.
+        assert.equal(await evaluate(`document.documentElement.dataset.themeMode`), expected);
+        assert.equal(await evaluate(`document.documentElement.classList.contains('dark')`), expected === 'dark');
+        assert.equal(await evaluate(`document.documentElement.style.colorScheme`), expected);
+        // The control is an explicit setter: the option for the mode in force
+        // is the pressed one, and the other is not. There is no icon to read.
+        assert.equal(
+            await evaluate(`document.querySelector('.atlas-theme-option[data-theme-set="${expected}"]')?.getAttribute('aria-pressed')`),
+            'true',
+        );
+        assert.equal(
+            await evaluate(`document.querySelector('.atlas-theme-option[data-theme-set="${expected === 'dark' ? 'light' : 'dark'}"]')?.getAttribute('aria-pressed')`),
+            'false',
+        );
+        if (sync) {
+            // The page applied a device choice the account does not hold, so it
+            // asks the client to carry the choice over to the account.
+            assert.equal(await evaluate(`document.documentElement.dataset.themeSync`), 'device');
+            // The client then asks the account to store that choice, so the
+            // theme applies on every device.
+            await new Promise((resolve) => setTimeout(resolve, 600));
+            assert.ok(themePosts >= 1, 'The client did not carry the device choice to the account.');
+        }
+        // Pressing an option applies that mode: no direction to misread, so a
+        // student who wants light presses Light and gets light.
+        const target = expected === 'dark' ? 'light' : 'dark';
+        await evaluate(`document.querySelector('.atlas-theme-option[data-theme-set="${target}"]').click(); true`);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        assert.equal(await evaluate(`document.documentElement.dataset.themeMode`), target);
+        assert.equal(await evaluate(`document.documentElement.classList.contains('dark')`), target === 'dark');
+        assert.equal(
+            await evaluate(`document.querySelector('.atlas-theme-option[data-theme-set="${target}"]').getAttribute('aria-pressed')`),
+            'true',
+        );
+        process.stdout.write(`Chromium ${mode} checks passed
+`);
+        socket?.close();
+        browser.kill('SIGTERM');
+        await new Promise((resolve) => { if (browser.exitCode !== null) resolve(); else browser.once('exit', resolve); });
+        await new Promise((resolve) => server.close(resolve));
+        await rm(directory, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+        process.exit(0);
+    }
     if (mode.startsWith('experiment')) {
         // The bench loads its editor when it comes near the viewport, so the
         // page is brought to it before the editor is driven.

@@ -3,114 +3,105 @@
 @section('title', 'Admin console')
 
 @section('content')
-    <div class="atlas-records">
+    <div class="atlas-records admin-workspace admin-workspace-dashboard">
         <div class="log-running atlas-records-running">
-            <span>Records · Admin console · Platform scope</span>
-            <a href="{{ route('admin.activity') }}">Audit trail →</a>
+            <span>Records · Platform scope</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">Admin console</h1>
-            <p class="atlas-records-lede">Platform management and recorded system activity. Learning and assessment results are read-only evidence.</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Platform scope">
+        <h1 class="sr-only">Admin console</h1>
+
+        <dl class="log-facts atlas-records-facts" aria-label="Platform scope">
                 <div><dt>Accounts</dt><dd class="is-numeric" data-metric="users_total">{{ $metrics['users_total'] }}</dd></div>
                 <div><dt>Courses</dt><dd class="is-numeric" data-metric="courses">{{ $metrics['courses'] }}</dd></div>
                 <div><dt>Challenges</dt><dd class="is-numeric" data-metric="challenges">{{ $metrics['challenges'] }}</dd></div>
                 <div><dt>Recorded attempts</dt><dd class="is-numeric" data-metric="attempts">{{ $metrics['attempts'] }}</dd></div>
             </dl>
-        </header>
 
-        <section class="atlas-record-group" aria-labelledby="admin-users-title">
-            <div class="atlas-record-group-head">
-                <h2 id="admin-users-title" class="atlas-record-group-title">Users</h2>
-                <p class="atlas-record-group-figure">Accounts and access</p>
-            </div>
-            <article class="atlas-record-entry">
-                <h3 class="atlas-record-entry-title">Account register</h3>
-                <p class="atlas-record-entry-copy">Create accounts, change roles and deactivate access. Every change is recorded in the audit trail.</p>
-                <dl class="log-facts atlas-record-entry-facts">
-                    <div><dt>Active</dt><dd class="is-numeric" data-metric="users_active">{{ $metrics['users_active'] }}</dd></div>
-                    <div><dt>Inactive</dt><dd class="is-numeric" data-metric="users_inactive">{{ $metrics['users_inactive'] }}</dd></div>
-                </dl>
-                <div class="atlas-record-entry-actions">
-                    <a href="{{ route('admin.users') }}" class="btn btn-primary">Manage users →</a>
+
+        <div class="admin-workspace-register" role="group" aria-label="Platform registers">
+            <section class="atlas-record-group admin-workspace-panel" aria-labelledby="admin-users-title">
+                <div class="atlas-record-group-head">
+                    <h2 id="admin-users-title" class="atlas-record-group-title">Users</h2>
+                    <p class="atlas-record-group-figure">Accounts and access</p>
                 </div>
-            </article>
-        </section>
+                <article class="atlas-record-entry">
+                    <p class="atlas-record-entry-copy">Create accounts, assign roles, and manage access.</p>
+                    <dl class="log-facts atlas-record-entry-facts">
+                        <div><dt>Active</dt><dd class="is-numeric" data-metric="users_active">{{ $metrics['users_active'] }}</dd></div>
+                        <div><dt>Inactive</dt><dd class="is-numeric" data-metric="users_inactive">{{ $metrics['users_inactive'] }}</dd></div>
+                    </dl>
+                    <div class="atlas-record-entry-actions">
+                        <a href="{{ route('admin.users') }}" class="admin-workspace-link">Manage users →</a>
+                    </div>
+                </article>
+            </section>
 
-        <section class="atlas-record-group" aria-labelledby="admin-curriculum-title">
-            <div class="atlas-record-group-head">
-                <h2 id="admin-curriculum-title" class="atlas-record-group-title">Curriculum</h2>
-                <p class="atlas-record-group-figure">Courses, sections and challenges</p>
-            </div>
-            <article class="atlas-record-entry">
-                <h3 class="atlas-record-entry-title">Curriculum register</h3>
-                <p class="atlas-record-entry-copy">Courses carry sections, sections carry challenges, and each course can end in one Boss Challenge.</p>
-                <dl class="log-facts atlas-record-entry-facts">
-                    <div><dt>Sections</dt><dd class="is-numeric" data-metric="sections">{{ $metrics['sections'] }}</dd></div>
-                    <div><dt>Boss Challenges</dt><dd class="is-numeric" data-metric="boss_challenges">{{ $metrics['boss_challenges'] }}</dd></div>
-                </dl>
-                <div class="atlas-record-entry-actions">
-                    <a href="{{ route('admin.courses') }}" class="btn btn-primary">Manage curriculum →</a>
+            <section class="atlas-record-group admin-workspace-panel" aria-labelledby="admin-curriculum-title">
+                <div class="atlas-record-group-head">
+                    <h2 id="admin-curriculum-title" class="atlas-record-group-title">Curriculum</h2>
+                    <p class="atlas-record-group-figure">Courses and challenges</p>
                 </div>
-            </article>
-        </section>
+                <article class="atlas-record-entry">
+                    <p class="atlas-record-entry-copy">Maintain courses, sections, challenges, and Boss Challenges.</p>
+                    <dl class="log-facts atlas-record-entry-facts">
+                        <div><dt>Sections</dt><dd class="is-numeric" data-metric="sections">{{ $metrics['sections'] }}</dd></div>
+                        <div><dt>Boss Challenges</dt><dd class="is-numeric" data-metric="boss_challenges">{{ $metrics['boss_challenges'] }}</dd></div>
+                    </dl>
+                    <div class="atlas-record-entry-actions">
+                        <a href="{{ route('admin.courses') }}" class="admin-workspace-link">Manage curriculum →</a>
+                    </div>
+                </article>
+            </section>
 
-        <section class="atlas-record-group" aria-labelledby="admin-assessments-title">
-            <div class="atlas-record-group-head">
-                <h2 id="admin-assessments-title" class="atlas-record-group-title">Assessments</h2>
-                <p class="atlas-record-group-figure">Recorded Boss Challenge evidence</p>
-            </div>
-            <article class="atlas-record-entry">
-                <h3 class="atlas-record-entry-title">Attempt register</h3>
-                <p class="atlas-record-entry-copy">Assessment results are read-only evidence. System analytics carries the supporting records.</p>
-                <dl class="log-facts atlas-record-entry-facts">
-                    <div><dt>Passed attempts</dt><dd class="is-numeric" data-metric="passed_attempts">{{ $metrics['passed_attempts'] }}</dd></div>
-                </dl>
-                <div class="atlas-record-entry-actions">
-                    <a href="{{ route('admin.analytics') }}" class="btn-ghost">System analytics →</a>
+            <section class="atlas-record-group admin-workspace-panel admin-workspace-panel--quiet" aria-labelledby="admin-assessments-title">
+                <div class="atlas-record-group-head">
+                    <h2 id="admin-assessments-title" class="atlas-record-group-title">Assessments</h2>
+                    <p class="atlas-record-group-figure">Recorded evidence</p>
                 </div>
-            </article>
-        </section>
+                <article class="atlas-record-entry">
+                    <p class="atlas-record-entry-copy">Review recorded Boss Challenge results and pass totals.</p>
+                    <dl class="log-facts atlas-record-entry-facts">
+                        <div><dt>Passed attempts</dt><dd class="is-numeric" data-metric="passed_attempts">{{ $metrics['passed_attempts'] }}</dd></div>
+                    </dl>
+                    <div class="atlas-record-entry-actions">
+                        <a href="{{ route('admin.analytics') }}" class="admin-workspace-link">Review analytics →</a>
+                    </div>
+                </article>
+            </section>
 
-        <section class="atlas-record-group" aria-labelledby="admin-learning-title">
-            <div class="atlas-record-group-head">
-                <h2 id="admin-learning-title" class="atlas-record-group-title">Learning</h2>
-                <p class="atlas-record-group-figure">Progress across the platform</p>
-            </div>
-            <article class="atlas-record-entry">
-                <h3 class="atlas-record-entry-title">Learning register</h3>
-                <p class="atlas-record-entry-copy">Active students are those with recorded learning activity in the last 14 days. A completion is a course whose Boss Challenge was passed.</p>
-                <dl class="log-facts atlas-record-entry-facts">
-                    <div><dt>Active students · 14d</dt><dd class="is-numeric" data-metric="active_students">{{ $metrics['active_students'] }}</dd></div>
-                    <div><dt>Course completions</dt><dd class="is-numeric" data-metric="course_completions">{{ $metrics['course_completions'] }}</dd></div>
-                </dl>
-            </article>
-        </section>
+            <section class="atlas-record-group admin-workspace-panel admin-workspace-panel--quiet" aria-labelledby="admin-learning-title">
+                <div class="atlas-record-group-head">
+                    <h2 id="admin-learning-title" class="atlas-record-group-title">Learning</h2>
+                    <p class="atlas-record-group-figure">Progress across the platform</p>
+                </div>
+                <article class="atlas-record-entry">
+                    <p class="atlas-record-entry-copy">Active students had learning activity in the last 14 days. Course completion requires a passed Boss Challenge.</p>
+                    <dl class="log-facts atlas-record-entry-facts">
+                        <div><dt>Active students · 14d</dt><dd class="is-numeric" data-metric="active_students">{{ $metrics['active_students'] }}</dd></div>
+                        <div><dt>Course completions</dt><dd class="is-numeric" data-metric="course_completions">{{ $metrics['course_completions'] }}</dd></div>
+                    </dl>
+                </article>
+            </section>
 
-        <section class="atlas-record-group" aria-labelledby="admin-operations-title">
+        </div>
+
+        <section class="atlas-record-group admin-workspace-operations" aria-labelledby="admin-operations-title">
             <div class="atlas-record-group-head">
                 <h2 id="admin-operations-title" class="atlas-record-group-title">Operations</h2>
             </div>
             <article class="atlas-record-entry">
-                <h3 class="atlas-record-entry-title">Platform operations</h3>
-                <p class="atlas-record-entry-copy">Classroom enrollment, announcements, the audit trail, analytics and system status live here.</p>
                 <nav class="atlas-record-entry-actions" aria-label="Platform operations">
-                    <a href="{{ route('admin.classrooms') }}" class="btn-ghost">Classrooms →</a>
-                    <a href="{{ route('admin.announcements') }}" class="btn-ghost">Announcements →</a>
-                    <a href="{{ route('admin.activity') }}" class="btn-ghost">Audit trail →</a>
-                    <a href="{{ route('admin.analytics') }}" class="btn-ghost">System analytics →</a>
-                    <a href="{{ route('reports.admin-system') }}" class="btn-ghost">System report →</a>
-                    <a href="{{ route('admin.system') }}" class="btn-ghost">System status →</a>
+                    <a href="{{ route('admin.classrooms') }}" class="admin-workspace-link admin-workspace-link--row">Classrooms →</a>
+                    <a href="{{ route('admin.announcements') }}" class="admin-workspace-link admin-workspace-link--row">Announcements →</a>
+                    <a href="{{ route('admin.system') }}" class="admin-workspace-link admin-workspace-link--row">System status →</a>
                 </nav>
             </article>
         </section>
 
-        <section class="atlas-record-group" aria-labelledby="admin-activity-title">
+        <section class="atlas-record-group admin-workspace-activity" aria-labelledby="admin-activity-title">
             <div class="atlas-record-group-head">
                 <h2 id="admin-activity-title" class="atlas-record-group-title">Recent system activity</h2>
-                <a href="{{ route('admin.activity') }}" class="atlas-record-group-figure">View audit trail →</a>
+                <a href="{{ route('admin.activity') }}" class="admin-workspace-link admin-workspace-audit-link">View audit trail →</a>
             </div>
             @if ($recentSystemActivity->isEmpty())
                 <div class="atlas-records-empty">

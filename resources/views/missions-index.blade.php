@@ -13,16 +13,10 @@
         ];
     @endphp
     <div class="atlas-records" data-mission-list>
-        <div class="log-running atlas-records-running">
-            <span>Records · Challenge index</span>
-            <a href="{{ route('learning-path') }}">Learning path →</a>
-        </div>
-
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Catalogue</span>
             <h1 class="atlas-records-title">Challenges</h1>
             <p class="atlas-records-lede">Practice concepts and track your coding challenges across courses.</p>
-            <dl class="log-facts atlas-records-facts">
+            <dl class="log-facts mt-4">
                 <div>
                     <dt>Shown</dt>
                     <dd class="is-numeric">{{ $rows->count() }}</dd>
@@ -47,7 +41,7 @@
             </div>
         @endif
 
-        <form method="GET" action="{{ route('missions') }}" class="atlas-index-filters" role="search">
+        <form method="GET" action="{{ route('missions') }}" class="atlas-index-filters min-[1024px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto]!" role="search">
             <div class="atlas-index-filter">
                 <label for="mission-search" class="atlas-lesson-entry-label">Search challenges</label>
                 <input id="mission-search" name="q" type="search" maxlength="200" value="{{ $filters['q'] }}" class="field w-full" placeholder="Challenge or course" autocomplete="off">
@@ -70,9 +64,9 @@
                     @endforeach
                 </select>
             </div>
-            <div class="atlas-index-filter-actions">
+            <div class="atlas-index-filter-actions self-end min-[1024px]:col-span-1!">
                 <button type="submit" class="btn btn-primary">Filter challenges</button>
-                @if ($filtersActive)
+                @if ($filtersActive && ! $rows->isEmpty())
                     <a href="{{ route('missions') }}" class="btn-ghost">Clear filters</a>
                 @endif
             </div>
@@ -81,7 +75,7 @@
         @if ($rows->isEmpty())
             <section class="atlas-records-empty" aria-labelledby="empty-missions-title">
                 <h2 id="empty-missions-title" class="atlas-records-empty-title">No challenges match</h2>
-                <p class="atlas-records-empty-copy">No challenges match the current filters. Try a different search or clear the filters.</p>
+                <p class="atlas-records-empty-copy">Try a different search, or clear the filters to see every challenge.</p>
                 @if ($filtersActive)
                     <p class="mt-4"><a href="{{ route('missions') }}" class="btn btn-secondary">Clear filters</a></p>
                 @endif
@@ -150,12 +144,19 @@
                                                             @if ($mission->description)
                                                                 <span class="atlas-index-desc">{{ $mission->description }}</span>
                                                             @endif
-                                                            <span class="atlas-index-meta">{{ $mission->difficulty }} · +{{ $mission->points }} XP</span>
+                                                            <span class="atlas-index-meta">
+                                                                {{ $mission->difficulty }} · +{{ $mission->points }} XP
+                                                                @if ($row['hasCheck'] && $state === 'NOT STARTED')
+                                                                    <span class="inline-flex items-center gap-1">· <x-icon name="clipboard-check" size="12" />Knowledge Check</span>
+                                                                @endif
+                                                            </span>
                                                         </span>
                                                         <span class="atlas-index-action">
                                                             @if ($isCurrent)
                                                                 <span class="atlas-stamp atlas-stamp--acc"><x-icon name="locate" size="12" />You are here</span>
                                                                 <span class="btn btn-primary btn-sm">Continue →</span>
+                                                            @elseif ($state === 'COMPLETED')
+                                                                <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                                                             @else
                                                                 <span class="atlas-stamp {{ $stateView['stamp'] }}">@if ($stampIcon = \App\Support\StampIcon::for($stateView['label']))<x-icon :name="$stampIcon" size="12" />@endif{{ $stateView['label'] }}</span>
                                                                 <span class="btn btn-secondary btn-sm">{{ $action }} →</span>
@@ -188,7 +189,7 @@
                 </div>
                 <aside class="atlas-index-aside" aria-label="Challenge overview">
                     <nav class="atlas-index-nav" aria-labelledby="mission-overview-heading">
-                        <h2 id="mission-overview-heading" class="atlas-index-nav-title">Courses</h2>
+                        <h2 id="mission-overview-heading" class="atlas-index-nav-title">Jump to course</h2>
                         <ul>
                             @foreach ($courseGroups as $courseId => $courseRows)
                                 <li>

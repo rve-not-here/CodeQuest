@@ -5,24 +5,10 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Announcements · Platform scope</span>
-            <a href="{{ route('admin.announcements') }}">← All announcements</a>
+            <span>Records · Platform scope</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">Edit announcement</h1>
-            <p class="atlas-records-lede">{{ $announcement->title }} · Changes do not resend a published announcement.</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Announcement record">
-                <div><dt>Status</dt><dd>{{ ucfirst($announcement->status) }}</dd></div>
-                <div><dt>Audience</dt><dd>{{ ucfirst($announcement->audience) }}</dd></div>
-                <div><dt>Author</dt><dd>{{ $announcement->creator?->username ?? '—' }}</dd></div>
-                <div>
-                    <dt>Published</dt>
-                    <dd class="is-numeric">{{ $announcement->published_at?->format('M d, Y · H:i') ?? 'Not published' }}</dd>
-                </div>
-            </dl>
-        </header>
+        <h1 class="sr-only">Edit announcement</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">

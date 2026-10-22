@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Announcements · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">Announcements</h1>
-            <p class="atlas-records-lede">Manage announcements and their audiences. Lifecycle: draft → published → archived.</p>
-        </header>
+        <h1 class="sr-only">Announcements</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -106,8 +102,6 @@
 
                                     <td data-label="Actions">
                                         <div class="atlas-row-actions">
-                                            <a href="{{ route('admin.announcements.edit', $announcement) }}" class="atlas-row-action">Edit</a>
-
                                             @if ($announcement->status === 'draft')
                                                 <form method="POST" action="{{ route('admin.announcements.publish', $announcement) }}">
                                                     @csrf

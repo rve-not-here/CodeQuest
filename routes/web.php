@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminAssessmentController;
 use App\Http\Controllers\AdminClassroomController;
 use App\Http\Controllers\AdminCourseController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminKnowledgeCheckController;
 use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminSectionController;
 use App\Http\Controllers\AdminSystemController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionIndexController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PerformanceSummaryController;
 use App\Http\Controllers\RecommendationsController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportExportController;
@@ -91,6 +93,16 @@ Route::middleware('auth')->group(function (): void {
             ->middleware(['student', 'throttle:academic-submit'])->name('knowledge-check.retry');
     });
 
+    // The lesson's own Knowledge Check panel: start, answer and retry happen
+    // in place, inside the mission panel the student is reading, and the
+    // lesson is re-rendered. No redirect, no navigation off the page.
+    Route::post('/missions/{mission}/checks/{check}/start', [MissionController::class, 'startCheck'])
+        ->middleware(['student', 'throttle:academic-submit'])->name('mission.knowledge-check.start');
+    Route::post('/missions/{mission}/checks/{check}/attempts/{attempt}/submit', [MissionController::class, 'submitCheck'])
+        ->middleware(['student', 'throttle:academic-submit'])->name('mission.knowledge-check.submit');
+    Route::post('/missions/{mission}/checks/{check}/retry', [MissionController::class, 'retryCheck'])
+        ->middleware(['student', 'throttle:academic-submit'])->name('mission.knowledge-check.retry');
+
     // Boss Challenge (assessments)
     Route::get('/assessments', [AssessmentController::class, 'index'])->middleware('student')->name('assessments');
     Route::get('/assessments/{assessment}', [AssessmentController::class, 'show'])->middleware('student')->name('assessment.show');
@@ -106,6 +118,9 @@ Route::middleware('auth')->group(function (): void {
 
     // Competency dashboard (US-507)
     Route::get('/competency', CompetencyController::class)->middleware('student')->name('competency');
+
+    // Performance Summary: the three result types in one student register.
+    Route::get('/performance', PerformanceSummaryController::class)->middleware('student')->name('performance');
 
     // Personalized recommendations (US-509)
     Route::get('/recommendations', RecommendationsController::class)->middleware('student')->name('recommendations');
@@ -239,14 +254,22 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/admin/courses/{course}/missions/{mission}/edit', [AdminMissionController::class, 'edit'])->name('admin.courses.missions.edit');
     Route::put('/admin/courses/{course}/missions/{mission}', [AdminMissionController::class, 'update'])->name('admin.courses.missions.update');
 
+    // Knowledge Check metadata (P1-1): nested under Course → Mission. Edits
+    // title, instructions, the required gate, and lifecycle status only.
+    // Question/option content stays on the curriculum release path. The
+    // required gate is what KnowledgeCheckGate enforces for new mission work.
+    Route::get('/admin/courses/{course}/missions/{mission}/checks', [AdminKnowledgeCheckController::class, 'index'])->name('admin.courses.missions.checks');
+    Route::get('/admin/courses/{course}/missions/{mission}/checks/{check}/edit', [AdminKnowledgeCheckController::class, 'edit'])->name('admin.courses.missions.checks.edit');
+    Route::put('/admin/courses/{course}/missions/{mission}/checks/{check}', [AdminKnowledgeCheckController::class, 'update'])->name('admin.courses.missions.checks.update');
+
     // Assessment management (US-708, §24.0): nested under the course, but
     // singular — a course has exactly one Boss Challenge (the the404_assessments
     // unique course_id constraint), so there is one index/edit/update, not a
     // collection. Edits title/description/instructions/passing_score/status.
-    // grading_rule is view-only (Authored via the AssessmentSeeder, the same
-    // controlled path as solution_code/validate_rule). assessment.status is an
-    // access gate: locking/drafting seals the challenge but never rewrites
-    // recorded attempts. Create/delete are out of scope for this story.
+    // grading_rule is an audited admin write (P2-7) validated against the
+    // academic rule contract. assessment.status is an access gate:
+    // locking/drafting seals the challenge but never rewrites recorded
+    // attempts. Create/delete are out of scope for this story.
     Route::get('/admin/courses/{course}/assessment', [AdminAssessmentController::class, 'index'])->name('admin.courses.assessment');
     Route::get('/admin/courses/{course}/assessment/{assessment}/edit', [AdminAssessmentController::class, 'edit'])->name('admin.courses.assessment.edit');
     Route::put('/admin/courses/{course}/assessment/{assessment}', [AdminAssessmentController::class, 'update'])->name('admin.courses.assessment.update');

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Activity;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Section;
@@ -11,7 +10,6 @@ use App\Services\DashboardService;
 use App\Services\RecommendationService;
 use App\Services\ResumeService;
 use App\Services\StudentReminderService;
-use App\Services\TimelineService;
 use App\Support\MissionView;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -41,8 +39,15 @@ class DashboardController extends Controller
             ->exists();
         $progress = $course !== null ? $this->dashboard->courseProgress($user, $course) : null;
         $resume = $this->resume->resolve($user);
-        $focusCard = $this->recommendations->recommendations($user)
-            ->first(fn (array $card): bool => $card['slot'] !== 1);
+        $recommendations = $this->recommendations->recommendations($user);
+
+        // Prefer a card the student can act on now; when nothing is actionable,
+        // surface the first locked card so the page explains why instead of
+        // offering a link that would bounce. Selection never invents a position:
+        // the order comes from the canonical recommendation set.
+        $focusCard = $recommendations
+            ->first(fn (array $card): bool => $card['slot'] !== 1 && ($card['accessible'] ?? true))
+            ?? $recommendations->first(fn (array $card): bool => $card['slot'] !== 1);
 
         // US-809: the student's reminders are synced lazily from the dashboard
         // — the same deliberate write side-effect on an otherwise read-only
@@ -57,10 +62,7 @@ class DashboardController extends Controller
             'course' => $course,
             'hasLearnableCourses' => $hasLearnableCourses,
             'courseProgress' => $progress,
-            'recentActivity' => $this->dashboard->recentActivity($user)
-                ->reject(fn (Activity $activity): bool => in_array($activity->type, TimelineService::NON_LEARNING_ACTIVITY_TYPES, true))
-                ->take(4)
-                ->values(),
+            'recentActivity' => $this->dashboard->recentActivity($user, 4),
             'resume' => $this->resumeViewData($resume),
             'resumeHasDraft' => $this->resumeHasDraft($user, $resume),
             'focusCard' => $focusCard,

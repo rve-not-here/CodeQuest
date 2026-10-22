@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\KnowledgeCheckAccessDeniedException;
+use App\Exceptions\KnowledgeCheckStateException;
+use App\Exceptions\KnowledgeCheckUnavailableException;
+use App\Http\Requests\KnowledgeCheckSubmitRequest;
+use App\Models\Activity;
+use App\Models\KnowledgeCheck;
+use App\Models\KnowledgeCheckAttempt;
 use App\Models\Mission;
 use App\Models\User;
 use App\Services\AchievementService;
 use App\Services\AssessmentService;
 use App\Services\DashboardService;
 use App\Services\DraftService;
+use App\Services\KnowledgeCheckGate;
 use App\Services\KnowledgeCheckService;
 use App\Services\MissionService;
 use App\Services\XpService;
@@ -16,6 +24,7 @@ use App\Support\MissionView;
 use App\Support\SourceCodeInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\ValidatedInput;
 use Illuminate\View\View;
 
 class MissionController extends Controller
@@ -27,6 +36,7 @@ class MissionController extends Controller
         private readonly DashboardService $dashboard,
         private readonly AchievementService $achievements,
         private readonly KnowledgeCheckService $knowledgeChecks,
+        private readonly KnowledgeCheckGate $checkGate,
         private readonly AssessmentService $assessments,
     ) {}
 
@@ -45,6 +55,87 @@ class MissionController extends Controller
         $this->ensureCourseReached($user, $mission);
 
         return view('lesson', $this->lessonData($user, $mission));
+    }
+
+    /**
+     * Start the mission's Knowledge Check from the lesson's own panel.
+     *
+     * The check opens in place: the lesson is re-rendered with the form in
+     * the panel, so the student never leaves the page they are reading.
+     * Starting twice is harmless — the service returns the open attempt.
+     */
+    public function startCheck(Mission $mission, KnowledgeCheck $check): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission);
+
+        try {
+            $this->knowledgeChecks->start($user, $mission, $check);
+        } catch (KnowledgeCheckUnavailableException) {
+            abort(404);
+        }
+
+        return $this->show($mission);
+    }
+
+    /**
+     * Answer the mission's Knowledge Check from the lesson's own panel.
+     *
+     * The answers are scored by the same service the standalone attempt
+     * screen uses; the lesson is re-rendered with the result, so the panel
+     * stays where the student left it.
+     */
+    public function submitCheck(
+        KnowledgeCheckSubmitRequest $request,
+        Mission $mission,
+        KnowledgeCheck $check,
+        KnowledgeCheckAttempt $attempt,
+    ): View {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission);
+
+        /** @var ValidatedInput $payload */
+        $payload = $request->safe(['answers']);
+        /** @var array<int|string, int|string> $answers */
+        $answers = $payload['answers'];
+
+        try {
+            $this->knowledgeChecks->submit($user, $mission, $check, $attempt, $answers);
+        } catch (KnowledgeCheckAccessDeniedException|KnowledgeCheckUnavailableException) {
+            abort(404);
+        }
+
+        return $this->show($mission);
+    }
+
+    /**
+     * Open a fresh attempt on the mission's Knowledge Check, in place.
+     */
+    public function retryCheck(Mission $mission, KnowledgeCheck $check): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $this->ensureCourseActive($mission);
+        $this->ensureCourseReached($user, $mission);
+
+        try {
+            $this->knowledgeChecks->retry($user, $mission, $check);
+        } catch (KnowledgeCheckUnavailableException) {
+            abort(404);
+        } catch (KnowledgeCheckStateException $exception) {
+            session()->flash('knowledge_check_error', $exception->getMessage());
+
+            return $this->show($mission);
+        }
+
+        return $this->show($mission);
     }
 
     /**
@@ -92,7 +183,7 @@ class MissionController extends Controller
 
         $this->ensureCourseReached($user, $mission);
 
-        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+        if (($redirect = $this->knowledgeCheckGate($user, $mission, preserveCode: true)) !== null) {
             return $redirect;
         }
 
@@ -160,7 +251,7 @@ class MissionController extends Controller
 
         $this->ensureCourseReached($user, $mission);
 
-        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+        if (($redirect = $this->knowledgeCheckGate($user, $mission, preserveCode: true)) !== null) {
             return $redirect;
         }
 
@@ -183,7 +274,7 @@ class MissionController extends Controller
 
         $this->ensureCourseReached($user, $mission);
 
-        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+        if (($redirect = $this->knowledgeCheckGate($user, $mission, preserveCode: true)) !== null) {
             return $redirect;
         }
 
@@ -232,7 +323,7 @@ class MissionController extends Controller
 
         $this->ensureCourseReached($user, $mission);
 
-        if (($redirect = $this->knowledgeCheckGate($user, $mission)) !== null) {
+        if (($redirect = $this->knowledgeCheckGate($user, $mission, preserveCode: true)) !== null) {
             return $redirect;
         }
 
@@ -242,6 +333,14 @@ class MissionController extends Controller
             return back()
                 ->withInput(['code' => $request->input('code')])
                 ->with('reveal_flat', true);
+        }
+
+        // A student must attempt the challenge before the reference solution
+        // unlocks. Hints remain available; the answer is not the first move.
+        if (! $this->hasFailedAttempt($user, $mission)) {
+            return back()
+                ->withInput(['code' => $request->input('code')])
+                ->with('reveal_requires_attempt', true);
         }
 
         $cost = $this->xp->revealCost();
@@ -264,6 +363,15 @@ class MissionController extends Controller
             ->with('solution_revealed', true);
     }
 
+    private function hasFailedAttempt(User $user, Mission $mission): bool
+    {
+        return Activity::query()
+            ->where('user_id', $user->id)
+            ->where('mission_id', $mission->id)
+            ->where('type', 'wrong_submission')
+            ->exists();
+    }
+
     /**
      * Lesson screen data. A lean authoring subset of viewData(): the lesson
      * teaches the mission (title, difficulty, concept, starter scaffold) and
@@ -283,10 +391,7 @@ class MissionController extends Controller
             'completed' => $this->missions->isCompleted($user, $mission),
             'totalXp' => $this->xp->balance($user),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
-            'knowledgeChecks' => $this->knowledgeChecks->lessonSummaries($user, $mission)
-                ->map(fn (array $summary): array => array_merge($summary, [
-                    'check' => KnowledgeCheckView::from($summary['check']),
-                ])),
+            'knowledgeChecks' => $this->knowledgeChecks->missionPanels($user, $mission),
             'outstandingRequiredCheck' => $this->requiredCheckView($user, $mission),
         ];
     }
@@ -297,7 +402,7 @@ class MissionController extends Controller
      */
     private function requiredCheckView(User $user, Mission $mission): ?KnowledgeCheckView
     {
-        $required = $this->knowledgeChecks->firstOutstandingRequired($user, $mission);
+        $required = $this->checkGate->outstanding($user, $mission);
 
         return $required === null ? null : KnowledgeCheckView::from($required);
     }
@@ -323,15 +428,22 @@ class MissionController extends Controller
             'section' => $mission->section,
             'completed' => $completed,
             'totalXp' => $this->xp->balance($user),
-            'code' => $solutionRevealed && $mission->solution_code !== null ? $mission->solution_code : ($draft->code ?? ''),
+            // A challenge with no draft opens on the corrupted source the brief
+            // describes. An empty editor made every student retype the starter
+            // when they moved from the lesson bench into the graded challenge.
+            'code' => $solutionRevealed && $mission->solution_code !== null
+                ? $mission->solution_code
+                : ($draft->code ?? (string) $mission->broken_code),
             'hasDraft' => $draft !== null,
             'solutionRevealed' => $solutionRevealed,
             'hints' => $revealedHints,
             'revealedHintCount' => $revealedCount,
             'totalHintCount' => count($hints),
             'nextHintCost' => $this->xp->hintCost($revealedCount + 1),
+            'firstHintCost' => $this->xp->hintCost(1),
             'revealCost' => $this->xp->revealCost(),
             'hasSolution' => $this->xp->hasSolution($mission),
+            'solutionRequirementMet' => $this->hasFailedAttempt($user, $mission),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
         ];
     }
@@ -399,18 +511,29 @@ class MissionController extends Controller
         }
     }
 
-    private function knowledgeCheckGate(User $user, Mission $mission): ?RedirectResponse
+    /**
+     * Required-check preflight for the friendly redirect. The authoritative
+     * enforcement lives in the domain services (MissionService, DraftService,
+     * XpService) via KnowledgeCheckGate; this method only shapes the response.
+     */
+    private function knowledgeCheckGate(User $user, Mission $mission, bool $preserveCode = false): ?RedirectResponse
     {
-        $required = $this->knowledgeChecks->firstOutstandingRequired($user, $mission);
+        $required = $this->checkGate->outstanding($user, $mission);
 
         if ($required === null) {
             return null;
         }
 
-        return redirect()->route('mission.show', $mission)
+        $redirect = redirect()->route('mission.show', $mission)
             ->with('knowledge_check_info', [
                 'title' => 'Knowledge Check required',
                 'message' => "Complete {$required->title} before opening this Challenge.",
             ]);
+
+        // A blocked mutation must not cost the student their source. Drafts are
+        // explicit-only, so the redirect has to carry the submitted code back.
+        return $preserveCode
+            ? $redirect->withInput(['code' => request()->input('code')])
+            : $redirect;
     }
 }

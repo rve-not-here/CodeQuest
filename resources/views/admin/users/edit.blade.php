@@ -5,18 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Users · Platform scope</span>
+            <span>Records · Platform scope</span>
             <div class="atlas-records-running-links">
                 <a href="{{ route('admin.users.show', $user) }}">← {{ $user->username }}</a>
-                <a href="{{ route('admin.users') }}">All users →</a>
             </div>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Accounts</span>
-            <h1 class="atlas-records-title">Edit account</h1>
-            <p class="atlas-records-lede">{{ $user->username }} · Update account details and access. Role and status changes are recorded in the audit trail.</p>
-        </header>
+        <h1 class="sr-only">Edit account</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">

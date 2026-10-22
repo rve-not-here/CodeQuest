@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -171,6 +172,14 @@ class StudentVisibilityTest extends TestCase
     {
         ['student' => $student, 'mission' => $mission] = $this->fixture();
         $this->fund($student, $mission);
+
+        Activity::query()->create([
+            'user_id' => $student->id,
+            'mission_id' => $mission->id,
+            'type' => 'wrong_submission',
+            'message' => 'Wrong submission',
+            'pts' => 0,
+        ]);
 
         $before = $this->actingAs($student)->get(route('mission.challenge', $mission));
         $before->assertOk();
@@ -365,7 +374,7 @@ class StudentVisibilityTest extends TestCase
         );
         $this->assertNotContains('grading_rule', array_keys(get_object_vars($assessmentView)));
 
-        $this->assertSame(['status', 'score', 'code'], array_keys(get_object_vars($attemptView)));
+        $this->assertSame(['status', 'score', 'code', 'testsTotal', 'testsPassed', 'failureFeedback'], array_keys(get_object_vars($attemptView)));
         $this->assertNotContains('grading_rule_snapshot', array_keys(get_object_vars($attemptView)));
 
         $this->assertSame(

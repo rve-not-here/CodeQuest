@@ -21,7 +21,10 @@ class KnowledgeCheckSubmitRequest extends FormRequest
         }
 
         $attempt = $this->route('attempt');
-        $check = $this->route('knowledgeCheck');
+        // The lesson's own panel posts under a `check` parameter; the
+        // standalone attempt screen posts under `knowledgeCheck`. One
+        // request, one authorization contract, two hosts.
+        $check = $this->route('knowledgeCheck') ?? $this->route('check');
         $mission = $this->route('mission');
 
         if (! $attempt instanceof KnowledgeCheckAttempt || $attempt->user_id !== $user->id) {
@@ -52,6 +55,9 @@ class KnowledgeCheckSubmitRequest extends FormRequest
         return [
             'answers' => ['required', 'array', 'min:1', 'max:50'],
             'answers.*' => ['required', 'integer'],
+            // The mission workspace hosts the check in its own tab; the
+            // student returns there instead of the standalone attempt screen.
+            'return_to' => ['nullable', 'in:mission'],
         ];
     }
 }

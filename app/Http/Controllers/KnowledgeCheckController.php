@@ -16,6 +16,7 @@ use App\Services\XpService;
 use App\Support\KnowledgeCheckView;
 use App\Support\MissionView;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\ValidatedInput;
 use Illuminate\View\View;
 
@@ -27,7 +28,7 @@ class KnowledgeCheckController extends Controller
         private readonly XpService $xp,
     ) {}
 
-    public function start(Mission $mission, KnowledgeCheck $knowledgeCheck): RedirectResponse
+    public function start(Request $request, Mission $mission, KnowledgeCheck $knowledgeCheck): RedirectResponse
     {
         $user = $this->student();
         $this->ensureCourseActive($mission);
@@ -37,6 +38,10 @@ class KnowledgeCheckController extends Controller
             $attempt = $this->knowledgeChecks->start($user, $mission, $knowledgeCheck);
         } catch (KnowledgeCheckUnavailableException) {
             abort(404);
+        }
+
+        if ($this->returnsToMission($request)) {
+            return redirect(route('mission.challenge', $mission).'#workspace-check');
         }
 
         return redirect()->route('knowledge-check.show', [$mission, $knowledgeCheck, $attempt]);
@@ -96,10 +101,14 @@ class KnowledgeCheckController extends Controller
             abort(404);
         }
 
+        if ($this->returnsToMission($request)) {
+            return redirect(route('mission.challenge', $mission).'#workspace-check');
+        }
+
         return redirect()->route('knowledge-check.show', [$mission, $knowledgeCheck, $attempt]);
     }
 
-    public function retry(Mission $mission, KnowledgeCheck $knowledgeCheck): RedirectResponse
+    public function retry(Request $request, Mission $mission, KnowledgeCheck $knowledgeCheck): RedirectResponse
     {
         $user = $this->student();
         $this->ensureCourseActive($mission);
@@ -114,7 +123,21 @@ class KnowledgeCheckController extends Controller
                 ->with('knowledge_check_error', $exception->getMessage());
         }
 
+        if ($this->returnsToMission($request)) {
+            return redirect(route('mission.challenge', $mission).'#workspace-check');
+        }
+
         return redirect()->route('knowledge-check.show', [$mission, $knowledgeCheck, $attempt]);
+    }
+
+    /**
+     * The mission workspace hosts the check in its own tab, so an action
+     * taken there returns to that tab instead of the standalone attempt
+     * screen. The destination is a fixed route, never a client-supplied URL.
+     */
+    private function returnsToMission(Request $request): bool
+    {
+        return $request->input('return_to') === 'mission';
     }
 
     private function student(): User

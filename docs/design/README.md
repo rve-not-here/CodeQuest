@@ -2,7 +2,7 @@
 
 ## Authority
 
-`docs/CODEQUEST_MASTER_SPEC.md` is the authoritative specification for:
+[`CODEQUEST_MASTER_SPEC_FINAL_UPDATED.md`](../../CODEQUEST_MASTER_SPEC_FINAL_UPDATED.md) at the repository root is the authoritative specification for:
 
 - product behavior
 - domain rules
@@ -14,6 +14,8 @@
 - accessibility
 - responsive behavior
 - QA requirements
+
+`CONTEXT.md` at the repository root fixes the domain vocabulary. Where either one and the running code disagree, the running code plus its tests decide what is true, and the disagreement is recorded rather than smoothed over.
 
 ## Approved focused workspace prototype
 

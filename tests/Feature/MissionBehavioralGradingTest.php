@@ -260,6 +260,11 @@ class MissionBehavioralGradingTest extends TestCase
 
         $this->assertDatabaseMissing('the404_progress', ['user_id' => $student->id, 'mission_id' => $mission->id]);
         $this->assertSame(0, XpTransaction::query()->where('user_id', $student->id)->count());
+        $this->assertDatabaseHas('the404_activity', [
+            'user_id' => $student->id,
+            'type' => 'grading_unavailable',
+            'mission_id' => $mission->id,
+        ]);
     }
 
     public function test_grader_http_error_fails_closed(): void

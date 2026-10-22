@@ -60,25 +60,48 @@ class ThemePreferenceTest extends TestCase
         $user = User::factory()->create();
         UserPreference::factory()->dark()->create(['user_id' => $user->id]);
 
-        $this->actingAs($user)
+        $html = $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('var stored = "dark";', false)
             ->assertSee('data-theme-server="dark"', false)
-            ->assertSee('aria-label="Theme: Dark. Switch to light."', false)
-            ->assertSee('data-theme-endpoint="'.route('theme.update').'"', false);
+            ->assertSee('data-theme-endpoint="'.route('theme.update').'"', false)
+            ->getContent();
+
+        // The single toggle names the next mode, not the current one.
+        $this->assertStringContainsString('aria-label="Switch to light mode"', $html);
+        $this->assertStringNotContainsString('aria-pressed', $html);
+    }
+
+    public function test_the_account_choice_carries_the_time_it_was_made(): void
+    {
+        $user = User::factory()->create();
+        $preference = UserPreference::factory()->dark()->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            // The page compares the account's timestamp with the device's, so
+            // a choice the student just made is not overwritten by an account
+            // write that has not landed yet.
+            ->assertSee('var storedAt = '.$preference->updated_at->getTimestampMs().';', false)
+            ->assertSee('localStorage.getItem(\'cq-theme-at\')', false);
     }
 
     public function test_accounts_without_a_preference_keep_the_device_choice(): void
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)
+        $html = $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('var stored = null;', false)
             ->assertDontSee('data-theme-server', false)
             ->assertSee('data-theme-endpoint="'.route('theme.update').'"', false)
-            ->assertSee('aria-label="Theme: Light. Switch to dark."', false);
+            ->getContent();
+
+        // Light is the default until the student says otherwise.
+        $this->assertStringContainsString('aria-label="Switch to dark mode"', $html);
+        $this->assertStringNotContainsString('aria-pressed', $html);
     }
 }

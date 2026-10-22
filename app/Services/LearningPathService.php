@@ -186,8 +186,11 @@ class LearningPathService
     }
 
     /**
-     * The mission the student should land on next: the first mission in
-     * course order that is not completed, preferring an in-progress draft.
+     * The mission the student should land on next.
+     *
+     * Delegates to DashboardService::nextMission() — the one canonical
+     * resolver — so the learning path, dashboard, resume and recommendation
+     * surfaces can never disagree about the current position.
      */
     public function nextMission(User $user, ?Course $course = null): ?Mission
     {
@@ -197,31 +200,7 @@ class LearningPathService
             return null;
         }
 
-        $missions = $course->missions()
-            ->orderBy('order_num')
-            ->with('section')
-            ->get();
-
-        $completed = $this->completedMissionIds($user, $course);
-        $drafts = $this->draftMissionIds($user, $course);
-
-        foreach ($drafts as $id) {
-            if (! in_array($id, $completed, true)) {
-                $mission = $missions->firstWhere('id', $id);
-
-                if ($mission !== null) {
-                    return $mission;
-                }
-            }
-        }
-
-        foreach ($missions as $mission) {
-            if (! in_array($mission->id, $completed, true)) {
-                return $mission;
-            }
-        }
-
-        return null;
+        return $this->dashboard->nextMission($user, $course);
     }
 
     /**
@@ -283,27 +262,5 @@ class LearningPathService
             'total' => $total,
             'percent' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
         ];
-    }
-
-    /**
-     * @return array<int, int>
-     */
-    private function completedMissionIds(User $user, Course $course): array
-    {
-        return $user->progress()
-            ->whereIn('mission_id', $course->missions()->select('id'))
-            ->pluck('mission_id')
-            ->all();
-    }
-
-    /**
-     * @return array<int, int>
-     */
-    private function draftMissionIds(User $user, Course $course): array
-    {
-        return $user->missionDrafts()
-            ->whereIn('mission_id', $course->missions()->select('id'))
-            ->pluck('mission_id')
-            ->all();
     }
 }

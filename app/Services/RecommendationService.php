@@ -53,6 +53,16 @@ class RecommendationService
 
     public const REVIEW_LIMIT = 3;
 
+    /**
+     * Per-call availability memo. Every card for the same course shares one
+     * reach read, so the card set does not add a query per card. Cleared at
+     * the start of each recommendations() call, so a long-lived instance
+     * (queue worker, teacher loop over students) can never serve stale state.
+     *
+     * @var array<string, array{accessible: bool, locked_reason: string|null}>
+     */
+    private array $availabilityCache = [];
+
     public function __construct(
         private readonly ResumeService $resume,
         private readonly AssessmentService $assessments,
@@ -73,6 +83,8 @@ class RecommendationService
      */
     public function recommendations(User $user, ?SupportCollection $courseIds = null): SupportCollection
     {
+        $this->availabilityCache = [];
+
         $position = $this->positionCard($user, $courseIds);
         $review = $this->reviewCards($user, $courseIds);
 
@@ -118,16 +130,84 @@ class RecommendationService
         }
 
         if ($this->nextCourseAfterCompletion($user, $course)) {
-            return $this->nextCourseCard($course);
+            return $this->nextCourseCard($user, $course);
         }
 
         $mission = $resume['mission'] ?? null;
 
         if ($mission !== null) {
-            return $this->continueLearningCard($mission);
+            return $this->continueLearningCard($user, $mission);
         }
 
-        return $this->courseCard($course);
+        return $this->courseCard($user, $course);
+    }
+
+    /**
+     * Availability for a whole course, from the student's own state. Every
+     * card reports it so the dashboard can render a locked card honestly
+     * instead of linking into a surface the student cannot open.
+     *
+     * @return array{accessible: bool, locked_reason: string|null}
+     */
+    private function courseAvailability(User $user, Course $course): array
+    {
+        $key = 'course:'.$user->id.':'.$course->id;
+
+        if (array_key_exists($key, $this->availabilityCache)) {
+            return $this->availabilityCache[$key];
+        }
+
+        if ($course->status !== 'active') {
+            return $this->availabilityCache[$key] = [
+                'accessible' => false,
+                'locked_reason' => 'This course is sealed.',
+            ];
+        }
+
+        if (! $this->assessments->isCourseReached($user, $course)) {
+            return $this->availabilityCache[$key] = [
+                'accessible' => false,
+                'locked_reason' => 'Clear the previous course to open this one.',
+            ];
+        }
+
+        return $this->availabilityCache[$key] = ['accessible' => true, 'locked_reason' => null];
+    }
+
+    /**
+     * @return array{accessible: bool, locked_reason: string|null}
+     */
+    private function challengeAvailability(User $user, Course $course): array
+    {
+        $key = 'boss:'.$user->id.':'.$course->id;
+
+        if (array_key_exists($key, $this->availabilityCache)) {
+            return $this->availabilityCache[$key];
+        }
+
+        $availability = $this->courseAvailability($user, $course);
+
+        if (! $availability['accessible']) {
+            return $this->availabilityCache[$key] = $availability;
+        }
+
+        $assessment = $course->assessment;
+
+        if ($assessment === null || $assessment->status !== 'active') {
+            return $this->availabilityCache[$key] = [
+                'accessible' => false,
+                'locked_reason' => 'The Boss Challenge is not open right now.',
+            ];
+        }
+
+        if (! $this->assessments->isEligible($user, $course)) {
+            return $this->availabilityCache[$key] = [
+                'accessible' => false,
+                'locked_reason' => 'Finish every challenge in this course to unlock the Boss Challenge.',
+            ];
+        }
+
+        return $this->availabilityCache[$key] = ['accessible' => true, 'locked_reason' => null];
     }
 
     /**
@@ -151,14 +231,17 @@ class RecommendationService
     private function challengeCard(User $user, Course $course): array
     {
         $assessment = $course->assessment;
-        $unlocked = $this->assessments->isUnlocked($user, $course);
+        $availability = $this->challengeAvailability($user, $course);
 
         return [
             'slot' => 2,
             'title' => 'Boss Challenge',
             'subtitle' => $course->name.' · '.($assessment->title ?? 'Take the Boss Challenge'),
-            'href' => $unlocked && $assessment !== null ? route('assessment.show', $assessment) : route('learning-path'),
-            'cta' => $unlocked ? 'Start challenge' : 'View learning path',
+            'href' => $availability['accessible'] && $assessment !== null
+                ? route('assessment.show', $assessment)
+                : route('learning-path'),
+            'cta' => $availability['accessible'] ? 'Start challenge' : 'View learning path',
+            ...$availability,
         ];
     }
 
@@ -175,14 +258,20 @@ class RecommendationService
      *     locked_reason?: string|null,
      * }
      */
-    private function continueLearningCard(Mission $mission): array
+    private function continueLearningCard(User $user, Mission $mission): array
     {
+        // The position card is reachable by construction: ResumeService only
+        // resolves the current course, and currentCourse filters to active,
+        // unreached-Boss courses. Re-deriving reach here would add queries per
+        // card without changing the verdict.
         return [
             'slot' => 1,
             'title' => 'Continue learning',
             'subtitle' => $mission->title.' · '.($mission->course->name ?? ''),
             'href' => route('mission.show', $mission),
             'cta' => 'Continue',
+            'accessible' => true,
+            'locked_reason' => null,
         ];
     }
 
@@ -200,7 +289,7 @@ class RecommendationService
      *     locked_reason?: string|null,
      * }
      */
-    private function courseCard(Course $course): array
+    private function courseCard(User $user, Course $course): array
     {
         return [
             'slot' => 1,
@@ -208,6 +297,8 @@ class RecommendationService
             'subtitle' => $course->name,
             'href' => route('learning-path'),
             'cta' => 'Continue',
+            'accessible' => true,
+            'locked_reason' => null,
         ];
     }
 
@@ -227,14 +318,18 @@ class RecommendationService
      *     locked_reason?: string|null,
      * }
      */
-    private function nextCourseCard(Course $course): array
+    private function nextCourseCard(User $user, Course $course): array
     {
+        // Produced only for the course just completed, which is active and
+        // reached by definition — see nextCourseAfterCompletion().
         return [
             'slot' => 4,
             'title' => 'Next course',
             'subtitle' => $course->name,
             'href' => route('learning-path'),
             'cta' => 'Open course',
+            'accessible' => true,
+            'locked_reason' => null,
         ];
     }
 

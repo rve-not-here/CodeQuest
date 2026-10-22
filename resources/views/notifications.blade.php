@@ -4,28 +4,34 @@
 
 @section('content')
     @php
-        $runningFigures = $notifications->total().' total'.($unreadCount > 0 ? ' · '.$unreadCount.' unread' : '');
+        $runningFigures = $filter === 'unread'
+            ? $unreadCount.' unread'
+            : $totalCount.' total'.($unreadCount > 0 ? ' · '.$unreadCount.' unread' : '');
         [$inboxRoute, $inboxLabel] = match ($role) {
-            'student' => [route('learning-path'), 'Learning path →'],
+            'student' => [null, null],
             'admin' => [route('admin.dashboard'), 'Admin console →'],
-            'teacher', 'instructor' => [route('students'), 'Students →'],
+            'teacher', 'instructor' => [null, null],
             default => [null, null],
         };
     @endphp
 
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Notifications · {{ $runningFigures }}</span>
+            <span>{{ $role === 'student' ? $runningFigures : $runningFigures }}</span>
             @if ($inboxRoute !== null)
                 <a href="{{ $inboxRoute }}">{{ $inboxLabel }}</a>
             @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Inbox</span>
             <h1 class="atlas-records-title">Notifications</h1>
             <p class="atlas-records-lede">Challenge updates, Boss Challenge results and system announcements.</p>
         </header>
+
+        <nav class="atlas-inbox-tabs" aria-label="Inbox filters">
+            <a href="{{ route('notifications') }}" @if ($filter === 'all') aria-current="page" @endif>All <span>{{ $totalCount }}</span></a>
+            <a href="{{ route('notifications', ['filter' => 'unread']) }}" @if ($filter === 'unread') aria-current="page" @endif>Unread <span>{{ $unreadCount }}</span></a>
+        </nav>
 
         @if (session('notification_success'))
             <div class="atlas-records-alerts">
@@ -38,8 +44,19 @@
 
         @if ($notifications->isEmpty())
             <section class="atlas-records-empty" aria-labelledby="empty-inbox-title">
-                <h2 id="empty-inbox-title" class="atlas-records-empty-title">Inbox empty</h2>
-                <p class="atlas-records-empty-copy">System messages and learning events will appear here.</p>
+                @if ($filter === 'unread')
+                    <h2 id="empty-inbox-title" class="atlas-records-empty-title">No unread notifications</h2>
+                    <p class="atlas-records-empty-copy">Everything in your inbox has been read.</p>
+                    <a href="{{ route('notifications') }}" class="btn btn-secondary">View all notifications <span aria-hidden="true">→</span></a>
+                @else
+                    <h2 id="empty-inbox-title" class="atlas-records-empty-title">Inbox empty</h2>
+                    <p class="atlas-records-empty-copy">System messages and learning events will appear here.</p>
+                    @if ($role === 'student')
+                        <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
+                    @else
+                        <a href="{{ route('timeline') }}" class="btn btn-secondary">Open learning timeline <span aria-hidden="true">→</span></a>
+                    @endif
+                @endif
             </section>
         @else
             <div class="atlas-records-toolbar">
@@ -68,6 +85,24 @@
                             \App\Services\NotificationService::TYPE_SYSTEM_ANNOUNCEMENT => 'megaphone',
                             default => 'bell',
                         };
+                        // The stored message repeats the title for ledger fidelity;
+                        // show only the part the title has not already said.
+                        $displayCopy = $notification->message;
+                        foreach ([
+                            $notification->title.': ',
+                            $notification->title.' — ',
+                            'Achievement unlocked: ',
+                            'Challenge completed: ',
+                            'Boss Challenge completed: ',
+                            'Boss Challenge failed: ',
+                            'Knowledge Check completed: ',
+                        ] as $prefix) {
+                            if (str_starts_with($displayCopy, $prefix)) {
+                                $displayCopy = substr($displayCopy, strlen($prefix));
+
+                                break;
+                            }
+                        }
                     @endphp
                     <li class="atlas-notification" data-state="{{ $isUnread ? 'unread' : 'read' }}">
                         <span class="atlas-notification-mark" aria-hidden="true"><x-icon :name="$notificationIcon" size="14" /></span>
@@ -82,21 +117,19 @@
                                     <span class="atlas-stamp atlas-stamp--amb"><x-icon name="megaphone" size="12" />System</span>
                                 @endif
                             </div>
-                            <p class="atlas-notification-copy">{{ $notification->message }}</p>
+                            <p class="atlas-notification-copy">{{ $displayCopy }}</p>
                             <p class="atlas-record-meta">
                                 <time datetime="{{ $notification->created_at->toIso8601String() }}">{{ $notification->created_at->format('M d, Y · H:i') }}</time>
                             </p>
                         </div>
-                        <div class="atlas-notification-action">
-                            @if ($isUnread)
+                        @if ($isUnread)
+                            <div class="atlas-notification-action">
                                 <form method="POST" action="{{ route('notifications.read', $notification) }}">
                                     @csrf
-                                    <button type="submit" class="btn-ghost">Mark read</button>
+                                    <button type="submit" class="atlas-row-action">Mark read</button>
                                 </form>
-                            @else
-                                <span class="atlas-stamp atlas-stamp--ink"><x-icon name="mail-open" size="12" />Read</span>
-                            @endif
-                        </div>
+                            </div>
+                        @endif
                     </li>
                 @endforeach
             </ol>

@@ -14,3 +14,6 @@ Every admin view renders inside the atlas shell (`body.atlas-ui.admin-ui`) as a 
 
 ## Admin test bindings survive restyling
 AdminDashboardTest pins strings (Users / Curriculum / Assessments / Learning / Recent System Activity), the `data-metric` dd regex, the audit `<caption>`/`th` markup, and all seven admin destination routes inside `<main>`; AdminUserTest pins `<caption>Account directory</caption>` plus the row-header `th[scope="row"][data-label="User"]`. Grep the Admin*Test and ClassroomManagementTest assertions before restructuring a view, and keep `data-metric` on any figure whose text starts with digits.
+
+## Admin page titles are visible; the sr-only h1 is the title
+Admin views author the page name as `<h1 class="sr-only">` immediately after the running head, then group headings. `body.admin-ui .atlas-records > h1.sr-only` reveals that h1 as a 24–30px display heading, so the running head carries scope and the h1 carries the page. Do not add a second title block or hide it again. Teacher sheets use the visible `.atlas-records-heading` — the old rule that hid staff headings (`body.admin-ui/.teacher-ui .atlas-records-heading { clip... }`) was removed; never restore it. Long audit summaries (>220 chars) render as `.atlas-audit-summary` `<details>` with the full text inside.

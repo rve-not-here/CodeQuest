@@ -5,15 +5,10 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Announcements · Platform scope</span>
-            <a href="{{ route('admin.announcements') }}">← All announcements</a>
+            <span>Records · Platform scope</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">New announcement</h1>
-            <p class="atlas-records-lede">Write a draft and choose its audience. Publishing delivers the message.</p>
-        </header>
+        <h1 class="sr-only">New announcement</h1>
 
         @if ($errors->any())
             <div class="atlas-records-alerts">

@@ -11,6 +11,7 @@ use App\Models\Progress;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Js;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -43,6 +44,23 @@ class EditorSourceRestorationTest extends TestCase
         $this->assertSame($source, json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR));
         $this->assertStringNotContainsString('</script><script>globalThis', $response->getContent());
         $this->assertDatabaseCount('the404_xp_transactions', 0);
+    }
+
+    public function test_a_challenge_with_no_draft_opens_on_the_corrupted_source(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $starter = "<!-- corrupted -->\n<div>Signal</div>";
+        $mission = Mission::factory()->create([
+            'course_id' => $course->id,
+            'broken_code' => $starter,
+        ]);
+
+        $response = $this->actingAs($student)->get(route('mission.challenge', $mission))->assertOk();
+
+        // Moving from the lesson bench into the graded challenge must not blank
+        // the editor and make the student retype the starter.
+        $this->assertStringContainsString('var initial = '.(string) Js::from($starter), $response->getContent());
     }
 
     /** @return array<string, array{0: string, 1: bool, 2: string, 3?: bool}> */

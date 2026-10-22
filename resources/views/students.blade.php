@@ -5,16 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Students · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
-            @if ($role === 'teacher')
-                <a href="{{ route('classrooms') }}">My classrooms →</a>
-            @else
+            <span>Records · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            @if ($role !== 'teacher')
                 <span class="atlas-stamp atlas-stamp--ink"><x-icon name="globe" size="12" />System-wide</span>
             @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Roster</span>
             <h1 class="atlas-records-title">Students</h1>
             <p class="atlas-records-lede">{{ $role === 'teacher' ? 'Monitor students and assigned courses in your active classrooms.' : 'Monitor student progress across all courses.' }}</p>
             <dl class="log-facts atlas-records-facts" aria-label="Roster scope">

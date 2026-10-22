@@ -13,16 +13,16 @@ use InvalidArgumentException;
  * One course has exactly one assessment — the the404_assessments unique
  * course_id constraint (§3.2) — so the write target is always a single row.
  *
- * update() writes ONLY the assessment's editable fields (title, description,
- * instructions, passing_score, status). grading_rule is deliberately NOT
- * writable in this story (§24 view-only: the grading rules engine is authored
- * via the AssessmentSeeder, the same controlled path as solution_code and
- * validate_rule on missions); it can never pass through this write path even
- * if a crafted payload smuggles it. The write never touches the404_assessment_
- * attempts, the404_xp_transactions, the404_progress, or course completion
- * (§26.0: pass/fail, score, attempt results, and course completion are academic
- * records, not admin-editable configuration — they stay derived from attempt
- * history, never rewritten here).
+ * update() writes the assessment's editable fields (title, description,
+ * instructions, passing_score, grading_rule, status). grading_rule became an
+ * audited write path in P2-7: seeded criteria must stay editable instead of
+ * frozen. It is validated against the same structural contract used for
+ * academic evaluation (ValidationService::isValidDefinition), so an unusable
+ * rule set can never be stored through this path. The write never touches
+ * the404_assessment_attempts, the404_xp_transactions, the404_progress, or
+ * course completion (§26.0: pass/fail, score, attempt results, and course
+ * completion are academic records, not admin-editable configuration — they
+ * stay derived from attempt history, never rewritten here).
  *
  * assessment.status (active|locked|draft) is an ACCESS GATE, exactly like
  * course.status (US-705): 'locked' and 'draft' seal the Boss Challenge
@@ -44,6 +44,7 @@ class AdminAssessmentService
 
     public function __construct(
         private readonly AdminAuditService $audit,
+        private readonly ValidationService $validator,
     ) {}
 
     /**
@@ -80,6 +81,7 @@ class AdminAssessmentService
      *     instructions?: string|null,
      *     passing_score: mixed,
      *     status: string,
+     *     grading_rule?: string|null,
      * }  $attributes
      */
     public function update(User $actor, Course $course, Assessment $assessment, array $attributes): Assessment
@@ -97,20 +99,27 @@ class AdminAssessmentService
             : (string) $assessment->instructions;
         $passingScore = $attributes['passing_score'];
         $status = (string) $attributes['status'];
+        $gradingRule = array_key_exists('grading_rule', $attributes)
+            ? (string) $attributes['grading_rule']
+            : (string) $assessment->grading_rule;
 
         if ($title === '' || mb_strlen($title) > 128) {
             $this->refuse($actor, $assessment, 'Assessment title must be a non-empty string of at most 128 characters.');
         }
 
-        if (! is_int($passingScore) || $passingScore < 0 || $passingScore > 100) {
-            $this->refuse($actor, $assessment, 'Assessment passing score must be an integer between 0 and 100.');
+        if (! is_int($passingScore) || $passingScore < 1 || $passingScore > 100) {
+            $this->refuse($actor, $assessment, 'Assessment passing score must be an integer between 1 and 100.');
         }
 
         if (! in_array($status, self::STATUSES, true)) {
             $this->refuse($actor, $assessment, "Unknown assessment status '{$status}'.");
         }
 
-        return DB::transaction(function () use ($actor, $assessment, $title, $description, $instructions, $passingScore, $status): Assessment {
+        if (array_key_exists('grading_rule', $attributes) && ! $this->validator->isValidDefinition($gradingRule)) {
+            $this->refuse($actor, $assessment, 'Assessment grading rules must be a structurally valid JSON rule array.');
+        }
+
+        return DB::transaction(function () use ($actor, $assessment, $title, $description, $instructions, $passingScore, $status, $gradingRule): Assessment {
             Assessment::query()->whereKey($assessment->id)->lockForUpdate()->firstOrFail();
             $assessment->refresh();
 
@@ -119,6 +128,7 @@ class AdminAssessmentService
                 'description' => $assessment->description ?? '',
                 'instructions' => $assessment->instructions ?? '',
                 'passing_score' => $assessment->passing_score,
+                'grading_rule' => $assessment->grading_rule ?? '',
             ];
 
             $versionBefore = $assessment->version;
@@ -127,9 +137,10 @@ class AdminAssessmentService
             $assessment->description = $description === '' ? null : $description;
             $assessment->instructions = $instructions === '' ? null : $instructions;
             $assessment->passing_score = $passingScore;
+            $assessment->grading_rule = $gradingRule;
             $assessment->save();
 
-            $summary = $this->fieldChangesSummary($before, $title, $description, $instructions, $passingScore);
+            $summary = $this->fieldChangesSummary($before, $title, $description, $instructions, $passingScore, $gradingRule);
 
             if ($assessment->wasChanged('version')) {
                 $transition = "version {$versionBefore} → {$assessment->version}";
@@ -191,14 +202,16 @@ class AdminAssessmentService
      * A compact "field → value" list of the editable fields that actually
      * changed, or null when nothing changed (a no-op round-trip records no
      * audit row). Status is excluded here — it is recorded separately as
-     * 'assessment.status.change'. grading_rule never appears: it is not
-     * writable.
+     * 'assessment.status.change'. The full grading rule body is never copied
+     * into the audit summary; the count is enough to identify the change
+     * without duplicating assessment content into the ledger.
      *
      * @param  array{
      *     title: string,
      *     description: string,
      *     instructions: string,
      *     passing_score: int,
+     *     grading_rule: string,
      * }  $before
      */
     private function fieldChangesSummary(
@@ -207,6 +220,7 @@ class AdminAssessmentService
         string $description,
         string $instructions,
         int $passingScore,
+        string $gradingRule,
     ): ?string {
         $changes = [];
 
@@ -224,6 +238,12 @@ class AdminAssessmentService
 
         if ($passingScore !== $before['passing_score']) {
             $changes[] = "passing_score → {$passingScore}";
+        }
+
+        if ($gradingRule !== $before['grading_rule']) {
+            $decoded = json_decode($gradingRule, true);
+            $ruleCount = is_array($decoded) ? count($decoded) : 0;
+            $changes[] = "grading_rule → {$ruleCount} rule(s)";
         }
 
         return $changes === [] ? null : implode(', ', $changes);

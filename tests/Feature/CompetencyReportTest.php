@@ -222,7 +222,7 @@ class CompetencyReportTest extends TestCase
         Assessment::factory()->create([
             'course_id' => $course->id,
             'status' => 'active',
-            'passing_score' => 0,
+            'passing_score' => 70,
             'grading_rule' => json_encode([['type' => 'contains', 'value' => 'SIGNAL']]),
         ]);
         $this->passAssessment($student, $course);
@@ -375,7 +375,7 @@ class CompetencyReportTest extends TestCase
         Assessment::factory()->create([
             'course_id' => $course->id,
             'status' => 'active',
-            'passing_score' => 0,
+            'passing_score' => 70,
             'grading_rule' => json_encode([['type' => 'contains', 'value' => 'SIGNAL']]),
         ]);
         $this->passAssessment($student, $course);

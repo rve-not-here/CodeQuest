@@ -122,6 +122,10 @@ class StudentProgressController extends Controller
                 'state' => $row['state'],
                 'attemptCount' => $history->count(),
                 'latest' => $history->first(),
+                // Completion keys off attempt history, never the newest verdict
+                // (US-409/US-410): a retry that fails after a pass must never
+                // un-count the course here, exactly as AssessmentService::hasPassed().
+                'passed' => $history->contains(fn (array $attempt): bool => $attempt['status'] === 'passed'),
                 'completedAt' => $history
                     ->where('status', 'passed')
                     ->pluck('passed_at')

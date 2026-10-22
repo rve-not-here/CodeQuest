@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Courses · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink">Ordered by order</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Courses</h1>
-            <p class="atlas-records-lede">Manage course details, order and availability. Recorded student progress is preserved across every change.</p>
-        </header>
+        <h1 class="sr-only">Courses</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -45,9 +41,9 @@
                                 <th scope="col">Course</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Status</th>
-                                <th scope="col">Sections</th>
-                                <th scope="col">Challenges</th>
-                                <th scope="col">Boss Challenge</th>
+                                <th scope="col" class="md:text-right">Sections</th>
+                                <th scope="col" class="md:text-right">Challenges</th>
+                                <th scope="col" class="md:text-right">Boss Challenge</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -75,15 +71,15 @@
                                         <span class="atlas-stamp {{ $statusTone }}"><x-icon :name="\App\Support\StampIcon::for(ucfirst($course->status)) ?? 'circle'" size="12" />{{ ucfirst($course->status) }}</span>
                                     </td>
 
-                                    <td data-label="Sections">
+                                    <td data-label="Sections" class="md:text-right tabular-nums">
                                         <a href="{{ route('admin.courses.sections', $course) }}" class="atlas-register-figure">{{ $course->sections_count }} →</a>
                                     </td>
 
-                                    <td data-label="Challenges">
+                                    <td data-label="Challenges" class="md:text-right tabular-nums">
                                         <a href="{{ route('admin.courses.missions', $course) }}" class="atlas-register-figure">{{ $course->missions_count }} →</a>
                                     </td>
 
-                                    <td data-label="Boss Challenge">
+                                    <td data-label="Boss Challenge" class="md:text-right tabular-nums">
                                         @if ($course->assessment_count > 0)
                                             <a href="{{ route('admin.courses.assessment', $course) }}" class="atlas-register-figure">1 →</a>
                                         @else
@@ -93,7 +89,6 @@
 
                                     <td data-label="Actions">
                                         <div class="atlas-row-actions">
-                                            <a href="{{ route('admin.courses.edit', $course) }}" class="atlas-row-action">Edit</a>
                                             <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" onsubmit="return confirm('Delete this course permanently? This cannot be undone.');">
                                                 @csrf
                                                 @method('DELETE')

@@ -4,6 +4,7 @@
 
 @section('content')
     <div class="atlas-path">
+        <h1 class="sr-only">Learning path</h1>
         @php
             $totalCompleted = 0;
             $totalChallenges = 0;
@@ -40,6 +41,9 @@
             <div class="atlas-path-meter" role="progressbar" aria-label="Overall learning progress" aria-valuemin="0" aria-valuemax="{{ $totalChallenges }}" aria-valuenow="{{ $totalCompleted }}" aria-valuetext="{{ $totalCompleted }} of {{ $totalChallenges }} challenges complete"><span style="width: {{ $overallPercent }}%"></span></div>
             @if ($totalChallenges > 0)
                 <p class="atlas-path-summary-note">Mission order is a guide. Available challenges can be opened now.</p>
+            @endif
+            @if ($nextMission !== null)
+                <a href="{{ route('mission.show', $nextMission) }}" class="atlas-path-summary-jump">Next up: {{ $nextMission->title }} <x-icon name="arrow-right" data-arrow size="14" /></a>
             @endif
         </section>
 
@@ -185,8 +189,7 @@
                                                         <li class="atlas-path-mission" data-state="{{ strtolower($state) }}" data-domain-state="{{ $row['state'] }}">
                                                             <span class="atlas-path-marker {{ $state === 'Completed' ? 'is-complete' : '' }}" aria-hidden="true">@if ($state === 'Completed')<x-icon name="check" size="14" />@endif</span>
                                                             <h4>@foreach (explode('_', $mission->title) as $part)@unless ($loop->first)_<wbr>@endunless{{ $part }}@endforeach</h4>
-                                                            <p class="atlas-path-mission-meta"><span class="atlas-path-state">{{ $state }}</span> · {{ $mission->difficulty }} · +{{ $mission->points }} XP</p>
-                                                            <a href="{{ route('mission.show', $mission) }}" class="atlas-path-mission-link" @if ($state === 'Completed') aria-label="Review: {{ $mission->title }}" @endif>{{ $state === 'Completed' ? 'Review' : 'Open lesson' }} →</a>
+                                                            <p class="atlas-path-mission-meta"><span class="atlas-path-state">{{ $state }}</span> · {{ $mission->difficulty }} · +{{ $mission->points }} XP <a href="{{ route('mission.show', $mission) }}" class="atlas-path-mission-link @if ($state === 'Completed') is-review @endif" @if ($state === 'Completed') aria-label="Review: {{ $mission->title }}" @endif>{{ $state === 'Completed' ? 'Review' : 'Open lesson' }} →</a></p>
                                                         </li>
                                                     @endif
                                                 @endforeach

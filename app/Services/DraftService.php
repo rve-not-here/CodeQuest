@@ -16,6 +16,10 @@ use Illuminate\Validation\ValidationException;
  */
 class DraftService
 {
+    public function __construct(
+        private readonly KnowledgeCheckGate $knowledgeCheckGate,
+    ) {}
+
     /**
      * Load the draft for a user and mission, if one exists.
      */
@@ -37,6 +41,10 @@ class DraftService
             $mission = Mission::query()->whereKey($mission->id)->sharedLock()->firstOrFail();
             $course = Course::query()->whereKey($mission->course_id)->sharedLock()->firstOrFail();
             abort_unless($course->status === 'active', 403);
+
+            // Same domain boundary as MissionService::submit(). A draft is a
+            // protected mutation: persistence must not outrun the prerequisite.
+            $this->knowledgeCheckGate->assertCleared($user, $mission);
 
             if (Progress::query()->where('user_id', $user->id)->where('mission_id', $mission->id)->exists()) {
                 throw ValidationException::withMessages(['code' => 'This challenge is complete. Your draft was not saved.']);

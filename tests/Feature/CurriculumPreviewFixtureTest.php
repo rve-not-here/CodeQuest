@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\AdminAudit;
 use App\Models\Course;
+use App\Models\KnowledgeCheck;
+use App\Models\KnowledgeCheckAttempt;
 use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
@@ -166,6 +168,29 @@ class CurriculumPreviewFixtureTest extends TestCase
             ->assertSee('type, initial)', false)
             ->assertDontSee((string) Js::from($mission->solution_code), false)
             ->assertDontSee($mission->validate_rule, false);
+
+        // Every mission owns a required concept check, so the workspace stays
+        // sealed until the check is answered. Clear it through the real flow.
+        $check = $mission->knowledgeChecks()
+            ->where('status', KnowledgeCheck::STATUS_PUBLISHED)
+            ->firstOrFail();
+
+        $this->actingAs($student)->post(route('knowledge-check.start', [$mission, $check]));
+        $attempt = KnowledgeCheckAttempt::query()
+            ->where('user_id', $student->id)
+            ->where('knowledge_check_id', $check->id)
+            ->sole();
+
+        $answers = [];
+        foreach ($check->questions()->with('options')->get() as $question) {
+            $correct = $question->options->firstWhere('is_correct', true);
+            $answers[$question->id] = $correct->id;
+        }
+
+        $this->actingAs($student)
+            ->post(route('knowledge-check.submit', [$mission, $check, $attempt]), ['answers' => $answers])
+            ->assertRedirect();
+
         $this->get(route('mission.challenge', $mission))
             ->assertSee('var starter = '.$original, false)
             ->assertSee('type, starter)', false)

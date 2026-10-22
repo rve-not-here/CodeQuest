@@ -5,24 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Challenges · {{ $course->name }}</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.missions', $course) }}">← Challenges</a>
-                <a href="{{ route('admin.courses.edit', $course) }}">{{ $course->name }} →</a>
-            </div>
+            <span>Records · {{ $course->name }}</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Edit challenge</h1>
-            <p class="atlas-records-lede">{{ $course->name }} · {{ $mission->title }}</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Challenge record">
-                <div><dt>Order</dt><dd class="is-numeric">{{ $mission->order_num }}</dd></div>
-                <div><dt>Difficulty</dt><dd>{{ ucfirst(strtolower($mission->difficulty)) }}</dd></div>
-                <div><dt>Points</dt><dd class="is-numeric">+{{ $mission->points }} XP</dd></div>
-                <div><dt>Section</dt><dd>{{ $mission->section?->title ?? 'None' }}</dd></div>
-            </dl>
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'missions'])
+
+        <h1 class="sr-only">Edit challenge</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">

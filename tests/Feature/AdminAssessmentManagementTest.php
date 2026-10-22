@@ -134,7 +134,7 @@ class AdminAssessmentManagementTest extends TestCase
         ]);
     }
 
-    public function test_update_never_accepts_grading_rule_from_a_crafted_payload(): void
+    public function test_update_accepts_a_structurally_valid_grading_rule_and_bumps_version(): void
     {
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create();
@@ -143,6 +143,44 @@ class AdminAssessmentManagementTest extends TestCase
             'title' => 'Original',
             'grading_rule' => json_encode([['type' => 'contains', 'value' => 'SECRET']]),
         ]);
+        $versionBefore = $assessment->version;
+
+        $newRule = json_encode([
+            ['type' => 'contains', 'value' => 'SIGNAL'],
+            ['type' => 'count_tag', 'tag' => 'section', 'count' => 1, 'operator' => 'gte'],
+        ]);
+
+        $this->actingAs($admin)->put(route('admin.courses.assessment.update', [$course, $assessment]), [
+            'title' => 'Updated',
+            'description' => $assessment->description ?? '',
+            'instructions' => $assessment->instructions ?? '',
+            'passing_score' => $assessment->passing_score,
+            'status' => $assessment->status,
+            'grading_rule' => $newRule,
+        ])->assertRedirect(route('admin.courses.assessment', $course));
+
+        $assessment->refresh();
+        $this->assertSame($newRule, $assessment->grading_rule);
+        $this->assertSame($versionBefore + 1, $assessment->version);
+
+        $this->assertDatabaseHas('the404_admin_audit', [
+            'action' => 'assessment.update',
+            'target_type' => 'assessment',
+            'target_id' => $assessment->id,
+            'result' => 'success',
+        ]);
+    }
+
+    public function test_update_rejects_a_malformed_grading_rule_without_writing(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $assessment = Assessment::factory()->create([
+            'course_id' => $course->id,
+            'title' => 'Original',
+            'grading_rule' => json_encode([['type' => 'contains', 'value' => 'SECRET']]),
+        ]);
+        $versionBefore = $assessment->version;
 
         $this->actingAs($admin)->put(route('admin.courses.assessment.update', [$course, $assessment]), [
             'title' => 'Hi-Jacked',
@@ -151,11 +189,12 @@ class AdminAssessmentManagementTest extends TestCase
             'passing_score' => $assessment->passing_score,
             'status' => $assessment->status,
             'grading_rule' => 'HACKED',
-        ])->assertRedirect(route('admin.courses.assessment', $course));
+        ])->assertSessionHasErrors('grading_rule');
 
         $assessment->refresh();
-        $this->assertSame('Hi-Jacked', $assessment->title);
+        $this->assertSame('Original', $assessment->title);
         $this->assertSame('[{"type":"contains","value":"SECRET"}]', $assessment->grading_rule);
+        $this->assertSame($versionBefore, $assessment->version);
     }
 
     public function test_editing_passing_score_never_rewrites_recorded_attempts(): void

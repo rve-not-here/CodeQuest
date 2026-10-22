@@ -9,6 +9,7 @@ use App\Models\KnowledgeCheckAttempt;
 use App\Models\Mission;
 use App\Models\Progress;
 use App\Models\User;
+use App\Models\UserAchievement;
 use App\Models\XpTransaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,8 +26,11 @@ use Illuminate\Support\Collection;
  * added (§16):
  *   - Activity (learning types only)     mission completions and wrong
  *     submissions. login/logout are session-boundary bookkeeping written by
- *     AuthController; they carry no learning state and are filtered out
- *     (§51.0).
+ *     AuthController, and grading_unavailable is an infrastructure failure:
+ *     neither carries learning state, so both are filtered out (§51.0).
+ *     assessment_passed/assessment_failed rows are written for ledger parity,
+ *     but are composed here from AssessmentAttempt (score + revision
+ *     evidence), so reading them from Activity would show the beat twice.
  *   - XpTransaction (ledger-beat types)  hint spends, solution reveals, and
  *     the Boss Challenge award. mission_completed and wrong_submission are NOT
  *     re-emitted from the ledger: Activity already surfaces those beats, so
@@ -36,6 +40,9 @@ use Illuminate\Support\Collection;
  *   - Progress-derived section completions  a section that is fully complete
  *     today gains one beat timestamped at the moment its last mission was
  *     finished (a state derived from completion rows, not a stored event).
+ *   - UserAchievement  an awarded achievement is a beat at the moment it was
+ *     granted. Awards are user-scoped (not course-scoped), so this source is
+ *     only composed for the student's own timeline, never the teacher feed.
  *
  * Course completion is not derived as a separate beat: US-410 defines
  * course-complete as "has ever passed the assessment", and its moment IS the
@@ -57,7 +64,15 @@ use Illuminate\Support\Collection;
  */
 class TimelineService
 {
-    public const NON_LEARNING_ACTIVITY_TYPES = ['login', 'logout'];
+    public const NON_LEARNING_ACTIVITY_TYPES = ['login', 'logout', 'grading_unavailable'];
+
+    /**
+     * Activity rows whose beat is composed from a richer authoritative source.
+     * A Boss verdict writes an Activity row for ledger parity, but the
+     * timeline reads the attempt itself (score, revision snapshot), so these
+     * types are never read back as Activity beats.
+     */
+    public const COMPOSED_ELSEWHERE_ACTIVITY_TYPES = ['assessment_passed', 'assessment_failed'];
 
     /**
      * Beat types the teacher feed's event-type filter accepts, in the same
@@ -69,7 +84,6 @@ class TimelineService
         KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED,
         'hint_used',
         'solution_revealed',
-        'assessment_completed',
         'assessment_passed',
         'assessment_failed',
         'section_completed',
@@ -125,25 +139,41 @@ class TimelineService
      */
     public function events(User $user, int $limit = 50, ?Collection $allowedCourseIds = null): Collection
     {
+        return $this->overview($user, $limit, $allowedCourseIds)['events'];
+    }
+
+    /**
+     * The student timeline plus the size of the underlying history, so the
+     * page can disclose a capped view ("newest 50 of 312") instead of
+     * silently dropping older beats. One composition pass supplies both.
+     *
+     * @param  Collection<int, int>|null  $allowedCourseIds
+     * @return array{events: Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int}>, total: int}
+     */
+    public function overview(User $user, int $limit = 50, ?Collection $allowedCourseIds = null, int $offset = 0): array
+    {
         $studentCourseScopes = $allowedCourseIds !== null
             ? [$user->id => $allowedCourseIds]
             : null;
 
-        $events = $this->compose(collect([$user]), null, null, null, null, collect([$user]), $studentCourseScopes);
+        $events = $this->compose(collect([$user]), null, null, null, null, collect([$user]), $studentCourseScopes)
+            ->sortByDesc(fn (array $event): array => [$event['at']->getTimestamp(), $event['seq']]);
 
-        return $events
-            ->sortByDesc(fn (array $event): array => [$event['at']->getTimestamp(), $event['seq']])
-            ->take($limit)
-            ->values()
-            ->map(function (array $event): array {
-                return [
-                    'at' => $event['at'],
-                    'label' => $event['label'],
-                    'type' => $event['type'],
-                    'pts' => $event['pts'],
-                    'seq' => $event['seq'],
-                ];
-            });
+        return [
+            'total' => $events->count(),
+            'events' => $events
+                ->slice($offset, $limit)
+                ->values()
+                ->map(function (array $event): array {
+                    return [
+                        'at' => $event['at'],
+                        'label' => $event['label'],
+                        'type' => $event['type'],
+                        'pts' => $event['pts'],
+                        'seq' => $event['seq'],
+                    ];
+                }),
+        ];
     }
 
     /**
@@ -315,6 +345,7 @@ class TimelineService
                 'section' => $this->sectionCompletionEvents($sectionCandidates ?? $users, $from, $to, $courseId, $studentCourseScopes),
                 'progress' => $this->scopedRecordEvents($ids, false, $from, $to, $courseId, $studentCourseScopes),
                 'knowledge-check' => $this->scopedRecordEvents($ids, true, $from, $to, $courseId, $studentCourseScopes),
+                'achievement' => $this->achievementEvents($ids, $from, $to),
                 default => new Collection,
             });
         }
@@ -334,11 +365,16 @@ class TimelineService
     private function sourcesFor(?string $type, ?int $courseId = null, ?array $studentCourseScopes = null): array
     {
         $sources = match ($type) {
-            null => ['activity', 'xp', 'assessment', 'section'],
+            null => ['activity', 'xp', 'assessment', 'section', 'achievement'],
             'mission_completed', 'wrong_submission', KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED => ['activity'],
-            'hint_used', 'solution_revealed', 'assessment_completed' => ['xp'],
-            'assessment_passed', 'assessment_failed' => ['assessment'],
+            'hint_used', 'solution_revealed' => ['xp'],
+            'assessment_passed' => ['assessment', 'xp'],
+            'assessment_failed' => ['assessment'],
+            // Legacy ledger vocabulary: the award beat is emitted under
+            // assessment_passed so one Boss event has one type string.
+            'assessment_completed' => ['xp'],
             'section_completed' => ['section'],
+            'achievement_earned' => ['achievement'],
             default => [],
         };
 
@@ -348,7 +384,7 @@ class TimelineService
                 'mission_completed' => ['progress'],
                 'wrong_submission' => ['xp'],
                 KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED => ['knowledge-check'],
-                default => array_values(array_filter($sources, fn (string $source): bool => $source !== 'activity')),
+                default => array_values(array_filter($sources, fn (string $source): bool => ! in_array($source, ['activity', 'achievement'], true))),
             };
         }
 
@@ -366,7 +402,8 @@ class TimelineService
             return $this->scopedEvidenceQuery(KnowledgeCheckAttempt::query()->where('status', KnowledgeCheckAttempt::STATUS_SUBMITTED), $ids, 'knowledgeCheck.mission', 'submitted_at', $from, $to, $courseId, $studentCourseScopes)
                 ->get()->map(fn (KnowledgeCheckAttempt $record): array => $this->evidenceBeat(
                     $record->user_id, Carbon::parse($record->submitted_at),
-                    'Knowledge Check submitted: '.$this->checkTitle($record->knowledgeCheck),
+                    'Knowledge Check completed: '.$this->checkTitle($record->knowledgeCheck)
+                        ." ({$record->score}/{$record->total_questions}, {$record->percentage}%)",
                     KnowledgeCheckService::ACTIVITY_TYPE_COMPLETED, null,
                 ));
         }
@@ -375,6 +412,28 @@ class TimelineService
             ->get()->map(fn (Progress $record): array => $this->evidenceBeat(
                 $record->user_id, Carbon::parse($record->completed_at),
                 'Challenge completed: '.$this->missionTitle($record->mission), 'mission_completed', $record->pts_earned,
+            ));
+    }
+
+    /**
+     * @param  Collection<int, int>  $ids
+     * @return Collection<int, array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int}>
+     */
+    private function achievementEvents(Collection $ids, ?Carbon $from, ?Carbon $to): Collection
+    {
+        return UserAchievement::query()
+            ->with('achievement')
+            ->whereIn('user_id', $ids)
+            ->when($from !== null && $to !== null, fn (Builder $query) => $query->whereBetween('created_at', [$from, $to]))
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (UserAchievement $record): array => $this->evidenceBeat(
+                $record->user_id,
+                Carbon::parse($record->created_at),
+                'Achievement unlocked: '.($record->achievement?->name ?? 'Achievement'),
+                'achievement_earned',
+                null,
             ));
     }
 
@@ -416,7 +475,7 @@ class TimelineService
                 });
         }
 
-        return $query->orderBy($timestamp);
+        return $query->orderBy($timestamp)->orderBy('id');
     }
 
     /** @return array{at: Carbon, label: string, type: string, pts: int|null, seq: int, user_id: int} */
@@ -437,10 +496,11 @@ class TimelineService
     ): Collection {
         return Activity::query()
             ->whereIn('user_id', $ids)
-            ->whereNotIn('type', self::NON_LEARNING_ACTIVITY_TYPES)
+            ->whereNotIn('type', [...self::NON_LEARNING_ACTIVITY_TYPES, ...self::COMPOSED_ELSEWHERE_ACTIVITY_TYPES])
             ->when($from !== null && $to !== null, fn (Builder $query) => $query->whereBetween('created_at', [$from, $to]))
             ->when($type !== null, fn (Builder $query) => $query->where('type', $type))
             ->orderBy('created_at')
+            ->orderBy('id')
             ->get()
             ->map(function (Activity $activity): array {
                 return [
@@ -471,7 +531,11 @@ class TimelineService
             ->whereIn('user_id', $ids)
             ->whereIn('type', $courseId !== null || $studentCourseScopes !== null ? [...self::XP_BEAT_TYPES, XpService::TYPE_WRONG_SUBMISSION] : self::XP_BEAT_TYPES)
             ->when($from !== null && $to !== null, fn (Builder $query) => $query->whereBetween('created_at', [$from, $to]))
-            ->when($type !== null, fn (Builder $query) => $query->where('type', $type))
+            ->when(
+                in_array($type, ['assessment_completed', 'assessment_passed'], true),
+                fn (Builder $query) => $query->where('type', XpService::TYPE_ASSESSMENT_COMPLETED),
+                fn (Builder $query) => $query->when($type !== null, fn (Builder $query) => $query->where('type', $type)),
+            )
             ->when($courseId !== null, fn (Builder $query) => $query->where(
                 fn (Builder $query) => $query
                     ->whereHas('mission', fn (Builder $query) => $query->where('course_id', $courseId))
@@ -494,12 +558,15 @@ class TimelineService
 
         return $query
             ->orderBy('created_at')
+            ->orderBy('id')
             ->get()
             ->map(function (XpTransaction $txn): array {
                 return [
                     'at' => Carbon::parse($txn->created_at),
                     'label' => $txn->description ?? $txn->type,
-                    'type' => $txn->type,
+                    // One Boss vocabulary: the award ledger type is surfaced
+                    // as the verdict type it belongs to.
+                    'type' => $txn->type === XpService::TYPE_ASSESSMENT_COMPLETED ? 'assessment_passed' : $txn->type,
                     'pts' => $txn->amount,
                     'seq' => ++$this->seq,
                     'user_id' => $txn->user_id,
@@ -571,6 +638,7 @@ class TimelineService
 
         return $query
             ->orderBy('created_at')
+            ->orderBy('id')
             ->get()
             ->map(function (AssessmentAttempt $attempt): array {
                 $passed = $attempt->status === 'passed';

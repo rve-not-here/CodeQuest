@@ -30,6 +30,7 @@ class MissionService
         private readonly AssessmentService $assessments,
         private readonly NotificationService $notifications,
         private readonly MissionGradingService $grading,
+        private readonly KnowledgeCheckGate $knowledgeCheckGate,
     ) {}
 
     /**
@@ -56,6 +57,11 @@ class MissionService
             $mission->setRelation('course', $course);
 
             abort_unless($course->status === 'active', 403);
+
+            // Domain-level prerequisite: the controller checks first for a
+            // friendly redirect, but the rule must also hold for any direct
+            // service caller. Already-completed missions are exempt.
+            $this->knowledgeCheckGate->assertCleared($user, $mission);
 
             if ($this->isCompleted($user, $mission)) {
                 return [
@@ -130,6 +136,7 @@ class MissionService
                 $cacheable = false;
                 $this->activity->record($user, [
                     'type' => 'grading_unavailable',
+                    'mission_id' => $mission->id,
                     'message' => 'Behavioral grading unavailable on challenge: '.$mission->title,
                 ]);
 
@@ -142,10 +149,15 @@ class MissionService
                 ];
             }
 
-            $this->xp->deductWrongSubmission($user, $mission);
+            $penalty = $this->xp->deductWrongSubmission($user, $mission);
             $this->activity->record($user, [
                 'type' => 'wrong_submission',
+                'mission_id' => $mission->id,
                 'message' => 'Wrong submission on challenge: '.$mission->title,
+                // The ledger clamps the penalty to the available balance, so
+                // the activity row carries what was actually deducted — the
+                // timeline must never claim −10 XP that was not charged.
+                'pts' => $penalty > 0 ? -$penalty : 0,
             ]);
 
             return [
@@ -213,6 +225,7 @@ class MissionService
 
         $this->activity->record($user, [
             'type' => 'mission_completed',
+            'mission_id' => $mission->id,
             'message' => 'Challenge completed: '.$mission->title,
             'pts' => $mission->points,
         ]);

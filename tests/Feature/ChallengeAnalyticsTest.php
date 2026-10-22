@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
@@ -451,6 +452,76 @@ class ChallengeAnalyticsTest extends TestCase
         $grown = $this->countQueries(fn () => $this->analytics->summarize(null, null, $this->filters()));
 
         $this->assertLessThanOrEqual($queries + 3, $grown);
+    }
+
+    public function test_ungradable_submission_counts_as_an_attempt_not_a_failure_or_completion(): void
+    {
+        $user = User::factory()->create();
+        $mission = $this->mission($this->course(), 'Outage');
+
+        Activity::query()->create([
+            'user_id' => $user->id,
+            'type' => 'grading_unavailable',
+            'mission_id' => $mission->id,
+            'message' => 'Behavioral grading unavailable on challenge: '.$mission->title,
+            'pts' => 0,
+        ]);
+
+        $summary = $this->analytics->summarize(null, null, $this->filters());
+
+        $this->assertSame(1, $summary['attempts']);
+        $this->assertSame(0, $summary['completions']);
+        $this->assertSame(0, $summary['failures']);
+        $this->assertSame(0, $summary['completion_rate']);
+        $this->assertSame(1, $summary['average_attempts']);
+
+        $this->assertCount(1, $summary['by_challenge']);
+        $row = $summary['by_challenge'][0];
+        $this->assertSame(1, $row['attempts']);
+        $this->assertSame(0, $row['failures']);
+        $this->assertSame(0, $row['failure_rate']);
+    }
+
+    public function test_ungradable_rows_without_a_mission_id_are_not_attributed(): void
+    {
+        $user = User::factory()->create();
+
+        Activity::query()->create([
+            'user_id' => $user->id,
+            'type' => 'grading_unavailable',
+            'mission_id' => null,
+            'message' => 'Behavioral grading unavailable on challenge: legacy row',
+            'pts' => 0,
+        ]);
+
+        $summary = $this->analytics->summarize(null, null, $this->filters());
+
+        $this->assertSame(0, $summary['attempts']);
+        $this->assertSame([], $summary['by_challenge']);
+    }
+
+    public function test_ungradable_then_pass_counts_both_attempts_and_one_completion(): void
+    {
+        $user = User::factory()->create();
+        $mission = $this->mission($this->course(), 'Recovered');
+
+        Activity::query()->create([
+            'user_id' => $user->id,
+            'type' => 'grading_unavailable',
+            'mission_id' => $mission->id,
+            'message' => 'Behavioral grading unavailable on challenge: '.$mission->title,
+            'pts' => 0,
+        ]);
+
+        $this->submit($user, $mission, '<h1>Done</h1>');
+
+        $summary = $this->analytics->summarize(null, null, $this->filters());
+
+        $this->assertSame(2, $summary['attempts']);
+        $this->assertSame(1, $summary['completions']);
+        $this->assertSame(0, $summary['failures']);
+        $this->assertSame(0, $summary['by_challenge'][0]['failure_rate']);
+        $this->assertSame(100, $summary['completion_rate']);
     }
 
     private function countQueries(callable $fn): int

@@ -9,16 +9,10 @@
 
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Reports · {{ $isTeacher ? 'Classroom scope' : 'Platform scope' }}</span>
-            @if ($isTeacher)
-                <a href="{{ route('classrooms') }}">My classrooms →</a>
-            @else
-                <a href="{{ route('admin.system') }}">System status →</a>
-            @endif
+            <span>Records · {{ $isTeacher ? 'Classroom scope' : 'Platform scope' }}</span>
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Reports</span>
             <h1 class="atlas-records-title">Reports</h1>
             <p class="atlas-records-lede">
                 @if ($isTeacher)
@@ -27,6 +21,20 @@
                     Choose a student or course across the platform. Reports are generated from recorded evidence only.
                 @endif
             </p>
+            <dl class="log-facts atlas-records-facts">
+                <div>
+                    <dt>Students in scope</dt>
+                    <dd class="is-numeric">{{ $studentCount }}</dd>
+                </div>
+                <div>
+                    <dt>Courses in scope</dt>
+                    <dd class="is-numeric">{{ $courseCount }}</dd>
+                </div>
+                <div>
+                    <dt>Evidence</dt>
+                    <dd>Recorded only</dd>
+                </div>
+            </dl>
         </header>
 
         <section class="atlas-record-group" aria-labelledby="student-reports">

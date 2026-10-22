@@ -1,0 +1,485 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1580" height="1750" viewBox="0 0 1580 1750">
+<rect width="100%" height="100%" fill="#FCFDF8"/>
+<defs><pattern id="grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#E8EAE2" stroke-width="0.6"/></pattern></defs>
+<rect width="100%" height="100%" fill="url(#grid)" opacity="0.55"/>
+<text x="40" y="46" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="25" font-weight="700" fill="#1F242C">CodeQuest — Core Learning &amp; Assessment ERD</text>
+<text x="40" y="69" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="11.5" fill="#565E67">Logical model · 22 domain tables · MariaDB 13.0 · key columns shown; lifecycle timestamps omitted from cards</text>
+<rect x="20" y="100" width="360" height="240" rx="5" fill="#F5F6F0" stroke="#DDE0D6" stroke-width="1"/>
+<text x="34" y="120" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.1" fill="#4E4C9A">IDENTITY</text>
+<rect x="400" y="100" width="360" height="1166" rx="5" fill="#F5F6F0" stroke="#DDE0D6" stroke-width="1"/>
+<text x="414" y="120" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.1" fill="#2E6B4F">LEARNER EVIDENCE</text>
+<rect x="780" y="100" width="380" height="1530" rx="5" fill="#F5F6F0" stroke="#DDE0D6" stroke-width="1"/>
+<text x="794" y="120" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.1" fill="#B23A2E">CURRICULUM &amp; CONCEPT CHECKS</text>
+<rect x="1160" y="100" width="400" height="507" rx="5" fill="#F5F6F0" stroke="#DDE0D6" stroke-width="1"/>
+<text x="1174" y="120" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.1" fill="#8A6114">BOSS ASSESSMENT</text>
+<rect x="1160" y="601" width="400" height="280" rx="5" fill="#F5F6F0" stroke="#DDE0D6" stroke-width="1"/>
+<text x="1174" y="621" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.1" fill="#8A6114">LEGEND &amp; NOTES</text>
+<path d="M 420.0,205.5 L 388.0,205.5 L 388.0,205.5 L 356.0,205.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="205.5" x2="427.0" y2="201.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="205.5" x2="427.0" y2="205.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="205.5" x2="427.0" y2="209.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="356.0" y1="200.5" x2="356.0" y2="210.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,363.0 L 388.0,363.0 L 388.0,205.5 L 356.0,205.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="363.0" x2="427.0" y2="359.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="363.0" x2="427.0" y2="363.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="363.0" x2="427.0" y2="367.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="356.0" y1="200.5" x2="356.0" y2="210.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,520.5 L 388.0,520.5 L 388.0,205.5 L 356.0,205.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="520.5" x2="427.0" y2="516.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="520.5" x2="427.0" y2="520.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="520.5" x2="427.0" y2="524.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="356.0" y1="200.5" x2="356.0" y2="210.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,687.5 L 388.0,687.5 L 388.0,205.5 L 356.0,205.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="687.5" x2="427.0" y2="683.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="687.5" x2="427.0" y2="687.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="687.5" x2="427.0" y2="691.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="356.0" y1="200.5" x2="356.0" y2="210.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,845.0 L 388.0,845.0 L 388.0,205.5 L 356.0,205.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="845.0" x2="427.0" y2="841.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="845.0" x2="427.0" y2="845.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="845.0" x2="427.0" y2="849.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="356.0" y1="200.5" x2="356.0" y2="210.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,1002.5 L 388.0,1002.5 L 388.0,205.5 L 356.0,205.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="1002.5" x2="427.0" y2="998.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1002.5" x2="427.0" y2="1002.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1002.5" x2="427.0" y2="1006.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="356.0" y1="200.5" x2="356.0" y2="210.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,205.5 L 610.0,205.5 L 610.0,539.5 L 800.0,539.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="205.5" x2="413.0" y2="209.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="205.5" x2="413.0" y2="205.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="205.5" x2="413.0" y2="201.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="544.5" x2="800.0" y2="534.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,363.0 L 610.0,363.0 L 610.0,539.5 L 800.0,539.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="363.0" x2="413.0" y2="367.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="363.0" x2="413.0" y2="363.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="363.0" x2="413.0" y2="359.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="544.5" x2="800.0" y2="534.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,520.5 L 610.0,520.5 L 610.0,539.5 L 800.0,539.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3" stroke-dasharray="4 4"/>
+<line x1="420.0" y1="520.5" x2="413.0" y2="524.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="520.5" x2="413.0" y2="520.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="520.5" x2="413.0" y2="516.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="544.5" x2="800.0" y2="534.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,687.5 L 610.0,687.5 L 610.0,539.5 L 800.0,539.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="687.5" x2="413.0" y2="691.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="687.5" x2="413.0" y2="687.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="687.5" x2="413.0" y2="683.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="544.5" x2="800.0" y2="534.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,845.0 L 610.0,845.0 L 610.0,539.5 L 800.0,539.5" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="845.0" x2="413.0" y2="849.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="845.0" x2="413.0" y2="845.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="845.0" x2="413.0" y2="841.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="544.5" x2="800.0" y2="534.5" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,1002.5 L 610.0,1002.5 L 610.0,1080.0 L 800.0,1080.0" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="1002.5" x2="413.0" y2="1006.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1002.5" x2="413.0" y2="1002.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1002.5" x2="413.0" y2="998.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="1085.0" x2="800.0" y2="1075.0" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 578.0,1078.0 L 578.0,1094.0" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="578.0" y1="1078.0" x2="574.0" y2="1071.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="578.0" y1="1078.0" x2="578.0" y2="1071.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="578.0" y1="1078.0" x2="582.0" y2="1071.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="573.0" y1="1094.0" x2="583.0" y2="1094.0" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,1160.0 L 610.0,1160.0 L 610.0,1228.0 L 800.0,1228.0" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="1160.0" x2="413.0" y2="1164.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1160.0" x2="413.0" y2="1160.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1160.0" x2="413.0" y2="1156.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="1233.0" x2="800.0" y2="1223.0" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,1160.0 L 610.0,1160.0 L 610.0,1376.0 L 800.0,1376.0" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="1160.0" x2="413.0" y2="1164.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1160.0" x2="413.0" y2="1160.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="1160.0" x2="413.0" y2="1156.0" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="800.0" y1="1381.0" x2="800.0" y2="1371.0" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,1080.0 L 1130.0,1080.0 L 1130.0,539.5 L 1116.0,539.5" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="1080.0" x2="1109.0" y2="1084.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="1080.0" x2="1109.0" y2="1080.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="1080.0" x2="1109.0" y2="1076.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="534.5" x2="1116.0" y2="544.5" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 958.0,1146.0 L 958.0,1162.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="958.0" y1="1146.0" x2="954.0" y2="1139.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="1146.0" x2="958.0" y2="1139.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="1146.0" x2="962.0" y2="1139.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="953.0" y1="1162.0" x2="963.0" y2="1162.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 958.0,1294.0 L 958.0,1310.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="958.0" y1="1294.0" x2="954.0" y2="1287.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="1294.0" x2="958.0" y2="1287.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="1294.0" x2="962.0" y2="1287.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="953.0" y1="1310.0" x2="963.0" y2="1310.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,1524.0 L 1130.0,1524.0 L 1130.0,539.5 L 1116.0,539.5" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="1524.0" x2="1109.0" y2="1528.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="1524.0" x2="1109.0" y2="1524.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="1524.0" x2="1109.0" y2="1520.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="534.5" x2="1116.0" y2="544.5" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 958.0,300.0 L 958.0,316.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="958.0" y1="300.0" x2="954.0" y2="293.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="300.0" x2="958.0" y2="293.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="300.0" x2="962.0" y2="293.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="953.0" y1="316.0" x2="963.0" y2="316.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 958.0,448.0 L 958.0,464.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="958.0" y1="448.0" x2="954.0" y2="441.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="448.0" x2="958.0" y2="441.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="448.0" x2="962.0" y2="441.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="953.0" y1="464.0" x2="963.0" y2="464.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,539.5 L 1130.0,539.5 L 1130.0,215.0 L 1116.0,215.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="539.5" x2="1109.0" y2="543.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="539.5" x2="1109.0" y2="539.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="539.5" x2="1109.0" y2="535.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="210.0" x2="1116.0" y2="220.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,778.5 L 1130.0,778.5 L 1130.0,539.5 L 1116.0,539.5" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="778.5" x2="1109.0" y2="782.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="778.5" x2="1109.0" y2="778.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="778.5" x2="1109.0" y2="774.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="534.5" x2="1116.0" y2="544.5" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 958.0,725.0 L 958.0,741.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="958.0" y1="725.0" x2="954.0" y2="718.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="725.0" x2="958.0" y2="718.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="958.0" y1="725.0" x2="962.0" y2="718.0" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="953.0" y1="741.0" x2="963.0" y2="741.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,869.5 L 1148.0,869.5 L 1148.0,196.0 L 1180.0,196.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="869.5" x2="1109.0" y2="873.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="869.5" x2="1109.0" y2="869.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="869.5" x2="1109.0" y2="865.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1180.0" y1="201.0" x2="1180.0" y2="191.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,869.5 L 1130.0,869.5 L 1130.0,678.0 L 1116.0,678.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="869.5" x2="1109.0" y2="873.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="869.5" x2="1109.0" y2="869.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="869.5" x2="1109.0" y2="865.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="673.0" x2="1116.0" y2="683.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,960.5 L 1130.0,960.5 L 1130.0,1228.0 L 1116.0,1228.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="960.5" x2="1109.0" y2="964.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="960.5" x2="1109.0" y2="960.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="960.5" x2="1109.0" y2="956.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="1223.0" x2="1116.0" y2="1233.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1116.0,960.5 L 1130.0,960.5 L 1130.0,678.0 L 1116.0,678.0" fill="none" stroke="#B23A2E" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1116.0" y1="960.5" x2="1109.0" y2="964.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="960.5" x2="1109.0" y2="960.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="960.5" x2="1109.0" y2="956.5" stroke="#B23A2E" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1116.0" y1="673.0" x2="1116.0" y2="683.0" stroke="#B23A2E" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1496.0,511.0 L 1510.0,511.0 L 1510.0,196.0 L 1496.0,196.0" fill="none" stroke="#8A6114" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1496.0" y1="511.0" x2="1489.0" y2="515.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1496.0" y1="511.0" x2="1489.0" y2="511.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1496.0" y1="511.0" x2="1489.0" y2="507.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1496.0" y1="191.0" x2="1496.0" y2="201.0" stroke="#8A6114" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1338.0,262.0 L 1338.0,278.0" fill="none" stroke="#8A6114" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1338.0" y1="262.0" x2="1334.0" y2="255.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1338.0" y1="262.0" x2="1338.0" y2="255.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1338.0" y1="262.0" x2="1342.0" y2="255.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1333.0" y1="278.0" x2="1343.0" y2="278.0" stroke="#8A6114" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 1338.0,278.0 L 1338.0,112.0 L 198.0,112.0 L 198.0,130.0" fill="none" stroke="#8A6114" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="1338.0" y1="278.0" x2="1342.0" y2="285.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1338.0" y1="278.0" x2="1338.0" y2="285.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1338.0" y1="278.0" x2="1334.0" y2="285.0" stroke="#8A6114" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="193.0" y1="130.0" x2="203.0" y2="130.0" stroke="#8A6114" stroke-opacity="0.7" stroke-width="1.6"/>
+<path d="M 420.0,687.5 L 800.0,687.5 L 800.0,196.0 L 1180.0,196.0" fill="none" stroke="#2E6B4F" stroke-opacity="0.68" stroke-width="1.3"/>
+<line x1="420.0" y1="687.5" x2="413.0" y2="691.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="687.5" x2="413.0" y2="687.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="420.0" y1="687.5" x2="413.0" y2="683.5" stroke="#2E6B4F" stroke-opacity="0.78" stroke-width="1.2"/>
+<line x1="1180.0" y1="201.0" x2="1180.0" y2="191.0" stroke="#2E6B4F" stroke-opacity="0.7" stroke-width="1.6"/>
+<g class="entity">
+<rect x="40" y="130" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="40" y="130" width="316" height="30" rx="3" fill="#4E4C9A" fill-opacity="0.12"/>
+<rect x="40" y="130" width="3.5" height="151" fill="#4E4C9A"/>
+<text x="52" y="149.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_users</text>
+<text x="50" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="85" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="50" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#8A6114">UQ</text>
+<text x="85" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">username</text>
+<text x="52" y="211" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">role</text>
+<text x="52" y="230" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">status</text>
+<text x="52" y="249" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">name</text>
+<text x="52" y="268" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">password</text>
+</g>
+<g class="entity">
+<rect x="420" y="130" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="130" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="130" width="3.5" height="151" fill="#2E6B4F"/>
+<text x="432" y="149.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_progress</text>
+<text x="430" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="430" y="211" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="211" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="432" y="230" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_version</text>
+<text x="432" y="249" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">pts_earned</text>
+<text x="432" y="268" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">completed_at</text>
+</g>
+<g class="entity">
+<rect x="420" y="297" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="297" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="297" width="3.5" height="132" fill="#2E6B4F"/>
+<text x="432" y="316.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_mission_drafts</text>
+<text x="430" y="340" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="340" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="359" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="359" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="430" y="378" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="378" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="432" y="397" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">code</text>
+<text x="432" y="416" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">updated_at</text>
+</g>
+<g class="entity">
+<rect x="420" y="445" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="445" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="445" width="3.5" height="151" fill="#2E6B4F"/>
+<text x="432" y="464.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_activity</text>
+<text x="430" y="488" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="488" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="507" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="507" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="432" y="526" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">type</text>
+<text x="430" y="545" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#8A6114">FK*</text>
+<text x="465" y="545" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="432" y="564" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">pts</text>
+<text x="432" y="583" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">created_at</text>
+</g>
+<g class="entity">
+<rect x="420" y="612" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="612" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="612" width="3.5" height="151" fill="#2E6B4F"/>
+<text x="432" y="631.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_xp_transactions</text>
+<text x="430" y="655" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="655" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="674" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="674" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="430" y="693" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="693" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="430" y="712" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="712" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">assessment_id</text>
+<text x="432" y="731" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">amount</text>
+<text x="432" y="750" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">type</text>
+</g>
+<g class="entity">
+<rect x="420" y="779" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="779" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="779" width="3.5" height="132" fill="#2E6B4F"/>
+<text x="432" y="798.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_mission_submission_results</text>
+<text x="430" y="822" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="822" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="841" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="841" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="430" y="860" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="860" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="430" y="879" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#8A6114">UQ</text>
+<text x="465" y="879" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">submission_id</text>
+<text x="432" y="898" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">source_hash</text>
+</g>
+<g class="entity">
+<rect x="420" y="927" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="927" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="927" width="3.5" height="151" fill="#2E6B4F"/>
+<text x="432" y="946.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_knowledge_check_attempts</text>
+<text x="430" y="970" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="970" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="989" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="989" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">knowledge_check_id</text>
+<text x="430" y="1008" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="1008" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="432" y="1027" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">attempt_number</text>
+<text x="432" y="1046" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">status</text>
+<text x="432" y="1065" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">percentage</text>
+</g>
+<g class="entity">
+<rect x="420" y="1094" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="420" y="1094" width="316" height="30" rx="3" fill="#2E6B4F" fill-opacity="0.12"/>
+<rect x="420" y="1094" width="3.5" height="132" fill="#2E6B4F"/>
+<text x="432" y="1113.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_knowledge_check_responses</text>
+<text x="430" y="1137" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="465" y="1137" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="430" y="1156" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="1156" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">knowledge_check_attempt_id</text>
+<text x="430" y="1175" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="1175" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">knowledge_check_question_id</text>
+<text x="430" y="1194" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="465" y="1194" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">selected_option_id</text>
+<text x="432" y="1213" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">is_correct</text>
+</g>
+<g class="entity">
+<rect x="800" y="130" width="316" height="170" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="130" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="130" width="3.5" height="170" fill="#B23A2E"/>
+<text x="812" y="149.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_courses</text>
+<text x="810" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#8A6114">UQ</text>
+<text x="845" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">slug</text>
+<text x="812" y="211" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">name</text>
+<text x="812" y="230" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">type</text>
+<text x="812" y="249" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">status</text>
+<text x="812" y="268" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">order_num</text>
+<text x="812" y="287" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">version</text>
+</g>
+<g class="entity">
+<rect x="800" y="316" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="316" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="316" width="3.5" height="132" fill="#B23A2E"/>
+<text x="812" y="335.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_sections</text>
+<text x="810" y="359" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="359" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="378" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="378" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">course_id</text>
+<text x="812" y="397" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">order_num</text>
+<text x="812" y="416" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">title</text>
+<text x="812" y="435" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">version</text>
+</g>
+<g class="entity">
+<rect x="800" y="464" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="464" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="464" width="3.5" height="151" fill="#B23A2E"/>
+<text x="812" y="483.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_missions</text>
+<text x="810" y="507" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="507" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="526" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="526" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">course_id</text>
+<text x="810" y="545" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="545" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">section_id</text>
+<text x="812" y="564" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">title</text>
+<text x="812" y="583" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">points</text>
+<text x="812" y="602" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">version</text>
+</g>
+<g class="entity">
+<rect x="800" y="631" width="316" height="94" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="631" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="631" width="3.5" height="94" fill="#B23A2E"/>
+<text x="812" y="650.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_skills</text>
+<text x="810" y="674" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="674" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="693" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#8A6114">UQ</text>
+<text x="845" y="693" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">key</text>
+<text x="812" y="712" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">label</text>
+</g>
+<g class="entity">
+<rect x="800" y="741" width="316" height="75" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="741" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="741" width="3.5" height="75" fill="#B23A2E"/>
+<text x="812" y="760.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_mission_skill</text>
+<text x="810" y="784" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK·FK</text>
+<text x="845" y="784" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="810" y="803" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK·FK</text>
+<text x="845" y="803" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">skill_id</text>
+</g>
+<g class="entity">
+<rect x="800" y="832" width="316" height="75" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="832" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="832" width="3.5" height="75" fill="#B23A2E"/>
+<text x="812" y="851.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_assessment_skill</text>
+<text x="810" y="875" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK·FK</text>
+<text x="845" y="875" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">assessment_id</text>
+<text x="810" y="894" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK·FK</text>
+<text x="845" y="894" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">skill_id</text>
+</g>
+<g class="entity">
+<rect x="800" y="923" width="316" height="75" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="923" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="923" width="3.5" height="75" fill="#B23A2E"/>
+<text x="812" y="942.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_knowledge_check_question_skill</text>
+<text x="810" y="966" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK·FK</text>
+<text x="845" y="966" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">question_id</text>
+<text x="810" y="985" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK·FK</text>
+<text x="845" y="985" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">skill_id</text>
+</g>
+<g class="entity">
+<rect x="800" y="1014" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="1014" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="1014" width="3.5" height="132" fill="#B23A2E"/>
+<text x="812" y="1033.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_knowledge_checks</text>
+<text x="810" y="1057" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="1057" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="1076" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="1076" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="812" y="1095" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">title</text>
+<text x="812" y="1114" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">is_required</text>
+<text x="812" y="1133" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">status</text>
+</g>
+<g class="entity">
+<rect x="800" y="1162" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="1162" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="1162" width="3.5" height="132" fill="#B23A2E"/>
+<text x="812" y="1181.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_knowledge_check_questions</text>
+<text x="810" y="1205" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="1205" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="1224" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="1224" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">knowledge_check_id</text>
+<text x="812" y="1243" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">order_num</text>
+<text x="812" y="1262" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">type</text>
+<text x="812" y="1281" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">prompt</text>
+</g>
+<g class="entity">
+<rect x="800" y="1310" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="1310" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="1310" width="3.5" height="132" fill="#B23A2E"/>
+<text x="812" y="1329.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_knowledge_check_options</text>
+<text x="810" y="1353" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="1353" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="1372" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="1372" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">knowledge_check_question_id</text>
+<text x="812" y="1391" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">order_num</text>
+<text x="812" y="1410" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">option_text</text>
+<text x="812" y="1429" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">is_correct</text>
+</g>
+<g class="entity">
+<rect x="800" y="1458" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="800" y="1458" width="316" height="30" rx="3" fill="#B23A2E" fill-opacity="0.12"/>
+<rect x="800" y="1458" width="3.5" height="132" fill="#B23A2E"/>
+<text x="812" y="1477.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_mission_behavior_tests</text>
+<text x="810" y="1501" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="845" y="1501" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="810" y="1520" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="845" y="1520" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">mission_id</text>
+<text x="812" y="1539" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">name</text>
+<text x="812" y="1558" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">test_type</text>
+<text x="812" y="1577" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">active</text>
+</g>
+<g class="entity">
+<rect x="1180" y="130" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="1180" y="130" width="316" height="30" rx="3" fill="#8A6114" fill-opacity="0.12"/>
+<rect x="1180" y="130" width="3.5" height="132" fill="#8A6114"/>
+<text x="1192" y="149.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_assessments</text>
+<text x="1190" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="1225" y="173" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="1190" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK·UQ</text>
+<text x="1225" y="192" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">course_id</text>
+<text x="1192" y="211" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">title</text>
+<text x="1192" y="230" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">passing_score</text>
+<text x="1192" y="249" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">version</text>
+</g>
+<g class="entity">
+<rect x="1180" y="278" width="316" height="151" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="1180" y="278" width="316" height="30" rx="3" fill="#8A6114" fill-opacity="0.12"/>
+<rect x="1180" y="278" width="3.5" height="151" fill="#8A6114"/>
+<text x="1192" y="297.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_assessment_attempts</text>
+<text x="1190" y="321" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="1225" y="321" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="1190" y="340" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="1225" y="340" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">assessment_id</text>
+<text x="1190" y="359" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="1225" y="359" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">user_id</text>
+<text x="1192" y="378" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">score</text>
+<text x="1192" y="397" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">status</text>
+<text x="1192" y="416" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">passed_at</text>
+</g>
+<g class="entity">
+<rect x="1180" y="445" width="316" height="132" rx="3" fill="#FFFFFF" stroke="#C9CDC2" stroke-width="1"/>
+<rect x="1180" y="445" width="316" height="30" rx="3" fill="#8A6114" fill-opacity="0.12"/>
+<rect x="1180" y="445" width="3.5" height="132" fill="#8A6114"/>
+<text x="1192" y="464.5" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="12.4" font-weight="700" fill="#1F242C">the404_assessment_behavior_tests</text>
+<text x="1190" y="488" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#B23A2E">PK</text>
+<text x="1225" y="488" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">id</text>
+<text x="1190" y="507" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="7.6" font-weight="700" fill="#4E4C9A">FK</text>
+<text x="1225" y="507" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">assessment_id</text>
+<text x="1192" y="526" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">name</text>
+<text x="1192" y="545" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">test_type</text>
+<text x="1192" y="564" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="9.6" fill="#1F242C">active</text>
+</g>
+<g>
+<text x="1176" y="649" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">PK primary key · FK foreign key · UQ unique · PK·FK composite key</text>
+<text x="1176" y="665" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">Crow's foot = many · bar = one · dashed = logical (no FK)</text>
+<text x="1176" y="693" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">Attempts snapshot the grading rule, threshold and skill keys</text>
+<text x="1176" y="708" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">so later curriculum changes never rewrite a recorded verdict.</text>
+<text x="1176" y="734" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">Hidden behaviour tests are optional: an assessment with none</text>
+<text x="1176" y="749" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">keeps the legacy deterministic grading path.</text>
+<text x="1176" y="775" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">xp_transactions is the authoritative XP ledger; progress.pts_earned</text>
+<text x="1176" y="790" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">is a per-mission cache of the award.</text>
+<text x="1176" y="816" font-family="DejaVu Sans" font-size="9.5" fill="#565E67">progress &amp; mission_drafts are unique per (user_id, mission_id).</text>
+</g>
+<text x="40" y="1728" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="9.5" fill="#6B7077">Generated from the local CodeQuest schema (information_schema) · 32 domain tables total · supporting tables in the companion ERD · 2026-10-22</text>
+</svg>

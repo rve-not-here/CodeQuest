@@ -1,8 +1,21 @@
 @php
     $authUser = auth()->user();
-    $themePreference = $authUser !== null
-        ? app(\App\Services\ThemePreferenceService::class)->for($authUser)
+    $themeState = $authUser !== null
+        ? app(\App\Services\ThemePreferenceService::class)->stateFor($authUser)
         : null;
+    // The shell must still render when the database is unreachable (the
+    // admin system status page has to report that failure). The inbox badge is
+    // decorative, so a failed count falls back to zero instead of a 500.
+    $unreadNotificationCount = 0;
+    if ($authUser !== null) {
+        try {
+            $unreadNotificationCount = app(\App\Services\NotificationService::class)->unreadCount($authUser);
+        } catch (\Throwable) {
+            $unreadNotificationCount = 0;
+        }
+    }
+    $themePreference = $themeState['theme'] ?? null;
+    $themePreferenceSavedAt = $themeState['saved_at'] ?? null;
     $role = $authUser?->role ?? $role ?? 'student';
     $homeRoute = \App\Support\RoleHome::routeName($role);
     $displayName = $authUser?->username ?? $profileName ?? 'OPERATOR';
@@ -13,18 +26,15 @@
         ['route' => 'learning-path', 'label' => 'Learning Path', 'icon' => 'route', 'primaryIcon' => false],
         ['heading' => 'Learning record'],
         ['route' => 'progress', 'label' => 'Course Progress', 'icon' => 'chart-no-axes-column'],
-        ['route' => 'section-progress', 'label' => 'Section Progress', 'icon' => 'list-tree'],
         ['route' => 'timeline', 'label' => 'Timeline', 'icon' => 'history'],
         ['route' => 'xp-ledger', 'label' => 'XP Ledger', 'icon' => 'coins'],
         ['route' => 'reports.progress', 'label' => 'Progress Report', 'icon' => 'file-text'],
         ['route' => 'competency', 'label' => 'Competency', 'icon' => 'badge-check'],
+        ['route' => 'performance', 'label' => 'Performance Summary', 'icon' => 'chart-line'],
         ['heading' => 'Support'],
         ['route' => 'recommendations', 'label' => 'Recommendations', 'icon' => 'sparkles'],
         ['route' => 'achievements', 'label' => 'Achievements', 'icon' => 'award'],
         ['route' => 'assessments', 'label' => 'Boss Challenges', 'icon' => 'target'],
-        ['route' => 'notifications', 'label' => 'Notifications', 'icon' => 'bell'],
-        ['heading' => 'Reference'],
-        ['route' => 'missions', 'label' => 'Challenge Index', 'icon' => 'library'],
     ];
 
     $instructorItems = [
@@ -35,7 +45,6 @@
         ['route' => 'course-analytics', 'label' => 'Course Analytics', 'icon' => 'chart-line'],
         ['route' => 'reports.teacher', 'label' => 'Reports', 'icon' => 'file-text'],
         ['route' => 'needs-attention', 'label' => 'Needs Attention', 'icon' => 'triangle-alert'],
-        ['route' => 'notifications', 'label' => 'Notifications', 'icon' => 'bell'],
     ];
 
     $adminItems = [
@@ -48,7 +57,6 @@
         ['route' => 'admin.analytics', 'label' => 'System analytics', 'icon' => 'chart-column'],
         ['route' => 'reports.admin-system', 'label' => 'System report', 'icon' => 'file-text'],
         ['route' => 'admin.system', 'label' => 'System status', 'icon' => 'server'],
-        ['route' => 'notifications', 'label' => 'Notifications', 'icon' => 'bell'],
     ];
 
     $items = match ($role) {
@@ -66,9 +74,25 @@
         default => [],
     };
     $topItems = array_values(array_filter($items, fn ($item) => in_array($item['route'] ?? null, $primaryRoutes, true)));
-    $secondaryItems = array_values(array_filter($items, fn ($item) => isset($item['route'])
-        && ! in_array($item['route'], [...$primaryRoutes, 'notifications'], true)
-        && ($authUser !== null || $item['route'] !== 'missions')));
+    // The popover is a record index, not a link dump: keep the authored
+    // headings so eleven destinations stay scannable. The first group carries
+    // the disclosure's own label, so its heading is not printed twice.
+    $secondaryGroups = [];
+    $secondaryGroup = null;
+    foreach ($items as $item) {
+        if (isset($item['heading'])) {
+            $secondaryGroup = $item['heading'];
+
+            continue;
+        }
+        if (! isset($item['route'])
+            || in_array($item['route'], [...$primaryRoutes, 'notifications'], true)
+            || ($authUser === null && $item['route'] === 'missions')) {
+            continue;
+        }
+        $secondaryGroups[$secondaryGroup ?? 'Tools'][] = $item;
+    }
+    $secondaryItems = $secondaryGroups === [] ? [] : array_merge(...array_values($secondaryGroups));
     $secondaryLabel = match ($role) {
         'student' => 'Learning record',
         'teacher', 'instructor' => 'Teaching tools',
@@ -95,19 +119,48 @@
     <title>@yield('title', 'CodeQuest') · CodeQuest</title>
     <script>
         // Apply the stored colour mode before first paint so dark never flashes.
-        // An account-saved preference wins over this browser's localStorage and
-        // is written back, so every device (and the asset-free error pages that
-        // only read localStorage) converge on the account's choice.
+        //
+        // Two sources can hold a choice: this device (localStorage) and the
+        // account (the server). Each carries a timestamp, and the newer one
+        // wins — so a student who picks a theme and navigates straight away
+        // keeps that choice even if the account write has not landed yet,
+        // while a choice made on another device still converges here.
         (function () {
             var stored = @json($themePreference);
-            var mode = 'light';
+            var storedAt = @json($themePreferenceSavedAt);
+            var device = null;
             try {
-                mode = localStorage.getItem('cq-theme') || 'light';
+                var deviceTheme = localStorage.getItem('cq-theme');
+                var deviceAtRaw = localStorage.getItem('cq-theme-at');
+                if (deviceTheme === 'dark' || deviceTheme === 'light') {
+                    device = {
+                        theme: deviceTheme,
+                        // A device value with no timestamp was written before
+                        // the account learned about time. It is still the
+                        // student's own choice, so it is honoured and stamped
+                        // from here on rather than discarded.
+                        saved_at: deviceAtRaw === null ? null : (parseInt(deviceAtRaw, 10) || 0)
+                    };
+                }
             } catch (e) {}
-            if (stored === 'dark' || stored === 'light') {
+            var mode = 'light';
+            var fromDevice = false;
+            if (device !== null) {
+                var legacy = device.saved_at === null;
+                var deviceIsNewer = legacy || storedAt === null || device.saved_at >= storedAt;
+                if (deviceIsNewer) {
+                    mode = device.theme;
+                    fromDevice = true;
+                    if (legacy) {
+                        try { localStorage.setItem('cq-theme-at', String(Date.now())); } catch (e) {}
+                    }
+                }
+            }
+            if (! fromDevice && (stored === 'dark' || stored === 'light')) {
                 mode = stored;
                 try {
                     localStorage.setItem('cq-theme', mode);
+                    localStorage.setItem('cq-theme-at', String(storedAt || 0));
                 } catch (e) {}
             }
             mode = mode === 'dark' ? 'dark' : 'light';
@@ -115,6 +168,11 @@
             document.documentElement.classList.toggle('dark', dark);
             document.documentElement.dataset.themeMode = mode;
             document.documentElement.style.colorScheme = mode;
+            if (fromDevice && (stored === 'dark' || stored === 'light') && stored !== mode) {
+                // The account still holds another value: the client carries
+                // this choice over, so it applies on every device.
+                document.documentElement.dataset.themeSync = 'device';
+            }
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

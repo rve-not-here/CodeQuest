@@ -5,15 +5,11 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · System status · Platform scope</span>
+            <span>Records · Platform scope</span>
             <span class="atlas-stamp atlas-stamp--ink"><x-icon name="eye" size="12" />Read-only</span>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Operations</span>
-            <h1 class="atlas-records-title">System status</h1>
-            <p class="atlas-records-lede">Operational health of the deployment: application build, live database connectivity, applied migrations and storage writability. Checks run at request time; the page is strictly read-only.</p>
-        </header>
+        <h1 class="sr-only">System status</h1>
 
         <section class="atlas-record-group" aria-labelledby="application-title">
             <div class="atlas-record-group-head">

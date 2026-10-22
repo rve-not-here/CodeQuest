@@ -70,7 +70,7 @@ admin.analytics (GET /admin/analytics, AdminAnalyticsController, US-710) sits in
 US-711 added GET /admin/system (name admin.system) inside the auth+admin group like admin.analytics: no writes, same verbatim user-scoping probe rejections (user_id/userId/user/student/owner -> 403 before any data work via AdminSystemController). Guard it the same way if it gains siblings. Secret-boundary tests live in AdminSystemTest: real DB failure via a bad default connection (restore in finally — RefreshDatabase rolls back through the default connection), config-secret sentinels never rendered, safeConfig reflection rejects app.key.
 
 ## Notification read-state POST routes + sidebar nav link
-US-803 added POST /notifications/read-all (notifications.read-all) and POST /notifications/{notification}/read (notifications.read, whereNumber) INSIDE the existing auth group, alongside GET /notifications (name kept). whereNumber keeps the route from binding a non-numeric id; run it BEFORE the GET route so read-all/read paths cannot collide with the identifier-less center. US-802 added a Notifications nav item (✉) to the student, instructor, and admin sidebar item arrays in layouts/app.blade.php (the center is auth-group and role-agnostic).
+US-803 added POST /notifications/read-all (notifications.read-all) and POST /notifications/{notification}/read (notifications.read, whereNumber) INSIDE the existing auth group, alongside GET /notifications (name kept). whereNumber keeps the route from binding a non-numeric id; run it BEFORE the GET route so read-all/read paths cannot collide with the identifier-less center. US-802 added a notifications destination; the persistent affordance is the bell in the shell actions. The duplicate 'Notifications' entry was removed from the student/instructor/admin item arrays (2026-10-22) — keep the bell, not a second nav row.
 
 ## admin.announcements route + verb set
 admin.announcements, .create, .store, .edit (GET), .update (PUT), .publish (POST), .archive (POST) all live in the auth+admin group after the admin.user.index registration. Lifecycle transitions use POST (publish/archive) since they are mutations without a conventional REST verb.
@@ -80,3 +80,6 @@ US-1102: student dashboard, learning/progression, mission and assessment actions
 
 ## theme.update is auth-only and role-agnostic
 POST /theme (theme.update, ThemePreferenceController) lives in the auth group next to logout/notifications, not behind the student middleware: every active role has a theme. It validates theme in light|dark and always writes the authenticated caller, so no request field can target another account.
+
+## Admin Knowledge Check routes are nested Course -> Mission -> Check
+admin.courses.missions.checks (GET index), .checks.edit (GET), .checks.update (PUT) live in the admin group. The controller must 404 when the mission does not belong to the course or the check does not belong to the mission; do not let a nested URL leak a check across curricula. Only metadata is writable.

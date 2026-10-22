@@ -5,18 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Sections · {{ $course->name }}</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.edit', $course) }}">← {{ $course->name }}</a>
-                <a href="{{ route('admin.courses') }}">All courses →</a>
-            </div>
+            <span>Records · {{ $course->name }}</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Sections</h1>
-            <p class="atlas-records-lede">{{ $course->name }} · Manage sections in learning order. Challenges reference a section of this course only.</p>
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'sections'])
+
+        <h1 class="sr-only">Sections</h1>
 
         @if (session('status'))
             <div class="atlas-records-alerts">
@@ -29,7 +24,7 @@
 
         <section class="atlas-record-group" aria-labelledby="sections-title">
             <div class="atlas-record-group-head">
-                <h2 id="sections-title" class="atlas-record-group-title">Sections in {{ $course->name }}</h2>
+                <h2 id="sections-title" class="atlas-record-group-title">Section register</h2>
                 <p class="atlas-record-group-figure">{{ $sections->count() }} {{ Str::plural('section', $sections->count()) }}</p>
             </div>
 
@@ -48,7 +43,6 @@
                                 <th scope="col">Section</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Challenges</th>
-                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,11 +58,6 @@
 
                                     <td data-label="Challenges"><span class="atlas-register-figure">{{ $section->missions_count }}</span></td>
 
-                                    <td data-label="Actions">
-                                        <div class="atlas-row-actions">
-                                            <a href="{{ route('admin.courses.sections.edit', [$course, $section]) }}" class="atlas-row-action">Edit</a>
-                                        </div>
-                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -31,7 +31,6 @@
 
         <header class="atlas-boss-heading">
             <div class="atlas-boss-heading-main">
-                <span class="atlas-lesson-entry-label">Boss challenge · {{ $course->name }}</span>
                 <h1 class="atlas-boss-title">{{ $assessment->title }}</h1>
             </div>
             <div class="atlas-boss-heading-meta">
@@ -46,6 +45,9 @@
                 <div class="panel border-accent-line bg-accent-soft px-4 py-3 text-sm" role="status">
                     <strong class="text-accent">Course cleared.</strong>
                     <span class="text-fg-muted">You have cleared this Boss Challenge{{ $attempt !== null && $attempt->status === 'failed' ? ' — this retry failed, but your pass stands.' : ' — later retries are practice and award no extra XP.' }}</span>
+                    <div class="atlas-boss-alert-actions">
+                        <a href="{{ route('learning-path') }}" class="btn btn-primary btn-sm">Open learning path <x-icon name="chevron-right" data-arrow size="16" /></a>
+                    </div>
                 </div>
             @endif
             @foreach (['assessment_success' => ['border-accent-line bg-accent-soft', 'text-accent'], 'assessment_info' => ['border-info/40 bg-info-soft', 'text-info'], 'assessment_error' => ['border-danger/40 bg-danger-soft', 'text-danger']] as $flashKey => $flashStyle)
@@ -66,7 +68,6 @@
             <button type="button" class="atlas-workbench-tab" id="workspace-tab-brief" data-pane-toggle="brief" aria-controls="workspace-brief" aria-expanded="true">Task</button>
             <button type="button" class="atlas-workbench-tab" id="workspace-tab-editor" data-pane-toggle="editor" aria-controls="workspace-editor" aria-expanded="true">Code</button>
             <button type="button" class="atlas-workbench-tab" id="workspace-tab-preview" data-pane-toggle="preview" aria-controls="workspace-preview" aria-expanded="true">Preview</button>
-            <button type="button" class="atlas-workbench-tab atlas-workbench-reset" data-workspace-reset>Reset panes</button>
         </nav>
         <div class="challenge-workspace atlas-boss-workspace" data-workspace>
             <section class="challenge-pane" id="workspace-brief" data-workspace-pane="brief" tabindex="0">
@@ -103,7 +104,6 @@
                             </div>
                         </dl>
                         <p class="atlas-boss-note">Preview runs in an isolated frame. The server checks the submitted code.</p>
-                        <a href="{{ route('assessments') }}" class="btn btn-ghost atlas-boss-back">All challenges</a>
                     </section>
                 </div>
             </section>
@@ -111,23 +111,21 @@
             <section class="challenge-pane" id="workspace-editor" data-workspace-pane="editor" tabindex="0">
                 @if ($canBegin)
                     <section class="atlas-boss-state" aria-labelledby="boss-start-title">
-                        <span class="atlas-lesson-entry-label">Boss challenge · {{ $course->name }}</span>
                         <h2 id="boss-start-title" class="atlas-boss-state-title">Ready to begin</h2>
                         <p class="atlas-boss-state-copy">Begin an attempt to open the editor. Your work is scored on the server after submission.</p>
                         <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" size="16" /></button>
+                            <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" data-arrow size="16" /></button>
                         </form>
                     </section>
                 @elseif ($attempt?->status === 'submitted')
                     <section class="atlas-boss-state" aria-labelledby="boss-pending-title" role="status">
-                        <span class="atlas-lesson-entry-label">Boss challenge · {{ $course->name }}</span>
                         <h2 id="boss-pending-title" class="atlas-boss-state-title">Verification in progress</h2>
                         <p class="atlas-boss-state-copy">Your submission is recorded. Resume verification of the saved code to obtain its result.</p>
                         <form method="POST" action="{{ route('assessment.submit', $assessment) }}">
                             @csrf
                             <input type="hidden" name="code" value="{{ $code }}">
-                            <button type="submit" class="btn btn-primary">Resume verification <x-icon name="chevron-right" size="16" /></button>
+                            <button type="submit" class="btn btn-primary">Resume verification <x-icon name="chevron-right" data-arrow size="16" /></button>
                         </form>
                     </section>
                 @else
@@ -140,6 +138,16 @@
                             <div class="atlas-boss-verdict" role="status" data-boss-verdict="{{ $attempt->status }}">
                                 <span class="atlas-stamp {{ $attempt->status === 'passed' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}"><x-icon :name="$attempt->status === 'passed' ? 'check' : 'x'" size="12" />{{ $attempt->status === 'passed' ? 'Passed' : 'Failed' }}</span>
                                 <p>Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. Submitting is closed; open a retry for a fresh attempt.</p>
+                                @if ($attempt->testsTotal !== null)
+                                    <p class="text-sm text-fg-muted">Hidden behavioural tests: {{ $attempt->testsPassed }} of {{ $attempt->testsTotal }} passed.</p>
+                                @endif
+                                @if ($attempt->failureFeedback !== [])
+                                    <ul class="mt-2 space-y-1 text-sm text-fg-muted">
+                                        @foreach ($attempt->failureFeedback as $feedback)
+                                            <li>{{ $feedback }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                             </div>
                         @endif
                         <p class="atlas-boss-code-note">Build an HTML document. Include your CSS in a style element and JavaScript in a script element.</p>

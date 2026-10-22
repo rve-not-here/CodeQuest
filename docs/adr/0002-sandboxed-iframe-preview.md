@@ -6,4 +6,4 @@ We considered server-side rendering for preview but rejected it: a server round-
 
 The sandbox attribute starts with `allow-scripts` only. If a future mission genuinely needs additional permissions (e.g. `allow-same-origin` for a CSS challenge that reads computed styles), we add the minimum required permission and note it here. The bar for expanding sandbox permissions is high: the mission must not work without it, and the security implications must be documented.
 
-The trade-off is that client-side preview can diverge from server-side rendering. We accept this. Preview is feedback, not proof. The server decides pass or fail at submit time.
+The trade-off is that client-side preview can diverge from server-side rendering. We accept this. Preview is feedback, not proof. The server decides pass or fail at submit time: structural rules and, where configured, hidden behavioural tests run in the isolated grader, never in the browser. A preview that looks correct therefore never implies a verdict, and a grader outage leaves the attempt submitted rather than turning preview confidence into a pass.

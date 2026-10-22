@@ -366,9 +366,37 @@ class StudentProgressTest extends TestCase
     /**
      * @return array{0: Course, 1: array<int, Section>, 2: array<int, Mission>}
      */
+    public function test_boss_pass_count_reads_history_instead_of_the_latest_retry_verdict(): void
+    {
+        [$course, , $missions] = $this->createCourseWithSections(1, [1 => 1]);
+        $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+        $student = User::factory()->create();
+        $this->complete($student, $missions[0]);
+
+        $teacher = User::factory()->teacher()->create();
+        $this->classroomFor($teacher, [$student], [$course]);
+
+        // A pass, then a failed retry (US-409). The course is still complete;
+        // the count must read history like AssessmentService::hasPassed().
+        $this->attempt($student, $assessment, 'passed', 100, now()->subDay(), now()->subDay());
+        $this->attempt($student, $assessment, 'failed', 40, now());
+
+        $this->actingAs($teacher)
+            ->get(route('student-progress', ['student' => $student->id]))
+            ->assertOk()
+            ->assertSee('<dt>Boss Challenges passed</dt><dd class="is-numeric">1</dd>', false);
+    }
+
     private function createCourseWithSections(int $orderNum, array $sectionMissionCounts, string $status = 'active'): array
     {
-        $course = Course::factory()->create(['status' => $status, 'order_num' => $orderNum]);
+        // An explicit name keeps the "only assessed courses" assertion
+        // meaningful: a random faker name can be a substring of the other
+        // course's name, which would make the count flaky.
+        $course = Course::factory()->create([
+            'status' => $status,
+            'order_num' => $orderNum,
+            'name' => 'Course '.$orderNum.' '.uniqid(),
+        ]);
         $sections = [];
         $missions = [];
         $missionOrder = 1;

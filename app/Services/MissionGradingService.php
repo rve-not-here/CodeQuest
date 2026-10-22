@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Mission;
-use App\Models\MissionBehaviorTest;
 use App\Models\User;
+use App\Support\BehaviorTestDefinition;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
@@ -50,7 +50,7 @@ class MissionGradingService
         $payload = [];
 
         foreach ($tests as $test) {
-            $shaped = $this->shapeTest($test->test_type, $test->decodedConfiguration());
+            $shaped = BehaviorTestDefinition::shape($test->test_type, $test->decodedConfiguration());
 
             if ($shaped === null) {
                 $this->observe($user, $mission, 'malformed-test', 0, 'invalid_response');
@@ -123,94 +123,6 @@ class MissionGradingService
         }
 
         return $this->unavailable($result['tests_total'], $result['tests_passed']);
-    }
-
-    /**
-     * Keep only well-shaped tests. Anything else is a content error, and
-     * content errors fail closed rather than passing blindly.
-     *
-     * @param  array<string|int, mixed>  $configuration
-     * @return array{type: string, payload: array<string, mixed>}|null
-     */
-    private function shapeTest(string $type, array $configuration): ?array
-    {
-        if ($type === MissionBehaviorTest::TYPE_FUNCTION) {
-            if (! isset($configuration['function']) || ! is_string($configuration['function'])
-                || $configuration['function'] === '' || strlen($configuration['function']) > 120
-                || ! isset($configuration['cases']) || ! is_array($configuration['cases'])
-                || $configuration['cases'] === [] || count($configuration['cases']) > 50
-            ) {
-                return null;
-            }
-
-            foreach ($configuration['cases'] as $case) {
-                if (! is_array($case) || ! array_key_exists('expected', $case)
-                    || ! isset($case['args']) || ! is_array($case['args']) || count($case['args']) > 10
-                    || ! $this->jsonSafe($case['args']) || ! $this->jsonSafe($case['expected'])
-                ) {
-                    return null;
-                }
-            }
-
-            return ['type' => $type, 'payload' => $this->stringKeys($configuration)];
-        }
-
-        if ($type === MissionBehaviorTest::TYPE_CONSOLE) {
-            if (! isset($configuration['expected']) || ! is_array($configuration['expected'])
-                || $configuration['expected'] === [] || count($configuration['expected']) > 50
-            ) {
-                return null;
-            }
-
-            foreach ($configuration['expected'] as $entry) {
-                if (! is_array($entry) || count($entry) > 10 || ! $this->jsonSafe($entry)) {
-                    return null;
-                }
-            }
-
-            return ['type' => $type, 'payload' => $this->stringKeys($configuration)];
-        }
-
-        return null;
-    }
-
-    /**
-     * JSON objects decode with string keys. Keep exactly those so the
-     * payload type stays honest for the grader transport.
-     *
-     * @param  array<string|int, mixed>  $configuration
-     * @return array<string, mixed>
-     */
-    private function stringKeys(array $configuration): array
-    {
-        $payload = [];
-
-        foreach ($configuration as $key => $value) {
-            if (is_string($key)) {
-                $payload[$key] = $value;
-            }
-        }
-
-        return $payload;
-    }
-
-    private function jsonSafe(mixed $value): bool
-    {
-        if ($value === null || is_bool($value) || is_int($value) || is_float($value) || is_string($value)) {
-            return is_string($value) ? strlen($value) <= 4096 : true;
-        }
-
-        if (is_array($value)) {
-            foreach ($value as $item) {
-                if (! $this->jsonSafe($item)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     /** @return array{passed: bool, failures: list<string>, unavailable: bool, tests_total: int, tests_passed: int} */

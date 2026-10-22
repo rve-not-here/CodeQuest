@@ -71,12 +71,12 @@ class AdminNumericInputTest extends TestCase
         $this->assertDatabaseCount('the404_assessment_attempts', 0);
     }
 
-    public function test_boss_threshold_accepts_both_percentage_boundaries(): void
+    public function test_boss_threshold_accepts_the_minimum_and_maximum_thresholds(): void
     {
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create();
         $assessment = Assessment::factory()->create(['course_id' => $course->id]);
-        foreach (['0', 0, '100', 100] as $score) {
+        foreach (['1', 1, '100', 100] as $score) {
             $this->actingAs($admin)->put(route('admin.courses.assessment.update', [$course, $assessment]), ['title' => $assessment->title, 'passing_score' => $score, 'status' => $assessment->status])->assertSessionHasNoErrors()->assertSessionHas('status');
             $this->assertSame((int) $score, $assessment->refresh()->passing_score);
         }

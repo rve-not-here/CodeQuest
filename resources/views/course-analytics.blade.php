@@ -5,12 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Course analytics · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
-            <a href="{{ route('students') }}">Students →</a>
+            <span>Records · {{ $role === 'teacher' ? 'Classroom scope' : 'Platform scope' }}</span>
+            @if ($role !== 'teacher')
+                <a href="{{ route('students') }}">Students →</a>
+            @endif
         </div>
 
         <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Course evidence</span>
             <h1 class="atlas-records-title">Course analytics</h1>
             <p class="atlas-records-lede">Course evidence derived from recorded learning and assessments. Every figure counts the same students the course pages do.</p>
         </header>

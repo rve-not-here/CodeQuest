@@ -75,7 +75,7 @@ class XpLedgerTest extends TestCase
             ->assertSee('Hint 1 on challenge: The Breach')
             ->assertSee('Boss Challenge completed: Signal Restoration — HTML Boss Challenge')
             ->assertSee('+30 XP')
-            ->assertSee('-5 XP')
+            ->assertSee('-10 XP')
             ->assertSee('+100 XP')
             ->assertSee('<span class="atlas-ledger-source">Challenge</span>', false)
             ->assertSee('<span class="atlas-ledger-source">Boss</span>', false)

@@ -5,25 +5,13 @@
 @section('content')
     <div class="atlas-records">
         <div class="log-running atlas-records-running">
-            <span>Records · Courses · Platform scope</span>
-            <div class="atlas-records-running-links">
-                <a href="{{ route('admin.courses.sections', $course) }}">Sections →</a>
-                <a href="{{ route('admin.courses.missions', $course) }}">Challenges →</a>
-                <a href="{{ route('admin.courses') }}">All courses →</a>
-            </div>
+            <span>Records · Platform scope</span>
+            <a href="{{ route('admin.courses') }}">All courses →</a>
         </div>
 
-        <header class="atlas-records-heading">
-            <span class="atlas-lesson-entry-label">Records · Curriculum</span>
-            <h1 class="atlas-records-title">Edit course</h1>
-            <p class="atlas-records-lede">{{ $course->name }} · Update course details and availability. Recorded progress is never rewritten.</p>
-            <dl class="log-facts atlas-records-facts" aria-label="Course record">
-                <div><dt>Order</dt><dd class="is-numeric">{{ $course->order_num }}</dd></div>
-                <div><dt>Type</dt><dd>{{ $course->type }}</dd></div>
-                <div><dt>Status</dt><dd>{{ ucfirst($course->status) }}</dd></div>
-                <div><dt>Sections</dt><dd class="is-numeric">{{ $course->sections_count }}</dd></div>
-            </dl>
-        </header>
+    @include('admin.courses._nav', ['course' => $course, 'active' => 'overview'])
+
+        <h1 class="sr-only">Edit course</h1>
 
         @if (session('error'))
             <div class="atlas-records-alerts">

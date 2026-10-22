@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Course;
 use App\Models\Mission;
 use App\Models\Progress;
@@ -98,7 +99,7 @@ class MissionAssistanceIntegrityTest extends TestCase
 
         $this->assertTrue($firstPurchase);
         $this->assertTrue($replay);
-        $this->assertSame(95, app(XpService::class)->balance($student));
+        $this->assertSame(90, app(XpService::class)->balance($student));
         $this->assertDatabaseCount('the404_xp_transactions', 2);
     }
 
@@ -121,8 +122,8 @@ class MissionAssistanceIntegrityTest extends TestCase
         $this->assertTrue($first);
         $this->assertTrue($second);
         $this->assertTrue($third);
-        $this->assertSame(70, app(XpService::class)->balance($student));
-        $this->assertSame([-5, -10, -15], XpTransaction::query()->where('type', XpService::TYPE_HINT_USED)->orderBy('id')->pluck('amount')->map(fn ($amount): int => (int) $amount)->all());
+        $this->assertSame(40, app(XpService::class)->balance($student));
+        $this->assertSame([-10, -20, -30], XpTransaction::query()->where('type', XpService::TYPE_HINT_USED)->orderBy('id')->pluck('amount')->map(fn ($amount): int => (int) $amount)->all());
     }
 
     public function test_available_solution_keeps_its_price_and_replay_behavior(): void
@@ -136,7 +137,7 @@ class MissionAssistanceIntegrityTest extends TestCase
 
         $this->assertTrue($firstPurchase);
         $this->assertTrue($replay);
-        $this->assertSame(70, app(XpService::class)->balance($student));
+        $this->assertSame(25, app(XpService::class)->balance($student));
         $this->assertDatabaseCount('the404_xp_transactions', 2);
     }
 
@@ -146,6 +147,13 @@ class MissionAssistanceIntegrityTest extends TestCase
         $student = User::factory()->create();
         $mission = Mission::factory()->create(['hints' => '["First hint"]', 'solution_code' => '<h1>Solution</h1>']);
         $this->fund($student, $mission);
+        Activity::query()->create([
+            'user_id' => $student->id,
+            'mission_id' => $mission->id,
+            'type' => 'wrong_submission',
+            'message' => 'Wrong submission',
+            'pts' => 0,
+        ]);
         $changed = false;
         DB::listen(function (QueryExecuted $query) use ($student, $mission, $state, &$changed): void {
             if (! $changed && str_starts_with(strtolower($query->sql), 'select') && str_contains($query->sql, 'the404_users')) {
