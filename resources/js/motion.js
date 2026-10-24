@@ -52,7 +52,7 @@ export function countUp(element, {
     const finish = () => {
         if (finished) return;
         finished = true;
-        globalThis.cancelAnimationFrame(frame);
+        globalThis.cancelAnimationFrame?.(frame);
         element.textContent = finalText;
         if (finalLabel) element.setAttribute('aria-label', finalLabel);
         stopListening();

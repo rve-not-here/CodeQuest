@@ -40,7 +40,7 @@
         </header>
 
         @if ($hasAlerts)
-        <div class="atlas-boss-alerts cq-motion-result">
+        <div class="atlas-boss-alerts{{ session()->has('assessment_success') || session()->has('assessment_info') || session()->has('assessment_error') || $errors->has('code') ? ' cq-motion-result' : '' }}">
             @if ($hasPassed)
                 <div class="panel border-accent-line bg-accent-soft px-4 py-3 text-sm" role="status">
                     <strong class="text-accent">Course cleared.</strong>
@@ -113,6 +113,7 @@
                     <section class="atlas-boss-state" aria-labelledby="boss-start-title">
                         <h2 id="boss-start-title" class="atlas-boss-state-title">Ready to begin</h2>
                         <p class="atlas-boss-state-copy">Begin an attempt to open the editor. Your work is scored on the server after submission.</p>
+                        <p class="game-copy-line">{{ \App\Support\GameCopy::line('boss.briefing', $assessment->id) }}</p>
                         <form method="POST" action="{{ route('assessment.start', $assessment) }}">
                             @csrf
                             <button type="submit" class="btn btn-primary">Start attempt <x-icon name="chevron-right" data-arrow size="16" /></button>
@@ -138,6 +139,7 @@
                             <div class="atlas-boss-verdict{{ session('assessment_success') || session('assessment_error') || session('assessment_info') ? ' cq-motion-result' : '' }}" role="status" data-boss-verdict="{{ $attempt->status }}">
                                 <span class="atlas-stamp {{ $attempt->status === 'passed' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}"><x-icon :name="$attempt->status === 'passed' ? 'check' : 'x'" size="12" />{{ $attempt->status === 'passed' ? 'Passed' : 'Failed' }}</span>
                                 <p>Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. Submitting is closed; open a retry for a fresh attempt.</p>
+                                <p class="game-copy-line">{{ \App\Support\GameCopy::line($attempt->status === 'passed' ? 'boss.passed' : 'boss.failed', $assessment->id) }}</p>
                                 @if ($attempt->testsTotal !== null)
                                     <p class="text-sm text-fg-muted">Hidden behavioural tests: {{ $attempt->testsPassed }} of {{ $attempt->testsTotal }} passed.</p>
                                 @endif

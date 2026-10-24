@@ -13,6 +13,7 @@ use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
 use App\Services\XpService;
+use App\Support\GameCopy;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -316,6 +317,12 @@ class MissionTest extends TestCase
             ->assertSee('data-completion-total', false)
             ->assertSee('data-xp-value="30"', false)
             ->assertSee('data-xp-amount>30</span>', false)
+            ->assertSee('data-completion-progress', false)
+            ->assertSee('data-before="0"', false)
+            ->assertSee('data-after="50"', false)
+            ->assertSee(GameCopy::line('completion.restored', $mission->id))
+            ->assertSee(GameCopy::milestone(0, 50, $mission->id))
+            ->assertSee(GameCopy::nextStep('Next challenge'))
             ->assertSee('Challenge complete')
             ->assertSee('Validation')
             ->assertSee('Passed')
@@ -326,6 +333,12 @@ class MissionTest extends TestCase
             ->assertSee('Next challenge')
             ->assertSee('href="'.route('mission.show', $nextMission).'"', false)
             ->assertDontSee('Review learning path');
+
+        // The one-shot motion payload belongs to the completion response only.
+        $this->get(route('mission.challenge', $mission))
+            ->assertOk()
+            ->assertDontSee('class="completion-overlay"', false)
+            ->assertDontSee('data-xp-awarded', false);
     }
 
     public function test_completing_the_last_mission_returns_to_the_learning_path_for_the_boss_gate(): void
@@ -359,9 +372,15 @@ class MissionTest extends TestCase
             ->assertOk()
             ->assertSee('Challenge not passed')
             ->assertSee('Code editor')
+            ->assertSee(GameCopy::line('submit.failed', $mission->id))
             ->assertDontSee('class="completion-overlay"', false)
             ->assertDontSee('CONTINUE TO LEARNING PATH')
             ->assertDontSee('Next challenge');
+
+        $this->actingAs($user)
+            ->get(route('mission.challenge', $mission))
+            ->assertOk()
+            ->assertDontSee(GameCopy::line('submit.failed', $mission->id));
     }
 
     public function test_mission_submit_wrong_code_deducts_xp(): void

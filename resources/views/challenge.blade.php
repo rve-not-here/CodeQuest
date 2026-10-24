@@ -43,6 +43,7 @@
         }
         if ($failure = session('mission_error')) {
             $runRecords[] = ['Submit', $failure['title'].' — '.$failure['message'], 'bad'];
+            $runRecords[] = ['Submit', \App\Support\GameCopy::line('submit.failed', $mission->id), 'warn'];
         }
         if ($hintError = session('hint_error')) {
             $runRecords[] = ['Hint', 'Insufficient XP — the hint costs '.$hintError['cost'].' XP and your balance is '.$hintError['balance'].'.', 'bad'];
@@ -258,7 +259,12 @@
             </dialog>
         @endif
     @if (session('mission_success'))
-        @php($completion = session('mission_success'))
+        @php
+            $completion = session('mission_success');
+            $restoredLine = \App\Support\GameCopy::line('completion.restored', $mission->id);
+            $milestoneLine = \App\Support\GameCopy::milestone($completion['progress_before'], $completion['progress_after'], $mission->id);
+            $nextStepLine = \App\Support\GameCopy::nextStep($completion['next_label']);
+        @endphp
         <div class="completion-overlay" data-completion-overlay data-xp-awarded="{{ (int) $completion['xp_awarded'] }}" data-xp-total="{{ (int) $completion['xp_balance'] }}">
             <section
                 class="completion-dialog"
@@ -275,6 +281,9 @@
                 </div>
                 <p id="completion-summary" class="completion-summary">
                     {{ $mission->title }} passed server validation. Your progress is recorded.
+                </p>
+                <p class="sr-only" aria-live="polite" data-completion-announcement>
+                    {{ \App\Support\GameCopy::completionAnnouncement((int) $completion['xp_awarded'], (int) $completion['xp_balance'], $completion['progress_after'] === null ? null : (int) $completion['progress_after']) }}
                 </p>
 
                 <dl class="completion-results">
@@ -298,10 +307,27 @@
                     @endif
                 </dl>
 
+                @if ($completion['progress_before'] !== null && $completion['progress_after'] !== null)
+                    <div class="completion-progress" data-completion-progress data-before="{{ (int) $completion['progress_before'] }}" data-after="{{ (int) $completion['progress_after'] }}">
+                        <div class="completion-progress-bar" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (int) $completion['progress_after'] }}" aria-valuetext="{{ (int) $completion['progress_after'] }} percent">
+                            <span style="width: {{ (int) $completion['progress_after'] }}%"></span>
+                        </div>
+                    </div>
+                @endif
+
+                <p class="completion-restored cq-sequence-step" style="--cq-step: 1">
+                    <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />{{ $restoredLine }}</span>
+                </p>
+                @if ($milestoneLine !== null)
+                    <p class="completion-milestone cq-sequence-step" style="--cq-step: 2">{{ $milestoneLine }}</p>
+                @endif
+                <p class="completion-next cq-sequence-step" style="--cq-step: 3">{{ $nextStepLine }}</p>
+
                 @if ($completion['achievement'] !== null)
                     <p class="completion-achievement">
-                        <span>Achievement unlocked</span>
+                        <span class="atlas-stamp atlas-stamp--grn"><x-icon name="award" size="12" />Achievement unlocked</span>
                         <strong>{{ $completion['achievement'] }}</strong>
+                        <span class="completion-achievement-note">{{ \App\Support\GameCopy::line('achievement.recorded', $mission->id) }}</span>
                     </p>
                 @endif
 

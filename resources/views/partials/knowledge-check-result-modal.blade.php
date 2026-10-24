@@ -59,6 +59,8 @@
                 @endif
             </p>
 
+            <p class="kc-result-takeaway">{{ \App\Support\GameCopy::checkBand($percentage, $check->id) }}</p>
+
             <h3 class="kc-result-breakdown-title">Question breakdown</h3>
             <ol class="kc-answer-list">
                 @include('partials.knowledge-check-answers', ['responses' => $responses])

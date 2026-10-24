@@ -59,6 +59,7 @@
                 @if (! $hasLearnableCourses)
                     <h1 id="objective-title">No lessons available yet</h1>
                     <p class="atlas-dashboard-description">There are no active courses with challenges. Your learning path will appear here when lessons are available.</p>
+                    <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.courses') }}</p>
                 @elseif ($course === null)
                     <h1 id="objective-title">Course complete</h1>
                     <p class="atlas-dashboard-description">You have cleared every active course.@if ($focusCard !== null && $focusCard['slot'] === 4) Your next course is ready below.@else Review your learning record.@endif</p>
@@ -173,6 +174,7 @@
                     <div class="atlas-evidence-copy">
                         <p class="atlas-evidence-title">No entries yet</p>
                         <p class="atlas-evidence-meta">Finish a challenge and the first record will be mounted here.</p>
+                        <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.activity') }}</p>
                     </div>
                 </div>
             @endif

@@ -10,6 +10,7 @@ use App\Models\KnowledgeCheckQuestion;
 use App\Models\Mission;
 use App\Models\Section;
 use App\Models\User;
+use App\Support\GameCopy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -136,8 +137,14 @@ class KnowledgeCheckLessonPanelTest extends TestCase
             ->assertSee('Proceed to Coding Challenge')
             ->assertSee('Start challenge')
             ->assertSee('Check passed. The coding challenge is open.')
+            ->assertSee(GameCopy::checkBand(100, $check->id))
             ->assertSee('Correct')
             ->assertDontSee('Correct answer');
+
+        $this->actingAs($user)
+            ->get(route('mission.show', $mission))
+            ->assertOk()
+            ->assertDontSee('data-auto-open="true"', false);
 
         $this->assertSame('submitted', $attempt->fresh()->status);
         $this->assertSame(1, $attempt->fresh()->score);

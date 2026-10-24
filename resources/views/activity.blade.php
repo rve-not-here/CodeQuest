@@ -97,6 +97,9 @@
             <section class="atlas-records-empty" aria-labelledby="empty-activity-title">
                 <h2 id="empty-activity-title" class="atlas-records-empty-title">No activity</h2>
                 <p class="atlas-records-empty-copy">No learning events match the current scan parameters.</p>
+                @if ($role === 'student')
+                    <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.activity') }}</p>
+                @endif
             </section>
         @else
             @foreach ($events->groupBy(fn (array $event): string => $event['at']->format('Y-m-d')) as $date => $dailyEvents)

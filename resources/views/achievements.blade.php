@@ -25,6 +25,9 @@
             <section class="atlas-records-empty" aria-labelledby="no-achievements-title">
                 <h2 id="no-achievements-title" class="atlas-records-empty-title">No achievements yet</h2>
                 <p class="atlas-records-empty-copy">No achievement milestones are available yet. They appear once Command publishes them.</p>
+                @if ($role === 'student')
+                    <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.achievements') }}</p>
+                @endif
                 <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
 
             </section>

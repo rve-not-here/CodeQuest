@@ -51,6 +51,7 @@
             <section class="atlas-path-empty" aria-label="No courses">
                 <h2>No courses</h2>
                 <p>No courses are available yet.</p>
+                <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.courses') }}</p>
             </section>
         @else
             <div class="atlas-path-layout">

@@ -90,7 +90,9 @@ function initializeCompletionCelebration(root, header) {
         const awarded = Number(overlay.dataset.xpAwarded);
         const total = Number(overlay.dataset.xpTotal);
 
-        if (header && Number.isFinite(total) && Number.isFinite(awarded) && header.dataset.cqSyncedXp !== String(total)) {
+        animateCompletionProgress(overlay);
+
+        if (header && Number.isFinite(total) && Number.isFinite(awarded) && awarded > 0 && header.dataset.cqSyncedXp !== String(total)) {
             const amount = header.querySelector('[data-xp-amount]');
             const from = Math.max(0, total - awarded);
             header.dataset.xpValue = String(total);
@@ -105,7 +107,9 @@ function initializeCompletionCelebration(root, header) {
             });
         }
 
-        if (header) pulse(header, { className: 'is-xp-updated', duration: MOTION_REWARD });
+        if (header && Number.isFinite(awarded) && awarded > 0) {
+            pulse(header, { className: 'is-xp-updated', duration: MOTION_REWARD });
+        }
         if (!dialog || prefersReducedMotion()) return;
 
         const awardedEl = overlay.querySelector('[data-completion-awarded]');
@@ -146,6 +150,27 @@ function initializeCompletionCelebration(root, header) {
         }
     });
     observer.observe(root.body, { childList: true, subtree: true });
+}
+
+function animateCompletionProgress(overlay) {
+    const meter = overlay.querySelector('[data-completion-progress]');
+    const fill = meter?.querySelector('.completion-progress-bar > span');
+    if (!meter || !fill) return;
+
+    const before = Number(meter.dataset.before);
+    const after = Number(meter.dataset.after);
+    if (!Number.isFinite(before) || !Number.isFinite(after) || after <= 0) return;
+
+    fill.style.width = `${after}%`;
+    if (prefersReducedMotion() || before >= after) return;
+
+    const startScale = Math.min(1, Math.max(0, before / after));
+    fill.style.transformOrigin = 'left center';
+    fill.style.transform = `scaleX(${startScale})`;
+    window.requestAnimationFrame(() => {
+        fill.style.transition = 'transform 600ms cubic-bezier(.23, 1, .32, 1)';
+        fill.style.transform = 'scaleX(1)';
+    });
 }
 
 function initializeDashboardCounts(root) {

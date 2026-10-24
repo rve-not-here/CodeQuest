@@ -47,11 +47,15 @@
                 @if ($filter === 'unread')
                     <h2 id="empty-inbox-title" class="atlas-records-empty-title">No unread notifications</h2>
                     <p class="atlas-records-empty-copy">Everything in your inbox has been read.</p>
+                    @if ($role === 'student')
+                        <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.notifications') }}</p>
+                    @endif
                     <a href="{{ route('notifications') }}" class="btn btn-secondary">View all notifications <span aria-hidden="true">→</span></a>
                 @else
                     <h2 id="empty-inbox-title" class="atlas-records-empty-title">Inbox empty</h2>
                     <p class="atlas-records-empty-copy">System messages and learning events will appear here.</p>
                     @if ($role === 'student')
+                        <p class="game-copy-line">{{ \App\Support\GameCopy::line('empty.notifications') }}</p>
                         <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
                     @else
                         <a href="{{ route('students') }}" class="btn btn-secondary">Review students <span aria-hidden="true">→</span></a>

@@ -12,6 +12,7 @@ use App\Models\Section;
 use App\Models\User;
 use App\Models\XpTransaction;
 use App\Services\XpService;
+use App\Support\GameCopy;
 use Database\Seeders\AchievementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -265,6 +266,39 @@ class AssessmentTest extends TestCase
             ->assertSee('Cleared');
     }
 
+    public function test_assessment_show_renders_calm_pass_and_fail_copy_from_state(): void
+    {
+        $passedUser = User::factory()->create();
+        ['assessment' => $passedAssessment] = $this->makeUnlockedChallenge($passedUser);
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $passedAssessment->id,
+            'user_id' => $passedUser->id,
+            'status' => 'passed',
+            'score' => 100,
+            'passed_at' => now(),
+        ]);
+
+        $this->actingAs($passedUser)
+            ->get(route('assessment.show', $passedAssessment))
+            ->assertOk()
+            ->assertSee('data-boss-verdict="passed"', false)
+            ->assertDontSee('cq-motion-result', false)
+            ->assertSee(GameCopy::line('boss.passed', $passedAssessment->id));
+
+        AssessmentAttempt::factory()->create([
+            'assessment_id' => $passedAssessment->id,
+            'user_id' => $passedUser->id,
+            'status' => 'failed',
+            'score' => 40,
+        ]);
+
+        $this->actingAs($passedUser)
+            ->get(route('assessment.show', $passedAssessment))
+            ->assertOk()
+            ->assertSee('data-boss-verdict="failed"', false)
+            ->assertSee(GameCopy::line('boss.failed', $passedAssessment->id));
+    }
+
     public function test_assessment_show_redirects_when_challenge_is_sealed(): void
     {
         $user = User::factory()->create();
@@ -288,6 +322,7 @@ class AssessmentTest extends TestCase
             ->assertOk()
             ->assertSee($assessment->title)
             ->assertSee('Restore the damaged broadcast.')
+            ->assertSee(GameCopy::line('boss.briefing', $assessment->id))
             ->assertSee('Start attempt')
             ->assertDontSee('id="assessment-submit"', false);
     }

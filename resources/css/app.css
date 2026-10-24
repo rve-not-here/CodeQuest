@@ -4168,3 +4168,30 @@ body.admin-ui .atlas-records > h1.sr-only {
 @media (prefers-reduced-motion: reduce) {
     .cq-motion-pulse { animation: none !important; }
 }
+
+/* Round 2: staged completion facts. The meter is set to the server's final
+   width; only its transform is animated from the before value. */
+.completion-progress { margin-top: 0.9rem; }
+.completion-progress-bar { height: 6px; overflow: hidden; background: color-mix(in srgb, var(--cq-ink) 14%, transparent); }
+.completion-progress-bar > span { display: block; height: 100%; background: var(--color-success); transform-origin: left center; }
+.completion-restored { margin-top: 1rem; }
+.completion-restored .atlas-stamp { color: var(--color-success); }
+.completion-milestone { margin-top: 0.65rem; color: var(--color-warning); font-family: var(--font-mono); font-size: 12px; line-height: 1.5; }
+.completion-next { margin-top: 0.6rem; color: var(--color-fg-muted); font-family: var(--font-mono); font-size: 12px; line-height: 1.5; }
+.completion-achievement-note { color: var(--color-fg-muted); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0; text-transform: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+    .completion-dialog.is-celebrating .cq-sequence-step {
+        animation: cq-result-in var(--cq-motion-ui) var(--cq-motion-ease-out) both;
+        animation-delay: calc(220ms + var(--cq-step, 0) * 90ms);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .completion-dialog.is-celebrating .cq-sequence-step { animation: none; }
+}
+
+/* Round 2 game-voice lines. Text is always server-rendered; no motion needed. */
+.game-copy-line { max-width: 62ch; margin-top: 10px; color: var(--color-fg-muted); font-family: var(--font-mono); font-size: 12px; line-height: 1.6; }
+.kc-result-takeaway { max-width: 66ch; margin-top: 12px; padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent); color: var(--color-fg); font-size: 13px; line-height: 21px; }
+.atlas-boss-state .game-copy-line { margin-top: 8px; }
+.atlas-boss-verdict .game-copy-line { margin-top: 10px; color: var(--color-fg); }
