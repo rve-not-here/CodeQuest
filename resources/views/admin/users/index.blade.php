@@ -74,6 +74,8 @@
                     <p class="atlas-records-empty-copy">No users match these filters.</p>
                     @if (! empty($filters['q']) || ! empty($filters['role']))
                         <a href="{{ route('admin.users') }}" class="btn btn-ghost">Reset filters →</a>
+                    @else
+                        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">New user →</a>
                     @endif
                 </section>
             @else
@@ -110,7 +112,7 @@
                                     <th scope="row" data-label="User">
                                         <a href="{{ route('admin.users.show', $row['id']) }}">{{ $row['username'] }}</a>
                                         @if ($row['name'])
-                                            <span class="atlas-register-note">{{ $row['name'] }}</span>
+                                            <span class="ml-2 font-sans text-xs font-normal tracking-normal text-fg-muted">{{ $row['name'] }}</span>
                                         @endif
                                     </th>
                                     <td data-label="Role"><span class="atlas-stamp {{ $roleTone }}">{{ $roleLabel }}</span></td>
@@ -147,6 +149,8 @@
                         </div>
                     </nav>
                 @endif
+
+                <p class="atlas-record-group-note">Accounts with learning or classroom records cannot be deleted — deactivate them on the account record instead.</p>
             @endif
         </section>
     </div>

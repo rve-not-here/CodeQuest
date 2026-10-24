@@ -54,7 +54,7 @@
                     @if ($role === 'student')
                         <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
                     @else
-                        <a href="{{ route('timeline') }}" class="btn btn-secondary">Open learning timeline <span aria-hidden="true">→</span></a>
+                        <a href="{{ route('students') }}" class="btn btn-secondary">Review students <span aria-hidden="true">→</span></a>
                     @endif
                 @endif
             </section>

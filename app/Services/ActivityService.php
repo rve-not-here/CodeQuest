@@ -28,7 +28,11 @@ class ActivityService
             'user_id' => $user->id,
             'type' => $data['type'],
             'message' => $data['message'],
-            'pts' => $data['pts'] ?? 0,
+            // the404_activity.pts is an unsigned points-earned column in the
+            // deployed schema. A debit belongs in the XP ledger (the source of
+            // truth for balances), never in this column: a negative value is a
+            // MySQL out-of-range error, and SQLite would hide it in tests.
+            'pts' => max(0, (int) ($data['pts'] ?? 0)),
         ];
 
         if (SchemaAvailability::activityMissionId()) {

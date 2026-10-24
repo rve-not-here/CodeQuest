@@ -1,6 +1,8 @@
+import { initializeGamification } from './gamification.js';
 import { initializeKnowledgeCheck } from './knowledge-check.js';
 
 initializeKnowledgeCheck(document);
+initializeGamification(document);
 
 const editorHost = document.getElementById('editor-host');
 
@@ -123,7 +125,8 @@ window.matchMedia('(min-width: 1200px)').addEventListener('change', () => {
     });
 });
 
-// Colour theme: Light ↔ Dark, stored as 'cq-theme' (absent = light).
+// Colour theme: Light or Dark, stored as 'cq-theme' (absent = dark).
+// Two named options set the mode; neither flips the other.
 const themeLabels = { light: 'Light', dark: 'Dark' };
 const themeToggles = [...document.querySelectorAll('[data-theme-toggle]')];
 let themeMode = document.documentElement.dataset.themeMode === 'dark' ? 'dark' : 'light';
@@ -193,7 +196,8 @@ function saveThemeToAccount(mode) {
 
 themeToggles.forEach((button) => {
     button.addEventListener('click', () => {
-        // A single icon control toggles the active mode.
+        // The option names the mode it applies. A control without an explicit
+        // mode (legacy markup) still flips, but the shell never renders one.
         const mode = button.dataset.themeSet ?? nextThemeMode(themeMode);
 
         // The device records when it chose, so the next page can tell this

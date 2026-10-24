@@ -32,6 +32,12 @@ class KnowledgeCheckService
 
     public const STATE_COMPLETED = 'completed';
 
+    /**
+     * The pass mark used by the lesson's result summary. One named constant so
+     * the threshold (and every message that quotes it) changes in one place.
+     */
+    public const PASS_SCORE = 70;
+
     public function __construct(
         private readonly ActivityService $activity,
         private readonly ClassroomAccessService $classroomAccess,
@@ -105,6 +111,7 @@ class KnowledgeCheckService
      *     state: string,
      *     attempt: array{id: int, attempt_number: int, score: int|null, total_questions: int|null, percentage: int|null}|null,
      *     questions: list<array{id: int, type: string, prompt: string, codeSnippet: string|null, options: list<array{id: int, text: string}>}>,
+     *     responses: list<array{questionId: int, prompt: string, selected: string, correct: string, isCorrect: bool, explanation: string|null}>,
      * }>
      */
     public function missionPanels(User $user, Mission $mission): Collection
@@ -120,6 +127,7 @@ class KnowledgeCheckService
             };
 
             $questions = [];
+            $responses = [];
 
             if ($attempt !== null && $attempt->status === KnowledgeCheckAttempt::STATUS_STARTED) {
                 $questions = array_values($this->presentation($user, $mission, $check, $attempt)['questions']
@@ -132,6 +140,21 @@ class KnowledgeCheckService
                             'id' => (int) $option['id'],
                             'text' => (string) $option['text'],
                         ])->all()),
+                    ])
+                    ->all());
+            }
+
+            if ($attempt !== null && $attempt->status === KnowledgeCheckAttempt::STATUS_SUBMITTED) {
+                $attempt->loadMissing('responses');
+                $responses = array_values($attempt->responses
+                    ->sortBy('id')
+                    ->map(fn (KnowledgeCheckResponse $response): array => [
+                        'questionId' => (int) $response->knowledge_check_question_id,
+                        'prompt' => (string) $response->prompt_snapshot,
+                        'selected' => (string) $response->selected_option_snapshot,
+                        'correct' => (string) $response->correct_option_snapshot,
+                        'isCorrect' => (bool) $response->is_correct,
+                        'explanation' => $response->explanation_snapshot === null ? null : (string) $response->explanation_snapshot,
                     ])
                     ->all());
             }
@@ -149,6 +172,7 @@ class KnowledgeCheckService
                     'percentage' => $attempt->percentage === null ? null : (int) $attempt->percentage,
                 ],
                 'questions' => $questions,
+                'responses' => $responses,
             ];
         });
     }

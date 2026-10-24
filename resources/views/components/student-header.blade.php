@@ -34,7 +34,7 @@
         <div class="atlas-shell-actions">
             @if ($role === 'student')
                 @isset($totalXp)
-                    <a class="atlas-xp" href="{{ route('xp-ledger') }}" aria-label="XP balance {{ $totalXp }}. Open XP ledger">{{ number_format($totalXp) }} <span>XP</span></a>
+                    <a class="atlas-xp" href="{{ route('xp-ledger') }}" aria-label="XP balance {{ $totalXp }}. Open XP ledger" data-xp-value="{{ (int) $totalXp }}" data-xp-user="{{ auth()->id() }}"><span data-xp-amount>{{ number_format($totalXp) }}</span> <span>XP</span></a>
                 @endisset
             @endif
             <details class="atlas-disclosure atlas-mobile" data-shell-disclosure data-navigation-disclosure>

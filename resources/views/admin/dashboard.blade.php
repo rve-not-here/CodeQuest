@@ -9,6 +9,7 @@
         </div>
 
         <h1 class="sr-only">Admin console</h1>
+        <p class="atlas-records-lede">Platform-wide registers for accounts, curriculum and learning evidence. Every figure is read from recorded records.</p>
 
         <dl class="log-facts atlas-records-facts" aria-label="Platform scope">
                 <div><dt>Accounts</dt><dd class="is-numeric" data-metric="users_total">{{ $metrics['users_total'] }}</dd></div>
@@ -63,6 +64,9 @@
                     <dl class="log-facts atlas-record-entry-facts">
                         <div><dt>Passed attempts</dt><dd class="is-numeric" data-metric="passed_attempts">{{ $metrics['passed_attempts'] }}</dd></div>
                     </dl>
+                    @if ($metrics['attempts'] === 0)
+                        <p class="atlas-record-entry-note">No Boss Challenge attempt is recorded yet. An attempt appears after a student submits a Boss Challenge.</p>
+                    @endif
                     <div class="atlas-record-entry-actions">
                         <a href="{{ route('admin.analytics') }}" class="admin-workspace-link">Review analytics →</a>
                     </div>
@@ -80,6 +84,9 @@
                         <div><dt>Active students · 14d</dt><dd class="is-numeric" data-metric="active_students">{{ $metrics['active_students'] }}</dd></div>
                         <div><dt>Course completions</dt><dd class="is-numeric" data-metric="course_completions">{{ $metrics['course_completions'] }}</dd></div>
                     </dl>
+                    @if ($metrics['course_completions'] === 0)
+                        <p class="atlas-record-entry-note">No student has completed a course yet. A course completes only when its Boss Challenge is passed.</p>
+                    @endif
                 </article>
             </section>
 
@@ -90,6 +97,7 @@
                 <h2 id="admin-operations-title" class="atlas-record-group-title">Operations</h2>
             </div>
             <article class="atlas-record-entry">
+                <p class="atlas-record-entry-copy">Classroom membership, platform announcements, and system health.</p>
                 <nav class="atlas-record-entry-actions" aria-label="Platform operations">
                     <a href="{{ route('admin.classrooms') }}" class="admin-workspace-link admin-workspace-link--row">Classrooms →</a>
                     <a href="{{ route('admin.announcements') }}" class="admin-workspace-link admin-workspace-link--row">Announcements →</a>
@@ -125,15 +133,27 @@
                                     <th scope="row" data-label="Actor">{{ $entry->admin_username }}</th>
                                     <td data-label="Recorded action">
                                         <span class="atlas-record-key">{{ $entry->action }}</span>
-                                        <p class="mt-0.5">{{ $entry->summary }}</p>
+                                        @if (mb_strlen((string) $entry->summary) > 220)
+                                            <details class="atlas-audit-summary">
+                                                <summary>{{ Str::limit($entry->summary, 180) }}</summary>
+                                                <p class="atlas-register-note">{{ $entry->summary }}</p>
+                                            </details>
+                                        @else
+                                            <p class="mt-0.5">{{ $entry->summary }}</p>
+                                        @endif
                                         @if ($entry->target_type !== null)
                                             <span class="atlas-record-key">{{ $entry->target_type }}@if ($entry->target_id !== null) #{{ $entry->target_id }}@endif</span>
                                         @endif
                                     </td>
                                     <td data-label="Result">
-                                        <span class="atlas-stamp {{ $entry->result === 'success' ? 'atlas-stamp--grn' : 'atlas-stamp--acc' }}"><x-icon :name="$entry->result === 'success' ? 'check' : 'x'" size="12" />{{ $entry->result === 'success' ? 'Success' : 'Failed' }}</span>
+                                        <span class="atlas-stamp {{ $entry->result === 'success' ? 'atlas-stamp--grn' : 'text-danger!' }}"><x-icon :name="$entry->result === 'success' ? 'check' : 'x'" size="12" />{{ $entry->result === 'success' ? 'Success' : 'Failed' }}</span>
                                     </td>
-                                    <td data-label="Recorded at"><time class="atlas-record-key" datetime="{{ $entry->created_at->toIso8601String() }}">{{ $entry->created_at->format('M d, Y · H:i') }}</time></td>
+                                    <td data-label="Recorded at">
+                                        <time class="atlas-record-key" datetime="{{ $entry->created_at->toIso8601String() }}">
+                                            <span class="block">{{ $entry->created_at->format('M d, Y') }}</span>
+                                            <span class="block">{{ $entry->created_at->format('H:i') }}</span>
+                                        </time>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

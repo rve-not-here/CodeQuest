@@ -20,6 +20,15 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="atlas-records-alerts">
+                <div class="panel border-danger/40 bg-danger-soft px-4 py-3 text-sm" role="alert">
+                    <strong class="text-danger">Change rejected</strong>
+                    <span class="text-fg-muted">{{ session('error') }}</span>
+                </div>
+            </div>
+        @endif
+
         <section class="atlas-record-group" aria-labelledby="catalog-title">
             <div class="atlas-record-group-head">
                 <h2 id="catalog-title" class="atlas-record-group-title">Course catalog</h2>
@@ -89,7 +98,7 @@
 
                                     <td data-label="Actions">
                                         <div class="atlas-row-actions">
-                                            <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" onsubmit="return confirm('Delete this course permanently? This cannot be undone.');">
+                                            <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" onsubmit="return confirm('Delete this course permanently? Its sections, challenges and Boss Challenge are removed with it, and classroom assignments are detached. This cannot be undone.');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="atlas-row-action atlas-row-action--danger">Delete</button>
@@ -101,6 +110,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                <p class="atlas-record-group-note">Deleting a course removes its sections, challenges and Boss Challenge, and detaches its classroom assignments. The action cannot be undone.</p>
             @endif
         </section>
     </div>

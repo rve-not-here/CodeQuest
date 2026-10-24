@@ -68,9 +68,11 @@ class ThemePreferenceTest extends TestCase
             ->assertSee('data-theme-endpoint="'.route('theme.update').'"', false)
             ->getContent();
 
-        // The single toggle names the next mode, not the current one.
-        $this->assertStringContainsString('aria-label="Switch to light mode"', $html);
-        $this->assertStringNotContainsString('aria-pressed', $html);
+        // The setter names both modes; the option in force is the pressed one.
+        $this->assertStringContainsString('data-theme-set="light"', $html);
+        $this->assertStringContainsString('data-theme-set="dark"', $html);
+        $this->assertMatchesRegularExpression('/data-theme-set="dark"\s+aria-pressed="true"/', $html);
+        $this->assertMatchesRegularExpression('/data-theme-set="light"\s+aria-pressed="false"/', $html);
     }
 
     public function test_the_account_choice_carries_the_time_it_was_made(): void
@@ -100,8 +102,8 @@ class ThemePreferenceTest extends TestCase
             ->assertSee('data-theme-endpoint="'.route('theme.update').'"', false)
             ->getContent();
 
-        // Light is the default until the student says otherwise.
-        $this->assertStringContainsString('aria-label="Switch to dark mode"', $html);
-        $this->assertStringNotContainsString('aria-pressed', $html);
+        // Dark is the default until the student says otherwise.
+        $this->assertMatchesRegularExpression('/data-theme-set="dark"\s+aria-pressed="true"/', $html);
+        $this->assertMatchesRegularExpression('/data-theme-set="light"\s+aria-pressed="false"/', $html);
     }
 }

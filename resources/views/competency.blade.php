@@ -43,6 +43,7 @@
             <section class="atlas-records-empty" aria-labelledby="no-competencies-title">
                 <h2 id="no-competencies-title" class="atlas-records-empty-title">No competencies yet</h2>
                 <p class="atlas-records-empty-copy">No active skill areas with challenges are available yet.</p>
+                <a href="{{ route('learning-path') }}" class="btn btn-secondary">Open learning path <span aria-hidden="true">→</span></a>
             </section>
         @else
             <h2 class="atlas-records-subheading">Competency by course</h2>

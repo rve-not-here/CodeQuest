@@ -102,13 +102,19 @@ export function initializeWorkspace(root) {
             render();
         });
     }
-    controls.querySelector('[data-workspace-reset]').addEventListener('click', () => {
-        widths.brief = defaults.brief;
-        widths.preview = defaults.preview;
-        collapsed.clear();
-        selected = 'editor';
-        render();
-    });
+    // The Boss workbench has no reset control; the challenge strip does. The
+    // workspace must initialise either way — an unguarded listener here threw
+    // before the first render, leaving the panes at 0px and the editor unloaded.
+    const reset = controls.querySelector('[data-workspace-reset]');
+    if (reset !== null) {
+        reset.addEventListener('click', () => {
+            widths.brief = defaults.brief;
+            widths.preview = defaults.preview;
+            collapsed.clear();
+            selected = 'editor';
+            render();
+        });
+    }
     for (const separator of separators) {
         separator.addEventListener('keydown', (event) => {
             const name = separator.dataset.workspaceResize;

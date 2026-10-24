@@ -48,6 +48,12 @@
                     </li>
                 @endforeach
             </ol>
+            @if ($earnedCount === 0)
+                <div class="atlas-records-toolbar">
+                    <p class="atlas-records-subheading">Next milestone</p>
+                    <a href="{{ route('learning-path') }}" class="btn btn-ghost btn-sm">Open learning path <span aria-hidden="true">→</span></a>
+                </div>
+            @endif
         @endif
     </div>
 @endsection

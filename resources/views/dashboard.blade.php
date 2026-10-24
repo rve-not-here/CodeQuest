@@ -130,6 +130,7 @@
         <section class="atlas-dashboard-evidence" aria-labelledby="evidence-heading">
             <div class="atlas-dashboard-section-heading">
                 <h2 id="evidence-heading">Recent learning evidence</h2>
+                <a href="{{ route('timeline') }}" class="atlas-dashboard-link">Open learning timeline <x-icon name="arrow-right" data-arrow size="14" /></a>
             </div>
             @if ($specimen !== null)
                 @php $specimenStamp = $stampFor($specimen); @endphp

@@ -431,7 +431,7 @@ class TimelineService
             ->map(fn (UserAchievement $record): array => $this->evidenceBeat(
                 $record->user_id,
                 Carbon::parse($record->created_at),
-                'Achievement unlocked: '.($record->achievement?->name ?? 'Achievement'),
+                'Achievement unlocked: '.($record->achievement->name ?? 'Achievement'),
                 'achievement_earned',
                 null,
             ));

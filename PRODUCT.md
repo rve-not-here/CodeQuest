@@ -46,7 +46,7 @@ The student Challenge is a focused workspace adopted on 2026-10-15: Code and Pre
 
 ## Brand commitments
 
-Keep the CodeQuest name, the System 404 flavour in copy, and the learning-through-repair premise. No current layout, palette, component style, typography, or decorative treatment is protected. The committed visual world is The Engineer's Log (chosen by the user 2026-10-19, seed:914c026a6b42634d); its contract is recorded at `.impeccable/surfaces/resources-views-layouts-app-blade-php.md`. The fiction no longer constrains the visual system: the interface is a working tool, and copy may keep the System 404 flavour where it clarifies.
+Keep the CodeQuest name, the System 404 flavour in copy, and the learning-through-repair premise. No current layout, palette, component style, typography, or decorative treatment is protected. The committed visual world is the Terminal Lab (evolved 2026-10-23 from the user-pinned Engineer's Log, seed:914c026a6b42634d): a dark-first development bench with phosphor-green primary actions, amber XP, cyan technical information and red failure, keeping the sheet-column geometry, Barlow type and generated icon system. Its engineering contract is DESIGN.md; the earlier paper-world brief at `.impeccable/surfaces/resources-views-layouts-app-blade-php.md` is historical. The fiction no longer constrains the visual system: the interface is a working tool, and copy may keep the System 404 flavour where it clarifies.
 
 The binding Challenge workspace commitment above is a functional and behavioral constraint, not a visual style. It fixes what the screen does and how it separates work from evaluation; it does not fix palette, typography, iconography, or control styling.
 

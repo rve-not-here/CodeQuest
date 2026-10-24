@@ -380,6 +380,43 @@ class MissionTest extends TestCase
         ]);
     }
 
+    public function test_wrong_submission_records_the_event_without_a_negative_activity_pts(): void
+    {
+        $user = User::factory()->create();
+        ['mission' => $mission] = $this->createMissionWithCourse([
+            'validate_rule' => json_encode([['type' => 'contains', 'value' => '<h1>']]),
+            'points' => 50,
+        ]);
+        XpTransaction::query()->create([
+            'user_id' => $user->id,
+            'mission_id' => $mission->id,
+            'amount' => 100,
+            'type' => 'mission_completed',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('mission.submit', $mission), ['code' => '<h2>Wrong</h2>'])
+            ->assertRedirect()
+            ->assertSessionHas('mission_error', function (array $error): bool {
+                return str_contains($error['message'], '10 XP was deducted');
+            });
+
+        // the404_activity.pts is unsigned in the deployed schema. The event
+        // carries 0 and the debit lives in the XP ledger; a negative value
+        // here is a MySQL out-of-range failure that SQLite cannot reproduce.
+        $activity = Activity::query()
+            ->where('user_id', $user->id)
+            ->where('type', 'wrong_submission')
+            ->firstOrFail();
+
+        $this->assertSame(0, $activity->pts);
+        $this->assertStringContainsString('(−10 XP)', $activity->message);
+        $this->assertSame(-10, (int) XpTransaction::query()
+            ->where('user_id', $user->id)
+            ->where('type', 'wrong_submission')
+            ->sum('amount'));
+    }
+
     public function test_mission_submit_wrong_code_shows_error_message(): void
     {
         $user = User::factory()->create();

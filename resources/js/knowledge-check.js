@@ -1,4 +1,6 @@
 export function initializeKnowledgeCheck(root) {
+    initializeResultDialogs(root);
+
     const completed = root.querySelector('[data-check-completed-key]');
     try {
         if (completed?.dataset?.checkCompletedKey) globalThis.sessionStorage?.removeItem(completed.dataset.checkCompletedKey);
@@ -52,4 +54,80 @@ export function initializeKnowledgeCheck(root) {
     form.addEventListener('change', () => { update(); persistDraft(); });
     update();
     form.querySelector('[data-check-summary]').hidden = false;
+}
+
+/**
+ * Score result dialogs. The dialog element gives us the modal layer, Esc,
+ * the focus trap and inert background; this wires the triggers, announces
+ * the result when it opens, and returns focus on close.
+ */
+function initializeResultDialogs(root) {
+    const dialogs = root.querySelectorAll ? [...root.querySelectorAll('[data-check-result-modal]')] : [];
+    if (!dialogs.length) return;
+
+    const revealReview = (checkId) => {
+        const details = root.querySelector(`[data-check-answer-review="${checkId}"]`);
+        if (!details) return;
+
+        details.open = true;
+        const wrong = [...details.querySelectorAll('[data-answer-correct="false"]')];
+        for (const item of wrong) item.classList.add('is-flagged');
+
+        const target = wrong[0] || details.querySelector('summary');
+        if (!target) return;
+        target.setAttribute('tabindex', '-1');
+        target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        target.focus({ preventScroll: true });
+    };
+
+    for (const dialog of dialogs) {
+        const checkId = dialog.dataset.checkResultId;
+        const trigger = root.querySelector(`[data-check-result-target="check-result-${checkId}"]`);
+        const closeButton = dialog.querySelector('[data-check-result-close]');
+        const reviewButton = dialog.querySelector('[data-check-review-answers]');
+        const retryForm = dialog.querySelector('[data-check-retry-form]');
+        const announce = dialog.querySelector('.kc-result-announce');
+        const announcement = announce?.textContent.trim() || '';
+
+        const open = () => {
+            if (dialog.open) return;
+            dialog.showModal();
+            if (announce) {
+                announce.textContent = '';
+                window.requestAnimationFrame(() => { announce.textContent = announcement; });
+            }
+        };
+
+        const close = (returnFocus = true) => {
+            if (!dialog.open) return;
+            dialog.dataset.returnFocus = returnFocus ? 'true' : 'false';
+            dialog.close();
+        };
+
+        trigger?.addEventListener('click', (event) => {
+            event.preventDefault();
+            open();
+        });
+
+        closeButton?.addEventListener('click', () => close());
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) close();
+        });
+        dialog.addEventListener('close', () => {
+            const returnFocus = dialog.dataset.returnFocus !== 'false';
+            delete dialog.dataset.returnFocus;
+            if (returnFocus) trigger?.focus();
+        });
+
+        reviewButton?.addEventListener('click', () => {
+            close(false);
+            revealReview(checkId);
+        });
+
+        retryForm?.addEventListener('submit', () => close(false));
+
+        if (dialog.dataset.autoOpen === 'true') {
+            window.requestAnimationFrame(open);
+        }
+    }
 }

@@ -17,6 +17,18 @@
     $themePreference = $themeState['theme'] ?? null;
     $themePreferenceSavedAt = $themeState['saved_at'] ?? null;
     $role = $authUser?->role ?? $role ?? 'student';
+
+    // The XP balance is part of the shell, not of whichever page remembered to
+    // pass it: a student reading a lesson or a report should still see it. A
+    // failed read degrades to the existing value (or no readout) instead of
+    // breaking the page; the ledger remains the source of truth.
+    if ($role === 'student' && $authUser !== null && ! isset($totalXp)) {
+        try {
+            $totalXp = app(\App\Services\DashboardService::class)->totalXp($authUser);
+        } catch (\Throwable) {
+            $totalXp = null;
+        }
+    }
     $homeRoute = \App\Support\RoleHome::routeName($role);
     $displayName = $authUser?->username ?? $profileName ?? 'OPERATOR';
 
@@ -143,7 +155,8 @@
                     };
                 }
             } catch (e) {}
-            var mode = 'light';
+            // The terminal bay is the default room; a stored choice wins.
+            var mode = 'dark';
             var fromDevice = false;
             if (device !== null) {
                 var legacy = device.saved_at === null;

@@ -68,18 +68,28 @@
 
                     <div class="atlas-access-field">
                         <label for="password" class="atlas-lesson-entry-label">Password</label>
-                        <input
-                            id="password"
-                            type="password"
-                            name="password"
-                            required
-                            autocomplete="current-password"
-                            class="terminal-input"
-                            @if ($errors->has('password'))
-                                aria-invalid="true"
-                                aria-describedby="password-error"
-                            @endif
-                        >
+                        <span class="atlas-access-input">
+                            <input
+                                id="password"
+                                type="password"
+                                name="password"
+                                required
+                                autocomplete="current-password"
+                                class="terminal-input"
+                                @if ($errors->has('password'))
+                                    aria-invalid="true"
+                                    aria-describedby="password-error"
+                                @endif
+                            >
+                            <button
+                                type="button"
+                                class="atlas-password-toggle"
+                                data-password-toggle
+                                aria-controls="password"
+                                aria-pressed="false"
+                                aria-label="Show password"
+                            >Show</button>
+                        </span>
                         @error('password')
                             <p id="password-error" class="atlas-field-error">{{ $message }}</p>
                         @enderror
@@ -155,3 +165,40 @@
         </footer>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        (() => {
+            const toggle = document.querySelector('[data-password-toggle]');
+            const password = document.getElementById('password');
+            if (toggle instanceof HTMLButtonElement && password instanceof HTMLInputElement) {
+                toggle.addEventListener('click', () => {
+                    const showing = password.type === 'text';
+                    password.type = showing ? 'password' : 'text';
+                    toggle.textContent = showing ? 'Show' : 'Hide';
+                    toggle.setAttribute('aria-pressed', String(!showing));
+                    toggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+                    password.focus();
+                });
+            }
+
+            const form = document.querySelector('.atlas-access-form');
+            if (form instanceof HTMLFormElement) {
+                form.addEventListener('submit', (event) => {
+                    if (form.dataset.submitting === 'true') {
+                        event.preventDefault();
+                        return;
+                    }
+                    form.dataset.submitting = 'true';
+                    form.setAttribute('aria-busy', 'true');
+                    const submit = form.querySelector('button[type="submit"]');
+                    if (submit instanceof HTMLButtonElement) {
+                        submit.setAttribute('aria-busy', 'true');
+                        submit.disabled = true;
+                        submit.textContent = 'Signing in…';
+                    }
+                });
+            }
+        })();
+    </script>
+@endpush

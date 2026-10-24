@@ -111,7 +111,10 @@ class MissionController extends Controller
             abort(404);
         }
 
-        return $this->show($mission);
+        $data = $this->lessonData($user, $mission);
+        $data['openCheckResultId'] = (int) $check->id;
+
+        return view('lesson', $data);
     }
 
     /**
@@ -234,11 +237,16 @@ class MissionController extends Controller
                 ]);
         }
 
+        $message = $this->firstFailure($outcome['failures']);
+        if ($outcome['xpPenalty'] > 0) {
+            $message .= ' '.$outcome['xpPenalty'].' XP was deducted; the attempt is recorded on your timeline.';
+        }
+
         return back()
             ->withInput(['code' => $request->input('code')])
             ->with('mission_error', [
                 'title' => 'Challenge not passed',
-                'message' => $this->firstFailure($outcome['failures']),
+                'message' => $message,
             ]);
     }
 
@@ -392,6 +400,7 @@ class MissionController extends Controller
             'totalXp' => $this->xp->balance($user),
             'wrongPenalty' => $this->xp->wrongSubmissionCost(),
             'knowledgeChecks' => $this->knowledgeChecks->missionPanels($user, $mission),
+            'passScore' => KnowledgeCheckService::PASS_SCORE,
             'outstandingRequiredCheck' => $this->requiredCheckView($user, $mission),
         ];
     }

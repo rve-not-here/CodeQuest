@@ -6,10 +6,6 @@
     @php
         $initialCode = old('code', $code);
         $initialCode = is_string($initialCode) ? $initialCode : ($initialCode === null ? '' : $code);
-        $hasWorkspaceMessages = $errors->any() || session('mission_info') || session('mission_error')
-            || session('hint_error') || session('reveal_error') || session('hint_revealed')
-            || session('hint_flat') || session('reveal_flat') || session('reveal_requires_attempt') || session('solution_revealed') || session('draft_saved');
-
         $language = match ($course?->type) {
             'css' => 'CSS',
             'js', 'javascript' => 'JavaScript',
@@ -97,6 +93,11 @@
                     @else
                         <p id="draft-status" class="cq-draft" data-state="{{ $hasDraft ? 'saved' : 'none' }}" aria-live="polite">Draft: <span>{{ $hasDraft ? 'Saved' : 'No saved draft' }}</span></p>
                         <span class="cq-draft-hint">Ctrl/⌘+S to save</span>
+                        @if (session('mission_error'))
+                            <span class="atlas-stamp atlas-stamp--amb"><x-icon name="triangle-alert" size="12" />Last attempt not passed</span>
+                        @elseif (session('mission_info'))
+                            <span class="atlas-stamp atlas-stamp--grn"><x-icon name="check" size="12" />Already completed</span>
+                        @endif
                     @endif
                 </span>
         </header>
@@ -116,8 +117,17 @@
                                 <button type="submit" class="btn btn-secondary"><x-icon name="lightbulb" size="16" />Hint · {{ $nextHintCost }} XP</button>
                             </form>
                         @endif
-                        @if ($hints || (! $completed && $hasSolution))
-                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>{{ $hints ? 'View hints' : 'Show solution · '.$revealCost.' XP' }}</button>
+                        @if ($hints)
+                            <button type="button" class="btn btn-ghost" data-workspace-assistance-open>View hints</button>
+                        @elseif (! $completed && $hasSolution && ! $solutionRevealed)
+                            @if ($solutionRequirementMet)
+                                <button type="button" class="btn btn-ghost" data-workspace-assistance-open>Show solution · {{ $revealCost }} XP</button>
+                            @else
+                                <button type="button" class="btn btn-ghost" disabled aria-describedby="solution-lock-note" title="Unlocks after your first failed attempt">
+                                    <x-icon name="lock" size="14" />Show solution · {{ $revealCost }} XP
+                                </button>
+                                <span id="solution-lock-note" class="cq-draft-hint">Unlocks after your first failed attempt</span>
+                            @endif
                         @endif
                     </div>
                     <div class="cq-evaluation-actions">
@@ -151,44 +161,47 @@
                     </button>
                 </header>
                 <div class="challenge-pane-body cq-lesson-reading">
-                    <p class="cq-doc-label">The brief</p>
                     @if ($briefParagraphs !== [])
-                        <div class="cq-lesson-context">
-                            @foreach ($briefParagraphs as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
+                        <section class="cq-brief" aria-labelledby="cq-brief-heading">
+                            <h2 class="cq-brief-heading" id="cq-brief-heading">The brief</h2>
+                            <div class="cq-lesson-context">
+                                @foreach ($briefParagraphs as $paragraph)
+                                    <p>{{ $paragraph }}</p>
+                                @endforeach
+                            </div>
+                        </section>
                     @else
                         <p>No lesson context has been added yet. Return to the lesson to review the available starter.</p>
                     @endif
                     @if ($task)
-                        <p class="cq-doc-label">Your task</p>
-                        <p class="cq-task-copy">{{ $task }}</p>
+                        <section class="cq-task" aria-labelledby="cq-task-heading">
+                            <h2 class="cq-doc-label" id="cq-task-heading">Your task</h2>
+                            <p class="cq-task-copy">{{ $task }}</p>
+                        </section>
                     @endif
-                    <details class="cq-guide" open>
-                        <summary>How this workspace works</summary>
-                        <ul>
-                            <li><strong>Run</strong> updates the preview only. Nothing is submitted and no XP is spent.</li>
-                            <li><strong>Submit</strong> evaluates the code. A failed attempt costs {{ $wrongPenalty }} XP.</li>
-                            <li><strong>Hints</strong> start at {{ $firstHintCost }} XP and rise with each hint.</li>
-                            <li><strong>Solution</strong> costs {{ $revealCost }} XP and unlocks after your first failed attempt.</li>
-                        </ul>
-                    </details>
+                    <section class="cq-before" aria-labelledby="cq-before-heading">
+                        <h2 class="cq-doc-label" id="cq-before-heading">Before you submit</h2>
+                        <p class="cq-before-copy">Use <strong>Run</strong> first: it is free and only updates the preview. <strong>Submit</strong> is graded, and a failed attempt costs {{ $wrongPenalty }} XP.</p>
+                        <details class="cq-guide">
+                            <summary>Hints and reference costs</summary>
+                            <ul>
+                                <li><strong>Hints</strong> start at {{ $firstHintCost }} XP and rise with each hint.</li>
+                                <li><strong>Solution</strong> costs {{ $revealCost }} XP and unlocks after your first failed attempt.</li>
+                            </ul>
+                        </details>
+                    </section>
 
                     @if ($target !== '')
-                        <p class="cq-doc-label">Expected result</p>
-                        <details class="atlas-lesson-reference cq-reference" open>
-                            <summary>
+                        <section class="cq-expected" aria-labelledby="cq-expected-heading">
+                            <div class="cq-expected-head">
+                                <h2 class="cq-expected-title" id="cq-expected-heading">Expected result</h2>
                                 <span>Target output</span>
-                                <span>Result</span>
-                            </summary>
-                            <div class="atlas-lesson-reference-part">
-                                <div class="atlas-lesson-reference-frame">
-                                    <iframe id="reference-preview" title="Target output" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
-                                </div>
+                            </div>
+                            <div class="atlas-lesson-reference-frame">
+                                <iframe id="reference-preview" title="Target output" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}"></iframe>
                             </div>
                             <p class="cq-reference-note">Target only — write the source yourself.</p>
-                        </details>
+                        </section>
                     @endif
                 </div>
             </section>
@@ -201,7 +214,6 @@
                 </div>
             </section>
             <section class="challenge-pane cq-preview-pane" id="workspace-preview" data-workspace-pane="preview" role="tabpanel" aria-labelledby="workspace-tab-preview" tabindex="0" hidden>
-                <p class="cq-preview-note"><span>Preview only. No result is recorded.</span><span data-preview-state>{{ $hasDraft ? 'Restored draft' : 'Not run' }}</span></p>
                 <div class="challenge-pane-body is-frame"><iframe id="preview-frame" sandbox="{{ in_array($course?->type, ['js', 'javascript'], true) ? 'allow-scripts' : '' }}" title="Live preview"></iframe></div>
             </section>
         </div>
@@ -211,14 +223,13 @@
                     <p class="cq-runlog-line cq-runlog-line--{{ $tone }}"><b>{{ $kind }}</b><span>{{ $text }}</span></p>
                 @endforeach
             </div>
-            <button type="button" class="cq-runlog-dismiss" data-runlog-dismiss aria-label="Dismiss notification"><span aria-hidden="true">×</span></button>
+            <button type="button" class="cq-runlog-dismiss" data-runlog-dismiss aria-label="Dismiss notification"><x-icon name="x" size="14" /></button>
         </aside>
         @if (! $completed)
             <form method="POST" action="{{ route('mission.draft', $mission) }}" id="draft-form" hidden>@csrf<input type="hidden" name="code" class="code-payload"></form>
         @endif
-        <p class="sr-only" role="status" aria-atomic="true" id="workspace-status"></p>
         <dialog class="cq-confirm" data-challenge-confirm aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-copy">
-            <h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-copy"></p>
+            <h2 id="challenge-confirm-title">Confirm action</h2><p id="challenge-confirm-copy">This action needs your confirmation.</p>
             <form method="dialog" class="cq-dialog-actions"><button type="submit" value="cancel" class="btn btn-secondary" autofocus>Cancel</button><button type="submit" value="confirm" class="btn btn-primary" data-confirm-action>Confirm</button></form>
         </dialog>
         @if ($hints || (! $completed && $hasSolution))
@@ -248,7 +259,7 @@
         @endif
     @if (session('mission_success'))
         @php($completion = session('mission_success'))
-        <div class="completion-overlay" data-completion-overlay>
+        <div class="completion-overlay" data-completion-overlay data-xp-awarded="{{ (int) $completion['xp_awarded'] }}" data-xp-total="{{ (int) $completion['xp_balance'] }}">
             <section
                 class="completion-dialog"
                 role="dialog"
@@ -273,11 +284,11 @@
                     </div>
                     <div>
                         <dt>XP earned</dt>
-                        <dd class="text-success">+{{ $completion['xp_awarded'] }}</dd>
+                        <dd class="text-success" data-completion-awarded>+{{ $completion['xp_awarded'] }}</dd>
                     </div>
                     <div>
                         <dt>Total XP</dt>
-                        <dd>{{ $completion['xp_balance'] }}</dd>
+                        <dd data-completion-total>{{ $completion['xp_balance'] }}</dd>
                     </div>
                     @if ($completion['progress_before'] !== null && $completion['progress_after'] !== null)
                     <div>
@@ -411,8 +422,30 @@
                         .find(function (line) { return line.querySelector('b')?.textContent.trim() === recordKind; });
                     var actionMessage = latestRecord?.querySelector('span')?.textContent || 'Assistance request complete.';
 
+
                     if (actionKind === 'reveal' && /reference solution has been loaded/i.test(actionMessage)) {
                         var nextSource = nextPage.querySelector('#editor-source');
+
+                        // The reveal redirect deliberately flashes the submitted
+                        // code for one request (see StudentVisibilityTest), which
+                        // shadows the paid solution. Fetch the canonical challenge
+                        // page once so the solution appears without a refresh.
+                        try {
+                            var canonicalResponse = await fetch(window.location.href, {
+                                method: 'GET',
+                                credentials: 'same-origin',
+                                cache: 'no-store',
+                                headers: { 'Accept': 'text/html' },
+                            });
+                            if (canonicalResponse.ok) {
+                                var canonicalPage = new DOMParser().parseFromString(await canonicalResponse.text(), 'text/html');
+                                var canonicalSource = canonicalPage.querySelector('#editor-source');
+                                if (canonicalSource) nextSource = canonicalSource;
+                            }
+                        } catch (error) {
+                            // Keep the redirect source as a fallback.
+                        }
+
                         if (!nextSource) throw new Error('Solution response did not include the editor source.');
                         initial = nextSource.value;
                         source.value = initial;
@@ -420,22 +453,34 @@
                             editorView.dispatch({
                                 changes: { from: 0, to: editorView.state.doc.length, insert: initial },
                             });
+                            draftDirty = false;
+                            setDraftState('none', 'No saved draft');
                         }
                     }
 
                     assistanceDialog.innerHTML = nextDialog.innerHTML;
+
+                    var nextHelp = nextPage.querySelector('.cq-help-actions');
+                    var currentHelp = document.querySelector('.cq-help-actions');
+                    if (nextHelp && currentHelp) {
+                        currentHelp.innerHTML = nextHelp.innerHTML;
+                        bindAssistanceOpen();
+                    }
 
                     var nextBalance = nextPage.querySelector('.atlas-xp');
                     var currentBalance = document.querySelector('.atlas-xp');
                     if (nextBalance && currentBalance) {
                         currentBalance.textContent = nextBalance.textContent;
                         currentBalance.setAttribute('aria-label', nextBalance.getAttribute('aria-label') || 'XP balance');
+                        var nextXpValue = Number.parseInt(nextBalance.textContent, 10);
+                        if (Number.isFinite(nextXpValue)) {
+                            window.dispatchEvent(new CustomEvent('cq:xp-updated', { detail: { xp: nextXpValue } }));
+                        }
                     }
 
                     if (latestRecord && runLog) {
                         showNotice(document.importNode(latestRecord, true));
                     }
-                    document.getElementById('workspace-status').textContent = actionMessage;
 
                     if (actionKind === 'hint' && /^Hint \d+ revealed\b/.test(actionMessage)) {
                         assistanceReturn = submitButton;
@@ -448,9 +493,189 @@
                     }
                 } catch (error) {
                     record(recordKind, 'Could not complete this request. Please try again.', 'bad');
-                    document.getElementById('workspace-status').textContent = 'Could not complete this request. Please try again.';
                 } finally {
                     if (submitButton?.isConnected) submitButton.disabled = false;
+                }
+            }
+
+            function activateCompletionOverlay(overlay, view) {
+                if (!overlay || overlay.dataset.activation === 'active') return;
+                overlay.dataset.activation = 'active';
+                document.documentElement.classList.add('completion-open');
+                var dialog = overlay.querySelector('[data-completion-dialog]');
+                var closeButton = overlay.querySelector('[data-completion-close]');
+                var focusable = Array.from(overlay.querySelectorAll('a[href], button:not([disabled])'));
+
+                function closeCompletion() {
+                    document.documentElement.classList.remove('completion-open');
+                    overlay.remove();
+                    view?.focus();
+                }
+
+                closeButton?.addEventListener('click', closeCompletion);
+                overlay.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        event.preventDefault();
+                        closeCompletion();
+                        return;
+                    }
+
+                    if (event.key !== 'Tab' || focusable.length === 0) return;
+
+                    var first = focusable[0];
+                    var last = focusable[focusable.length - 1];
+
+                    if (event.shiftKey && document.activeElement === first) {
+                        event.preventDefault();
+                        last.focus();
+                    } else if (! event.shiftKey && document.activeElement === last) {
+                        event.preventDefault();
+                        first.focus();
+                    }
+                });
+
+                window.requestAnimationFrame(function () {
+                    (overlay.querySelector('[data-completion-primary]') || dialog)?.focus();
+                });
+            }
+
+            function bindAssistanceOpen() {
+                document.querySelectorAll('[data-workspace-assistance-open]').forEach(function (button) {
+                    if (button.dataset.assistanceBound === 'true') return;
+                    button.dataset.assistanceBound = 'true';
+                    button.addEventListener('click', function () {
+                        assistanceReturn = button;
+                        if (assistanceDialog) assistanceDialog.showModal();
+                    });
+                });
+            }
+
+            function freshSubmissionId() {
+                if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                    return window.crypto.randomUUID();
+                }
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = Math.random() * 16 | 0;
+                    var v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            // Submit in place so a failed attempt keeps the editor, the scroll
+            // position and the code the student is still working on. The server
+            // remains the only evaluator: this reads the redirected response and
+            // mirrors its recorded state into the current page.
+            async function submitChallengeInPlace(form, view) {
+                if (form.dataset.submitting === 'true') return;
+                var submitButton = form.querySelector('button[type="submit"]');
+
+                form.dataset.submitting = 'true';
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.setAttribute('aria-busy', 'true');
+                }
+
+                try {
+                    var response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'text/html',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+                    var responseHtml = await response.text();
+                    if (!response.ok) throw new Error('Submission request failed.');
+
+                    var nextPage = new DOMParser().parseFromString(responseHtml, 'text/html');
+
+                    if (!nextPage.querySelector('.cq-challenge')) {
+                        window.location.assign(response.url);
+                        return;
+                    }
+
+                    var nextBalance = nextPage.querySelector('.atlas-xp');
+                    var currentBalance = document.querySelector('.atlas-xp');
+                    if (nextBalance && currentBalance) {
+                        currentBalance.textContent = nextBalance.textContent;
+                        currentBalance.setAttribute('aria-label', nextBalance.getAttribute('aria-label') || 'XP balance');
+                        var nextXpValue = Number.parseInt(nextBalance.textContent, 10);
+                        if (Number.isFinite(nextXpValue)) {
+                            window.dispatchEvent(new CustomEvent('cq:xp-updated', { detail: { xp: nextXpValue } }));
+                        }
+                    }
+
+                    // The success flash lives in the fetched response. Replacing
+                    // the page would lose it, so activate the overlay here and
+                    // bring the completed chrome across with it.
+                    var completionPage = nextPage.querySelector('[data-completion-overlay]');
+                    if (completionPage) {
+                        var nextState = nextPage.querySelector('.cq-case-state-group');
+                        var currentState = document.querySelector('.cq-case-state-group');
+                        if (nextState && currentState) currentState.innerHTML = nextState.innerHTML;
+
+                        var nextEvaluation = nextPage.querySelector('.cq-evaluation-actions');
+                        var currentEvaluation = document.querySelector('.cq-evaluation-actions');
+                        if (nextEvaluation && currentEvaluation) currentEvaluation.innerHTML = nextEvaluation.innerHTML;
+
+                        var nextHelpSuccess = nextPage.querySelector('.cq-help-actions');
+                        var currentHelpSuccess = document.querySelector('.cq-help-actions');
+                        if (nextHelpSuccess && currentHelpSuccess) {
+                            currentHelpSuccess.innerHTML = nextHelpSuccess.innerHTML;
+                            bindAssistanceOpen();
+                        }
+
+                        draftStatus = document.querySelector('#draft-status span');
+                        document.body.appendChild(document.importNode(completionPage, true));
+                        activateCompletionOverlay(document.querySelector('[data-completion-overlay]'), view);
+                        return;
+                    }
+
+                    var failureLine = Array.from(nextPage.querySelectorAll('.cq-runlog-line--bad'))
+                        .reverse()
+                        .find(function (line) { return line.querySelector('b')?.textContent.trim() === 'Submit'; });
+
+                    if (failureLine) {
+                        showNotice(document.importNode(failureLine, true));
+                    } else {
+                        record('Submit', 'The submission did not complete. Please try again.', 'bad');
+                    }
+
+                    var nextStamp = nextPage.querySelector('.cq-case-state-group .atlas-stamp--amb');
+                    var currentStamp = document.querySelector('.cq-case-state-group .atlas-stamp--amb');
+                    if (nextStamp) {
+                        if (currentStamp) {
+                            currentStamp.replaceWith(document.importNode(nextStamp, true));
+                        } else {
+                            document.querySelector('.cq-case-state-group')?.appendChild(document.importNode(nextStamp, true));
+                        }
+                    }
+
+                    var nextHelp = nextPage.querySelector('.cq-help-actions');
+                    var currentHelp = document.querySelector('.cq-help-actions');
+                    if (nextHelp && currentHelp) {
+                        currentHelp.innerHTML = nextHelp.innerHTML;
+                        bindAssistanceOpen();
+                    }
+
+                    var nextDialog = nextPage.querySelector('[data-challenge-assistance]');
+                    if (nextDialog && assistanceDialog) {
+                        assistanceDialog.innerHTML = nextDialog.innerHTML;
+                    }
+
+                    // A retry needs a new idempotency key; reusing this one with
+                    // different code is rejected by the server.
+                    var submissionId = form.querySelector('input[name="submission_id"]');
+                    if (submissionId) submissionId.value = freshSubmissionId();
+                } catch (error) {
+                    record('Submit', 'Could not submit the challenge. Check your connection and try again.', 'bad');
+                } finally {
+                    form.dataset.submitting = 'false';
+                    if (submitButton?.isConnected) {
+                        submitButton.disabled = false;
+                        submitButton.removeAttribute('aria-busy');
+                    }
                 }
             }
 
@@ -539,12 +764,14 @@
                                 draftDirty = true;
                                 syncPayloads(view);
                                 if (draftStatus && draftStatus.textContent !== 'Unsaved changes') setDraftState('dirty', 'Unsaved changes');
-                                var previewState = document.querySelector('[data-preview-state]');
-                                if (previewState) previewState.textContent = 'Source changed. Run to update.';
                             }
                         }),
                     ],
                 });
+
+                // The reveal flow needs the live view to swap in the solution
+                // without a page refresh.
+                editorView = view;
 
                 syncPayloads(view);
                 frame.sandbox.value = cq.previewSandbox(type, starter);
@@ -552,9 +779,7 @@
                 runBtn.addEventListener('click', function () {
                     confirmAction('Run preview?', 'Run displays your code in the preview. It does not grade, award XP or record a submission.', function () {
                         frame.srcdoc = cq.previewDocument(view.state.doc.toString(), type, starter);
-                        document.querySelector('[data-preview-state]').textContent = 'Updated locally';
                         record('Preview', 'Updated locally \u2014 no result recorded, no XP spent.');
-                        document.getElementById('workspace-status').textContent = 'Preview updated. Your code was not graded.';
                         document.dispatchEvent(new CustomEvent('cq:workspace-pane', { detail: 'preview' }));
                     }, 'Run preview', false);
                 });
@@ -567,17 +792,11 @@
                     if (!(form instanceof HTMLFormElement) || !form.matches('[data-challenge-action]')) return;
                     if (form.dataset.challengeAction === 'hint' || form.dataset.challengeAction === 'reveal') return;
 
-                    if (confirmedForm === form) {
-                        confirmedForm = null;
-                        return;
-                    }
-
                     event.preventDefault();
                     confirmAction(form.dataset.confirmTitle, form.dataset.confirmCopy, function () {
                         syncPayloads(view);
                         draftDirty = false;
-                        confirmedForm = form;
-                        form.requestSubmit();
+                        submitChallengeInPlace(form, view);
                     }, form.dataset.confirmLabel, true);
                 });
 
@@ -587,12 +806,7 @@
                     setDraftState('saving', 'Saving...');
                 });
 
-                document.querySelectorAll('[data-workspace-assistance-open]').forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        assistanceReturn = button;
-                        assistanceDialog.showModal();
-                    });
-                });
+                bindAssistanceOpen();
                 assistanceDialog?.addEventListener('close', function () { assistanceReturn?.focus(); });
                 if (assistanceDialog && {{ Illuminate\Support\Js::from((bool) session('hint_revealed')) }} && !completionOverlay) {
                     assistanceReturn = document.querySelector('[data-workspace-assistance-open]');
@@ -609,42 +823,7 @@
                 });
 
                 if (completionOverlay) {
-                    document.documentElement.classList.add('completion-open');
-                    var dialog = completionOverlay.querySelector('[data-completion-dialog]');
-                    var closeButton = completionOverlay.querySelector('[data-completion-close]');
-                    var focusable = Array.from(completionOverlay.querySelectorAll('a[href], button:not([disabled])'));
-
-                    function closeCompletion() {
-                        document.documentElement.classList.remove('completion-open');
-                        completionOverlay.remove();
-                        view.focus();
-                    }
-
-                    closeButton?.addEventListener('click', closeCompletion);
-                    completionOverlay.addEventListener('keydown', function (event) {
-                        if (event.key === 'Escape') {
-                            event.preventDefault();
-                            closeCompletion();
-                            return;
-                        }
-
-                        if (event.key !== 'Tab' || focusable.length === 0) return;
-
-                        var first = focusable[0];
-                        var last = focusable[focusable.length - 1];
-
-                        if (event.shiftKey && document.activeElement === first) {
-                            event.preventDefault();
-                            last.focus();
-                        } else if (! event.shiftKey && document.activeElement === last) {
-                            event.preventDefault();
-                            first.focus();
-                        }
-                    });
-
-                    window.requestAnimationFrame(function () {
-                        (completionOverlay.querySelector('[data-completion-primary]') || dialog).focus();
-                    });
+                    activateCompletionOverlay(completionOverlay, view);
                 }
             }
 

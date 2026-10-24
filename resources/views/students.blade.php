@@ -114,6 +114,8 @@
                         <a href="{{ route('students') }}" class="btn btn-ghost">Reset filters →</a>
                     @elseif ($role === 'teacher')
                         <a href="{{ route('classrooms') }}" class="btn btn-ghost">My classrooms →</a>
+                    @else
+                        <a href="{{ route('admin.users') }}" class="btn btn-ghost">Manage accounts →</a>
                     @endif
                 </section>
             @else
@@ -158,7 +160,7 @@
                                             <span class="atlas-register-note">{{ $row['name'] }}</span>
                                         @endif
                                     </th>
-                                    <td data-label="Course">{{ $row['currentCourse']['name'] ?? '—' }}</td>
+                                    <td data-label="Course" class="whitespace-nowrap">{{ $row['currentCourse']['name'] ?? '—' }}</td>
                                     <td data-label="Progress">
                                         @if ($row['progress'] !== null)
                                             <span class="atlas-register-figure">{{ $row['progress']['completed'] }}/{{ $row['progress']['total'] }} · {{ $row['progress']['percent'] }}%</span>
@@ -220,12 +222,13 @@
             @else
                 <ol class="atlas-records-list">
                     @foreach ($dashboardActivity as $beat)
-                        <li class="atlas-record-entry atlas-record-entry--compact">
+                        <li class="atlas-record-entry atlas-record-entry--compact py-2!">
                             <div class="atlas-record-entry-row">
-                                <div>
-                                    <p class="atlas-record-meta">{{ $beat['user']['username'] }}</p>
-                                    <p class="atlas-record-entry-line">{{ $beat['label'] }}</p>
-                                </div>
+                                <p class="atlas-record-entry-line min-w-0">
+                                    <span class="font-mono text-xs text-fg-muted">{{ $beat['user']['username'] }}</span>
+                                    <span class="text-fg-muted" aria-hidden="true"> · </span>
+                                    <span>{{ $beat['label'] }}</span>
+                                </p>
                                 <time class="atlas-record-entry-figure" datetime="{{ $beat['at']->toIso8601String() }}">{{ $beat['at']->diffForHumans() }}</time>
                             </div>
                         </li>

@@ -15,7 +15,7 @@
     @if (($returnTo ?? null) !== null)
         <input type="hidden" name="return_to" value="{{ $returnTo }}">
     @endif
-    <div class="atlas-check-form">
+    <div class="atlas-check-form min-[1201px]:grid-cols-[minmax(0,1fr)_minmax(260px,300px)]!">
         <div class="atlas-check-questions">
             @foreach ($questions as $index => $question)
                 <fieldset class="atlas-check-question" id="question-{{ $question['id'] }}" data-check-question tabindex="-1">
@@ -29,7 +29,7 @@
                     <div class="atlas-check-options">
                         @foreach ($question['options'] as $option)
                             <label class="atlas-check-option" for="answer-{{ $question['id'] }}-{{ $option['id'] }}">
-                                <input id="answer-{{ $question['id'] }}-{{ $option['id'] }}" type="radio" name="answers[{{ $question['id'] }}]" value="{{ $option['id'] }}" @checked((string) old('answers.'.$question['id']) === (string) $option['id'])>
+                                <input id="answer-{{ $question['id'] }}-{{ $option['id'] }}" type="radio" name="answers[{{ $question['id'] }}]" value="{{ $option['id'] }}" required @checked((string) old('answers.'.$question['id']) === (string) $option['id']) @if (request()->boolean('focus') && $loop->parent->first && $loop->first) autofocus @endif>
                                 <span>{{ $option['text'] }}</span>
                             </label>
                         @endforeach

@@ -128,12 +128,56 @@ class KnowledgeCheckLessonPanelTest extends TestCase
         $response->assertOk()
             ->assertSee('Completed')
             ->assertSee('100%')
-            ->assertSee('Review result');
+            ->assertSee('Review result')
+            ->assertSee('data-check-result-modal', escape: false)
+            ->assertSee('data-auto-open="true"', escape: false)
+            ->assertSee('Pass score: 70%')
+            ->assertSee('Passed')
+            ->assertSee('Proceed to Coding Challenge')
+            ->assertSee('Start challenge')
+            ->assertSee('Check passed. The coding challenge is open.')
+            ->assertSee('Correct')
+            ->assertDontSee('Correct answer');
 
         $this->assertSame('submitted', $attempt->fresh()->status);
         $this->assertSame(1, $attempt->fresh()->score);
         $this->assertDatabaseCount('the404_xp_transactions', 0);
         $this->assertDatabaseCount('the404_progress', 0);
+    }
+
+    public function test_a_failed_result_dialog_explains_the_miss_and_locks_proceed(): void
+    {
+        ['mission' => $mission, 'user' => $user] = $this->curriculum();
+        ['check' => $check, 'question' => $question] = $this->check($mission);
+        $wrong = KnowledgeCheckOption::query()
+            ->where('knowledge_check_question_id', $question->id)
+            ->where('is_correct', false)
+            ->sole();
+
+        $this->actingAs($user)->post(route('mission.knowledge-check.start', [$mission, $check]));
+        $attempt = KnowledgeCheckAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('knowledge_check_id', $check->id)
+            ->sole();
+
+        $response = $this->actingAs($user)->post(
+            route('mission.knowledge-check.submit', [$mission, $check, $attempt]),
+            ['answers' => [$question->id => $wrong->id]],
+        );
+
+        $response->assertOk()
+            ->assertSee('Not passed')
+            ->assertSee('0%')
+            ->assertSee('Retry Quiz')
+            ->assertSee('Review Answers')
+            ->assertSee('Score at least 70% to unlock the coding challenge.')
+            ->assertSee('aria-disabled="true"', escape: false)
+            ->assertSee('Wrong')
+            ->assertSee('Correct answer')
+            ->assertSee('SERVER-ONLY EXPLANATION')
+            ->assertSee('Retry required check')
+            ->assertSee('You scored below 70%. Retry the check to unlock the coding challenge.')
+            ->assertDontSee('Start challenge');
     }
 
     public function test_the_panel_never_exposes_the_answer_key(): void

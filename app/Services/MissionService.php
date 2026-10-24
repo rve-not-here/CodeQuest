@@ -41,6 +41,7 @@ class MissionService
      *     alreadyCompleted: bool,
      *     failures: list<string>,
      *     xpAwarded: int,
+     *     xpPenalty: int,
      *     xpBalance: int
      * }
      */
@@ -69,6 +70,7 @@ class MissionService
                     'alreadyCompleted' => true,
                     'failures' => [],
                     'xpAwarded' => 0,
+                    'xpPenalty' => 0,
                     'xpBalance' => $this->xp->balance($user),
                 ];
             }
@@ -79,6 +81,7 @@ class MissionService
                     'alreadyCompleted' => false,
                     'failures' => ['Challenge submission is temporarily unavailable. Please try again later.'],
                     'xpAwarded' => 0,
+                    'xpPenalty' => 0,
                     'xpBalance' => $this->xp->balance($user),
                 ];
             }
@@ -102,6 +105,7 @@ class MissionService
                     'alreadyCompleted' => false,
                     'failures' => $failures,
                     'xpAwarded' => 0,
+                    'xpPenalty' => 0,
                     'xpBalance' => $this->xp->balance($user),
                 ];
             }
@@ -125,7 +129,7 @@ class MissionService
     }
 
     /**
-     * @return array{passed: bool, alreadyCompleted: bool, failures: list<string>, xpAwarded: int, xpBalance: int}
+     * @return array{passed: bool, alreadyCompleted: bool, failures: list<string>, xpAwarded: int, xpPenalty: int, xpBalance: int}
      */
     private function submitForLockedUser(User $user, Mission $mission, string $code, bool &$cacheable): array
     {
@@ -145,19 +149,28 @@ class MissionService
                     'alreadyCompleted' => false,
                     'failures' => $result['failures'],
                     'xpAwarded' => 0,
+                    'xpPenalty' => 0,
                     'xpBalance' => $this->xp->balance($user),
                 ];
             }
 
             $penalty = $this->xp->deductWrongSubmission($user, $mission);
+
+            // The activity ledger records the event, not the money: its pts
+            // column is unsigned in the deployed schema, so the actual debit
+            // stays in the XP ledger and the message states what was charged.
+            // The ledger clamps the penalty to the available balance, so this
+            // never claims an XP change that did not happen.
+            $message = 'Wrong submission on challenge: '.$mission->title;
+            if ($penalty > 0) {
+                $message .= ' (−'.$penalty.' XP)';
+            }
+
             $this->activity->record($user, [
                 'type' => 'wrong_submission',
                 'mission_id' => $mission->id,
-                'message' => 'Wrong submission on challenge: '.$mission->title,
-                // The ledger clamps the penalty to the available balance, so
-                // the activity row carries what was actually deducted — the
-                // timeline must never claim −10 XP that was not charged.
-                'pts' => $penalty > 0 ? -$penalty : 0,
+                'message' => $message,
+                'pts' => 0,
             ]);
 
             return [
@@ -165,6 +178,7 @@ class MissionService
                 'alreadyCompleted' => false,
                 'failures' => $result['failures'],
                 'xpAwarded' => 0,
+                'xpPenalty' => $penalty,
                 'xpBalance' => $this->xp->balance($user),
             ];
         }
@@ -235,6 +249,7 @@ class MissionService
             'alreadyCompleted' => false,
             'failures' => [],
             'xpAwarded' => $mission->points,
+            'xpPenalty' => 0,
             'xpBalance' => $this->xp->balance($user),
         ];
     }

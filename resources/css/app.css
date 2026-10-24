@@ -45,9 +45,9 @@
     --color-cta: var(--cq-cta);
     --color-cta-hover: var(--cq-cta-hover);
     --color-cta-ink: var(--cq-cta-ink);
-    --color-primary: var(--cq-ink);
-    --color-primary-hover: var(--cq-primary-hover);
-    --color-primary-ink: var(--cq-on-ink);
+    --color-primary: var(--cq-cta);
+    --color-primary-hover: var(--cq-cta-hover);
+    --color-primary-ink: var(--cq-cta-ink);
     --color-primary-soft: var(--cq-accent-soft);
     --color-success: var(--cq-success);
     --color-success-soft: var(--cq-success-soft);
@@ -103,37 +103,37 @@
     --cq-font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
     --cq-font-mono: 'Fragment Mono', ui-monospace, 'SFMono-Regular', monospace;
 
-    --cq-ground: #F4F2E9;
-    --cq-sheet: #FFFDF8;
-    --cq-raised: #EBE8DD;
-    --cq-input: #FFFDF8;
-    --cq-ink: #1C2229;
-    --cq-muted: #525A61;
-    --cq-subtle: #5E6970;
-    --cq-locked: #5F6A71;
-    --cq-line: #D4D0C4;
-    --cq-line-strong: #717A7B;
-    --cq-edge: #C2BFB2;
-    --cq-accent: #B23A2E;
-    --cq-accent-strong: #8F2C22;
-    --cq-accent-pressed: #75241C;
-    --cq-accent-soft: #F0E2DA;
-    --cq-cta: #B23A2E;
-    --cq-cta-hover: #8F2C22;
+    --cq-ground: #F3F1E8;
+    --cq-sheet: #FCFBF6;
+    --cq-raised: #E9E6DB;
+    --cq-input: #FCFBF6;
+    --cq-ink: #141A1C;
+    --cq-muted: #4A5457;
+    --cq-subtle: #586367;
+    --cq-locked: #5C686C;
+    --cq-line: #D5D1C6;
+    --cq-line-strong: #6E7879;
+    --cq-edge: #C3BFB2;
+    --cq-accent: #1D6B33;
+    --cq-accent-strong: #17552A;
+    --cq-accent-pressed: #113F1F;
+    --cq-accent-soft: #E2EBDD;
+    --cq-cta: #1D6B33;
+    --cq-cta-hover: #17552A;
     --cq-cta-ink: #FFFFFF;
-    --cq-success: #2C684B;
-    --cq-success-soft: #E4EBDF;
-    --cq-info: #4A478F;
-    --cq-info-soft: #E7E5F0;
-    --cq-warning: #845D12;
-    --cq-warning-soft: #F1E9D6;
-    --cq-danger: #B23A2E;
-    --cq-danger-soft: #F0E2DA;
-    --cq-primary-hover: #2B323A;
-    --cq-on-ink: #F4F6ED;
-    --cq-code-bg: #FFFDF8;
-    --cq-shadow: rgba(28, 34, 41, 0.09);
-    --cq-ink-shadow: rgba(28, 34, 41, 0.28);
+    --cq-success: #1D6B33;
+    --cq-success-soft: #E2EBDD;
+    --cq-info: #0E6672;
+    --cq-info-soft: #DEEBED;
+    --cq-warning: #7A4F00;
+    --cq-warning-soft: #F5EBD3;
+    --cq-danger: #B3342E;
+    --cq-danger-soft: #F2E2DF;
+    --cq-primary-hover: #242B2D;
+    --cq-on-ink: #F6F7F0;
+    --cq-code-bg: #FBFBF6;
+    --cq-shadow: rgba(20, 26, 28, 0.10);
+    --cq-ink-shadow: rgba(20, 26, 28, 0.30);
     --cq-note: #F1DF9B;
     --cq-note-deep: #E4CE7E;
     --cq-note-ink: #2B2A1E;
@@ -143,8 +143,8 @@
     --cq-board: #F0ECE2;
     --cq-board-edge: #C7C2B4;
     --cq-board-sheen: rgba(255, 255, 255, 0.65);
-    --cq-grid-minor: rgba(28, 34, 41, 0.05);
-    --cq-grid-major: rgba(28, 34, 41, 0.09);
+    --cq-grid-minor: rgba(20, 26, 28, 0.028);
+    --cq-grid-major: rgba(20, 26, 28, 0.05);
 
     /* Hand-written CSS keeps reading the --color-* names; utilities inline the --cq-* values. */
     --color-bg: var(--cq-ground);
@@ -176,9 +176,9 @@
     --color-cta: var(--cq-cta);
     --color-cta-hover: var(--cq-cta-hover);
     --color-cta-ink: var(--cq-cta-ink);
-    --color-primary: var(--cq-ink);
-    --color-primary-hover: var(--cq-primary-hover);
-    --color-primary-ink: var(--cq-on-ink);
+    --color-primary: var(--cq-cta);
+    --color-primary-hover: var(--cq-cta-hover);
+    --color-primary-ink: var(--cq-cta-ink);
     --color-primary-soft: var(--cq-accent-soft);
     --color-success: var(--cq-success);
     --color-success-soft: var(--cq-success-soft);
@@ -205,37 +205,37 @@
 .dark {
     color-scheme: dark;
 
-    --cq-ground: #0F1318;
-    --cq-sheet: #181C22;
-    --cq-raised: #22272E;
-    --cq-input: #1A1F26;
-    --cq-ink: #E8ECE4;
-    --cq-muted: #B0B6AA;
-    --cq-subtle: #90988E;
-    --cq-locked: #707870;
-    --cq-line: #2B323A;
-    --cq-line-strong: #66717B;
-    --cq-edge: #353D46;
-    --cq-accent: #E37B6E;
-    --cq-accent-strong: #EF968B;
-    --cq-accent-pressed: #F4A79E;
-    --cq-accent-soft: #352321;
-    --cq-cta: #B94C3E;
-    --cq-cta-hover: #CE6455;
-    --cq-cta-ink: #FFFFFF;
-    --cq-success: #74C7A0;
-    --cq-success-soft: #1B2E24;
-    --cq-info: #A7A1EE;
-    --cq-info-soft: #262438;
-    --cq-warning: #DFB45E;
-    --cq-warning-soft: #302918;
-    --cq-danger: #E37B6E;
-    --cq-danger-soft: #352321;
-    --cq-primary-hover: #F4F7EC;
-    --cq-on-ink: #101318;
-    --cq-code-bg: #0D1116;
-    --cq-shadow: rgba(0, 0, 0, 0.45);
-    --cq-ink-shadow: rgba(0, 0, 0, 0.6);
+    --cq-ground: #0A0E0D;
+    --cq-sheet: #101614;
+    --cq-raised: #17201D;
+    --cq-input: #0C1210;
+    --cq-ink: #E8F0E9;
+    --cq-muted: #A6B3AA;
+    --cq-subtle: #8A978F;
+    --cq-locked: #7A877F;
+    --cq-line: #223029;
+    --cq-line-strong: #566A5F;
+    --cq-edge: #2A3A31;
+    --cq-accent: #33FF00;
+    --cq-accent-strong: #7BFF55;
+    --cq-accent-pressed: #28D400;
+    --cq-accent-soft: rgba(51, 255, 0, 0.10);
+    --cq-cta: #33FF00;
+    --cq-cta-hover: #6BFF3D;
+    --cq-cta-ink: #04140A;
+    --cq-success: #33FF00;
+    --cq-success-soft: rgba(51, 255, 0, 0.10);
+    --cq-info: #49D8E8;
+    --cq-info-soft: rgba(73, 216, 232, 0.10);
+    --cq-warning: #FFB000;
+    --cq-warning-soft: rgba(255, 176, 0, 0.10);
+    --cq-danger: #FF5C5C;
+    --cq-danger-soft: rgba(255, 92, 92, 0.10);
+    --cq-primary-hover: #6BFF3D;
+    --cq-on-ink: #04140A;
+    --cq-code-bg: #060B09;
+    --cq-shadow: rgba(0, 0, 0, 0.55);
+    --cq-ink-shadow: rgba(0, 0, 0, 0.8);
     --cq-note: #746634;
     --cq-note-deep: #635628;
     --cq-note-ink: #F0E6C4;
@@ -245,8 +245,8 @@
     --cq-board: #1B2027;
     --cq-board-edge: #414A55;
     --cq-board-sheen: rgba(255, 255, 255, 0.05);
-    --cq-grid-minor: rgba(232, 236, 228, 0.05);
-    --cq-grid-major: rgba(232, 236, 228, 0.085);
+    --cq-grid-minor: rgba(232, 240, 233, 0.026);
+    --cq-grid-major: rgba(232, 240, 233, 0.048);
 }
 
 @layer base {
@@ -466,6 +466,12 @@
         border-radius: 2px;
         outline: 3px solid var(--color-accent);
         outline-offset: 2px;
+    }
+
+    /* The phosphor fill already owns the accent hue, so a filled primary
+       control takes a ring in the reading ink instead. */
+    .btn-primary:focus-visible {
+        outline-color: var(--color-fg);
     }
 
     @media (max-width: 767.9px) {
@@ -916,19 +922,21 @@ main:has(.challenge-workspace) {
 .atlas-account form { border-top: 1px solid var(--color-line); }
 .atlas-avatar { display: grid; place-items: center; width: 24px; height: 24px; color: var(--color-fg); font: 500 0.75rem / 1 var(--font-mono); }
 .atlas-notifications { display: grid; place-items: center; width: 44px; height: 44px; color: var(--color-fg-muted); }
-.atlas-xp { display: flex; align-items: center; gap: 8px; min-height: 44px; white-space: nowrap; color: var(--color-fg); font: 500 0.75rem / 1.5 var(--font-mono); }
-.atlas-xp span { color: var(--color-fg-muted); }
+.atlas-xp { display: flex; align-items: center; gap: 8px; min-height: 44px; white-space: nowrap; color: var(--color-warning); font: 600 0.8125rem / 1.5 var(--font-mono); font-variant-numeric: tabular-nums; }
+.atlas-xp span { color: var(--color-fg-muted); font-weight: 500; }
 .icon { display: inline-block; flex: none; vertical-align: -0.125em; }
-/* One icon button shows the current mode; its accessible name describes the
-   mode the next press will apply. */
-.atlas-theme-toggle { display: inline-flex; flex: none; }
-.atlas-theme-toggle-button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: transparent; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); cursor: pointer; transition: color 120ms ease-out; }
-.atlas-theme-toggle-button:hover { color: var(--color-accent); }
-.atlas-theme-toggle-button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
-.atlas-theme-toggle [data-theme-icon] { display: none; }
-html:not([data-theme-mode="dark"]) .atlas-theme-toggle [data-theme-icon="light"],
-html[data-theme-mode="dark"] .atlas-theme-toggle [data-theme-icon="dark"] { display: block; }
-@media (prefers-reduced-motion: reduce) { .atlas-theme-toggle-button { transition: none; } }
+/* Two named options in one control: the option says what it applies, the
+   fill says what is in force. No icon has to be interpreted, and the active
+   state is drawn from data-theme-mode so it is right on the first paint. */
+.atlas-theme-toggle { display: inline-flex; flex: none; border: 1px solid var(--color-line); background: var(--color-input); }
+.atlas-theme-option { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 0; background: transparent; color: var(--color-fg-subtle); font: 500 10.5px / 1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: color 120ms ease-out, background-color 120ms ease-out; }
+.atlas-theme-option + .atlas-theme-option { border-left: 1px solid var(--color-line); }
+.atlas-theme-option:hover { color: var(--color-fg); background: var(--color-raised); }
+.atlas-theme-option:focus-visible { outline: 3px solid var(--color-fg); outline-offset: -3px; }
+html[data-theme-mode="light"] .atlas-theme-option[data-theme-set="light"],
+html[data-theme-mode="dark"] .atlas-theme-option[data-theme-set="dark"] { color: var(--color-accent-ink); background: var(--color-accent); font-weight: 600; }
+@media (max-width: 599.9px) { .atlas-shell .atlas-theme-label { display: none; } .atlas-theme-option { padding: 0 9px; } }
+@media (prefers-reduced-motion: reduce) { .atlas-theme-option { transition: none; } }
 .atlas-mobile { display: none; }
 @media (min-width: 1600px) { .atlas-shell-inner { padding-inline: 48px; } }
 @media (max-width: 1359.9px) {
@@ -988,6 +996,12 @@ html[data-theme-mode="dark"] .atlas-theme-toggle [data-theme-icon="dark"] { disp
 .atlas-access-form { display: grid; gap: 18px; margin-top: 28px; max-width: 26rem; }
 .atlas-access-field { display: grid; gap: 6px; min-width: 0; }
 .atlas-access-field .terminal-input { min-height: 46px; }
+.atlas-access-input { position: relative; display: block; }
+.atlas-access-input .terminal-input { padding-right: 68px; }
+.atlas-password-toggle { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 10px; border: 1px solid transparent; border-radius: 2px; background: transparent; color: var(--color-fg-muted); font: 500 0.6875rem / 1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+.atlas-password-toggle:hover { color: var(--color-fg); background: var(--color-raised); }
+.atlas-password-toggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+.atlas-access-form .btn[aria-busy="true"] { cursor: progress; opacity: 0.8; }
 .atlas-access-form .btn { justify-self: start; }
 .atlas-access-notes { display: grid; gap: 12px; margin-top: 26px; padding-top: 16px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
 .atlas-access-notes p { font-size: 14px; line-height: 22px; color: var(--color-fg-muted); }
@@ -1707,21 +1721,8 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 /* The mission panel is a split bench: the brief keeps its reading measure on the
    left, the ungraded workbench is docked on the right and follows the scroll. */
 .atlas-lesson { max-width: 1360px; min-width: 0; }
-.atlas-lesson-head { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 9px; align-items: start; min-width: 0; padding-bottom: 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
 .atlas-lesson-title { margin-top: 0; font-family: var(--font-display); font-size: clamp(30px, 3.2vw, 42px); line-height: 1.06; font-weight: 600; letter-spacing: -.02em; overflow-wrap: anywhere; }
 .atlas-lesson-task { max-width: 62ch; margin: 2px 0 0; padding: 8px 12px; border-left: 2px solid var(--color-accent); background: var(--color-accent-soft); color: var(--color-fg); font-size: 14.5px; line-height: 1.5; }
-/* On a phone the bench foot is a long scroll away, so the lesson heading
-   carries the same next step as a primary action. */
-.atlas-lesson-head-actions { display: none; }
-.atlas-lesson-head-actions .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-.atlas-lesson-head-actions .btn-primary { border-color: var(--cq-cta); background: var(--cq-cta); color: var(--cq-cta-ink); }
-.atlas-lesson-head-actions .btn-primary:hover { border-color: var(--cq-cta-hover); background: var(--cq-cta-hover); color: var(--cq-cta-ink); }
-@media (max-width: 700px) {
-    .atlas-lesson-head-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-    .atlas-lesson-head-actions .btn { flex: 1 1 auto; }
-}
-.atlas-lesson-head .atlas-stamp { border-width: 1.5px; padding: 3px 7px; font-size: 10px; letter-spacing: .12em; transform: none; }
-.atlas-lesson-grid { display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 48px; align-items: start; margin-top: 24px; }
 .atlas-lesson-brief { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; max-width: 68ch; min-width: 0; }
 /* A grid item's automatic minimum is its min-content, and a line of markup
    never wraps — so the track would grow to the longest line and the column
@@ -1866,10 +1867,6 @@ body.student-ui [data-workspace-pane]:focus-visible { outline: 2px solid var(--c
 @media (max-width: 980px) {
     .atlas-check-form { grid-template-columns: minmax(0, 1fr); gap: 32px; }
     .atlas-check-submit { position: static; }
-}
-@media (max-width: 1180px) {
-    .atlas-lesson-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
-    .atlas-lesson-bench { position: static; }
 }
 @media (max-width: 900px) {
     .atlas-bench-modes { display: flex; gap: 16px; padding: 0 14px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
@@ -2393,7 +2390,7 @@ body.student-ui .cq-workspace-tabs [data-pane-toggle]:hover { color: var(--color
 .cq-runlog[hidden] { display: none !important; }
 .cq-runlog-messages { min-width: 0; }
 .cq-runlog-line { display: flex; gap: 12px; margin: 0; padding: 2px 0; font-size: 13.5px; line-height: 21px; overflow-wrap: anywhere; }
-.cq-runlog-line b { flex: none; width: 68px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.cq-runlog-line b { flex: none; width: 84px; white-space: nowrap; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
 .cq-runlog-line--ok b { color: var(--color-success); }
 .cq-runlog-line--warn b { color: var(--color-warning); }
 .cq-runlog-line--bad b { color: var(--color-danger); }
@@ -2420,6 +2417,91 @@ body.student-ui .cq-workspace .cq-lesson-reading {
     background-attachment: local, local, scroll, scroll;
 }
 .cq-lesson-context p { margin: 0 0 12px; }
+/* Field notes: the challenge brief reads as a page, not a form. */
+.cq-brief-heading {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-size: 27px;
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -.012em;
+    color: var(--color-fg);
+    text-wrap: balance;
+}
+.cq-brief .cq-lesson-context p {
+    margin: 0 0 15px;
+    font-size: 15.5px;
+    line-height: 27px;
+    color: var(--color-fg);
+}
+.cq-brief .cq-lesson-context p:last-child { margin-bottom: 0; }
+.cq-task {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+}
+.cq-task .cq-doc-label { margin-top: 0; color: var(--cq-accent); }
+.cq-task-copy {
+    margin: 10px 0 0;
+    padding-left: 16px;
+    border-left: 2px solid var(--cq-accent);
+    font-family: var(--font-display);
+    font-size: 23px;
+    line-height: 1.16;
+    font-weight: 500;
+    letter-spacing: -.005em;
+    color: var(--color-fg);
+    text-wrap: pretty;
+}
+.cq-before {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+}
+.cq-before .cq-doc-label { margin-top: 0; }
+.cq-before-copy {
+    margin: 0;
+    color: var(--cq-muted);
+    font-size: 13.5px;
+    line-height: 22px;
+}
+.cq-before-copy strong { color: var(--color-fg); font-weight: 600; }
+.cq-before .cq-guide { margin-top: 12px; }
+.cq-expected {
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+}
+.cq-expected-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.cq-expected-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--cq-muted);
+}
+.cq-expected-head > span {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--cq-subtle);
+}
+.cq-expected .atlas-lesson-reference-frame {
+    padding: 10px;
+    border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent);
+    background: var(--cq-raised);
+}
+.cq-expected .atlas-lesson-reference-frame iframe { height: 150px; }
+.cq-expected .cq-reference-note { margin-top: 8px; font-family: var(--font-mono); font-size: 11px; }
 .cq-reference { margin-top: 22px; }
 .cq-reference > summary span:last-child { display: none; }
 .cq-reference .atlas-lesson-reference-frame iframe { height: 130px; }
@@ -2439,8 +2521,6 @@ body.student-ui .cq-workspace .is-frame { display: flex; flex: 1; min-height: 0;
    darkened. It is bounded as a sheet instead: edge, inset and label make it read as a page
    resting on the terminal rather than a hole cut through it. */
 .cq-preview-pane iframe { flex: 1; width: 100%; height: 100%; min-height: 0; background: white; box-shadow: inset 0 0 0 1px var(--color-line-strong); }
-.cq-preview-note { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 16px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); color: color-mix(in srgb, var(--cq-ink) 70%, transparent); font-size: 12px; line-height: 20px; }
-.cq-preview-note [data-preview-state] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .cq-workspace-actions, .cq-help-actions, .cq-evaluation-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .cq-workspace-actions { gap: 12px; }
 .cq-workspace-actions form { display: flex; margin: 0; }
@@ -2487,6 +2567,9 @@ body.student-ui .cq-feedback .student-toast { border-radius: 0; box-shadow: none
     .cq-workspace-actions { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; }
     .cq-evaluation-actions { margin-left: auto; }
     body.student-ui .cq-workspace .cq-lesson-reading { padding: 20px 16px; }
+    .cq-brief-heading { font-size: 24px; }
+    .cq-brief .cq-lesson-context p { font-size: 15px; line-height: 25px; }
+    .cq-task-copy { font-size: 21px; }
 }
 @media (pointer: coarse), (max-width: 640px) {
     .cq-workspace .btn, .cq-confirm .btn, .cq-assistance .btn, .atlas-boss-workspace .btn, body.student-ui .cq-workspace-tabs [data-pane-toggle], .atlas-workbench-tab { min-height: 44px; }
@@ -2671,31 +2754,6 @@ body.admin-ui .admin-workspace-panel { margin-top: 0; }
     font-variant-numeric: tabular-nums;
 }
 
-/* Lesson: the next step lives beside the heading, not at the bench foot. */
-@media (min-width: 701px) {
-    .atlas-lesson-head {
-        grid-template-columns: minmax(0, 1fr) auto;
-        column-gap: 28px;
-    }
-    .atlas-lesson-head .atlas-lesson-entry,
-    .atlas-lesson-head .atlas-lesson-title,
-    .atlas-lesson-head .atlas-lesson-task {
-        grid-column: 1;
-    }
-    .atlas-lesson-head-actions {
-        display: flex;
-        grid-column: 2;
-        grid-row: 1 / span 3;
-        align-self: start;
-        justify-self: end;
-        margin-top: 0;
-    }
-    .atlas-lesson-head-actions .btn {
-        flex: 0 0 auto;
-        justify-content: center;
-    }
-}
-
 /* Draft state and its shortcut must stay readable (was 11px at 45% ink). */
 .cq-draft {
     font-size: 12px;
@@ -2771,21 +2829,6 @@ body.admin-ui .admin-workspace-panel { margin-top: 0; }
     content: '·';
     margin-right: 8px;
     color: color-mix(in srgb, var(--cq-ink) 35%, transparent);
-}
-
-/* Tablet band: let the heading own the width; the next step sits under the
-   task rather than squeezing the entry line into a second column. */
-@media (min-width: 701px) and (max-width: 1100px) {
-    .atlas-lesson-head {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .atlas-lesson-head-actions {
-        display: flex;
-        grid-column: 1;
-        grid-row: auto;
-        justify-self: end;
-        margin-top: 4px;
-    }
 }
 
 /* Staff sheets: admin pages carry their page name visibly under the running
@@ -3031,7 +3074,6 @@ body.admin-ui .atlas-records > h1.sr-only {
     .atlas-records-heading,
     .atlas-reading-heading,
     .atlas-boss-heading,
-    .atlas-lesson-head,
     .cq-challenge > header {
         animation: cq-rise-in 240ms var(--cq-ease-out) both;
     }
@@ -3693,4 +3735,371 @@ body.admin-ui .atlas-records > h1.sr-only {
 .atlas-records-guide strong {
     color: var(--color-fg);
     font-weight: 600;
+}
+
+/* Lesson dossier: masthead, progress rail, reading + bench, checkpoint. */
+.atlas-lesson { max-width: 1440px; }
+.lesson-masthead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: start; padding-bottom: 24px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 25%, transparent); }
+.lesson-masthead-lead { min-width: 0; }
+.lesson-masthead .atlas-lesson-title { margin: 10px 0 0; font-size: clamp(34px, 3.6vw, 50px); line-height: 1.02; letter-spacing: -.02em; }
+.lesson-masthead .atlas-lesson-task { max-width: 62ch; margin: 16px 0 0; padding: 2px 0 2px 16px; border-left: 2px solid var(--cq-accent); background: transparent; font-size: 16px; line-height: 1.55; }
+.lesson-masthead-side { display: grid; justify-items: end; align-content: start; gap: 16px; padding-top: 4px; }
+.lesson-masthead-side .atlas-stamp { transform: none; }
+.lesson-meta { display: flex; gap: 28px; margin: 0; text-align: right; }
+.lesson-meta dt { font-family: var(--font-display); font-size: 10px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--cq-muted); }
+.lesson-meta dd { margin: 3px 0 0; color: var(--cq-ink); font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.lesson-alerts { display: grid; gap: 10px; margin-top: 20px; }
+.lesson-body { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 36px; margin-top: 26px; align-items: start; }
+.lesson-rail { position: sticky; top: 88px; min-width: 0; padding-right: 24px; border-right: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.lesson-rail-block + .lesson-rail-block { margin-top: 22px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.lesson-rail .atlas-stage { display: grid; gap: 12px; margin: 0; padding: 0; border: 0; }
+.lesson-rail .atlas-stage li { align-items: flex-start; gap: 9px; padding: 0; border: 0; font-size: 12.5px; line-height: 1.35; }
+.lesson-rail .atlas-stage-mark { margin-top: 4px; }
+.lesson-rail .atlas-stage-copy { display: grid; gap: 2px; }
+.lesson-rail .atlas-stage-note { font-size: 10px; }
+.lesson-rail-action { display: grid; gap: 8px; }
+.lesson-rail-action .btn { width: 100%; min-height: 38px; padding: 7px 10px; justify-content: center; text-align: center; white-space: normal; font-size: 12.5px; line-height: 1.2; }
+.lesson-rail-secondary { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; color: var(--cq-muted); font: 500 11px / 1.4 var(--font-mono); text-decoration: underline; text-underline-offset: 3px; }
+.lesson-rail-secondary:hover { color: var(--cq-accent); }
+.lesson-rail-note { margin: 10px 0 0; color: var(--cq-muted); font-size: 12px; line-height: 18px; }
+.lesson-rail-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); color: var(--cq-muted); font: 500 11px / 1.4 var(--font-mono); letter-spacing: .03em; text-decoration: none; }
+.lesson-rail-link:hover { color: var(--color-fg); }
+.lesson-main { min-width: 0; }
+.lesson-work { display: grid; grid-template-columns: minmax(0, 1fr) 456px; gap: 36px; align-items: start; }
+.lesson-work .atlas-lesson-brief { max-width: 68ch; gap: 36px; }
+.lesson-brief .atlas-lesson-section h2, .lesson-work .atlas-lesson-section h2 { font-size: 30px; line-height: 1.14; margin-bottom: 16px; }
+.lesson-work .atlas-lesson-reference { border: 0; border-top: 2px solid var(--cq-ink); border-radius: 0; background: transparent; box-shadow: none; }
+.lesson-work .atlas-lesson-reference > summary { padding: 12px 0; border: 0; }
+.lesson-work .atlas-lesson-reference[open] > summary { border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.lesson-work .atlas-lesson-reference-frame { margin-top: 10px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
+.lesson-work .atlas-lesson-reference .log-listing { margin-top: 10px; border: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); }
+.lesson-work .atlas-lesson-reference-label { padding: 10px 0 8px; border-bottom: 0; }
+.lesson-work .atlas-lesson-bench { position: sticky; top: 88px; }
+.lesson-checkpoint { margin-top: 40px; padding-top: 18px; border-top: 2px solid var(--cq-ink); }
+.lesson-checkpoint-head { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 14px; }
+.lesson-checkpoint-note { margin: 0; color: var(--cq-muted); font-size: 12.5px; line-height: 19px; text-align: right; }
+.lesson-checkpoint .atlas-lesson-check-panel { margin: 0; padding: 18px 0 0; border: 0; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); border-radius: 0; background: transparent; box-shadow: none; }
+.lesson-checkpoint .atlas-lesson-check-panel:first-of-type { padding-top: 0; border-top: 0; }
+.lesson-checkpoint .atlas-lesson-check-title { font-size: 24px; }
+@media (max-width: 1360px) {
+    .lesson-body { grid-template-columns: 200px minmax(0, 1fr); gap: 28px; }
+    .lesson-work { grid-template-columns: minmax(0, 1fr) 420px; gap: 28px; }
+}
+@media (max-width: 1180px) {
+    .lesson-body { display: block; }
+    .lesson-rail { position: static; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 28px; padding: 14px 0 16px; margin-bottom: 24px; border-right: 0; border-block: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+    .lesson-rail-block { flex: 1 1 220px; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+    .lesson-rail .atlas-stage { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+    .lesson-rail .atlas-stage li { align-items: center; gap: 7px; padding-right: 16px; border-right: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+    .lesson-rail .atlas-stage li:last-child { padding-right: 0; border-right: 0; }
+    .lesson-rail .atlas-stage-copy { display: flex; gap: 6px; }
+    .lesson-rail-note { margin-top: 8px; }
+    .lesson-rail-link { margin: 0; padding: 0; border: 0; align-self: center; }
+    .lesson-work { grid-template-columns: minmax(0, 1fr) 420px; gap: 28px; }
+    .lesson-work .atlas-lesson-bench { position: static; }
+}
+@media (max-width: 980px) {
+    .lesson-masthead { grid-template-columns: 1fr; gap: 16px; }
+    .lesson-masthead-side { justify-items: start; grid-auto-flow: column; align-items: center; gap: 24px; }
+    .lesson-meta { text-align: left; }
+    .lesson-work { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .lesson-checkpoint-head { display: block; }
+    .lesson-checkpoint-note { margin-top: 6px; text-align: left; }
+}
+@media (max-width: 640px) {
+    .lesson-masthead .atlas-lesson-title { font-size: 32px; }
+    .lesson-masthead .atlas-lesson-task { font-size: 15px; }
+    .lesson-meta { gap: 20px; }
+    .lesson-rail { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .lesson-rail .atlas-stage { display: grid; gap: 10px; }
+    .lesson-rail .atlas-stage li { padding: 0; border-right: 0; }
+    .lesson-rail-link { border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); padding-top: 12px; width: 100%; }
+    .lesson-checkpoint .atlas-lesson-check-title { font-size: 21px; }
+}
+
+
+/* The current stage is a hollow gate; completed steps are filled. */
+.atlas-stage li[data-state="current"] .atlas-stage-mark {
+    background: transparent;
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+@media (max-width: 1180px) {
+    .lesson-rail-action { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .lesson-rail-action .btn { width: auto; min-width: 200px; }
+    .lesson-rail-secondary { margin-top: 0; }
+}
+@media (max-width: 640px) {
+    .lesson-rail-action .btn { width: 100%; }
+}
+
+/* The reference markup is a specimen to read, not a code editor: let the
+   long line wrap rather than hiding its end behind horizontal scroll. */
+.lesson-work .atlas-lesson-reference .log-listing,
+.lesson-work .atlas-lesson-reference .log-listing code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Knowledge Check result dialog: the score summary is a modal so a failed
+   attempt can gate the challenge without hiding the breakdown. The native
+   dialog provides the modal layer, Esc and the focus trap. */
+.kc-result-dialog { width: min(880px, calc(100% - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 0; border: 1px solid color-mix(in srgb, var(--cq-ink) 35%, transparent); border-radius: 2px; background: var(--cq-sheet); color: var(--color-fg); box-shadow: 10px 10px 0 var(--cq-ink-shadow); }
+.kc-result-dialog::backdrop { background: #000a; }
+.kc-result-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 26px); }
+.kc-result-head { position: relative; flex: none; padding: 24px 26px 20px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: color-mix(in srgb, var(--cq-ink) 3%, var(--cq-sheet)); }
+.kc-result-close { position: absolute; top: 10px; right: 10px; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid var(--color-line); border-radius: 2px; background: var(--cq-sheet); color: var(--color-fg-muted); cursor: pointer; }
+.kc-result-close:hover { color: var(--color-fg); border-color: var(--color-line-strong); }
+.kc-result-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.kc-result-kicker { max-width: calc(100% - 52px); font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .16em; line-height: 1.35; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.kc-result-title { margin-top: 6px; font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); line-height: 1.05; font-weight: 600; letter-spacing: -.015em; }
+.kc-result-meta { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; margin-top: 14px; }
+.kc-result-score { display: flex; align-items: baseline; gap: 12px; text-align: right; }
+.kc-result-score strong { font-family: var(--font-mono); font-size: 30px; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.kc-result-score span { font-family: var(--font-mono); font-size: 11px; line-height: 1.4; color: var(--color-fg-muted); }
+.kc-result-meter { height: 8px; margin-top: 16px; overflow: hidden; background: var(--color-line); }
+.kc-result-meter span { display: block; width: 0; height: 100%; background: var(--color-success); transition: width 220ms var(--cq-ease-out); }
+.kc-result-dialog[data-passed="false"] .kc-result-meter span { background: var(--color-warn); }
+.kc-result-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 22px 26px 8px; }
+.kc-result-message { max-width: 68ch; padding: 13px 15px; border-left: 2px solid var(--color-accent); background: var(--color-accent-soft); font-size: 14px; line-height: 23px; color: var(--color-fg); }
+.kc-result-breakdown-title { margin-top: 24px; padding-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); font-family: var(--font-display); font-size: 18px; line-height: 1.2; font-weight: 600; }
+.kc-answer-list { margin: 0; padding: 0; list-style: none; }
+.kc-answer { padding: 18px 0; border-bottom: 1px solid color-mix(in srgb, var(--cq-ink) 14%, transparent); overflow-wrap: anywhere; scroll-margin-top: 20px; }
+.kc-answer:last-child { border-bottom: 0; }
+.kc-answer.is-flagged { margin-inline: -10px; padding-inline: 10px; border-left: 3px solid var(--color-warn); background: color-mix(in srgb, var(--color-warn) 8%, transparent); }
+.kc-answer-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.kc-answer-position { font-family: var(--font-display); font-size: 10.5px; font-weight: 600; letter-spacing: .16em; line-height: 1.3; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 70%, transparent); }
+.kc-answer-status { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: .1em; line-height: 1.3; text-transform: uppercase; }
+.kc-answer-status--correct { color: var(--color-success); }
+.kc-answer-status--wrong { color: var(--color-warn); }
+.kc-answer-prompt { margin-top: 8px; font-family: var(--font-display); font-size: 19px; line-height: 1.28; font-weight: 600; }
+.kc-answer-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; margin-top: 12px; padding-top: 11px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 12%, transparent); }
+.kc-answer-options dt { font-family: var(--font-display); font-size: 9.5px; font-weight: 500; letter-spacing: .16em; line-height: 1.3; text-transform: uppercase; color: color-mix(in srgb, var(--cq-ink) 65%, transparent); }
+.kc-answer-options dd { margin-top: 3px; font-size: 14px; line-height: 22px; color: var(--color-fg); }
+.kc-answer-explanation { max-width: 68ch; margin-top: 11px; padding-left: 11px; border-left: 2px solid color-mix(in srgb, var(--color-warn) 45%, transparent); font-size: 13px; line-height: 21px; color: var(--color-fg-muted); }
+.kc-result-actions { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 10px 12px; flex: none; padding: 16px 26px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 22%, transparent); background: color-mix(in srgb, var(--cq-ink) 3%, var(--cq-sheet)); }
+.kc-result-actions form { margin: 0; }
+.kc-result-locked { display: grid; gap: 5px; margin-left: auto; justify-items: end; text-align: right; }
+.kc-result-helper { max-width: 27ch; font-family: var(--font-mono); font-size: 11px; line-height: 16px; color: var(--color-fg-muted); }
+.kc-result-actions .btn:disabled { border-color: color-mix(in srgb, var(--cq-ink) 20%, transparent); background: color-mix(in srgb, var(--cq-ink) 6%, transparent); color: var(--color-fg-subtle); box-shadow: none; opacity: 1; cursor: not-allowed; }
+.kc-inline-review { margin-top: 4px; border-top: 1px solid color-mix(in srgb, var(--cq-ink) 16%, transparent); }
+.kc-inline-review > summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: .12em; line-height: 1.4; text-transform: uppercase; color: var(--color-fg-muted); cursor: pointer; }
+.kc-inline-review > summary:hover { color: var(--color-fg); }
+.kc-inline-review > summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.kc-inline-review > summary span { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; letter-spacing: .04em; text-transform: none; color: var(--color-fg-subtle); }
+.kc-inline-review[open] > summary { color: var(--color-fg); }
+.kc-inline-review .kc-answer { padding-block: 15px; }
+.kc-inline-review .kc-answer-prompt { font-size: 17px; }
+@media (max-width: 760px) {
+    .kc-result-dialog { width: calc(100% - 16px); max-height: calc(100dvh - 16px); }
+    .kc-result-panel { max-height: calc(100dvh - 18px); }
+    .kc-result-head { padding: 20px 18px 16px; }
+    .kc-result-body { padding: 18px 18px 6px; }
+    .kc-result-actions { padding: 14px 18px; }
+    .kc-result-score { text-align: left; }
+    .kc-result-score strong { font-size: 26px; }
+    .kc-result-locked { width: 100%; margin-left: 0; justify-items: start; text-align: left; }
+    .kc-answer-options { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .kc-result-title { font-size: 28px; }
+}
+
+/* Compact result dialog. The summary is a glance, not a second page. */
+.kc-result-dialog { width: min(720px, calc(100% - 24px)); max-height: min(760px, calc(100dvh - 40px)); }
+.kc-result-panel { max-height: min(758px, calc(100dvh - 42px)); }
+.kc-result-head { padding: 18px 20px 15px; }
+.kc-result-close { top: 8px; right: 8px; width: 34px; height: 34px; }
+.kc-result-kicker { max-width: calc(100% - 46px); font-size: 10px; }
+.kc-result-title { font-size: clamp(24px, 2.7vw, 32px); }
+.kc-result-meta { margin-top: 10px; }
+.kc-result-score strong { font-size: 26px; }
+.kc-result-meter { height: 6px; margin-top: 12px; }
+.kc-result-body { padding: 16px 20px 4px; }
+.kc-result-message { padding: 10px 12px; font-size: 13px; line-height: 21px; }
+.kc-result-breakdown-title { margin-top: 17px; padding-bottom: 8px; font-size: 16px; }
+.kc-answer { padding: 13px 0; }
+.kc-answer-prompt { margin-top: 6px; font-size: 17px; }
+.kc-answer-options { gap: 8px 20px; margin-top: 9px; padding-top: 8px; }
+.kc-answer-options dd { font-size: 13.5px; line-height: 20px; }
+.kc-answer-explanation { margin-top: 8px; font-size: 12.5px; line-height: 19px; }
+.kc-result-actions { padding: 12px 20px; gap: 8px 10px; }
+.kc-result-helper { font-size: 10.5px; line-height: 15px; }
+
+/* Result motion: one entrance, a score meter, a stamp, a pass/fail sweep. */
+.kc-result-dialog[open] { animation: kc-dialog-in 220ms var(--cq-ease-out) both; }
+.kc-result-dialog[open]::backdrop { animation: kc-backdrop-in 220ms ease-out both; }
+.kc-result-head { overflow: hidden; }
+.kc-result-head::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--color-accent) 10%, transparent) 50%, transparent 80%); transform: translateX(-120%); animation: kc-sweep 760ms ease-out 100ms both; }
+.kc-result-dialog[data-passed="false"] .kc-result-head::after { background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--color-warn) 11%, transparent) 50%, transparent 80%); }
+.kc-result-meta .atlas-stamp { animation: kc-stamp-pop 360ms cubic-bezier(.2, 1.35, .4, 1) 110ms both; }
+.kc-result-score strong { animation: kc-score-in 420ms var(--cq-ease-out) 90ms both; }
+.kc-result-meter span { width: var(--kc-score, 0%); animation: kc-meter-grow 680ms cubic-bezier(.23, 1, .32, 1) 80ms both; }
+.kc-result-dialog .kc-answer { animation: kc-answer-in 300ms var(--cq-ease-out) both; animation-delay: calc(80ms + var(--i, 0) * 38ms); }
+.kc-inline-review[open] .kc-answer { animation: kc-answer-in 260ms var(--cq-ease-out) both; animation-delay: calc(var(--i, 0) * 28ms); }
+.kc-answer.is-flagged { animation: kc-flag-pulse 640ms ease-out both; }
+.kc-result-actions .btn:not(:disabled) { transition: transform 120ms var(--cq-ease-out), box-shadow 120ms var(--cq-ease-out); }
+.kc-result-actions .btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 3px 0 var(--cq-shadow); }
+.kc-result-actions .btn:not(:disabled):active { transform: translateY(0); box-shadow: none; }
+@keyframes kc-dialog-in { from { opacity: 0; transform: translateY(10px) scale(.972); } to { opacity: 1; transform: none; } }
+@keyframes kc-backdrop-in { from { background: transparent; backdrop-filter: blur(0); } to { background: #000a; backdrop-filter: blur(2px); } }
+@keyframes kc-sweep { to { transform: translateX(120%); } }
+@keyframes kc-stamp-pop { from { opacity: 0; transform: scale(.82) rotate(-2deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes kc-score-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes kc-meter-grow { from { width: 0; } to { width: var(--kc-score, 0%); } }
+@keyframes kc-answer-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@keyframes kc-flag-pulse { 0% { background: transparent; } 30% { background: color-mix(in srgb, var(--color-warn) 18%, transparent); } 100% { background: color-mix(in srgb, var(--color-warn) 8%, transparent); } }
+@media (max-width: 760px) {
+    .kc-result-dialog { width: calc(100% - 12px); max-height: min(760px, calc(100dvh - 12px)); }
+    .kc-result-panel { max-height: min(758px, calc(100dvh - 14px)); }
+    .kc-result-head { padding: 16px 14px 13px; }
+    .kc-result-body { padding: 14px 14px 4px; }
+    .kc-result-actions { padding: 11px 14px; }
+    .kc-result-title { font-size: 24px; }
+    .kc-result-message { font-size: 12.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kc-result-dialog[open],
+    .kc-result-dialog[open]::backdrop,
+    .kc-result-head::after,
+    .kc-result-meta .atlas-stamp,
+    .kc-result-score strong,
+    .kc-result-meter span,
+    .kc-result-dialog .kc-answer,
+    .kc-inline-review[open] .kc-answer,
+    .kc-answer.is-flagged,
+    .kc-result-actions .btn:not(:disabled) {
+        animation: none;
+        transition: none;
+    }
+}
+
+.kc-result-body { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cq-ink) 28%, transparent) transparent; }
+.kc-result-body::-webkit-scrollbar { width: 8px; }
+.kc-result-body::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--cq-ink) 26%, transparent); }
+.kc-result-body::-webkit-scrollbar-track { background: transparent; }
+
+/* System-wide gamification layer: XP changes, completion celebrations,
+   achievement pops, current-step pulses and a small amount of hover lift.
+   The terminal stays quiet; motion only confirms progress that already
+   happened, and it switches off under prefers-reduced-motion. */
+.atlas-xp { position: relative; isolation: isolate; }
+.atlas-xp [data-xp-amount] { color: inherit; font-weight: 600; }
+.cq-xp-float { position: absolute; left: 50%; top: calc(100% + 2px); z-index: 3; padding: 2px 7px; border: 1px solid currentColor; border-radius: 2px; background: var(--cq-sheet); color: var(--color-success); font-family: var(--font-mono); font-size: 10px; line-height: 1.4; white-space: nowrap; pointer-events: none; transform: translate(-50%, 0); }
+.cq-xp-float--loss { color: var(--color-warning); }
+
+@keyframes cq-xp-glow {
+    0%, 100% { text-shadow: 0 0 0 transparent; }
+    40% { text-shadow: 0 0 12px color-mix(in srgb, var(--color-success) 55%, transparent); }
+}
+@keyframes cq-xp-float {
+    0% { opacity: 0; transform: translate(-50%, -4px) scale(.9); }
+    18% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, 14px) scale(1); }
+}
+@keyframes cq-badge-pop {
+    0% { opacity: 0; transform: scale(.4); }
+    62% { opacity: 1; transform: scale(1.22); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes cq-mark-pop {
+    0% { opacity: 0; transform: scale(.55); }
+    64% { opacity: 1; transform: scale(1.14); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes cq-current-pulse {
+    0%, 100% { box-shadow: inset 0 0 0 1px var(--color-accent), 0 0 0 0 transparent; }
+    50% { box-shadow: inset 0 0 0 1px var(--color-accent), 0 0 0 5px color-mix(in srgb, var(--color-accent) 14%, transparent); }
+}
+@keyframes cq-current-rail {
+    0% { background: color-mix(in srgb, var(--color-accent) 14%, transparent); }
+    100% { background: transparent; }
+}
+@keyframes cq-current-card {
+    0% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 42%, transparent); }
+    100% { box-shadow: inset 0 0 0 1px transparent; }
+}
+@keyframes cq-overlay-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes cq-completion-in {
+    from { opacity: 0; transform: translateY(10px) scale(.975); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes cq-stamp-pop {
+    0% { opacity: 0; transform: scale(.8) rotate(-2deg); }
+    64% { opacity: 1; transform: scale(1.08) rotate(0); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes cq-achievement-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes cq-gamified-sweep {
+    from { transform: translateX(-120%); }
+    to { transform: translateX(120%); }
+}
+@keyframes cq-xp-line-flash {
+    0% { color: var(--color-fg); }
+    35% { color: var(--color-success); }
+    100% { color: var(--color-fg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-xp[data-xp-value] { transition: color 160ms var(--cq-ease-out); }
+    .atlas-xp.is-xp-gain { color: var(--color-success); animation: cq-xp-glow 720ms ease-out; }
+    .atlas-xp.is-xp-loss { color: var(--color-warning); }
+    .cq-xp-float { animation: cq-xp-float 1.35s var(--cq-ease-out) both; }
+
+    .atlas-notification-count { transform-origin: center; animation: cq-badge-pop 520ms cubic-bezier(.2, 1.35, .4, 1) 250ms both; }
+    .atlas-stage li[data-state="done"] .atlas-stage-mark { animation: cq-mark-pop 360ms var(--cq-ease-out) both; }
+    .atlas-stage li[data-state="current"] .atlas-stage-mark { animation: cq-current-pulse 2.4s ease-in-out 3; }
+    .atlas-path-marker.is-complete { animation: cq-mark-pop 360ms var(--cq-ease-out) both; }
+    .atlas-path-rail-item--now { animation: cq-current-rail 1.1s var(--cq-ease-out) both; }
+    .atlas-path-entry-mission[data-state="current"] .atlas-path-entry { animation: cq-current-card 1.2s var(--cq-ease-out) both; }
+
+    .atlas-record-entry[data-achievement-state="unlocked"] { position: relative; transition: transform 160ms var(--cq-ease-out), background-color 160ms var(--cq-ease-out); }
+    .atlas-record-entry[data-achievement-state="unlocked"]::before { content: ""; position: absolute; inset-block: 18px; left: 0; width: 2px; background: color-mix(in srgb, var(--color-success) 65%, transparent); }
+    .atlas-record-entry[data-achievement-state="unlocked"]:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--color-success) 3%, transparent); }
+    .atlas-record-entry[data-achievement-state="unlocked"] .atlas-stamp { animation: cq-stamp-pop 420ms cubic-bezier(.2, 1.3, .4, 1) 180ms both; }
+    .atlas-evidence-specimen .atlas-stamp { animation: cq-stamp-pop 400ms cubic-bezier(.2, 1.3, .4, 1) 160ms both; }
+
+    .completion-overlay { animation: cq-overlay-in 220ms ease-out both; }
+    .completion-dialog.is-celebrating { position: relative; overflow: hidden; animation: cq-completion-in 340ms var(--cq-ease-out) both; }
+    .completion-dialog.is-celebrating::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(105deg, transparent 34%, color-mix(in srgb, var(--color-accent) 10%, transparent) 50%, transparent 66%); pointer-events: none; animation: cq-gamified-sweep 820ms ease-out 120ms both; }
+    .completion-dialog.is-celebrating .atlas-stamp { animation: cq-stamp-pop 500ms cubic-bezier(.2, 1.3, .4, 1) 120ms both; }
+    .completion-dialog.is-celebrating [data-completion-awarded] { animation: cq-xp-line-flash 900ms ease-out 120ms both; }
+    .completion-dialog.is-celebrating .completion-achievement { position: relative; overflow: hidden; animation: cq-achievement-in 440ms var(--cq-ease-out) 260ms both; }
+    .completion-dialog.is-celebrating .completion-achievement::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--color-warning) 18%, transparent) 50%, transparent 70%); pointer-events: none; animation: cq-gamified-sweep 760ms ease-out 420ms both; }
+
+    .btn-primary:not(:disabled) { transition: transform 140ms var(--cq-ease-out), box-shadow 140ms var(--cq-ease-out); }
+    .atlas-recommendation { transition: transform 160ms var(--cq-ease-out), border-color 160ms var(--cq-ease-out); }
+    @media (hover: hover) and (pointer: fine) {
+        .btn-primary:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 3px 0 var(--cq-shadow); }
+        .atlas-recommendation:hover { transform: translateY(-1px); }
+    }
+    .btn-primary:not(:disabled):active { transform: translateY(0); box-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cq-xp-float { display: none; }
+    .atlas-xp.is-xp-gain, .atlas-xp.is-xp-loss,
+    .atlas-notification-count,
+    .atlas-stage li[data-state="done"] .atlas-stage-mark,
+    .atlas-stage li[data-state="current"] .atlas-stage-mark,
+    .atlas-path-marker.is-complete,
+    .atlas-path-rail-item--now,
+    .atlas-path-entry-mission[data-state="current"] .atlas-path-entry,
+    .atlas-record-entry[data-achievement-state="unlocked"],
+    .atlas-record-entry[data-achievement-state="unlocked"] .atlas-stamp,
+    .atlas-evidence-specimen .atlas-stamp,
+    .completion-overlay,
+    .completion-dialog.is-celebrating,
+    .completion-dialog.is-celebrating .atlas-stamp,
+    .completion-dialog.is-celebrating .completion-achievement,
+    .completion-dialog.is-celebrating [data-completion-awarded] {
+        animation: none;
+        transition: none;
+    }
+    .completion-dialog.is-celebrating::after,
+    .completion-dialog.is-celebrating .completion-achievement::after { display: none; }
 }

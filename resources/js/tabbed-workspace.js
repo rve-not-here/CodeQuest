@@ -9,7 +9,9 @@ export function initializeTabbedWorkspace(root, workspace) {
     const narrow = window.matchMedia('(max-width: 1100px)');
     let selected = 'editor';
     let briefHidden = false;
-    let width = 380;
+    // The instructions pane opens at its maximum readable width; the
+    // separator and reset still let the student pull it narrower.
+    let width = 480;
 
     function maximumWidth() {
         return Math.max(240, Math.min(480, workspace.getBoundingClientRect().width - 408));
@@ -70,7 +72,7 @@ export function initializeTabbedWorkspace(root, workspace) {
         });
     }
     reset?.addEventListener('click', () => {
-        width = 380;
+        width = 480;
         briefHidden = false;
         selected = 'editor';
         render();

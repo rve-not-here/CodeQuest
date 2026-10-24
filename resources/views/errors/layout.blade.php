@@ -7,9 +7,10 @@
     <script>
         // Match the application theme before first paint; this page never loads built assets.
         (function () {
-            var mode = 'light';
+            // Dark is the default; a stored light choice is honoured.
+            var mode = 'dark';
             try {
-                mode = localStorage.getItem('cq-theme') === 'dark' ? 'dark' : 'light';
+                mode = localStorage.getItem('cq-theme') === 'light' ? 'light' : 'dark';
             } catch (e) {}
             var dark = mode === 'dark';
             document.documentElement.classList.toggle('dark', dark);
@@ -21,15 +22,15 @@
         /* Standalone Engineer's Log fallback: no application assets, so an error still renders. */
         :root {
             color-scheme: light;
-            --ground: #F4F2E9; --sheet: #FFFDF8; --ink: #1C2229; --muted: #525A61;
-            --line-strong: #717A7B; --accent: #B23A2E; --accent-ink: #FFFFFF;
-            --grid-minor: rgba(31, 36, 44, 0.05); --grid-major: rgba(31, 36, 44, 0.09);
+            --ground: #F3F1E8; --sheet: #FCFBF6; --ink: #141A1C; --muted: #4A5457;
+            --line-strong: #6E7879; --accent: #1D6B33; --accent-ink: #FFFFFF;
+            --grid-minor: rgba(20, 26, 28, 0.028); --grid-major: rgba(20, 26, 28, 0.05);
         }
         .dark {
             color-scheme: dark;
-            --ground: #0F1318; --sheet: #181C22; --ink: #E8ECE4; --muted: #B0B6AA;
-            --line-strong: #66717B; --accent: #E37B6E; --accent-ink: #101318;
-            --grid-minor: rgba(230, 233, 222, 0.045); --grid-major: rgba(230, 233, 222, 0.075);
+            --ground: #0A0E0D; --sheet: #101614; --ink: #E8F0E9; --muted: #A6B3AA;
+            --line-strong: #45564C; --accent: #33FF00; --accent-ink: #04140A;
+            --grid-minor: rgba(232, 240, 233, 0.026); --grid-major: rgba(232, 240, 233, 0.048);
         }
         * { box-sizing: border-box; }
         body {
@@ -58,7 +59,7 @@
         h1 { margin: 0; font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-size: clamp(32px, 4vw, 44px); line-height: 1.05; font-weight: 600; letter-spacing: -.01em; }
         .message { margin: 16px 0 0; max-width: 60ch; color: var(--muted); overflow-wrap: anywhere; }
         .recovery { margin-top: 32px; }
-        .action { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; max-width: 100%; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 2px; background: var(--ink); color: var(--ground); font-size: 14px; font-weight: 600; text-decoration: none; box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 25%, transparent); transition: transform 150ms ease, box-shadow 150ms ease; }
+        .action { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; max-width: 100%; padding: 10px 18px; border: 1px solid var(--accent); border-radius: 2px; background: var(--accent); color: var(--accent-ink); font-size: 14px; font-weight: 600; text-decoration: none; box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 25%, transparent); transition: transform 150ms ease, box-shadow 150ms ease; }
         .action:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 25%, transparent); }
         a:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
         .skip { position: fixed; z-index: 1; top: 8px; left: 16px; padding: 12px 16px; transform: translateY(-160%); background: var(--accent); color: var(--accent-ink); }
