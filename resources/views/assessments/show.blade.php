@@ -40,7 +40,7 @@
         </header>
 
         @if ($hasAlerts)
-        <div class="atlas-boss-alerts">
+        <div class="atlas-boss-alerts cq-motion-result">
             @if ($hasPassed)
                 <div class="panel border-accent-line bg-accent-soft px-4 py-3 text-sm" role="status">
                     <strong class="text-accent">Course cleared.</strong>
@@ -135,7 +135,7 @@
                             <span class="atlas-boss-code-state">{{ $canEdit ? 'Attempt in progress' : 'Review your code' }}</span>
                         </div>
                         @if (in_array($attempt?->status, ['passed', 'failed'], true))
-                            <div class="atlas-boss-verdict" role="status" data-boss-verdict="{{ $attempt->status }}">
+                            <div class="atlas-boss-verdict{{ session('assessment_success') || session('assessment_error') || session('assessment_info') ? ' cq-motion-result' : '' }}" role="status" data-boss-verdict="{{ $attempt->status }}">
                                 <span class="atlas-stamp {{ $attempt->status === 'passed' ? 'atlas-stamp--grn' : 'atlas-stamp--amb' }}"><x-icon :name="$attempt->status === 'passed' ? 'check' : 'x'" size="12" />{{ $attempt->status === 'passed' ? 'Passed' : 'Failed' }}</span>
                                 <p>Scored {{ $attempt->score }}% — need {{ $assessment->passing_score }}% to clear. Submitting is closed; open a retry for a fresh attempt.</p>
                                 @if ($attempt->testsTotal !== null)

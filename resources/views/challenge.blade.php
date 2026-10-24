@@ -284,7 +284,7 @@
                     </div>
                     <div>
                         <dt>XP earned</dt>
-                        <dd class="text-success" data-completion-awarded>+{{ $completion['xp_awarded'] }}</dd>
+                        <dd class="text-success cq-xp-delta" data-completion-awarded>+{{ $completion['xp_awarded'] }}</dd>
                     </div>
                     <div>
                         <dt>Total XP</dt>
@@ -456,6 +456,7 @@
                             draftDirty = false;
                             setDraftState('none', 'No saved draft');
                         }
+                        window.dispatchEvent(new CustomEvent('cq:reveal-solution'));
                     }
 
                     assistanceDialog.innerHTML = nextDialog.innerHTML;
@@ -638,6 +639,7 @@
 
                     if (failureLine) {
                         showNotice(document.importNode(failureLine, true));
+                        window.dispatchEvent(new CustomEvent('cq:submit-failed'));
                     } else {
                         record('Submit', 'The submission did not complete. Please try again.', 'bad');
                     }

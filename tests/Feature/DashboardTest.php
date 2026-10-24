@@ -90,6 +90,8 @@ class DashboardTest extends TestCase
             ->assertSee('atlas-dashboard-entry-number', false)
             ->assertSee('atlas-dashboard-order-position', false)
             ->assertSee('atlas-dashboard-position-number', false)
+            ->assertSee('data-countup="1"', false)
+            ->assertSee('data-countup-format="pad2"', false)
             ->assertSee('<span class="atlas-dashboard-position-total">/ 02</span>', false)
             ->assertDontSee('<dt>Position</dt>', false)
             ->assertSee('Challenge 1 of 2')

@@ -1,27 +1,33 @@
-const numberFormat = new Intl.NumberFormat('en-US');
+import {
+    MOTION_REWARD,
+    countUp,
+    onMotionPreferenceChange,
+    prefersReducedMotion,
+    pulse,
+} from './motion.js';
 
-function prefersReducedMotion() {
-    return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
-}
+const numberFormat = new Intl.NumberFormat('en-US');
 
 /**
  * System-wide gamification motion.
  *
- * XP is server-rendered; this layer only animates a change that already
- * happened (page navigation or an inline challenge action). Completion XP
- * uses the values embedded by the server. Every effect is optional and
- * skipped under prefers-reduced-motion.
+ * The server renders the final XP, scores and completion values. This module
+ * only replays a change carried by the response (or an inline event carrying
+ * the server's new balance); it never computes XP, deltas, progress or unlocks.
+ * Nothing replays on a normal page load.
  */
 export function initializeGamification(root = document) {
-    initializeHeaderXp(root);
-    initializeCompletionCelebration(root);
+    const header = initializeHeaderXp(root);
+    initializeCompletionCelebration(root, header);
+    initializeDashboardCounts(root);
+    initializeEditorReveal();
+    initializeMotionPreferenceCleanup();
 }
 
 function initializeHeaderXp(root) {
     const header = root.querySelector('.atlas-xp[data-xp-value]');
-    if (!header) return;
+    if (!header) return null;
 
-    const storageKey = `cq:xp:last:${header.dataset.xpUser || 'anonymous'}`;
     const amount = () => {
         let target = header.querySelector('[data-xp-amount]');
         if (target) return target;
@@ -35,14 +41,6 @@ function initializeHeaderXp(root) {
         return target;
     };
 
-    let token = 0;
-
-    const store = (value) => {
-        try {
-            globalThis.sessionStorage?.setItem(storageKey, String(value));
-        } catch { /* Storage is optional. */ }
-    };
-
     const render = (value) => {
         const rounded = Math.max(0, Math.round(value));
         amount().textContent = numberFormat.format(rounded);
@@ -50,112 +48,87 @@ function initializeHeaderXp(root) {
         header.setAttribute('aria-label', `XP balance ${numberFormat.format(rounded)}. Open XP ledger`);
     };
 
-    const float = (delta) => {
-        if (!delta) return;
-        const bubble = document.createElement('span');
-        bubble.className = 'cq-xp-float' + (delta < 0 ? ' cq-xp-float--loss' : '');
-        bubble.textContent = `${delta > 0 ? '+' : ''}${numberFormat.format(delta)} XP`;
-        bubble.setAttribute('aria-hidden', 'true');
-        header.append(bubble);
-        globalThis.setTimeout(() => bubble.remove(), 1500);
-    };
-
-    const animateTo = (from, to) => {
-        const currentToken = ++token;
-        const delta = to - from;
-        if (!delta) {
-            render(to);
-            store(to);
-            return;
-        }
-
-        if (prefersReducedMotion()) {
-            render(to);
-            store(to);
-            return;
-        }
-
-        render(from);
-        header.classList.remove('is-xp-gain', 'is-xp-loss');
-        header.classList.add(delta > 0 ? 'is-xp-gain' : 'is-xp-loss');
-        float(delta);
-        store(to);
-
-        const started = performance.now();
-        const duration = 720;
-        const step = (now) => {
-            if (currentToken !== token) return;
-            const progress = Math.min(1, (now - started) / duration);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            render(from + (to - from) * eased);
-            if (progress < 1) {
-                globalThis.requestAnimationFrame(step);
-                return;
-            }
-            render(to);
-            globalThis.setTimeout(() => header.classList.remove('is-xp-gain', 'is-xp-loss'), 450);
-        };
-        globalThis.requestAnimationFrame(step);
-    };
-
     const target = Number(header.dataset.xpValue);
-    if (!Number.isFinite(target)) return;
-
-    let previous = null;
-    try {
-        const raw = globalThis.sessionStorage?.getItem(storageKey);
-        if (raw !== null && raw !== undefined) previous = Number(raw);
-    } catch { /* Storage is optional. */ }
-
-    if (previous !== null && Number.isFinite(previous) && previous !== target) {
-        render(previous);
-        globalThis.requestAnimationFrame(() => animateTo(previous, target));
-    } else {
-        render(target);
-        store(target);
-    }
+    if (!Number.isFinite(target)) return null;
+    render(target);
 
     window.addEventListener('cq:xp-updated', (event) => {
         const next = Number(event.detail?.xp);
         const current = Number(header.dataset.xpValue);
         if (!Number.isFinite(next)) return;
-        if (!Number.isFinite(current)) {
+
+        if (!Number.isFinite(current) || next === current) {
             render(next);
-            store(next);
             return;
         }
-        if (next === current) {
-            render(current);
-            store(current);
-            return;
-        }
-        animateTo(current, next);
+
+        const from = current;
+        header.dataset.xpValue = String(next);
+        header.dataset.cqSyncedXp = String(next);
+        header.setAttribute('aria-label', `XP balance ${numberFormat.format(next)}. Open XP ledger`);
+        countUp(amount(), {
+            from,
+            to: next,
+            duration: MOTION_REWARD,
+            format: (value) => numberFormat.format(Math.round(value)),
+            finalLabel: `XP balance ${numberFormat.format(next)}`,
+            onDone: () => render(next),
+        });
+        pulse(header, { className: 'is-xp-updated', duration: MOTION_REWARD });
     });
+
+    return header;
 }
 
-function initializeCompletionCelebration(root) {
+function initializeCompletionCelebration(root, header) {
     const mount = (overlay) => {
         if (!(overlay instanceof Element) || overlay.dataset.cqCelebrated === 'true') return;
         overlay.dataset.cqCelebrated = 'true';
 
         const dialog = overlay.querySelector('[data-completion-dialog]');
         dialog?.classList.add('is-celebrating');
-        if (!dialog || prefersReducedMotion()) return;
-
         const awarded = Number(overlay.dataset.xpAwarded);
         const total = Number(overlay.dataset.xpTotal);
+
+        if (header && Number.isFinite(total) && Number.isFinite(awarded) && header.dataset.cqSyncedXp !== String(total)) {
+            const amount = header.querySelector('[data-xp-amount]');
+            const from = Math.max(0, total - awarded);
+            header.dataset.xpValue = String(total);
+            header.dataset.cqSyncedXp = String(total);
+            header.setAttribute('aria-label', `XP balance ${numberFormat.format(total)}. Open XP ledger`);
+            countUp(amount, {
+                from,
+                to: total,
+                duration: MOTION_REWARD,
+                format: (value) => numberFormat.format(Math.round(value)),
+                finalLabel: `XP balance ${numberFormat.format(total)}`,
+            });
+        }
+
+        if (header) pulse(header, { className: 'is-xp-updated', duration: MOTION_REWARD });
+        if (!dialog || prefersReducedMotion()) return;
+
         const awardedEl = overlay.querySelector('[data-completion-awarded]');
         const totalEl = overlay.querySelector('[data-completion-total]');
 
         if (awardedEl && Number.isFinite(awarded)) {
-            countTo(0, awarded, 760, (value) => {
-                awardedEl.textContent = `+${numberFormat.format(Math.round(value))}`;
+            countUp(awardedEl, {
+                from: 0,
+                to: awarded,
+                duration: MOTION_REWARD,
+                format: (value) => `+${numberFormat.format(Math.round(value))}`,
+                finalLabel: `${numberFormat.format(awarded)} XP earned`,
             });
         }
 
         if (totalEl && Number.isFinite(total)) {
-            countTo(Math.max(0, total - (Number.isFinite(awarded) ? awarded : 0)), total, 760, (value) => {
-                totalEl.textContent = numberFormat.format(Math.round(value));
+            const start = Math.max(0, total - (Number.isFinite(awarded) ? awarded : 0));
+            countUp(totalEl, {
+                from: start,
+                to: total,
+                duration: MOTION_REWARD,
+                format: (value) => numberFormat.format(Math.round(value)),
+                finalLabel: `Total ${numberFormat.format(total)} XP`,
             });
         }
     };
@@ -175,13 +148,44 @@ function initializeCompletionCelebration(root) {
     observer.observe(root.body, { childList: true, subtree: true });
 }
 
-function countTo(from, to, duration, render) {
-    const started = performance.now();
-    const step = (now) => {
-        const progress = Math.min(1, (now - started) / duration);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        render(from + (to - from) * eased);
-        if (progress < 1) globalThis.requestAnimationFrame(step);
-    };
-    globalThis.requestAnimationFrame(step);
+function initializeDashboardCounts(root) {
+    root.querySelectorAll('[data-countup]').forEach((element) => {
+        const target = Number(element.dataset.countup);
+        if (!Number.isFinite(target)) return;
+
+        const padded = element.dataset.countupFormat === 'pad2';
+        const format = (value) => {
+            const rounded = Math.max(0, Math.round(value));
+            return padded ? String(rounded).padStart(2, '0') : numberFormat.format(rounded);
+        };
+
+        countUp(element, {
+            from: 0,
+            to: target,
+            duration: MOTION_REWARD,
+            format,
+            finalLabel: element.dataset.countupLabel || format(target),
+        });
+    });
+}
+
+function initializeEditorReveal() {
+    window.addEventListener('cq:reveal-solution', () => {
+        const editor = document.querySelector('#editor-host');
+        pulse(editor, { className: 'cq-editor-reveal', duration: 240 });
+    });
+
+    window.addEventListener('cq:submit-failed', () => {
+        const result = document.querySelector('[data-challenge-notice]');
+        pulse(result, { className: 'cq-motion-feedback', duration: 240 });
+    });
+}
+
+function initializeMotionPreferenceCleanup() {
+    onMotionPreferenceChange((reduced) => {
+        if (!reduced) return;
+        document.querySelectorAll('.is-xp-updated, .cq-editor-reveal, .is-celebrating, .cq-motion-feedback').forEach((element) => {
+            element.classList.remove('is-xp-updated', 'cq-editor-reveal', 'is-celebrating', 'cq-motion-feedback');
+        });
+    });
 }

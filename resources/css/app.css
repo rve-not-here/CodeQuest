@@ -2914,6 +2914,11 @@ body.admin-ui .atlas-records > h1.sr-only {
 :root {
     --cq-ease-out: cubic-bezier(.23, 1, .32, 1);
     --cq-ease-in-out: cubic-bezier(.77, 0, .175, 1);
+    --cq-motion-micro: 160ms;
+    --cq-motion-ui: 240ms;
+    --cq-motion-reward: 600ms;
+    --cq-motion-ease-out: var(--cq-ease-out);
+    --cq-motion-ease-in-out: var(--cq-ease-in-out);
 }
 
 .atlas-ui .btn {
@@ -4050,26 +4055,22 @@ body.admin-ui .atlas-records > h1.sr-only {
     .atlas-xp.is-xp-loss { color: var(--color-warning); }
     .cq-xp-float { animation: cq-xp-float 1.35s var(--cq-ease-out) both; }
 
-    .atlas-notification-count { transform-origin: center; animation: cq-badge-pop 520ms cubic-bezier(.2, 1.35, .4, 1) 250ms both; }
-    .atlas-stage li[data-state="done"] .atlas-stage-mark { animation: cq-mark-pop 360ms var(--cq-ease-out) both; }
-    .atlas-stage li[data-state="current"] .atlas-stage-mark { animation: cq-current-pulse 2.4s ease-in-out 3; }
-    .atlas-path-marker.is-complete { animation: cq-mark-pop 360ms var(--cq-ease-out) both; }
+    .atlas-stage li[data-state="current"] .atlas-stage-mark { animation: cq-current-pulse 2.4s ease-in-out 2; }
     .atlas-path-rail-item--now { animation: cq-current-rail 1.1s var(--cq-ease-out) both; }
     .atlas-path-entry-mission[data-state="current"] .atlas-path-entry { animation: cq-current-card 1.2s var(--cq-ease-out) both; }
 
     .atlas-record-entry[data-achievement-state="unlocked"] { position: relative; transition: transform 160ms var(--cq-ease-out), background-color 160ms var(--cq-ease-out); }
     .atlas-record-entry[data-achievement-state="unlocked"]::before { content: ""; position: absolute; inset-block: 18px; left: 0; width: 2px; background: color-mix(in srgb, var(--color-success) 65%, transparent); }
     .atlas-record-entry[data-achievement-state="unlocked"]:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--color-success) 3%, transparent); }
-    .atlas-record-entry[data-achievement-state="unlocked"] .atlas-stamp { animation: cq-stamp-pop 420ms cubic-bezier(.2, 1.3, .4, 1) 180ms both; }
-    .atlas-evidence-specimen .atlas-stamp { animation: cq-stamp-pop 400ms cubic-bezier(.2, 1.3, .4, 1) 160ms both; }
+
 
     .completion-overlay { animation: cq-overlay-in 220ms ease-out both; }
     .completion-dialog.is-celebrating { position: relative; overflow: hidden; animation: cq-completion-in 340ms var(--cq-ease-out) both; }
-    .completion-dialog.is-celebrating::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(105deg, transparent 34%, color-mix(in srgb, var(--color-accent) 10%, transparent) 50%, transparent 66%); pointer-events: none; animation: cq-gamified-sweep 820ms ease-out 120ms both; }
+    .completion-dialog.is-celebrating::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(105deg, transparent 34%, color-mix(in srgb, var(--color-accent) 10%, transparent) 50%, transparent 66%); pointer-events: none; animation: cq-gamified-sweep 600ms ease-out 120ms both; }
     .completion-dialog.is-celebrating .atlas-stamp { animation: cq-stamp-pop 500ms cubic-bezier(.2, 1.3, .4, 1) 120ms both; }
     .completion-dialog.is-celebrating [data-completion-awarded] { animation: cq-xp-line-flash 900ms ease-out 120ms both; }
     .completion-dialog.is-celebrating .completion-achievement { position: relative; overflow: hidden; animation: cq-achievement-in 440ms var(--cq-ease-out) 260ms both; }
-    .completion-dialog.is-celebrating .completion-achievement::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--color-warning) 18%, transparent) 50%, transparent 70%); pointer-events: none; animation: cq-gamified-sweep 760ms ease-out 420ms both; }
+    .completion-dialog.is-celebrating .completion-achievement::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--color-warning) 18%, transparent) 50%, transparent 70%); pointer-events: none; animation: cq-gamified-sweep 600ms ease-out 360ms both; }
 
     .btn-primary:not(:disabled) { transition: transform 140ms var(--cq-ease-out), box-shadow 140ms var(--cq-ease-out); }
     .atlas-recommendation { transition: transform 160ms var(--cq-ease-out), border-color 160ms var(--cq-ease-out); }
@@ -4102,4 +4103,68 @@ body.admin-ui .atlas-records > h1.sr-only {
     }
     .completion-dialog.is-celebrating::after,
     .completion-dialog.is-celebrating .completion-achievement::after { display: none; }
+}
+
+/* Phase 2 event-only feedback. These classes are added only while handling a
+   server-confirmed response or a first-paint dashboard value. */
+.cq-reveal { opacity: 0; transform: translateY(6px); }
+.cq-reveal.is-revealed { animation: cq-motion-reveal var(--cq-motion-ui) var(--cq-motion-ease-out) both; }
+
+@keyframes cq-motion-reveal {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes cq-xp-badge-pulse {
+    0%, 100% { transform: scale(1); }
+    35% { transform: scale(1.06); }
+}
+@keyframes cq-editor-reveal {
+    from { opacity: .72; }
+    to { opacity: 1; }
+}
+@keyframes cq-result-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-xp.is-xp-updated { animation: cq-xp-badge-pulse var(--cq-motion-reward) var(--cq-motion-ease-out) both; }
+    .cq-editor-reveal { animation: cq-editor-reveal var(--cq-motion-ui) var(--cq-motion-ease-out) both; }
+    .atlas-boss-verdict.cq-motion-result,
+    .atlas-boss-state.cq-motion-result,
+    .atlas-boss-alerts.cq-motion-result { animation: cq-result-in var(--cq-motion-ui) var(--cq-motion-ease-out) both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .atlas-xp.is-xp-updated,
+    .cq-editor-reveal,
+    .atlas-boss-verdict.cq-motion-result,
+    .atlas-boss-state.cq-motion-result,
+    .atlas-boss-alerts.cq-motion-result,
+    .cq-reveal.is-revealed {
+        animation: none !important;
+        transition: none !important;
+    }
+    .cq-reveal { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .cq-motion-feedback { animation: cq-result-in var(--cq-motion-ui) var(--cq-motion-ease-out) both; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cq-motion-feedback { animation: none !important; }
+}
+
+/* The server-rendered XP earned value doubles as the completion delta chip. */
+.completion-results .cq-xp-delta { display: inline-flex; align-items: center; justify-content: flex-end; padding: 2px 7px; border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent); border-radius: 2px; background: color-mix(in srgb, var(--color-warning) 10%, transparent); color: var(--color-warning); font-family: var(--font-mono); font-size: 12px; line-height: 1.5; }
+
+@keyframes cq-motion-pulse {
+    from { transform: scale(.985); opacity: .85; }
+    to { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .cq-motion-pulse { animation: cq-motion-pulse var(--cq-motion-ui) var(--cq-motion-ease-out) both; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cq-motion-pulse { animation: none !important; }
 }

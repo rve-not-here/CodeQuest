@@ -88,7 +88,7 @@
 
                 @if ($mission !== null && $courseProgress !== null && $courseProgress['total'] > 0)
                     <div class="atlas-dashboard-order-position" aria-hidden="true">
-                        <span class="atlas-dashboard-position-number">{{ str_pad((string) $mission->order_num, 2, '0', STR_PAD_LEFT) }}</span>
+                        <span class="atlas-dashboard-position-number" data-countup="{{ $mission->order_num }}" data-countup-format="pad2">{{ str_pad((string) $mission->order_num, 2, '0', STR_PAD_LEFT) }}</span>
                         <span class="atlas-dashboard-position-total">/ {{ str_pad((string) $courseProgress['total'], 2, '0', STR_PAD_LEFT) }}</span>
                     </div>
                     <div class="atlas-dashboard-progress" aria-hidden="true">
